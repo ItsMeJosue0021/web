@@ -1,10 +1,10 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import UnuathenticatedRoute from './routes/UnauthenticatedRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
-import Unauthorized from './pages/Unauthorized';
-import Login from './pages/Login';
+import Unauthorized from './pages/auth/Unauthorized';
+import Login from './pages/auth/Login';
 import Roles from './pages/Roles';
 import Home from './pages/Home';
-import UnuathenticatedRoute from './routes/UnauthenticatedRoute';
 
 const App = () => (
     <Router>

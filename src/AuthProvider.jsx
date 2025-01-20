@@ -17,7 +17,6 @@ const AuthProvider = ({ children }) => {
 
     }, []);
 
-
     const login = async (credentials, navigate) => {
         try {
             const res = await _post('/login', credentials);

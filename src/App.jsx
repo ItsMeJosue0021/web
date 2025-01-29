@@ -5,6 +5,9 @@ import Unauthorized from './pages/auth/Unauthorized';
 import Login from './pages/auth/Login';
 import Roles from './pages/Roles';
 import Home from './pages/Home';
+import AboutUs from './pages/AboutUs';
+import Volunteers from './pages/Volunteers';
+import Faqs from './pages/Faqs';
 
 const App = () => (
     <Router>
@@ -28,6 +31,24 @@ const App = () => (
                 path="/"
                 element={
                     <Home />
+                }
+            />
+            <Route
+                path="/about-us"
+                element={
+                    <AboutUs />
+                }
+            />
+            <Route
+                path="volunteers"
+                element={
+                    <Volunteers />
+                }
+            />
+            <Route
+                path="/faqs"
+                element={
+                    <Faqs />
                 }
             />
             <Route path="/unauthorized" element={<Unauthorized />} />

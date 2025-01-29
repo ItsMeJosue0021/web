@@ -184,6 +184,12 @@ button:focus-visible {
   font-style: normal;
 }
 
+.slick-slider, .slick-list, .slick-track {
+  display: flex !important;
+  height: auto !important;
+}
+
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

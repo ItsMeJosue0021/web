@@ -1,21 +1,37 @@
 import React from "react";
 import logo from '../../assets/img/logo.png';
 import { Link, useLocation  } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 const Header = () => {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
     const isLoginPage = location.pathname === "/login";
+
+    useEffect(() => {
+        const handleScroll = () => {
+            if (window.scrollY > 50) {
+                setIsScrolled(true);
+            } else {
+                setIsScrolled(false);
+            }
+        };
+
+        window.addEventListener("scroll", handleScroll);
+        return () => {
+            window.removeEventListener("scroll", handleScroll);
+        };
+    }, []);
 
     const toggleModal = () => {
         setIsModalOpen(!isModalOpen);
     };
 
   return (
-    <header className='bg-gray-50 z-20 fixed w-full'>
-        <div className="w-full max-w-[1500px] mx-auto flex items-center justify-between px-4 py-4">
+    <header className={`z-20 fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
+        <div className="w-full max-w-[1500px] mx-auto flex items-center justify-between px-4">
             <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
                 <img src={logo} alt="logo" className='w-16 md:w-20 h-16 md:h-20 rounded-full'/>
                 <div className='flex flex-col text-sm font-bold'>
@@ -50,8 +66,8 @@ const Header = () => {
             </div>
             
             <div className='relative flex lg:hidden'>
-                <button onClick={toggleModal}>
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-7 stroke-black" fill="none" viewBox="0 0 24 24" >
+                <button onClick={toggleModal} className="bg-transparent">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-7 stroke-black bg-transparent" fill="none" viewBox="0 0 24 24" >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
                 </button>

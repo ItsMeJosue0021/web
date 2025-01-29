@@ -1,11 +1,11 @@
 import { Link } from "react-router-dom";
 import Logout from "../components/Logout";
+import Header from "../components/headers/Header";
 
 const Home = () => {
     return (
-        <div className="w-screen h-auto min-h-screen flex items-center justify-center">
-            Home
-            <Logout />
+        <div className="bg-gray-50 w-screen h-auto min-h-screen ">
+           <Header />
         </div>
     );
 }

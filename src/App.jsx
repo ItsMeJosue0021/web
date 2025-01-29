@@ -27,9 +27,7 @@ const App = () => (
             <Route
                 path="/"
                 element={
-                    <ProtectedRoute role="user">
-                        <Home />
-                    </ProtectedRoute>
+                    <Home />
                 }
             />
             <Route path="/unauthorized" element={<Unauthorized />} />

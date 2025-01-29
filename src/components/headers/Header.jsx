@@ -15,7 +15,7 @@ const Header = () => {
 
   return (
     <header className='bg-gray-50 z-20 fixed w-full'>
-        <div className="w-full max-w-screen-2xl mx-auto flex items-center justify-between px-4 py-4">
+        <div className="w-full max-w-[1500px] mx-auto flex items-center justify-between px-4 py-4">
             <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
                 <img src={logo} alt="logo" className='w-16 md:w-20 h-16 md:h-20 rounded-full'/>
                 <div className='flex flex-col text-sm font-bold'>

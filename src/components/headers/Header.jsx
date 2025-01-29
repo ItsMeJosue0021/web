@@ -42,7 +42,7 @@ const Header = () => {
 
                 {!isLoginPage && (
                     <div>
-                        <Link to="login">
+                        <Link to="/login">
                             <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
                         </Link>
                     </div>

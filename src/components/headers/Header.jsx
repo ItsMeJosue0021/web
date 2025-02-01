@@ -74,7 +74,7 @@ const Header = () => {
 
                 {isModalOpen && (
                     <div className='absolute right-0 top-16 w-80 bg-white px-2 py-5 rounded-lg shadow-md'>
-                        <ul className='w-full flex flex-col poppins-bold text-black cursor-pointer'>
+                        <ul className='w-full flex flex-col poppins-bold text-black cursor-pointer text-lg'>
                             <Link to="/" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
                                 <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Home</a>
                             </Link>

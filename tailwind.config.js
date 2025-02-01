@@ -8,7 +8,11 @@ export default {
         flowbite.content(),
     ],
     theme: {
-        extend: {},
+        extend: {
+            backgroundImage: {
+                'events-bg': "url('./assets/img/activity1.png')", 
+            },
+        },
     },
     plugins: [
         flowbite.content(),

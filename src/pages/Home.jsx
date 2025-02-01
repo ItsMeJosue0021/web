@@ -175,12 +175,12 @@ const Home = () => {
                     </div>
                     <div className="flex flex-col md:flex-row items-center justify-end p-4 gap-5">
                         <div className="md:hidden bg-white w-full md:w-64 h-80 rounded-lg p-5 shadow-md">
-                                <div className="flex flex-col items-center justify-center gap-6 h-full">
-                                    <p className="text-3xl font-bold">September</p>
-                                    <p className="text-9xl font-bold">15</p>
-                                </div>
+                            <div className="flex flex-col items-center justify-center gap-6 h-full">
+                                <p className="text-3xl font-bold">September</p>
+                                <p className="text-9xl font-bold">15</p>
                             </div>
-                        <div className="relative w-full md:w-3/5 h-[600px] bg-white/80 rounded-xl shadow-lg ">
+                        </div>
+                        <div className="relative w-full md:w-3/5 h-auto md:h-[600px] bg-white/80 rounded-xl shadow-lg ">
                             <div className="flex flex-col items-left justify-center h-full gap-5 p-5 md:p-12 md:ml-16 text-lg poppins-regular">
                                 <div className="flex flex-col gap-">
                                     <h2 className="text-3xl">FEATURE ACTIVITY</h2>

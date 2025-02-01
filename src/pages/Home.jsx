@@ -181,7 +181,7 @@ const Home = () => {
                                 </div>
                             </div>
                         <div className="relative w-full md:w-3/5 h-[600px] bg-white/80 rounded-xl shadow-lg ">
-                            <div className="flex flex-col items-left justify-center h-full gap-5 p-12 md:ml-16 text-lg poppins-regular">
+                            <div className="flex flex-col items-left justify-center h-full gap-5 p-5 md:p-12 md:ml-16 text-lg poppins-regular">
                                 <div className="flex flex-col gap-">
                                     <h2 className="text-3xl">FEATURE ACTIVITY</h2>
                                     <h1 className="uppercase">Teresa Part Homes</h1>

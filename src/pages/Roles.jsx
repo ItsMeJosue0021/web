@@ -33,8 +33,8 @@ const Roles = () => {
 
     return (
         <Admin>
-            <div className="w-screen h-auto min-h-screen flex items-center justify-center">
-                <div className="w-fit flex flex-col gap-4 rounded-md border border-gray-300 p-4">
+            <div className="w-[100%] h-auto min-h-screen flex items-center justify-center">
+                {/* <div className="w-fit flex flex-col gap-4 rounded-md border border-gray-300 p-4">
                     <div className="flex flex-col">
                         <p>Name</p>
                         <input onChange={(e) => setName(e.target.value)} value={name} placeholder="Name" type="text" className="w-96 px-4 py-2 rounded-md text-sm border border-gray-300" />
@@ -62,7 +62,8 @@ const Roles = () => {
                             ))}
                         </tbody>
                     </table>
-                </div>
+                </div> */}
+                <h1>Roles</h1>
             </div>
         </Admin>
     

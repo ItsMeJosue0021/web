@@ -11,6 +11,7 @@ import Faqs from './pages/Faqs';
 import "aos/dist/aos.css";
 import AOS from "aos";
 import { useEffect } from "react";
+import Chat from './pages/Chat';
 
 const App = () => {
     useEffect(() => {
@@ -43,6 +44,12 @@ const App = () => {
                     path="/"
                     element={
                         <Home />
+                    }
+                />
+                <Route
+                    path="/chat"
+                    element={
+                        <Chat />
                     }
                 />
                 <Route

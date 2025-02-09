@@ -1,6 +1,8 @@
 import React from 'react';
 import { AuthContext } from '../AuthProvider';
 import { useContext } from 'react';
+import logoutIcon from '../assets/icons/logout.png';
+
 
 const Logout = () => {
 
@@ -12,9 +14,15 @@ const Logout = () => {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <button type="submit" className="w-full text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-red-600 dark:hover:bg-red-700 dark:focus:ring-red-800">Logout</button>
+        <form onSubmit={handleSubmit} className='w-full'>
+            <button type="submit" className="w-full rounded-md hover:bg-gray-100 bg-gray-50 border border-gray-200 flex items-center space-x-2 cursor-pointer h-14 px-2">
+                <div className="flex justify-center w-10">
+                    <img src={logoutIcon} alt="icon" className="w-7 h-7 opacity-80" />
+                </div>
+                <p className="text-base font-semibold">Logout</p>
+            </button>
         </form>
+        
     );
 }
 

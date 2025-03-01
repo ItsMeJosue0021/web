@@ -4,8 +4,8 @@ import axios from "axios";
 
 const Chat = () => {
 
-    const [input, setInput] = useState(""); // User input
-    const [messages, setMessages] = useState([]); // Chat history
+    const [input, setInput] = useState(""); 
+    const [messages, setMessages] = useState([]); 
 
     // const sendMessage = async () => {
     //     if (!input.trim()) return; // Prevent empty messages
@@ -39,21 +39,43 @@ const Chat = () => {
 
 
 
+    // const sendMessage = async () => {
+    //     if (!input.trim()) return;
+
+    //     const newMessages = [...messages, { text: input, sender: "user" }];
+    //     setMessages(newMessages);
+
+    //     try {
+    //         const response = await axios.post("http://127.0.0.1:8000/api/chat", { message: input });
+    //         setMessages([...newMessages, { text: response.data?.candidates?.[0]?.content?.parts?.[0]?.text, sender: "bot" }]);
+    //         console.log(response.data);
+    //     } catch (error) {
+    //         setMessages([...newMessages, { text: "Error: Unable to fetch response", sender: "bot" }]);
+    //         console.log(error);
+    //     }
+
+    //     setInput("");
+    // };
+
     const sendMessage = async () => {
         if (!input.trim()) return;
-
+    
         const newMessages = [...messages, { text: input, sender: "user" }];
         setMessages(newMessages);
-
+    
         try {
             const response = await axios.post("http://127.0.0.1:8000/api/chat", { message: input });
-            setMessages([...newMessages, { text: response.data?.candidates?.[0]?.content?.parts?.[0]?.text, sender: "bot" }]);
+    
+            // Updated to match the Laravel response format
+            const botMessage = response.data.message || "I'm sorry, I don't have an answer right now.";
+    
+            setMessages([...newMessages, { text: botMessage, sender: "bot" }]);
             console.log(response.data);
         } catch (error) {
             setMessages([...newMessages, { text: "Error: Unable to fetch response", sender: "bot" }]);
             console.log(error);
         }
-
+    
         setInput("");
     };
 

@@ -5,6 +5,7 @@ import activity1 from "../assets/img/activity1.png";
 import activity2 from "../assets/img/activity2.png";
 import { useState, useEffect } from "react";
 import logo from '../assets/img/logo.png';
+import ChatButton from "../components/chatbot/ChatButton";
 
 const images = [
     { src: banner, text: "Think of giving not as a duty, but as a privilege." },
@@ -254,6 +255,7 @@ const Home = () => {
                    </div>
                 </div>
             </footer>
+            <ChatButton />
         </div>
     );
 }

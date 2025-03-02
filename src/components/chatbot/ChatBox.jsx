@@ -65,11 +65,9 @@ const ChatBox = ({toggleChatbot}) => {
     };
 
     const sampleQuestions = [
-        "What is your name?",
-        "Tell me about your skills.",
-        "What projects have you worked on?",
-        "Where did you study?",
-        "What programming languages do you know?",
+        "What is Kalingang Kababaihan WLLPC?",
+        "Where is Kalingang Kababaihan WLLPC located?",
+        "What does your organization do?"
     ];
     
     const handleSampleClick = (question) => {
@@ -90,7 +88,7 @@ const ChatBox = ({toggleChatbot}) => {
                 </button>
             </div>
             <div className="">
-                <div className="w-full rounded-lg p-4">
+                <div className="w-full rounded-lg p-4 ">
                     <div className='relative p-4 h-[400px] overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
                         {messages.map((msg, index) => (
                         <div 

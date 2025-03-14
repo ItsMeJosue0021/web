@@ -12,6 +12,7 @@ import "aos/dist/aos.css";
 import AOS from "aos";
 import { useEffect } from "react";
 import Chat from './pages/Chat';
+import Members from './pages/Members';
 
 const App = () => {
     useEffect(() => {
@@ -37,6 +38,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <Roles />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/members"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Members />
                         </ProtectedRoute>
                     }
                 />

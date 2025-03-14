@@ -8,35 +8,11 @@ const ChatBox = ({toggleChatbot}) => {
 
     const [input, setInput] = useState(""); 
     const [messages, setMessages] = useState([]); 
+    const [isLoading, setIsLoading] = useState(false); // State for loading indicator
 
     const handleToggleChatbot = () => {
         toggleChatbot();
     }
-
-    // const sendMessage = async (message = input) => {
-    //     // if (!input.trim()) return;
-    //     message = String(message || "").trim();
-
-    //     if (!message) return;
-
-    //     setInput("");
-    
-    //     const newMessages = [...messages, { text: message, sender: "user" }];
-    //     setMessages(newMessages);
-    
-    //     try {
-    //         const response = await axios.post("http://127.0.0.1:8000/api/chat", { message: message });
-    
-    //         const botMessage = response.data.message || "I'm sorry, I don't have an answer right now.";
-    
-    //         setMessages([...newMessages, { text: botMessage, sender: "bot" }]);
-    //         console.log(response.data);
-    //     } catch (error) {
-    //         setMessages([...newMessages, { text: "Error: Unable to fetch response", sender: "bot" }]);
-    //         console.log(error);
-    //     }
-    
-    // };
 
     const sendMessage = async (message = input) => {
         message = String(message || "").trim(); // Ensure message is a string and trim whitespace
@@ -47,6 +23,9 @@ const ChatBox = ({toggleChatbot}) => {
         // Append user's message to the conversation history
         const newMessages = [...messages, { text: message, sender: "user" }];
         setMessages(newMessages);
+
+        // Show loading message
+        setIsLoading(true);
 
         try {
             const response = await axios.post("http://127.0.0.1:8000/api/chat", {
@@ -61,6 +40,8 @@ const ChatBox = ({toggleChatbot}) => {
         } catch (error) {
             setMessages(prevMessages => [...prevMessages, { text: "Error: Unable to fetch response", sender: "bot" }]);
             console.error(error);
+        } finally {
+            setIsLoading(false); // Hide loading message
         }
     };
 
@@ -91,16 +72,24 @@ const ChatBox = ({toggleChatbot}) => {
                 <div className="w-full rounded-lg p-4 ">
                     <div className='relative p-4 h-[400px] overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
                         {messages.map((msg, index) => (
-                        <div 
-                        key={index} 
-                        className={`max-w-[75%] px-3 py-2 border border-gray-300 rounded-md ${
-                            msg.sender === 'user' ? 'bg-orange-50 self-end' : 'bg-gray-50 self-start'
-                        }`}
-                        >
-                        <strong className='text-sm'>{msg.sender === "user" ? "You:" : "Chatbot:"}</strong>
-                        <p>{msg.text}</p>
-                        </div>
-                    ))}
+                            <div 
+                            key={index} 
+                            className={`max-w-[75%] px-3 py-2 border border-gray-300 rounded-md ${
+                                msg.sender === 'user' ? 'bg-orange-50 self-end' : 'bg-gray-50 self-start'
+                            }`}
+                            >
+                            <strong className='text-sm'>{msg.sender === "user" ? "You:" : "Chatbot:"}</strong>
+                            <p>{msg.text}</p>
+                            </div>
+                        ))}
+
+                        {/* Loading indicator */}
+                        {isLoading && (
+                            <div className="self-start px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm">
+                                <strong>Chatbot:</strong> Typing...
+                            </div>
+                        )}
+                        
                         { messages && messages.length === 0 && (
                             <div className="absolute right-0 bottom-0 w-full flex flex-wrap gap-2 max-w-[800px] p-4">
                                 {sampleQuestions.map((question, index) => (

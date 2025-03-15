@@ -2,8 +2,13 @@ import React, { useState, useEffect } from "react";
 import { _get, _post, _put, _delete } from "../api";
 import { X, Edit, Trash2 } from "lucide-react";
 import Admin from "../layouts/Admin";
+import SuccesAlert from "../components/alerts/SuccesAlert";
+import { toast } from 'react-toastify';
+import { use } from "react";
 
 const Members = () => {
+
+
     const [members, setMembers] = useState([]);
     const [memberData, setMemberData] = useState({
         first_name: '',
@@ -15,9 +20,6 @@ const Members = () => {
         civil_status: '',
         contact_number: '',
         fb_messenger_account: '',
-    });
-
-    const [contactData, setContactData] = useState({
         contact_person: '',
         cp_address: '',
         cp_contact_number: '',
@@ -25,6 +27,7 @@ const Members = () => {
         cp_relationship: '',
     });
     const [errors, setErrors] = useState({});
+    const [isSaving, setIsSaving] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingMember, setEditingMember] = useState(null);
@@ -32,6 +35,10 @@ const Members = () => {
     useEffect(() => {
         fetchMembers();
     }, []);
+
+    useEffect(() => {
+        console.log(members);
+    }, [members]);
 
     const fetchMembers = async () => {
         try {
@@ -45,6 +52,7 @@ const Members = () => {
     const handleInputChange = (e, setData) => {
         const { name, value } = e.target;
         setData(prev => ({ ...prev, [name]: value }));
+        console.log(memberData);
     };
 
     const handleCloseAddModel = () => {
@@ -53,50 +61,79 @@ const Members = () => {
     }
 
     const handleSubmit = async () => {
+        setIsSaving(true);
         try {
-            const response = await _post('/members', {
-                member: memberData,
-                contactPerson: contactData
-            });
+            const response = await _post('/members', memberData);
             setMembers([...members, response.data]);
             setShowAddModal(false);
+            toast.success("Member added successfully!");
+            setTimeout(() => {
+                setSuccesAlert(false);
+            }, 3000);
             setMemberData({
                 first_name: '', middle_name: '', last_name: '', nick_name: '',
-                address: '', dob: '', civil_status: '', contact_number: '', fb_messenger_account: ''
-            });
-            setContactData({
+                address: '', dob: '', civil_status: '', contact_number: '', fb_messenger_account: '',
                 contact_person: '', cp_address: '', cp_contact_number: '', cp_fb_messenger_account: '', cp_relationship: ''
             });
             setErrors({});
+            setIsSaving(false);
         } catch (error) {
             setErrors(error.response?.data?.errors || {});
             console.error(errors);
+            toast.error("Error adding member!");
+        } finally {
+            setIsSaving(false);
         }
     };
+    
 
     const handleDelete = async (id) => {
         try {
-        await _delete(`/members/${id}`);
-        fetchMembers();
+            await _delete(`/members/${id}`);
+            toast.success("Member has been deleted!");
+            fetchMembers();
         } catch (error) {
-        console.error("Error deleting member:", error);
+            toast.error("Error deleting a member!");
+            console.error("Error deleting member:", error);
         }
     };
 
     const openEditModal = (member) => {
         setEditingMember(member);
-        setFormData(member);
-        setIsEditModalOpen(true);
+        setMemberData({
+            first_name: member.first_name,
+            middle_name: member.middle_name,
+            last_name: member.last_name,
+            nick_name: member.nick_name,
+            address: member.address,
+            dob: member.dob,
+            civil_status: member.civil_status,
+            contact_number: member.contact_number,
+            fb_messenger_account: member.fb_messenger_account,
+            contact_person: member.emergency_contact.contact_person ? member.emergency_contact.contact_person : '',
+            cp_address: member.emergency_contact.address ?? '',
+            cp_contact_number: member.emergency_contact.contact_number ?? '',
+            cp_fb_messenger_account: member.emergency_contact.fb_messenger_account ?? '',
+            cp_relationship: member.emergency_contact.relationship ?? ''
+        });
+        setShowEditModal(true);
     };
+
+    const closeEditModal = () => {  
+        setShowEditModal(false);
+        setErrors({});
+    }
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
         try {
-        await _put(`/members/${editingMember.id}`, formData);
+        await _put(`/members/${editingMember.id}`, memberData);
+        toast.success("Member has been updated!");
         fetchMembers();
         setIsEditModalOpen(false);
         } catch (error) {
         if (error.response && error.response.data.errors) {
+            toast.error("Error updating member's information!");
             setErrors(error.response.data.errors);
         }
         }
@@ -105,7 +142,7 @@ const Members = () => {
   return (
     <Admin>
         <div className="p-6 w-full mx-auto">
-            <h2 className="text-2xl font-bold mb-4">Member Management</h2>
+            <h2 className="text-xl font-medium mb-4">Member Management</h2>
             <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded mb-4" onClick={() => setShowAddModal(true)}>+ Add Member</button>
             <table className="w-full border rounded-lg overflow-hidden shadow">
                 <thead className="bg-gray-200">
@@ -144,7 +181,7 @@ const Members = () => {
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
                                 <input type="text" name="first_name" placeholder="First Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
-                                {errors.member.first_name && <p className="text-red-600 text-xs">{errors.member.first_name}</p>}
+                                {errors.first_name && <p className="text-red-600 text-xs">{errors.first_name}</p>}
                             </div>
                             <div className="flex flex-col w-full">
                                 <input type="text" name="middle_name" placeholder="Middle Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
@@ -180,30 +217,103 @@ const Members = () => {
 
                         <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
                         <div className="flex flex-col w-full">
-                            <input type="text" name="contact_person" placeholder="Contact Person" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setContactData)} />  
+                            <input type="text" name="contact_person" placeholder="Contact Person" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
                             {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
                         </div>
                         <div className="flex flex-col w-full">
-                            <input type="text" name="cp_address" placeholder="Address" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setContactData)} />  
+                            <input type="text" name="cp_address" placeholder="Address" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
                             {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
                         </div>
                         
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex flex-col w-full">
-                                <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setContactData)} /> 
+                                <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} /> 
                                 {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" name="cp_relationship" placeholder="Relationship" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setContactData)} />
+                                <input type="text" name="cp_relationship" placeholder="Relationship" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.cp_relationship && <p className="text-red-600 text-xs">{errors.cp_relationship}</p>}
                             </div>
                         </div>
                         <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-center justify-end gap-2">
                             <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
-                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">Save Member</button>
+                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isSaving ? "Saving..." : "Save Member"}</button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Add Member Modal */}
+            {showEditModal && (
+                <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10">
+                    <div className="bg-white p-6 rounded-lg w-[900px]">
+                        <div className="flex justify-between mb-4">
+                            <h3 className="text-lg font-semibold">Add Member</h3>
+                            <button onClick={closeEditModal}><X /></button>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData.first_name} name="first_name" placeholder="First Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.first_name && <p className="text-red-600 text-xs">{errors.first_name}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData.middle_name} name="middle_name" placeholder="Middle Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.middle_name && <p className="text-red-600 text-xs">{errors.middle_name}</p>}
+                            </div>
+                        </div>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData.last_name} name="last_name" placeholder="Last Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.last_name && <p className="text-red-600 text-xs">{errors.last_name}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData.nick_name} name="nick_name" placeholder="Nick Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.nick_name && <p className="text-red-600 text-xs">{errors.nick_name}</p>}
+                            </div>
                         </div>
                         
+                        
+                        <input type="text" value={memberData.address} name="address" placeholder="Address" className="border p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <input type="date" value={memberData.dob} name="dob" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.dob && <p className="text-red-600 text-xs">{errors.dob}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData.civil_status} name="civil_status" placeholder="Civil Status" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.civil_status && <p className="text-red-600 text-xs">{errors.civil_status}</p>}
+                            </div>
+                        </div>
+                        
+                        <input type="text" value={memberData.contact_number} name="contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                        <input type="text" value={memberData.fb_messenger_account} name="fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+
+                        <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
+                        <div className="flex flex-col w-full">
+                            <input type="text" value={memberData.contact_person ?? ''} name="contact_person" placeholder="Contact Person" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                            {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
+                        </div>
+                        <div className="flex flex-col w-full">
+                            <input type="text" value={memberData?.cp_address ?? ''} name="cp_address" placeholder="Address" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                            {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
+                        </div>
+                        
+                        <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData?.cp_contact_number ?? ''} name="cp_contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} /> 
+                                {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <input type="text" value={memberData?.cp_relationship ?? ''} name="cp_relationship" placeholder="Relationship" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                {errors.cp_relationship && <p className="text-red-600 text-xs">{errors.cp_relationship}</p>}
+                            </div>
+                        </div>
+                        <input type="text" value={memberData?.cp_fb_messenger_account ?? ''} name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                        <div className="flex items-center justify-end gap-2">
+                            <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
+                            <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isSaving ? "Updating..." : "Update"}</button>
+                        </div>
                     </div>
                 </div>
             )}

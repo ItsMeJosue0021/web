@@ -6,6 +6,8 @@ import settings from '../assets/icons/settings.png';
 import arrowDown from '../assets/icons/down-arrow.png';
 import role from '../assets/icons/setting.png';
 import { useState } from "react";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Admin = ({ children }) => {
 
@@ -13,6 +15,7 @@ const Admin = ({ children }) => {
 
   return (
     <div className="flex w-full h-auto min-h-screen">
+      <ToastContainer />
       <div className="fixed z-30 w-72 h-full min-h-screen border-r border-gray-200 flex flex-col items-start justify-start bg-white">
         <div className="w-full flex flex-col justify-start items-start p-4">
             <div className='flex items-center space-x-2 text-black hover:text-black'>

@@ -2,6 +2,7 @@ import {React, useContext, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../AuthProvider'
 import Guest from '../../layouts/Guest'
+import { Link } from 'react-router-dom'
 
 const Login = () => {
 
@@ -66,7 +67,7 @@ const Login = () => {
                                     { submitting ? "Signing in.." : "Sign in"}
                                 </button>
                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-                                    Don’t have an account yet? <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</a>
+                                    Don’t have an account yet? <Link to="/register" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Sign up</Link>
                                 </p>
                             </form>
                         </div>

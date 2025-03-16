@@ -33,7 +33,7 @@ const Roles = () => {
 
     return (
         <Admin>
-            <div className="w-[100%] h-auto min-h-screen flex items-center justify-center">
+            <div className="w-full h-auto min-h-96 flex items-center justify-center">
                 {/* <div className="w-fit flex flex-col gap-4 rounded-md border border-gray-300 p-4">
                     <div className="flex flex-col">
                         <p>Name</p>
@@ -63,7 +63,7 @@ const Roles = () => {
                         </tbody>
                     </table>
                 </div> */}
-                <h1>Roles</h1>
+                <p>Roles</p>
             </div>
         </Admin>
     

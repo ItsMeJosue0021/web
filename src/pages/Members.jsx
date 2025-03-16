@@ -156,7 +156,6 @@ const Members = () => {
     }
 
     const handleSearch = async (search) => {
-        console.log("search query: " + search);
         if (search.trim() === "") return;
 
         try {

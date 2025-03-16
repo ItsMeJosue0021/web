@@ -22,10 +22,8 @@ const AuthProvider = ({ children }) => {
             await fetchUser();
 
             if (res.data.user.role.name === 'admin') {
-                console.log("Navigating to /members"); // Check if this runs
                 navigate('/members');
             } else if (res.data.user.role.name === 'user') {
-                console.log("Navigating to /"); // Check if this runs
                 navigate('/');
             }
 
@@ -46,7 +44,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await _post('/logout');
+        await _post('/');
         setUser(null);
         localStorage.removeItem('token');
     };

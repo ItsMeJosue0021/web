@@ -1,14 +1,17 @@
 import React from "react";
 import logo from '../../assets/img/logo.png';
 import { Link, useLocation  } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
+import { AuthContext } from "../../AuthProvider";
 
 const Header = () => {
     
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
+    const { user } = useContext(AuthContext);
     const isLoginPage = location.pathname === "/login";
+    const isRegisterPage = location.pathname === "/register";
 
     useEffect(() => {
         const handleScroll = () => {
@@ -56,13 +59,29 @@ const Header = () => {
                     </li>
                 </ul>
 
-                {!isLoginPage && (
-                    <div>
-                        <Link to="/login">
-                            <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
-                        </Link>
+                {!user ? (
+                    <div className="flex items-center gap-2">
+                        {!isLoginPage && (
+                            <div>
+                                <Link to="/login">
+                                    <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
+                                </Link>
+                            </div>
+                        )} 
+
+                        {!isRegisterPage && (
+                            <div>
+                                <Link to="/register">
+                                    <button className='px-6 py-3 rounded-md text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
+                                </Link>
+                            </div>
+                        )} 
                     </div>
-                )} 
+                ) : (
+                    <Link to="/portal">
+                        <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Portal</button>
+                    </Link>
+                )}
             </div>
             
             <div className='relative flex lg:hidden'>

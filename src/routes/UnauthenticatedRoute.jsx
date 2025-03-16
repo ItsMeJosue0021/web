@@ -10,9 +10,9 @@ const UnuathenticatedRoute = ({ children }) => {
 
     if (user) {
         if (user.role.name === 'admin') {
-            return <Navigate to="/roles" />;
+            return <Navigate to="/members" />;
         } else if (user.role.name === 'user') {
-            return <Navigate to="/" />;
+            return <Navigate to="/portal" />;
         }
     }
 

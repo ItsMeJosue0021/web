@@ -14,6 +14,7 @@ import { useEffect } from "react";
 import Chat from './pages/Chat';
 import Members from './pages/Members';
 import Portal from './pages/Portal';
+import Registration from './pages/auth/Registration';
 
 const App = () => {
     useEffect(() => {
@@ -27,7 +28,9 @@ const App = () => {
     return (
         <Router>
             <Routes>
-            <   Route
+
+                {/* Admin */}
+                <Route
                     path="/members"
                     element={
                         <ProtectedRoute role="admin">
@@ -36,7 +39,6 @@ const App = () => {
                     }
                 />
 
-                {/* Admin */}
                 <Route
                     path="/roles"
                     element={
@@ -45,7 +47,6 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-                
 
                 {/* User */}
 
@@ -89,10 +90,17 @@ const App = () => {
                         <Faqs />
                     }
                 />
-                 <Route path="/login"
+                <Route path="/login"
                     element={
                         <UnuathenticatedRoute>
                             <Login />
+                        </UnuathenticatedRoute>
+                    }
+                />
+                <Route path="/register"
+                    element={
+                        <UnuathenticatedRoute>
+                            <Registration />
                         </UnuathenticatedRoute>
                     }
                 />

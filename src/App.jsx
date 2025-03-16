@@ -13,6 +13,7 @@ import AOS from "aos";
 import { useEffect } from "react";
 import Chat from './pages/Chat';
 import Members from './pages/Members';
+import Portal from './pages/Portal';
 
 const App = () => {
     useEffect(() => {
@@ -26,13 +27,16 @@ const App = () => {
     return (
         <Router>
             <Routes>
-                <Route path="/login"
+            <   Route
+                    path="/members"
                     element={
-                        <UnuathenticatedRoute>
-                            <Login />
-                        </UnuathenticatedRoute>
+                        <ProtectedRoute role="admin">
+                            <Members />
+                        </ProtectedRoute>
                     }
                 />
+
+                {/* Admin */}
                 <Route
                     path="/roles"
                     element={
@@ -41,14 +45,20 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
+                
+
+                {/* User */}
+
                 <Route
-                    path="/members"
+                    path="/portal"
                     element={
-                        <ProtectedRoute role="admin">
-                            <Members />
+                        <ProtectedRoute role="user">
+                            <Portal />
                         </ProtectedRoute>
                     }
                 />
+
+                {/* Public */}
                 <Route
                     path="/"
                     element={
@@ -77,6 +87,13 @@ const App = () => {
                     path="/faqs"
                     element={
                         <Faqs />
+                    }
+                />
+                 <Route path="/login"
+                    element={
+                        <UnuathenticatedRoute>
+                            <Login />
+                        </UnuathenticatedRoute>
                     }
                 />
                 <Route path="/unauthorized" element={<Unauthorized />} />

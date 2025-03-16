@@ -8,13 +8,11 @@ const AuthProvider = ({ children }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-
         if (localStorage.getItem('token')) {
             fetchUser();
         } else {
             setLoading(false);
         }
-
     }, []);
 
     const login = async (credentials, navigate) => {
@@ -24,8 +22,10 @@ const AuthProvider = ({ children }) => {
             await fetchUser();
 
             if (res.data.user.role.name === 'admin') {
-                navigate('/roles');
+                console.log("Navigating to /members"); // Check if this runs
+                navigate('/members');
             } else if (res.data.user.role.name === 'user') {
+                console.log("Navigating to /"); // Check if this runs
                 navigate('/');
             }
 

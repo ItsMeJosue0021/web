@@ -2,9 +2,8 @@ import React, { useState, useEffect } from "react";
 import { _get, _post, _put, _delete } from "../api";
 import { X, Edit, Trash2 } from "lucide-react";
 import Admin from "../layouts/Admin";
-import SuccesAlert from "../components/alerts/SuccesAlert";
 import { toast } from 'react-toastify';
-import { use } from "react";
+import ConfirmationAlert from "../components/alerts/ConfirmationAlert";
 
 const Members = () => {
 
@@ -31,14 +30,14 @@ const Members = () => {
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingMember, setEditingMember] = useState(null);
+    const [isEditing, setIsEditing] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [confirmDelete, setConfirmDelete] = useState(false);
+    const [toBeDeleted, setToBeDeleted] = useState(null);
 
     useEffect(() => {
         fetchMembers();
     }, []);
-
-    useEffect(() => {
-        console.log(members);
-    }, [members]);
 
     const fetchMembers = async () => {
         try {
@@ -52,7 +51,6 @@ const Members = () => {
     const handleInputChange = (e, setData) => {
         const { name, value } = e.target;
         setData(prev => ({ ...prev, [name]: value }));
-        console.log(memberData);
     };
 
     const handleCloseAddModel = () => {
@@ -64,12 +62,9 @@ const Members = () => {
         setIsSaving(true);
         try {
             const response = await _post('/members', memberData);
-            setMembers([...members, response.data]);
+            fetchMembers();
             setShowAddModal(false);
             toast.success("Member added successfully!");
-            setTimeout(() => {
-                setSuccesAlert(false);
-            }, 3000);
             setMemberData({
                 first_name: '', middle_name: '', last_name: '', nick_name: '',
                 address: '', dob: '', civil_status: '', contact_number: '', fb_messenger_account: '',
@@ -83,18 +78,6 @@ const Members = () => {
             toast.error("Error adding member!");
         } finally {
             setIsSaving(false);
-        }
-    };
-    
-
-    const handleDelete = async (id) => {
-        try {
-            await _delete(`/members/${id}`);
-            toast.success("Member has been deleted!");
-            fetchMembers();
-        } catch (error) {
-            toast.error("Error deleting a member!");
-            console.error("Error deleting member:", error);
         }
     };
 
@@ -125,25 +108,77 @@ const Members = () => {
     }
 
     const handleEditSubmit = async (e) => {
+        setIsEditing(true);
         e.preventDefault();
         try {
-        await _put(`/members/${editingMember.id}`, memberData);
-        toast.success("Member has been updated!");
-        fetchMembers();
-        setIsEditModalOpen(false);
+            console.log(memberData);
+            await _put(`/members/${editingMember.id}`, memberData);
+            toast.success("Member has been updated!");
+            setShowEditModal(false);
+            fetchMembers();
+            setIsEditing(false);
+            setMemberData({
+                first_name: '', middle_name: '', last_name: '', nick_name: '',
+                address: '', dob: '', civil_status: '', contact_number: '', fb_messenger_account: '',
+                contact_person: '', cp_address: '', cp_contact_number: '', cp_fb_messenger_account: '', cp_relationship: ''
+            });
         } catch (error) {
         if (error.response && error.response.data.errors) {
             toast.error("Error updating member's information!");
             setErrors(error.response.data.errors);
+            setIsEditing(false);
         }
         }
     };
 
+    const handleDeleteAction = (id) => {
+        setToBeDeleted(id);
+        setConfirmDelete(true);
+    }
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await _delete(`/members/${toBeDeleted}`);
+            toast.success("Member has been deleted!");
+            setIsDeleting(false);
+            setConfirmDelete(false);
+            fetchMembers();
+        } catch (error) {
+            toast.error("Error deleting a member!");
+            console.error("Error deleting member:", error);
+            setIsDeleting(false);
+        }
+    };
+
+    const closeDeleteConfirmation = () => {
+        setConfirmDelete(false);
+    }
+
+    const handleSearch = async (search) => {
+        console.log("search query: " + search);
+        if (search.trim() === "") return;
+
+        try {
+            const response = await _get(`/members/search?search=${search}`);
+            setMembers(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+
   return (
     <Admin>
+        {confirmDelete && <ConfirmationAlert title="Confirm Deletion" message="Are you sure you want to delete this member?" onClose={closeDeleteConfirmation} onConfirm={handleDelete} isDelete={true} isDeleting={isDeleting} />}
         <div className="p-6 w-full mx-auto">
             <h2 className="text-xl font-medium mb-4">Member Management</h2>
-            <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded mb-4" onClick={() => setShowAddModal(true)}>+ Add Member</button>
+            <div className="flex items-center justify-between mb-4">
+                <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
+                    <p>Search</p>
+                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for name or facebook account.." />
+                </div>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ Add Member</button>
+            </div>
             <table className="w-full border rounded-lg overflow-hidden shadow">
                 <thead className="bg-gray-200">
                 <tr>
@@ -163,7 +198,7 @@ const Members = () => {
                     <td className="p-3">{member.contact_number}</td>
                     <td className="p-3 flex justify-start gap-2">
                         <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
-                        <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDelete(member.id)}><Trash2 size={16} /></button>
+                        <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
                     </td>
                     </tr>
                 ))}
@@ -312,14 +347,13 @@ const Members = () => {
                         <input type="text" value={memberData?.cp_fb_messenger_account ?? ''} name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-center justify-end gap-2">
                             <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
-                            <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isSaving ? "Updating..." : "Update"}</button>
+                            <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isEditing ? "Updating..." : "Update"}</button>
                         </div>
                     </div>
                 </div>
             )}
         </div>
     </Admin>
-    
   );
 };
 

@@ -3,6 +3,7 @@ import { X } from 'lucide-react';
 import { useState } from 'react';
 import axios from "axios";
 import { Bot } from 'lucide-react';
+import '../../css/loading.css'; 
 
 const ChatBox = ({toggleChatbot}) => {
 
@@ -85,8 +86,13 @@ const ChatBox = ({toggleChatbot}) => {
 
                         {/* Loading indicator */}
                         {isLoading && (
-                            <div className="self-start px-3 py-2 bg-gray-50 border border-gray-300 rounded-md text-sm">
-                                <strong>Chatbot:</strong> Typing...
+                            <div className="self-start px-3 py-2 text-sm">
+                               <div className="flex space-x-1">
+                                    <div className="dot dot-1 w-2 h-2 bg-gray-500 rounded-full"></div>
+                                    <div className="dot dot-2 w-2 h-2 bg-gray-500 rounded-full"></div>
+                                    <div className="dot dot-3 w-2 h-2 bg-gray-500 rounded-full"></div>
+                                    <div className="dot dot-4 w-2 h-2 bg-gray-500 rounded-full"></div>
+                                </div>
                             </div>
                         )}
                         

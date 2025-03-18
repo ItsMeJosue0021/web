@@ -51,7 +51,7 @@ const Home = () => {
                                 <img
                                     src={images[currentIndex].src}
                                     alt={`Slide ${currentIndex + 1}`}
-                                    className="w-[1350px] h-[600px] rounded-3xl object-cover transition-transform duration-500 ease-in-out"
+                                    className="w-[1200px] h-[600px] rounded-3xl object-cover transition-transform duration-500 ease-in-out"
                                 />
                                 <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-3xl"></div>
                                 <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-4xl font-bold text-center px-5">
@@ -88,12 +88,12 @@ const Home = () => {
                 </div>
             </section>
 
-            <section className="w-screen max-w-[1500px] mx-auto px-4">
+            <section className="w-screen max-w-[1200px] mx-auto px-4">
                 <div className="px-4 py-20 flex flex-col space-y-8 items-center">
                     <h1 className="text-4xl chewy">Recent Projects</h1>
                 </div>
                 <div className="w-full flex items-center justify-center flex-wrap gap-4">
-                    <div data-aos="fade-down" className="relative w-[700px] h-96 rounded-lg overflow-hidden group">
+                    <div data-aos="fade-down" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
                         <img
                             src={activity1}
                             alt="activity1"
@@ -107,7 +107,7 @@ const Home = () => {
                             <p className="text-sm mt-1 cursor-pointer">See more</p>
                         </div>
                     </div>
-                    <div data-aos="fade-up" className="relative w-[700px] h-96 rounded-lg overflow-hidden group">
+                    <div data-aos="fade-up" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
                         <img
                             src={activity2}
                             alt="activity2"
@@ -136,18 +136,18 @@ const Home = () => {
             </section>
 
             <section className="bg-orange-600 w-full py-20">
-                <div className="max-w-[1500px] mx-auto px-4">
+                <div className="max-w-[1200px] mx-auto px-4">
                     <div className="max-w-screen-2xl mx-auto px-4">
                         <div className="flex flex-wrap justify-center gap-6">
-                            <div data-aos="fade-left" data-aos-delay="100" className="w-full md:w-96 p-5 rounded-lg bg-white/60 backdrop-blur-md  shadow-lg ">
+                            <div data-aos="fade-left" data-aos-delay="100" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md  shadow-lg ">
                                 <p className="text-lg italic">"I don’t think you ever stop giving. I really don’t. I think it’s an on-going process. And it’s not just about being able to write a check. It’s being able to touch somebody’s life."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Oprah Winfrey</p>
                             </div>
-                            <div data-aos="fade-left" data-aos-delay="2-00" className="w-full md:w-96 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
+                            <div data-aos="fade-left" data-aos-delay="2-00" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
                                 <p className="text-lg italic">"At the end of the day it’s not about what you have or even what you’ve accomplished… it’s about who you’ve lifted up, who you’ve made better. It’s about what you’ve given back."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Denzel Washington</p>
                             </div>
-                            <div data-aos="fade-left" data-aos-delay="300" className="w-full md:w-96 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
+                            <div data-aos="fade-left" data-aos-delay="300" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
                                 <p className="text-lg italic">"Volunteers are the only human beings on the face of the earth who reflect this nation’s compassion, unselfish caring, patience, and just plain loving one another."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Erma Bombeck</p>
                             </div>
@@ -159,7 +159,7 @@ const Home = () => {
             </section>
 
             <section className=" w-full py-20">
-                <div className="max-w-[1500px] mx-auto px-4">
+                <div className="max-w-[1200px] mx-auto px-4">
                     <div className="flex flex-col space-y-6 items-center text-center">
                         <h1 className="text-4xl chewy">Get Involved</h1>
                         <p className="text-lg poppins-regular">We are always looking for volunteers to help us with our projects. If you are interested in helping out, please contact us.</p>
@@ -169,10 +169,10 @@ const Home = () => {
             </section>
 
             <section className="bg-gradient-to-tl from-orange-500 w-full py-20">
-                <div className="max-w-[1500px] mx-auto px-4">
+                <div className="max-w-[1200px] mx-auto px-4">
                     <div className="flex justify-between p-4">
                         <h2 className="text-5xl font-bold chewy">Upcoming Events</h2>
-                        <button className="text-sm">See All Events</button>
+                        {/* <button className="text-sm">See All Events</button> */}
                     </div>
                     <div className="flex flex-col md:flex-row items-center justify-end p-4 gap-5">
                         <div className="md:hidden bg-white w-full md:w-64 h-80 rounded-lg p-5 shadow-md">
@@ -203,7 +203,7 @@ const Home = () => {
             </section>
 
             <footer className="bg-gray-50">
-                <div className="max-w-[1500px] mx-auto px-4 py-20 ">
+                <div className="max-w-[1200px] mx-auto px-4 py-20 ">
                    <div className="flex flex-col md:flex-row items-center gap-10 md:items-start md:justify-between">
                         <div className="w-full flex flex-col md:flex-row md:gap-12 items-center md:items-start">
                             <img src={logo} alt="logo" className="w-40 h-40 rounded-full"/>

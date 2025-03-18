@@ -25,6 +25,7 @@ const Members = () => {
         cp_fb_messenger_account: '',
         cp_relationship: '',
     });
+    const [loading, isLoading] = useState(false);
     const [errors, setErrors] = useState({});
     const [isSaving, setIsSaving] = useState(false);
     const [showAddModal, setShowAddModal] = useState(false);
@@ -40,11 +41,14 @@ const Members = () => {
     }, []);
 
     const fetchMembers = async () => {
+        isLoading(true);
         try {
-        const response = await _get("/members");
-        setMembers(response.data);
+            const response = await _get("/members");
+            setMembers(response.data);
+        isLoading(false);
         } catch (error) {
-        console.error("Error fetching members:", error);
+            console.error("Error fetching members:", error);
+            isLoading(false);
         }
     };
 
@@ -203,6 +207,9 @@ const Members = () => {
                 ))}
                 </tbody>
             </table>
+            {loading && (
+                <div className="w-full h-20 flex items-center justify-center"><p>Loading..</p></div>
+            )}
 
             {/* Add Member Modal */}
             {showAddModal && (

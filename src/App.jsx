@@ -15,6 +15,8 @@ import Chat from './pages/Chat';
 import Members from './pages/Members';
 import Portal from './pages/Portal';
 import Registration from './pages/auth/Registration';
+import Inquiries from './pages/Inquiries';
+import Knowledgebase from './pages/Knowledgebase';
 
 const App = () => {
     useEffect(() => {
@@ -38,7 +40,6 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/roles"
                     element={
@@ -47,6 +48,26 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
+                <Route
+                    path="/inquiries"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Inquiries />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/knowledgebase"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Knowledgebase />
+                        </ProtectedRoute>
+                    }
+                />
+
+
+
+
 
                 {/* User */}
 

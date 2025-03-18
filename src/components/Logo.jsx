@@ -7,7 +7,7 @@ const Logo = () => {
             <img src={logopng} alt="logo" className='w-16 md:w-16 h-16 md:h-16 rounded-full'/>
             <div className='flex flex-col text-sm font-bold'>
                 <p className='text-base md:text-xl chewy'>Kalinga ng Kababaihan</p>
-                <p className='text-xs md:text-base poppins-regular'>Women's League Las Piñas</p>
+                <p className='text-[12px]  poppins-regular'>Women's League Las Piñas</p>
             </div>
         </Link>
     )

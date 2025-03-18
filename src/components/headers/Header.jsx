@@ -3,6 +3,7 @@ import logo from '../../assets/img/logo.png';
 import { Link, useLocation  } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../AuthProvider";
+import Logo from "../Logo";
 
 const Header = () => {
     
@@ -33,15 +34,9 @@ const Header = () => {
     };
 
   return (
-    <header className={`z-20 fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
-        <div className="w-full max-w-[1500px] mx-auto flex items-center justify-between px-4">
-            <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
-                <img src={logo} alt="logo" className='w-16 md:w-20 h-16 md:h-20 rounded-full'/>
-                <div className='flex flex-col text-sm font-bold'>
-                    <p className='text-base md:text-xl chewy'>Kalinga ng Kababaihan</p>
-                    <p className='text-xs md:text-base poppins-regular'>Women's League Las Piñas</p>
-                </div>
-            </Link>
+    <header className={`z-20 text-sm fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
+        <div className="w-full max-w-[1200px] mx-auto flex items-center justify-between px-4">
+            <Logo/>
 
             <div className='hidden lg:flex items-center space-x-10 poppins-bold text-black'>
                 <ul className='flex space-x-10'>

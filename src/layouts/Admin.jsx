@@ -31,16 +31,28 @@ const Admin = ({ children }) => {
         <div className="w-full h-auto flex flex-col justify-start items-start gap-1 p-4">
             <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                 <div className="flex justify-center w-10">
-                  <img src={group} alt="icon" className="w-10 h-10" />
+                  <img src={group} alt="icon" className="w-8 h-8" />
                 </div>
                 <p className="text-sm font-medium text-black">Members</p>
+            </Link>
+            <Link to="/inquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/inquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                <div className="flex justify-center w-10">
+                  <img src={group} alt="icon" className="w-8 h-8" />
+                </div>
+                <p className="text-sm font-medium text-black">Inquiries</p>
+            </Link>
+            <Link to="/knowledgebase" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/knowledgebase" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                <div className="flex justify-center w-10">
+                  <img src={group} alt="icon" className="w-8 h-8" />
+                </div>
+                <p className="text-sm font-medium text-black">Knowledgebase</p>
             </Link>
             {/* main container */}
             <div className="w-full flex flex-col">
               {/* button to trigger the dropdown toggle */}
                <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-12 px-2">
                 <div className="flex justify-center w-10">
-                    <img src={settings} alt="icon" className="w-7 h-7" />
+                    <img src={settings} alt="icon" className="w-6 h-6" />
                   </div>
                   <div className="flex items-center justify-between w-full">
                     <p className="text-sm text-black font-semibold">Settings</p>
@@ -56,16 +68,16 @@ const Admin = ({ children }) => {
                 <div className="pl-4">
                   <div className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                     <div className="flex justify-center w-10">
-                      <img src={role} alt="icon" className="w-7 h-7" />
+                      <img src={role} alt="icon" className="w-6 h-6" />
                     </div>
-                    <p className="text-sm text-black font-semibold">Accounts</p>
+                    <p className="text-sm text-black font-medium">User Accounts</p>
                   </div>
-                  <Link to="/roles"  className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/roles" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                  {/* <Link to="/roles"  className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/roles" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                     <div className="flex justify-center w-10">
                       <img src={role} alt="icon" className="w-7 h-7" />
                     </div>
                     <p className="text-sm text-black font-semibold">Roles</p>
-                  </Link>
+                  </Link> */}
                 </div>
               )}
             </div>

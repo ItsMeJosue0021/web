@@ -26,7 +26,6 @@ const AuthProvider = ({ children }) => {
             } else if (res.data.user.role.name === 'user') {
                 navigate('/');
             }
-
         } catch (error) {   
             console.error(error);
         }
@@ -44,7 +43,7 @@ const AuthProvider = ({ children }) => {
     };
 
     const logout = async () => {
-        await _post('/');
+        await _post('/logout');
         setUser(null);
         localStorage.removeItem('token');
     };

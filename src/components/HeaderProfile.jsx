@@ -13,11 +13,11 @@ const HeaderProfile = () => {
             <div className="relative flex items-center space-x-3">
                 <p>{user.name }</p>
                 <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center justify-center w-12 h-12 rounded-full bg-orange-100 cursor-pointer">
-                <p className="text-smm font-bold text-orange-500">{user?.name?.charAt(0) || ''}</p>
+                    <p className="text-smm font-bold text-orange-500">{user?.name?.charAt(0) || ''}</p>
                 </div>
 
             {isProfileOpen && (
-                <div className="absolute top-14 right-0 w-48 bg-white border border-gray-200 rounded-md shadow-md">
+                <div className="absolute top-14 right-0 w-48 bg-white border border-gray-200 rounded-md shadow-md z-30">
                     <div className="flex flex-col items-center justify-start p-4 gap-4">
                         <div className="flex items-center justify-center w-16 h-16 rounded-full bg-orange-100">
                             <p className="text-lg font-bold text-orange-500">{user?.name?.charAt(0) || ''}</p>

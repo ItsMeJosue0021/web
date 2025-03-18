@@ -87,20 +87,40 @@ const Knowledgebase = () => {
         }
     };
 
+    const handleSearch = async (search) => {
+        if (search.trim() === "") return;
+
+        try {
+            const response = await _get(`/knowledgebase/search?search=${search}`);
+            setKnowledgebase(response.data);
+        } catch (error) {
+            console.error("Error fetching data:", error);
+        }
+    }
+    
+
 
     return (
         <Admin>
             <div className="p-6 w-full mx-auto flex flex-col gap-4">
-                <div>
-                    {!isOpen ? (
-                        <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
-                            + Add Knowledgebase
-                        </button>
-                    ) : (
-                        <button className="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded" onClick={() => { setIsOpen(false); setSelectedId(null); setFormData({ title: "", content: "" }); }}>
-                            Close
-                        </button>
-                    )}
+                <p className="text-base text-blue-500">/Knowledgebase</p>
+                <h2 className="text-xl font-medium">Knowledgebase Management</h2>
+                <div className="flex items-center justify-between ">
+                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
+                        <p>Search</p>
+                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for name or facebook account.." />
+                    </div>
+                    <div className="flex items-start justify-end">
+                        {!isOpen ? (
+                            <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
+                                + Add Knowledgebase
+                            </button>
+                        ) : (
+                            <button className="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded" onClick={() => { setIsOpen(false); setSelectedId(null); setFormData({ title: "", content: "" }); }}>
+                                Close
+                            </button>
+                        )}
+                    </div>
                 </div>
 
                 {isOpen && (

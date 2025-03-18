@@ -5,8 +5,38 @@ import supermom from "../assets/img/supermom.png";
 import feeding from "../assets/img/feeding.png";
 import volunteers from "../assets/img/volunteers.png";
 import logo from "../assets/img/logo.png";
+import { toast } from 'react-toastify';
+import { useState } from "react";
+import { _post } from "../api";
 
 const AboutUs = () => {
+
+    const [formData, setFormData] = useState({
+        name: "",
+        email: "",
+        message: "",
+    });
+
+    // Handle input changes
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    // Handle form submission (Create or Update)
+    const handleSubmit = async (e) => {
+        e.preventDefault();
+        try {
+            await _post("/enquiries", formData);
+            toast.success("Your message has ben sent!");
+            setFormData({ name: "", email: "", message: "" });
+        } catch (error) {
+            toast.error("Something went wrong, please try again!");
+            console.error("Error submitting enquiry:", error);
+        }
+    };
+
+
+    
     return (
         <Guest>
             <div className="w-screen min-screen h-auto flex flex-col items-center justify-center pt-24">
@@ -88,26 +118,26 @@ const AboutUs = () => {
                             <h1 className="text-4xl chewy text-white">Contact Us</h1>
                             <p className="text-white text-lg">Contact our team for inquiries, partnerships, or support.</p>
                         </div>
-                        <div className="w-full flex items-center gap-5">
+                        <form onSubmit={handleSubmit} className="w-full flex items-center gap-5">
                             <div className="w-full">
                                 <img src={aboutImage} alt="" className="w-full h-96 rounded-lg" />
                             </div>
                             <div className="w-full flex flex-col gap-4 bg-white p-5 py-6 rounded-md ">
                                 <div className="w-full flex flex-col">
                                     <p className="text-sm">Your Name</p>
-                                    <input type="text" name="name" id="name" placeholder="Type sometihng.." className="bg-transparent text-sm w-full border border-gray-300 rounded px-4 py-2 placeholder:text-white"/>
+                                    <input  value={formData.name} onChange={handleChange} type="text" name="name" id="name" placeholder="Type sometihng.." className="bg-transparent text-sm w-full border border-gray-300 rounded px-4 py-2 placeholder:text-white"/>
                                 </div>
                                 <div className="w-full flex flex-col">
                                     <p className="text-sm">Your Email</p>
-                                    <input type="email" name="email" id="email" placeholder="Type sometihng.." className="bg-transparent text-sm w-full border border-gray-300 rounded px-4 py-2 placeholder:text-white"/>
+                                    <input value={formData.email} onChange={handleChange} type="email" name="email" id="email" placeholder="Type sometihng.." className="bg-transparent text-sm w-full border border-gray-300 rounded px-4 py-2 placeholder:text-white"/>
                                 </div>
                                 <div className="w-full flex flex-col">
                                     <p className="text-sm">How can we help you Today?</p>
-                                    <textarea name="message" id="message" placeholder="Type sometihng.." className="h-28 w-full bg-transparent border border-gray-300 rounded p-4 placeholder:text-white"></textarea>
+                                    <textarea value={formData.message} onChange={handleChange} name="message" id="message" placeholder="Type sometihng.." className="h-28 w-full bg-transparent border border-gray-300 rounded p-4 placeholder:text-white"></textarea>
                                 </div>
-                                <button className="w-full text-white rounded-md text-sm bg-orange-500 hover:bg-orange-600 px-5 py-2 text-center shadow">Send</button>
+                                <button type="submit" className="w-full text-white rounded-md text-sm bg-orange-500 hover:bg-orange-600 px-5 py-2 text-center shadow">Send</button>
                             </div>
-                        </div>
+                        </form>
                     </div>
                 </div>
             </div>

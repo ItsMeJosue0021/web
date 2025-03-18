@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { _get, _post, _put, _delete } from "../api";
-import { X, Edit, Trash2 } from "lucide-react";
+import { X, Edit, Trash2, Eye } from "lucide-react";
 import Admin from "../layouts/Admin";
 import { toast } from 'react-toastify';
 import ConfirmationAlert from "../components/alerts/ConfirmationAlert";
+import MemberViewModal from "../components/MemberViewModal";
 
 const Members = () => {
 
@@ -170,12 +171,24 @@ const Members = () => {
         }
     }
 
+    const [currentViewableMember, setCurrentViewableMember] = useState(false);
+    const [viewMember, setViewMember] = useState(false);
+
+    const handleViewMember = (member) => {
+        
+        setCurrentViewableMember(member);
+        console.log(currentViewableMember);
+        setViewMember(true);
+    }
+
   return (
     <Admin>
         {confirmDelete && <ConfirmationAlert title="Confirm Deletion" message="Are you sure you want to delete this member?" onClose={closeDeleteConfirmation} onConfirm={handleDelete} isDelete={true} isDeleting={isDeleting} />}
-        <div className="p-6 w-full mx-auto">
-            <h2 className="text-xl font-medium mb-4">Member Management</h2>
-            <div className="flex items-center justify-between mb-4">
+        {viewMember && <MemberViewModal onClose={() => setViewMember(false)} member={currentViewableMember}/>}
+        <div className="p-6 w-full mx-auto flex flex-col gap-4">
+            <p className="text-base text-blue-500">/Inquiries</p>
+            <h2 className="text-xl font-medium ">Member Management</h2>
+            <div className="flex items-center justify-between ">
                 <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
                     <p>Search</p>
                     <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for name or facebook account.." />
@@ -189,6 +202,7 @@ const Members = () => {
                     <th className="p-3 text-start">Last Name</th>
                     <th className="p-3 text-start">Nick Name</th>
                     <th className="p-3 text-start">Contact</th>
+                    <th className="p-3 text-start">Added On</th>
                     <th className="p-3 text-start">Actions</th>
                 </tr>
                 </thead>
@@ -199,9 +213,15 @@ const Members = () => {
                     <td className="p-3">{member.last_name}</td>
                     <td className="p-3">{member.nick_name}</td>
                     <td className="p-3">{member.contact_number}</td>
+                    <td className="p-3">{new Date(member.created_at).toLocaleDateString("en-US", { 
+                        month: "long", 
+                        day: "numeric", 
+                        year: "numeric" 
+                    })}</td>
                     <td className="p-3 flex justify-start gap-2">
                         <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
                         <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
+                        <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
                     </td>
                     </tr>
                 ))}
@@ -214,7 +234,7 @@ const Members = () => {
             {/* Add Member Modal */}
             {showAddModal && (
                 <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10">
-                    <div className="bg-white p-6 rounded-lg w-[900px]">
+                    <div className="bg-white p-8 rounded-lg w-[900px]">
                         <div className="flex justify-between mb-4">
                             <h3 className="text-lg font-semibold">Add Member</h3>
                             <button onClick={handleCloseAddModel}><X /></button>
@@ -279,7 +299,7 @@ const Members = () => {
                         <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-center justify-end gap-2">
                             <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
-                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isSaving ? "Saving..." : "Save Member"}</button>
+                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md">{isSaving ? "Saving..." : "Save Member"}</button>
                         </div>
                     </div>
                 </div>
@@ -288,7 +308,7 @@ const Members = () => {
             {/* Add Member Modal */}
             {showEditModal && (
                 <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10">
-                    <div className="bg-white p-6 rounded-lg w-[900px]">
+                    <div className="bg-white p-8 rounded-lg w-[900px]">
                         <div className="flex justify-between mb-4">
                             <h3 className="text-lg font-semibold">Add Member</h3>
                             <button onClick={closeEditModal}><X /></button>
@@ -353,7 +373,7 @@ const Members = () => {
                         <input type="text" value={memberData?.cp_fb_messenger_account ?? ''} name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-center justify-end gap-2">
                             <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
-                            <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-blue-600 text-white rounded-md">{isEditing ? "Updating..." : "Update"}</button>
+                            <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md">{isEditing ? "Updating..." : "Update"}</button>
                         </div>
                     </div>
                 </div>

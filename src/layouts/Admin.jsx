@@ -4,12 +4,14 @@ import logo from '../assets/img/logo.png';
 import group from '../assets/icons/group.png';
 import settings from '../assets/icons/settings.png';
 import arrowDown from '../assets/icons/down-arrow.png';
+import lightbulb from '../assets/icons/lightbulb.png';
 import role from '../assets/icons/setting.png';
 import { useState } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from "react-router-dom";
 import HeaderProfile from "../components/HeaderProfile";
+import { Lightbulb, MessageSquareMore, Settings, Users } from "lucide-react";
 
 const Admin = ({ children }) => {
 
@@ -31,28 +33,28 @@ const Admin = ({ children }) => {
         <div className="w-full h-auto flex flex-col justify-start items-start gap-1 p-4">
             <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                 <div className="flex justify-center w-10">
-                  <img src={group} alt="icon" className="w-8 h-8" />
+                  <Users className="w-5 h-5 text-gray-700" />
                 </div>
                 <p className="text-sm font-medium text-black">Members</p>
             </Link>
-            <Link to="/inquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/inquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                <div className="flex justify-center w-10">
-                  <img src={group} alt="icon" className="w-8 h-8" />
-                </div>
-                <p className="text-sm font-medium text-black">Inquiries</p>
-            </Link>
             <Link to="/knowledgebase" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/knowledgebase" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                 <div className="flex justify-center w-10">
-                  <img src={group} alt="icon" className="w-8 h-8" />
+                  <Lightbulb className="w-5 h-5 text-gray-700" />
                 </div>
                 <p className="text-sm font-medium text-black">Knowledgebase</p>
+            </Link>
+            <Link to="/inquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/inquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                <div className="flex justify-center w-10">
+                  <MessageSquareMore className="w-5 h-5 text-gray-700" />
+                </div>
+                <p className="text-sm font-medium text-black">Inquiries</p>
             </Link>
             {/* main container */}
             <div className="w-full flex flex-col">
               {/* button to trigger the dropdown toggle */}
                <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-12 px-2">
                 <div className="flex justify-center w-10">
-                    <img src={settings} alt="icon" className="w-6 h-6" />
+                    <Settings className="w-5 h-5 text-gray-700" />
                   </div>
                   <div className="flex items-center justify-between w-full">
                     <p className="text-sm text-black font-semibold">Settings</p>

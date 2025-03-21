@@ -6,13 +6,19 @@ import role from '../assets/icons/setting.png';
 import { Link } from 'react-router-dom';
 import { Users, Lightbulb, MessageSquareMore, Settings } from 'lucide-react';
 import Logout from '../components/Logout';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Admin = ({children, header}) => {
 
      const [isOpen, setIsOpen] = useState(false);
+
+     useEffect(() => {
+        if (location.pathname === "/settings/users") {
+            setIsOpen(true);
+        }
+     }, [location.pathname]);
 
     return (
         <div className="w-screen min-h-screen h-full bg-gray-50"> 
@@ -73,12 +79,12 @@ const Admin = ({children, header}) => {
                                     {/* dropdown  */}
                                     {isOpen && (
                                         <div className="pl-4">
-                                        <div className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                        <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-10 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                             <div className="flex justify-center w-10">
                                             <img src={role} alt="icon" className="w-5 h-5" />
                                             </div>
                                             <p className="text-sm text-black font-medium">Users</p>
-                                        </div>
+                                        </Link>
                                         {/* <Link to="/roles"  className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/roles" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                             <div className="flex justify-center w-10">
                                             <img src={role} alt="icon" className="w-7 h-7" />

@@ -17,6 +17,7 @@ import Portal from './pages/Portal';
 import Registration from './pages/auth/Registration';
 import Inquiries from './pages/Inquiries';
 import Knowledgebase from './pages/Knowledgebase';
+import Users from './pages/Users';
 
 const App = () => {
     useEffect(() => {
@@ -61,6 +62,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <Knowledgebase />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings/users"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Users />
                         </ProtectedRoute>
                     }
                 />

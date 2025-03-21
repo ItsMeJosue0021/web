@@ -133,11 +133,11 @@ const Members = () => {
                 contact_person: '', cp_address: '', cp_contact_number: '', cp_fb_messenger_account: '', cp_relationship: ''
             });
         } catch (error) {
-        if (error.response && error.response.data.errors) {
-            toast.error("Error updating member's information!");
-            setErrors(error.response.data.errors);
-            setIsEditing(false);
-        }
+            if (error.response && error.response.data.errors) {
+                toast.error("Error updating member's information!");
+                setErrors(error.response.data.errors);
+                setIsEditing(false);
+            }
         }
     };
 
@@ -215,8 +215,8 @@ const Members = () => {
                 </tr>
                 </thead>
                 <tbody>
-                {members.map((member) => (
-                    <tr key={member.id} className="border-t">
+                {members.map((member, index) => (
+                    <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
                     <td className="p-3">{member.first_name}</td>
                     <td className="p-3">{member.last_name}</td>
                     <td className="p-3">{member.nick_name}</td>
@@ -335,8 +335,8 @@ const Members = () => {
                             </div>
                         </div>
                         <div className="flex items-center justify-end gap-2">
-                            <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm ">Cancel</button>
                             <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm">{isSaving ? "Saving..." : "Save Member"}</button>
+                            <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm ">Cancel</button>
                         </div>
                     </div>
                 </div>
@@ -435,9 +435,9 @@ const Members = () => {
                             </div>
                         </div>
                        
-                        <div className="flex items-center justify-end gap-2">
-                            <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
+                        <div className="flex items-center text-sm justify-end gap-2">
                             <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md">{isEditing ? "Updating..." : "Update"}</button>
+                            <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
                         </div>
                     </div>
                 </div>

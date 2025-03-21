@@ -88,38 +88,45 @@ const Inquiries = () => {
         }
     };
 
+    const header = {
+        title: "Inquiry Management",
+        subTitle: "Manage and track inquiries efficiently - add new ones, update details, or remove resolved requests."
+    }
+
 
     return (
-        <Admin>
-            <div className="p-6 w-full mx-auto flex flex-col gap-4">
-                <p className="text-base text-blue-500">/Inquiries</p>
-                <h2 className="text-xl font-medium">Inquiry Management</h2>
-                <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                    <p>Search</p>
-                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for enquiries.." />
+        <Admin header={header}>
+            <div className="w-full mx-auto flex flex-col gap-4">
+                <div className="w-full flex items-center p-3 rounded-lg border border-gray-100 bg-white">
+                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4 ">
+                        <p className="text-sm">Search</p>
+                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
+                    </div>
                 </div>
-                <table className="w-full border rounded-lg overflow-hidden shadow">
-                    <thead className="bg-gray-200">
+               
+                <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
+                    <thead className="bg-orange-500 text-white ">
                     <tr>
                         <th className="p-3 text-start">Name</th>
                         <th className="p-3 text-start">Email</th>
-                        <th colSpan={2} className="p-3 text-start">Message</th>
+                        <th colSpan={2} className="p-3 text-start ">Message</th>
                         <th className="p-3 text-start">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
-                        {enquiries.map((row) => (
-                            <tr key={row.id} className="border-t">
+                        {enquiries.map((row, index) => (
+                            <tr key={row.id}
+                            className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
                                 <td className="p-3">{row.name}</td>
                                 <td className="p-3">{row.email}</td>
-                                <td colSpan={2} className="p-3">{row.message}</td>
+                                <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
                                 <td className="p-3 flex justify-start gap-2">
                                 <button 
                                         onClick={() => openReplyModal(row.email)}
                                         className="bg-orange-500 text-xs text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
                                     >
                                         <Mail size={16} /> Reply
-                                    </button>
+                                </button>
                                     <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
                                 </td>
                             </tr>

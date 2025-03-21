@@ -109,6 +109,11 @@ const Members = () => {
 
     const closeEditModal = () => {  
         setShowEditModal(false);
+        setMemberData({
+            first_name: '', middle_name: '', last_name: '', nick_name: '',
+            address: '', dob: '', civil_status: '', contact_number: '', fb_messenger_account: '',
+            contact_person: '', cp_address: '', cp_contact_number: '', cp_fb_messenger_account: '', cp_relationship: ''
+        });
         setErrors({});
     }
 
@@ -181,29 +186,32 @@ const Members = () => {
         setViewMember(true);
     }
 
+    const header = {
+        title: "Member Management",
+        subTitle: "Manage member records with ease - add new members, update details, or remove inactive ones."
+    }
+
   return (
-    <Admin>
+    <Admin header={header}>
         {confirmDelete && <ConfirmationAlert title="Confirm Deletion" message="Are you sure you want to delete this member?" onClose={closeDeleteConfirmation} onConfirm={handleDelete} isDelete={true} isDeleting={isDeleting} />}
         {viewMember && <MemberViewModal onClose={() => setViewMember(false)} member={currentViewableMember}/>}
-        <div className="p-6 w-full mx-auto flex flex-col gap-4">
-            <p className="text-base text-blue-500">/Inquiries</p>
-            <h2 className="text-xl font-medium ">Member Management</h2>
-            <div className="flex items-center justify-between ">
+        <div className="w-full mx-auto flex flex-col gap-4">
+            <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
                 <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                    <p>Search</p>
-                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for name or facebook account.." />
+                    <p className="text-sm">Search</p>
+                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for name or facebook account.." />
                 </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ Add Member</button>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ New</button>
             </div>
-            <table className="w-full border rounded-lg overflow-hidden shadow">
-                <thead className="bg-gray-200">
+            <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
+                <thead className="bg-orange-500 text-white">
                 <tr>
                     <th className="p-3 text-start">First Name</th>
                     <th className="p-3 text-start">Last Name</th>
                     <th className="p-3 text-start">Nick Name</th>
                     <th className="p-3 text-start">Contact</th>
                     <th className="p-3 text-start">Added On</th>
-                    <th className="p-3 text-start">Actions</th>
+                    <th className="p-3 text-end">Actions</th>
                 </tr>
                 </thead>
                 <tbody>
@@ -218,7 +226,7 @@ const Members = () => {
                         day: "numeric", 
                         year: "numeric" 
                     })}</td>
-                    <td className="p-3 flex justify-start gap-2">
+                    <td className="p-3 flex justify-end gap-2">
                         <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
                         <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
                         <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
@@ -234,143 +242,199 @@ const Members = () => {
             {/* Add Member Modal */}
             {showAddModal && (
                 <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10">
-                    <div className="bg-white p-8 rounded-lg w-[900px]">
+                    <div className="bg-white p-8 rounded-lg w-[1200px]">
                         <div className="flex justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Add Member</h3>
+                            <h3 className="text-base font-semibold">Add Member</h3>
                             <button onClick={handleCloseAddModel}><X /></button>
                         </div>
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="text" name="first_name" placeholder="First Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs ">First Name</p>
+                                <input type="text" name="first_name" placeholder="First Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.first_name && <p className="text-red-600 text-xs">{errors.first_name}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" name="middle_name" placeholder="Middle Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs  ">Middle Name</p>
+                                <input type="text" name="middle_name" placeholder="Middle Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.middle_name && <p className="text-red-600 text-xs">{errors.middle_name}</p>}
                             </div>
-                        </div>
-                        <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="text" name="last_name" placeholder="Last Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs ">Last Name</p>
+                                <input type="text" name="last_name" placeholder="Last Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs " onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.last_name && <p className="text-red-600 text-xs">{errors.last_name}</p>}
                             </div>
-                            <div className="flex flex-col w-full">
-                                <input type="text" name="nick_name" placeholder="Nick Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                        </div>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            
+                            <div className="flex flex-col w-1/3">
+                                <p className="text-xs">Nick Name</p>
+                                <input type="text" name="nick_name" placeholder="Nick Name" className="text-xs  border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.nick_name && <p className="text-red-600 text-xs">{errors.nick_name}</p>}
+                            </div>
+                            <div className="w-full">
+                                <p className="text-xs">Address</p>
+                                <input type="text" name="address" placeholder="Address" className="border text-xs border-gray-100 p-2 w-full rounded-md mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                             </div>
                         </div>
                         
                         
-                        <input type="text" name="address" placeholder="Address" className="border p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                        
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="date" name="dob" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Birthday</p>
+                                <input type="date" name="dob" className="border p-2 w-full border-gray-100 rounded-md text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.dob && <p className="text-red-600 text-xs">{errors.dob}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" name="civil_status" placeholder="Civil Status" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Civil Status</p>
+                                <input type="text" name="civil_status" placeholder="Civil Status" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.civil_status && <p className="text-red-600 text-xs">{errors.civil_status}</p>}
                             </div>
                         </div>
                         
-                        <input type="text" name="contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
-                        <input type="text" name="fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
-
-                        <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
-                        <div className="flex flex-col w-full">
-                            <input type="text" name="contact_person" placeholder="Contact Person" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
-                            {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Contact Number</p>
+                                <input type="text" name="contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Facebook/Messenger</p>
+                                <input type="text" name="fb_messenger_account" placeholder="FB Messenger" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
+                            
                         </div>
-                        <div className="flex flex-col w-full">
-                            <input type="text" name="cp_address" placeholder="Address" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
-                            {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
+                        
+                        <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
+                        <div className="flex items-start justify-between gap-4 mb-4">
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Full Name</p>
+                                <input type="text" name="contact_person" placeholder="Contact Person" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Address</p>
+                                <input type="text" name="cp_address" placeholder="Address" className="border border-gray-100 text-xs rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
+                            </div>
                         </div>
                         
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex flex-col w-full">
-                                <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} /> 
+                                <p className="text-xs">Contact Number</p>
+                                <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-sm" onChange={(e) => handleInputChange(e, setMemberData)} /> 
                                 {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" name="cp_relationship" placeholder="Relationship" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Relationship</p>
+                                <input type="text" name="cp_relationship" placeholder="Relationship" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.cp_relationship && <p className="text-red-600 text-xs">{errors.cp_relationship}</p>}
                             </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Facebook/Messenger</p>
+                                <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
                         </div>
-                        <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-center justify-end gap-2">
-                            <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
-                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md">{isSaving ? "Saving..." : "Save Member"}</button>
+                            <button onClick={handleCloseAddModel} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md text-sm ">Cancel</button>
+                            <button onClick={handleSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md text-sm">{isSaving ? "Saving..." : "Save Member"}</button>
                         </div>
                     </div>
                 </div>
             )}
 
-            {/* Add Member Modal */}
+            {/* Update Member Modal */}
             {showEditModal && (
                 <div className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10">
-                    <div className="bg-white p-8 rounded-lg w-[900px]">
-                        <div className="flex justify-between mb-4">
-                            <h3 className="text-lg font-semibold">Add Member</h3>
+                    <div className="bg-white p-8 rounded-lg w-[1200px]">
+                        <div className="flex justify-between mb-3">
+                            <h3 className="text-base font-semibold">Update Member's Information</h3>
                             <button onClick={closeEditModal}><X /></button>
                         </div>
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData.first_name} name="first_name" placeholder="First Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">First Name</p>
+                                <input type="text" value={memberData.first_name} name="first_name" placeholder="First Name" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.first_name && <p className="text-red-600 text-xs">{errors.first_name}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData.middle_name} name="middle_name" placeholder="Middle Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Middle Name</p>
+                                <input type="text" value={memberData.middle_name} name="middle_name" placeholder="Middle Name" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.middle_name && <p className="text-red-600 text-xs">{errors.middle_name}</p>}
                             </div>
-                        </div>
-                        <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData.last_name} name="last_name" placeholder="Last Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Last Name</p>
+                                <input type="text" value={memberData.last_name} name="last_name" placeholder="Last Name" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.last_name && <p className="text-red-600 text-xs">{errors.last_name}</p>}
                             </div>
-                            <div className="flex flex-col w-full">
-                                <input type="text" value={memberData.nick_name} name="nick_name" placeholder="Nick Name" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                        </div>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-1/3">
+                                <p className="text-xs">Nick Name</p>
+                                <input type="text" value={memberData.nick_name} name="nick_name" placeholder="Nick Name" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.nick_name && <p className="text-red-600 text-xs">{errors.nick_name}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Address</p>
+                                <input type="text" value={memberData.address} name="address" placeholder="Address" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                             </div>
                         </div>
                         
                         
-                        <input type="text" value={memberData.address} name="address" placeholder="Address" className="border p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
                         <div className="flex items-start justify-between gap-4 mb-3">
                             <div className="flex flex-col w-full">
-                                <input type="date" value={memberData.dob} name="dob" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Birthday</p>
+                                <input type="date" value={memberData.dob} name="dob" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.dob && <p className="text-red-600 text-xs">{errors.dob}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData.civil_status} name="civil_status" placeholder="Civil Status" className="border rounded p-2 w-full " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Civil Status</p>
+                                <input type="text" value={memberData.civil_status} name="civil_status" placeholder="Civil Status" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.civil_status && <p className="text-red-600 text-xs">{errors.civil_status}</p>}
                             </div>
                         </div>
                         
-                        <input type="text" value={memberData.contact_number} name="contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
-                        <input type="text" value={memberData.fb_messenger_account} name="fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
-
-                        <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
-                        <div className="flex flex-col w-full">
-                            <input type="text" value={memberData.contact_person ?? ''} name="contact_person" placeholder="Contact Person" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
-                            {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Contact Number</p>
+                                <input type="text" value={memberData.contact_number} name="contact_number" placeholder="Contact Number" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Facebook/Messenger</p>
+                                <input type="text" value={memberData.fb_messenger_account} name="fb_messenger_account" placeholder="FB Messenger" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
                         </div>
-                        <div className="flex flex-col w-full">
-                            <input type="text" value={memberData?.cp_address ?? ''} name="cp_address" placeholder="Address" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />  
-                            {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
+                       
+                        <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
+                        <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Full Name</p>
+                                <input type="text" value={memberData.contact_person ?? ''} name="contact_person" placeholder="Contact Person" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
+                            </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Address</p>
+                                <input type="text" value={memberData?.cp_address ?? ''} name="cp_address" placeholder="Address" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
+                            </div>
                         </div>
                         
                         <div className="flex items-start justify-between gap-4">
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData?.cp_contact_number ?? ''} name="cp_contact_number" placeholder="Contact Number" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} /> 
+                                <p className="text-xs">Contact Number</p>
+                                <input type="text" value={memberData?.cp_contact_number ?? ''} name="cp_contact_number" placeholder="Contact Number" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} /> 
                                 {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
                             </div>
                             <div className="flex flex-col w-full">
-                                <input type="text" value={memberData?.cp_relationship ?? ''} name="cp_relationship" placeholder="Relationship" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                <p className="text-xs">Relationship</p>
+                                <input type="text" value={memberData?.cp_relationship ?? ''} name="cp_relationship" placeholder="Relationship" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 {errors.cp_relationship && <p className="text-red-600 text-xs">{errors.cp_relationship}</p>}
                             </div>
+                            <div className="flex flex-col w-full">
+                                <p className="text-xs">Facebook/Messenger</p>
+                                <input type="text" value={memberData?.cp_fb_messenger_account ?? ''} name="cp_fb_messenger_account" placeholder="FB Messenger" className="border border-gray-100 rounded-md p-2 w-full text-xs placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                            </div>
                         </div>
-                        <input type="text" value={memberData?.cp_fb_messenger_account ?? ''} name="cp_fb_messenger_account" placeholder="FB Messenger" className="border rounded p-2 w-full mb-3" onChange={(e) => handleInputChange(e, setMemberData)} />
+                       
                         <div className="flex items-center justify-end gap-2">
                             <button onClick={closeEditModal} className="w-fit mt-4 px-6 py-2 bg-gray-200 hover:bg-gray-300 rounded-md ">Cancel</button>
                             <button onClick={handleEditSubmit} className="w-fit mt-4 px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white rounded-md">{isEditing ? "Updating..." : "Update"}</button>

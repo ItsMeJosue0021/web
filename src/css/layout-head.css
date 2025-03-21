@@ -1,0 +1,7 @@
+.layout-head {
+    border-radius: 40px 8px 8px 8px; /* Top-left, top-right, bottom-right, bottom-left */
+}
+
+.layout-sidebar {
+    border-radius: 8px 40px 40px 8px; /* Top-left, top-right, bottom-right, bottom-left */
+}

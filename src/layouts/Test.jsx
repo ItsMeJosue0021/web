@@ -10,7 +10,7 @@ import { useState } from 'react';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-const Admin = ({children, header}) => {
+const Test = ({children, header}) => {
 
      const [isOpen, setIsOpen] = useState(false);
 
@@ -18,13 +18,13 @@ const Admin = ({children, header}) => {
         <div className="w-screen min-h-screen h-full bg-gray-50"> 
             <ToastContainer />
             <div className="w-full flex flex-col"> 
-                <div className="w-full h-40 bg-orange-500">
+                <div className="w-full h-40 bg-orange-600">
                     <div className='flex items-start justify-between h-full p-4'>
                         <div className='flex items-center space-x-2 text-white'>
                             <img src={logo} alt="logo" className='w-16 h-16 rounded-full p-0.5 bg-white'/>
                             <div className='flex flex-col text-sm font-bold'>
                                 <p className='text-base chewy'>Kalinga ng Kababaihan</p>
-                                <p className='text-xs poppins-regular text-gray-50'>Women's League Las Piñas</p>
+                                <p className='text-xs poppins-regular text-gray-200'>Women's League Las Piñas</p>
                             </div>
                         </div>
                         <HeaderProfile/>
@@ -35,7 +35,7 @@ const Admin = ({children, header}) => {
                     <div className="w-full absolute left-0 -top-16 flex items-start">
                         <div className="min-w-80 w-80 h-full p-4 pt-2 pr-2 pl-0">
                             <div className='bg-white layout-sidebar h-full pl-2 p-8 shadow-sm'>
-                                <div className="w-full h-full min-h-[650px] flex flex-col justify-start items-start gap-1">
+                                <div className="w-full h-full min-h-[600px] flex flex-col justify-start items-start gap-1">
                                     <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-10 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <Users className="w-5 h-5 text-gray-700" />
@@ -91,8 +91,8 @@ const Admin = ({children, header}) => {
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full h-full min-h-96 p-4 pt-2">
-                            <div className="w-full layout-head bg-white h-24 p-4 pl-8 mb-4 shadow-sm flex flex-col items-start justify-center">
+                        <div className="w-full h-full min-h-96 p-4">
+                            <div className="w-full layout-head bg-white h-24 pt-2 p-4 pl-8 mb-4 shadow-sm flex flex-col items-start justify-center">
                                 <div className='pl-2 border-l-4 border-orange-600'>
                                     <h1 className="text-xl font-semibold">{header.title}</h1>
                                     <p className="text-xs">{header.subTitle}</p>
@@ -110,4 +110,4 @@ const Admin = ({children, header}) => {
     )
 }
 
-export default Admin;
+export default Test;

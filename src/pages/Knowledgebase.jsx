@@ -5,6 +5,7 @@ import { _post, _get, _put, _delete } from "../api";
 import { toast } from 'react-toastify';
 import ChatBox from "../components/chatbot/ChatBox";
 import ChatButton from "../components/chatbot/ChatButton";
+import Test from "../layouts/Test";
 
 const Knowledgebase = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -59,7 +60,7 @@ const Knowledgebase = () => {
         } catch (error) {
             if (error.response && error.response.status === 422) {
                 setErrors(error.response.data.errors);
-                toast.success("Something went wrong!")
+                toast.error("Something went wrong! Please try again.")
             }
         } finally {
             setIsSaving(false);
@@ -99,32 +100,34 @@ const Knowledgebase = () => {
     }
     
 
+    const header = {
+        title: "Knowledgebase Management",
+        subTitle: "Effortlessly manage your knowledgebase - add new entries, update existing ones, or remove outdated content."
+    }
 
     return (
-        <Admin>
-            <div className="p-6 w-full mx-auto flex flex-col gap-4">
-                <p className="text-base text-blue-500">/Knowledgebase</p>
-                <h2 className="text-xl font-medium">Knowledgebase Management</h2>
-                <div className="flex items-center justify-between ">
+        <Admin header={header}>
+            <div className="w-full mx-auto flex flex-col gap-4">
+                <div className="bg-white flex items-center justify-between p-3 rounded-lg border border-gray-100">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                        <p>Search</p>
-                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="px-4 py-2 rounded border border-gray-300 text-sm" placeholder="Search for name or facebook account.." />
+                        <p className="text-sm">Search</p>
+                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for Knowledgebases.." />
                     </div>
                     <div className="flex items-start justify-end">
                         {!isOpen ? (
                             <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
-                                + Add Knowledgebase
+                                + New
                             </button>
                         ) : (
                             <button className="bg-gray-200 hover:bg-gray-300 text-sm px-4 py-2 rounded" onClick={() => { setIsOpen(false); setSelectedId(null); setFormData({ title: "", content: "" }); }}>
-                                Close
+                                <X size={16} />
                             </button>
                         )}
                     </div>
                 </div>
 
                 {isOpen && (
-                    <form onSubmit={handleSubmit} className="flex flex-col gap-2">
+                    <form onSubmit={handleSubmit} className="flex flex-col gap-2 p-4 bg-white rounded-lg border border-gray-100">
                         <div>
                             <p className="text-sm">Title</p>
                             <input
@@ -158,8 +161,8 @@ const Knowledgebase = () => {
 
                 <div className="w-full">
                     <div className="w-full">
-                        <table className="w-full border rounded-lg overflow-hidden shadow table-auto">
-                            <thead className="bg-gray-200">
+                        <table className="bg-white text-sm w-full border rounded-lg overflow-hidden table-auto">
+                            <thead className="bg-orange-500 text-white">
                                 <tr>
                                     <th className="p-3 text-start w-1/4">Title</th>
                                     <th className="p-3 text-start w-full">Content</th>
@@ -167,15 +170,27 @@ const Knowledgebase = () => {
                                 </tr>
                             </thead>
                             <tbody>
-                                {knowledgebase.map((row) => (
-                                    <tr className="border-t" key={row.id}>
+                                {knowledgebase.map((row, index) => (
+                                    <tr
+                                        key={row.id}
+                                        className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}
+                                    >
                                         <td className="p-3">{row.title}</td>
-                                        <td className="p-3 w-full">{row.content}</td>
+                                        <td className="p-3 w-full text-xs ">{row.content}</td>
                                         <td className="p-3 flex justify-start gap-2">
-                                            <button onClick={() => handleEdit(row)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded">
+                                            <button
+                                                onClick={() => handleEdit(row)}
+                                                className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
+                                            >
                                                 <Edit size={16} />
                                             </button>
-                                            <button onClick={() => { setDeleteId(row.id); setIsDeleteModalOpen(true); }} className="bg-red-50 text-red-600 px-1 py-1 rounded">
+                                            <button
+                                                onClick={() => {
+                                                    setDeleteId(row.id);
+                                                    setIsDeleteModalOpen(true);
+                                                }}
+                                                className="bg-red-50 text-red-600 px-1 py-1 rounded"
+                                            >
                                                 <Trash2 size={16} />
                                             </button>
                                         </td>
@@ -183,6 +198,7 @@ const Knowledgebase = () => {
                                 ))}
                             </tbody>
                         </table>
+
                         {loading && (
                             <div className="w-full h-20 flex items-center justify-center"><p>Loading..</p></div>
                         )}

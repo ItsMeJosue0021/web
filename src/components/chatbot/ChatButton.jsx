@@ -16,7 +16,7 @@ const ChatButton = () => {
         className="fixed bottom-10 right-5 md:right-20 bg-orange-600 text-white p-4 flex items-center justify-center rounded-full shadow-lg hover:bg-orange-700 transition hover:border-0"
         onClick={toggleChatbot}
       >
-        <MessageCircleMore className="w-12 h-12"/>
+        <MessageCircleMore className="w-10 h-10"/>
       </button>
 
       {/* Chatbot Popup */}

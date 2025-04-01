@@ -41,11 +41,11 @@ const Home = () => {
                 <div className="px-4 pt-20 flex justify-center items-start ">
                     <div className="flex flex-col space-y-14 text-center">
                         <div className="flex flex-col space-y-2">
-                            <h1 className="text-6xl font-bold chewy">Welcome to the <span className="text-orange-600">Kalinga ng Kababaihan</span></h1>
-                            <p className="text-gray-600 text-lg poppins-regular">We are a non-profit organization that is dedicated to helping the less fortunate.</p>
+                            <h1 className="text-5xl font-bold chewy">Welcome to the <span className="text-orange-600">Kalinga ng Kababaihan</span></h1>
+                            <p className="text-gray-600 text-base poppins-regular">We are a non-profit organization that is dedicated to helping the less fortunate.</p>
                         </div>
 
-                        <div className="relative w-full h-[500px] md:h-auto mt-5 overflow-hidden rounded-3xl shadow-xl">
+                        <div className="relative w-full h-[450px] mt-5 mx-auto overflow-hidden rounded-3xl shadow-xl">
                             {/* Image and Text */}
                             <div className="relative">
                                 <img
@@ -54,7 +54,7 @@ const Home = () => {
                                     className="w-[1200px] h-[600px] rounded-3xl object-cover transition-transform duration-500 ease-in-out"
                                 />
                                 <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-3xl"></div>
-                                <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-4xl font-bold text-center px-5">
+                                <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-3xl font-bold text-center px-5">
                                     <p className="poppins-regular">{images[currentIndex].text}</p>
                                 </div>
                             </div>

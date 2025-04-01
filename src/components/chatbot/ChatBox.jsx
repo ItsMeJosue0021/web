@@ -58,7 +58,7 @@ const ChatBox = ({toggleChatbot}) => {
     };
 
     return (
-        <div className="fixed bottom-40 right-20 w-96 bg-white rounded-xl shadow-lg overflow-hidden">
+        <div className="fixed z-50 bottom-32 right-20 w-80 bg-white rounded-xl shadow-lg overflow-hidden">
             <div className="bg-orange-600 text-white p-3 flex justify-between items-center">
                 <div className='flex items-end gap-2'>
                     <Bot strokeWidth={4} className="w-7 h-7" />
@@ -71,7 +71,7 @@ const ChatBox = ({toggleChatbot}) => {
             </div>
             <div className="">
                 <div className="w-full rounded-lg p-4 ">
-                    <div className='relative p-4 h-[400px] overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
+                    <div className='relative p-4 h-[300px] overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
                         {messages.map((msg, index) => (
                             <div 
                             key={index} 
@@ -80,7 +80,7 @@ const ChatBox = ({toggleChatbot}) => {
                             }`}
                             >
                             <strong className='text-sm'>{msg.sender === "user" ? "You:" : "Chatbot:"}</strong>
-                            <p>{msg.text}</p>
+                            <p className='text-xs'>{msg.text}</p>
                             </div>
                         ))}
 
@@ -101,7 +101,7 @@ const ChatBox = ({toggleChatbot}) => {
                                 {sampleQuestions.map((question, index) => (
                                     <button 
                                         key={index} 
-                                        className="px-3 py-2 text-sm text-left bg-orange-100 rounded-md hover:bg-orange-100 bg-opacity-50 transition"
+                                        className="px-3 py-2 text-xs text-left bg-orange-100 rounded-md hover:bg-orange-100 bg-opacity-50 transition"
                                         onClick={() => handleSampleClick(question)}
                                     >
                                         {question}
@@ -111,8 +111,8 @@ const ChatBox = ({toggleChatbot}) => {
                         )}
                     </div>
                     <div className="flex items-center gap-2 input-box p-2 rounded-md border">
-                        <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='outline-none' />
-                        <button className='text-white bg-orange-600 rounded' onClick={() => sendMessage()}>Send</button>
+                        <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='text-xs outline-none' />
+                        <button className='text-xs text-white bg-orange-600 rounded' onClick={() => sendMessage()}>Send</button>
                     </div>
                 </div>
             </div>

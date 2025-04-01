@@ -34,40 +34,44 @@ const Header = () => {
     };
 
   return (
-    <header className={`z-20 text-sm fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
+    <header className={`z-20 text-xs fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
         <div className="w-full max-w-[1200px] mx-auto flex items-center justify-between px-4">
-            <Logo/>
+            {!isLoginPage && !isRegisterPage && (
+                <Logo/>
+            )}
 
             <div className='hidden lg:flex items-center space-x-10 poppins-bold text-black'>
-                <ul className='flex space-x-10'>
-                    <li>
-                        <Link to="/" className="text-black">Home</Link>
-                    </li>
-                    <li>
-                        <Link to="/about-us" className='text-black'>About Us</Link>
-                    </li>
-                    <li>
-                        <Link to="/volunteers" className='text-black'>Volunteers</Link>
-                    </li>
-                    <li>
-                        <Link to="/faqs" className='text-black'>FAQs</Link>
-                    </li>
-                </ul>
+                {!isLoginPage && !isRegisterPage && (
+                    <ul className='flex space-x-10'>
+                        <li>
+                            <Link to="/" className="text-black">Home</Link>
+                        </li>
+                        <li>
+                            <Link to="/about-us" className='text-black'>About Us</Link>
+                        </li>
+                        <li>
+                            <Link to="/volunteers" className='text-black'>Volunteers</Link>
+                        </li>
+                        <li>
+                            <Link to="/faqs" className='text-black'>FAQs</Link>
+                        </li>
+                    </ul>
+                )}
 
                 {!user ? (
                     <div className="flex items-center gap-2">
-                        {!isLoginPage && (
+                        {!isLoginPage && !isRegisterPage && (
                             <div>
                                 <Link to="/login">
-                                    <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
+                                    <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
                                 </Link>
                             </div>
                         )} 
 
-                        {!isRegisterPage && (
+                        {!isRegisterPage && !isLoginPage && (
                             <div>
                                 <Link to="/register">
-                                    <button className='px-6 py-3 rounded-md text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
+                                    <button className='px-4 py-2 rounded text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
                                 </Link>
                             </div>
                         )} 

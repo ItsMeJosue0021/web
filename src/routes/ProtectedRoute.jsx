@@ -12,7 +12,7 @@ const ProtectedRoute = ({ children, role }) => {
 
     if (!user) return <Navigate to="/login" />;
 
-    if (role && user.role.name !== role) return <Navigate to="/login" state={{ from: location }} />;
+    if (role && user.role !== role) return <Navigate to="/login" state={{ from: location }} />;
 
     return children;
 };

@@ -1,146 +1,4 @@
-// import React, { useState, useContext } from "react";
-// import { useNavigate } from "react-router-dom";
-// import { AuthContext } from "../../AuthProvider";
-// import Guest from "../../layouts/Guest";
-// import { _post } from "../../api";
-// import { toast } from 'react-toastify';
-// import { Link } from "react-router-dom";
-// import Logo from "../../components/Logo";
-
-// const Registration = () => {
-//     const navigate = useNavigate();
-//     const { register } = useContext(AuthContext); 
-//     const [credentials, setCredentials] = useState({
-//         email: "",
-//         name: "",
-//         password: "",
-//         confirmPassword: "",
-//     });
-//     const [error, setError] = useState("");
-//     const [errors, setErrors] = useState({});
-//     const [submitting, setSubmitting] = useState(false);
-
-//     const handleChange = (e) => {
-//         setCredentials({ ...credentials, [e.target.name]: e.target.value });
-//     };
-
-//     const handleSubmit = async (e) => {
-//         e.preventDefault();
-//         setError("");
-
-//         if (credentials.password !== credentials.confirmPassword) {
-//             setError("Passwords do not match.");
-//             return;
-//         }
-
-//         setSubmitting(true);
-//         try {
-//             const response = await _post('/register', credentials);
-//             toast.success("Registration successful. Please login.");
-//             setTimeout(() => {}, 3000);
-//             navigate("/login"); 
-//         } catch (err) {
-//             setErrors(err.response?.data?.errors || {});
-//             toast.error("Registration failed. Please try again.");
-//         } finally {
-//             setSubmitting(false);
-//             toast.error("Registration failed. Please try again.");
-//         }
-//     };
-
-//     return (
-//         <Guest>
-//             <section className="w-screen bg-gray-50 dark:bg-gray-900 pt-20">
-//                 <div className="flex flex-col items-center justify-center px-6 py-8 mx-auto h-screen lg:py-0">
-//                     <div className="w-full bg-white rounded-lg shadow md:mt-0 sm:max-w-md xl:p-0 dark:bg-gray-800 dark:border-gray-700">
-//                         <div className="p-6 space-y-4 md:space-y-6 sm:p-8">
-//                             <Logo/>
-//                             <form onSubmit={handleSubmit} className="space-y-4 md:space-y-6">
-//                                 <div>
-//                                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-//                                         Name
-//                                     </label>
-//                                     <input
-//                                         onChange={handleChange}
-//                                         value={credentials.name}
-//                                         type="text"
-//                                         name="name"
-//                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-//                                         placeholder="Enter your name"
-//                                         required
-//                                     />
-//                                     {errors.name && <p className="text-red-500 text-sm">{errors.name}</p>}
-
-//                                 </div>
-//                                 <div>
-//                                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-//                                         Your email
-//                                     </label>
-//                                     <input
-//                                         onChange={handleChange}
-//                                         value={credentials.email}
-//                                         type="email"
-//                                         name="email"
-//                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-//                                         placeholder="sample@email.com"
-//                                         required
-//                                     />
-//                                     {errors.email && <p className="text-red-500 text-sm">{errors.email}</p>}
-//                                 </div>
-//                                 <div>
-//                                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-//                                         Password
-//                                     </label>
-//                                     <input
-//                                         onChange={handleChange}
-//                                         value={credentials.password}
-//                                         type="password"
-//                                         name="password"
-//                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-//                                         placeholder="••••••••"
-//                                         required
-//                                     />
-//                                 </div>
-//                                 <div>
-//                                     <label className="block mb-2 text-sm font-medium text-gray-900 dark:text-white">
-//                                         Confirm Password
-//                                     </label>
-//                                     <input
-//                                         onChange={handleChange}
-//                                         value={credentials.confirmPassword}
-//                                         type="password"
-//                                         name="confirmPassword"
-//                                         className="bg-gray-50 border border-gray-300 text-gray-900 rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-//                                         placeholder="••••••••"
-//                                         required
-//                                     />
-//                                     {error && <p className="text-red-500 text-sm pt-2">{error}</p>}
-//                                 </div>
-//                                 <button
-//                                     disabled={submitting}
-//                                     type="submit"
-//                                     className="w-full text-white bg-orange-600 hover:bg-orange-700 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-//                                 >
-//                                     {submitting ? "Signing up..." : "Sign up"}
-//                                 </button>
-//                                 <p className="text-sm font-light text-gray-500 dark:text-gray-400">
-//                                     Already have an account?{" "}
-//                                     <Link to="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">
-//                                         Login here
-//                                     </Link>
-//                                 </p>
-//                             </form>
-//                         </div>
-//                     </div>
-//                 </div>
-//             </section>
-//         </Guest>
-//     );
-// };
-
-// export default Registration;
-
-import React, { useState, useContext } from "react";
+import React, { useState, useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../../AuthProvider";
 import Guest from "../../layouts/Guest";
@@ -149,6 +7,17 @@ import { toast } from 'react-toastify';
 import { Link } from "react-router-dom";
 import Logo from "../../components/Logo";
 import TextInput from "../../components/inputs/TextInput";
+import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
+
+import banner from "../../assets/img/banner.png";
+import activity1 from "../../assets/img/activity1.png";
+import activity2 from "../../assets/img/activity2.png";
+
+const images = [
+    { src: banner, text: "Think of giving not as a duty, but as a privilege." },
+    { src: activity1, text: "Lose yourself in the service of others." },
+    { src: activity2, text: "No act of kindness, no matter how small, is ever wasted." },
+];
 
 const Registration = () => {
     const navigate = useNavigate();
@@ -175,23 +44,31 @@ const Registration = () => {
     const [error, setError] = useState("");
     const [errors, setErrors] = useState({});
     const [submitting, setSubmitting] = useState(false);
+    const [successAlert, setSuccessAlert] = useState(false);
+
 
     const handleChange = (e) => {
         setCredentials({ ...credentials, [e.target.name]: e.target.value });
+        setErrors({ ...errors, [e.target.name]: "" });
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError("");
         if (credentials.password !== credentials.confirmPassword) {
-            setError("Passwords do not match.");
+            setErrors({
+                ...errors,
+                confirmPassword: "Passwords do not match",
+            });
             return;
         }
         setSubmitting(true);
         try {
             await _post('/register', credentials);
-            toast.success("Registration successful. Please login.");
-            navigate("/login");
+            setSuccessAlert(true);
+            setStep(1);
+            setCredentials({});
+            setErrors({});
         } catch (err) {
             setErrors(err.response?.data?.errors || {});
             toast.error("Registration failed. Please try again.");
@@ -200,15 +77,85 @@ const Registration = () => {
         }
     };
 
+    const redirectToTlogin = () => {
+        navigate("/login");
+    };    
+
+    const [currentIndex, setCurrentIndex] = useState(0);
+    
+    useEffect(() => {
+        const interval = setInterval(() => {
+            nextSlide();
+        }, 5000);
+        return () => clearInterval(interval);
+    }, [currentIndex]);
+
+    const prevSlide = () => {
+        setCurrentIndex((prevIndex) => (prevIndex === 0 ? images.length - 1 : prevIndex - 1));
+    };
+
+    const nextSlide = () => {
+        setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
+    };
+
     return (
         <Guest>
+
+            {successAlert && (
+                <ConfirmationAlert 
+                title="Successful Registration" 
+                message="Your have successfully registered, now you can have access to your account, would you like to proceed and login?" 
+                isDelete={false} 
+                onClose={() => setSuccessAlert(false)} 
+                onConfirm={redirectToTlogin}/>
+            )}
+
             <div className="w-full min-h-screen h-auto flex items-center justify-center p-5">
-                <div className="w-full md:w-4/6 min-h-[570px] h-auto shadow-sm rounded-xl flex items-start gap-4 bg-white">
-                    <div className="hidden lg:block w-[45%] h-full bg-orange-500">
-                        <div className="w-full h-full ">
+                <div className="w-full md:w-4/6 min-h-[570px] h-auto shadow rounded-xl flex items-start bg-white">
+                    <div className="hidden lg:block w-[50%] h-full rounded-l-xl">
+                        <div className="w-full h-full rounded-l-xl">
+                            <div className="relative w-full h-[500px] md:h-auto overflow-hidden rounded-l-xl ">
+                                {/* Image and Text */}
+                                <div className="relative">
+                                    <img
+                                        src={images[currentIndex].src}
+                                        alt={`Slide ${currentIndex + 1}`}
+                                        className="w-[1200px] h-[600px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
+                                    />
+                                    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-l-xl"></div>
+                                    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-2xl font-bold text-center px-5">
+                                        <p className="poppins-regular">{images[currentIndex].text}</p>
+                                    </div>
+                                </div>
+
+                                {/* Navigation Buttons */}
+                                <button
+                                    onClick={prevSlide}
+                                    className="absolute left-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                                >
+                                    ❮
+                                </button>
+                                <button
+                                    onClick={nextSlide}
+                                    className="absolute right-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                                >
+                                    ❯
+                                </button>
+
+                                {/* Dots Navigation */}
+                                <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
+                                    {images.map((_, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => setCurrentIndex(index)}
+                                            className={`w-5 h-3 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
+                                        ></div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div className="w-full lg:w-[55%] bg-white p-10 rounded-xl">
+                    <div className="w-full lg:w-[50%] bg-white p-10 rounded-xl">
                         <div className="mb-4">
                             <Logo />
                         </div>
@@ -219,16 +166,64 @@ const Registration = () => {
                                         <h2 className="text-base font-semibold">Personal Information</h2>
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
-                                    <TextInput label="First Name" type="text" placeholder="First Name" name="firstName" onChange={handleChange} required/>
-                                    <TextInput label="Middle Name" type="text" placeholder="Middle Name" name="middleName" onChange={handleChange} />
-                                    <TextInput label="Last Name" type="text" placeholder="Last Name" name="lastName" onChange={handleChange} required/>
-                                    <TextInput label="Email Address" type="email" placeholder="sample@email.com" name="email" onChange={handleChange} required/>
-                                    <TextInput label="Contact Number" type="number" placeholder="0000-000-0000" name="contactNumber" onChange={handleChange} required/>
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.firstName}
+                                        label="First Name" type="text" 
+                                        placeholder="First Name" 
+                                        name="firstName" 
+                                        hasError={Boolean(errors.firstName)} 
+                                        onChange={handleChange} required/>
+                                        {errors.firstName && <p className="text-red-500 text-[11px]">{errors.firstName}</p>}
+                                    </div>
+
+                                    <TextInput 
+                                    value={credentials.middleName}
+                                    label="Middle Name" 
+                                    type="text" 
+                                    placeholder="Middle Name" 
+                                    name="middleName" 
+                                    onChange={handleChange} />
 
                                     <div>
-                                        <button type="button" onClick={() => setStep(2)} className="text-xs py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded w-fit">Next</button>
+                                        <TextInput 
+                                        value={credentials.lastName}
+                                        label="Last Name" 
+                                        type="text" 
+                                        placeholder="Last Name" 
+                                        name="lastName" 
+                                        hasError={Boolean(errors.lastName)} 
+                                        onChange={handleChange} required/>
+                                        {errors.lastName && <p className="text-red-500 text-[11px]">{errors.lastName}</p>}
                                     </div>
-                                    
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.email}
+                                        label="Email Address" 
+                                        type="email" 
+                                        placeholder="sample@email.com" 
+                                        name="email" 
+                                        hasError={Boolean(errors.email)} 
+                                        onChange={handleChange} required/>
+                                        {errors.email && <p className="text-red-500 text-[11px]">{errors.email}</p>}
+                                    </div>
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.contactNumber}
+                                        label="Contact Number" 
+                                        type="number" 
+                                        placeholder="0000-000-0000" 
+                                        name="contactNumber" 
+                                        hasError={Boolean(errors.contactNumber)} 
+                                        onChange={handleChange} required/>
+                                        {errors.contactNumber && <p className="text-red-500 text-[11px]">{errors.contactNumber}</p>}
+                                    </div>
+                                    <div>
+                                        <button 
+                                        type="button" 
+                                        onClick={() => setStep(2)} 
+                                        className="text-xs py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded w-fit">Next</button>
+                                    </div>
                                 </div>
                             )}
                             {step === 2 && (
@@ -238,23 +233,85 @@ const Registration = () => {
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <TextInput label="Block" type="text" placeholder="Block" name="block" onChange={handleChange} />
-                                        <TextInput label="Lot" type="text" placeholder="Lot" name="lot" onChange={handleChange} />
+                                        <TextInput 
+                                        value={credentials.block}
+                                        label="Block" 
+                                        type="text" 
+                                        placeholder="Block" 
+                                        name="block" 
+                                        onChange={handleChange} />
+
+                                        <TextInput 
+                                        value={credentials.lot}
+                                        label="Lot" 
+                                        type="text" 
+                                        placeholder="Lot" 
+                                        name="lot" 
+                                        onChange={handleChange} />
                                     </div>
-                                    <TextInput label="Street" type="text" placeholder="Street" name="street" onChange={handleChange} />
+
+                                    <TextInput 
+                                    value={credentials.street}
+                                    label="Street" 
+                                    type="text" 
+                                    placeholder="Street" 
+                                    name="street" 
+                                    onChange={handleChange} />
+                                    
                                     <div className="flex items-start gap-3">
-                                        <TextInput label="Subdivision" type="text" placeholder="Subdivision" name="subdivision" onChange={handleChange} />
-                                        <TextInput label="Barangay" type="text" placeholder="Barangay" name="barangay" onChange={handleChange} required/>
+                                        <TextInput 
+                                        value={credentials.subdivision}
+                                        label="Subdivision" 
+                                        type="text" 
+                                        placeholder="Subdivision" 
+                                        name="subdivision" 
+                                        onChange={handleChange} />
+
+                                        <TextInput 
+                                        value={credentials.barangay}
+                                        label="Barangay" 
+                                        type="text" 
+                                        placeholder="Barangay" 
+                                        name="barangay" 
+                                        onChange={handleChange} required/>
                                     </div>
-                                    <TextInput label="City/Municipality" type="text" placeholder="City/Municipality" name="city" onChange={handleChange} required/>
+
+                                    <TextInput 
+                                    value={credentials.city}
+                                    label="City/Municipality" 
+                                    type="text" 
+                                    placeholder="City/Municipality" 
+                                    name="city" 
+                                    onChange={handleChange} required/>
+
                                     <div className="flex items-start gap-3">
-                                        <TextInput label="Province" type="text" placeholder="Province" name="province" onChange={handleChange} required/>
-                                        <TextInput label="Postal Code" type="number" placeholder="Postal Code" name="code" onChange={handleChange} required/>
+                                        <TextInput 
+                                        value={credentials.province}
+                                        label="Province" 
+                                        type="text" 
+                                        placeholder="Province" 
+                                        name="province" 
+                                        onChange={handleChange} required/>
+
+                                        <TextInput 
+                                        value={credentials.code}
+                                        label="Postal Code" 
+                                        type="number" 
+                                        placeholder="Postal Code" 
+                                        name="code" 
+                                        onChange={handleChange} required/>
                                     </div>
 
                                     <div className="flex gap-2">
-                                        <button type="button" onClick={() => setStep(1)} className="text-xs py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded w-fit">Back</button>
-                                        <button type="button" onClick={() => setStep(3)} className="text-xs py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded w-fit">Next</button>
+                                        <button 
+                                        type="button" 
+                                        onClick={() => setStep(1)} 
+                                        className="text-xs py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded w-fit">Back</button>
+
+                                        <button 
+                                        type="button" 
+                                        onClick={() => setStep(3)} 
+                                        className="text-xs py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded w-fit">Next</button>
                                     </div>
                                 </div>
                             )}
@@ -264,17 +321,50 @@ const Registration = () => {
                                         <h2 className="text-base font-semibold">Login Credentials</h2>
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
-                                    <TextInput label="Username" type="text" placeholder="Username" name="username" onChange={handleChange} required/>
-                                    <TextInput label="Password" type="password" placeholder="Password" name="password" onChange={handleChange} required/>
-                                    <TextInput label="Confirm Password" type="password" placeholder="Confirm Password" name="confirmPassword" onChange={handleChange} required/>
-
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.username}
+                                        label="Username" 
+                                        type="text" 
+                                        placeholder="Username" 
+                                        name="username" 
+                                        hasError={Boolean(errors.username)} 
+                                        onChange={handleChange} required/>
+                                        {errors.username && <p className="text-red-500 text-[11px]">{errors.username}</p>}
+                                    </div>
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.password}
+                                        label="Password" 
+                                        type="password" 
+                                        placeholder="Password" 
+                                        name="password" 
+                                        hasError={Boolean(errors.username)} 
+                                        onChange={handleChange} required/>
+                                        {errors.password && <p className="text-red-500 text-[11px]">{errors.password}</p>}
+                                    </div>
+                                    <div>
+                                        <TextInput 
+                                        value={credentials.confirmPassword}
+                                        label="Confirm Password" 
+                                        type="password" 
+                                        placeholder="Confirm Password" 
+                                        name="confirmPassword" 
+                                        hasError={Boolean(errors.confirmPassword)} 
+                                        onChange={handleChange} required/>
+                                        {errors.confirmPassword && <p className="text-red-500 text-[11px]">{errors.confirmPassword}</p>}
+                                    </div>
                                     <div className="flex gap-2">
                                         <button type="button" onClick={() => setStep(2)} className="text-xs py-2 px-4 bg-gray-200 hover:bg-gray-300 rounded w-fit">Back</button>
                                         <button type="submit" className="text-xs py-2 px-4 bg-orange-500 hover:bg-orange-600 text-white rounded w-fit" disabled={submitting}>{submitting ? "Registering..." : "Register"}</button>
                                     </div>
                                 </div>
+                                
                             )}
                         </form>
+                        <p className="mt-4 text-xs font-light text-gray-500 dark:text-gray-400">
+                            Already have an account? <Link to="/login" className="font-medium text-primary-600 hover:underline dark:text-primary-500">Login</Link>
+                        </p>
                     </div>
                 </div>
             </div>

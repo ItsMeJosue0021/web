@@ -6,7 +6,7 @@ import Logout from "../components/Logout";
 
 const Portal = () => {
 
-    const user = useContext(AuthContext);
+    const {user} = useContext(AuthContext);
 
     return (
         <User>
@@ -17,7 +17,7 @@ const Portal = () => {
                     </div>
                     <div className="w-full flex items-start justify-between py-2 h-fit border-b border-gray-200">
                         <div className="w-full">
-                            <h1 className="text-2xl text-gray-700 font-semibold text-left mt-4 ">Welcome {user.user.name}!</h1>
+                            <h1 className="text-2xl text-gray-700 font-semibold text-left mt-4 ">Welcome {user.fullName}!</h1>
                             <p className="text-left text-orange-500 text-sm">You are now logged in</p>
                         </div>
                         <div className="min-w-32">

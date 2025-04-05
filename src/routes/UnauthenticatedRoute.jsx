@@ -9,9 +9,9 @@ const UnuathenticatedRoute = ({ children }) => {
     if (loading) return <LoadingDots/>;
 
     if (user) {
-        if (user.role.name === 'admin') {
+        if (user.role === 'admin') {
             return <Navigate to="/members" />;
-        } else if (user.role.name === 'user') {
+        } else if (user.role === 'user') {
             return <Navigate to="/portal" />;
         }
     }

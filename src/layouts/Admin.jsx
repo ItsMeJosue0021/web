@@ -21,7 +21,7 @@ const Admin = ({children, header}) => {
      }, [location.pathname]);
 
     return (
-        <div className="w-screen min-h-screen h-full bg-gray-50"> 
+        <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden"> 
             <ToastContainer />
             <div className="w-full flex flex-col"> 
                 <div className="w-full h-40 bg-orange-500">
@@ -37,9 +37,10 @@ const Admin = ({children, header}) => {
                     </div>
                 </div>
 
-                <div className="relative flex items-start w-full gap-4">
+                <div className="relative w-full">
                     <div className="w-full absolute left-0 -top-16 flex items-start">
-                        <div className="min-w-80 w-80 h-full p-4 pt-2 pr-2 pl-0">
+
+                        <div className="min-w-80 w-80 h-screen p-4 pt-2 pr-2 pl-0">
                             <div className='bg-white layout-sidebar h-full pl-2 p-8 shadow-sm'>
                                 <div className="w-full h-full min-h-[650px] flex flex-col justify-start items-start gap-1">
                                     <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-10 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
@@ -60,9 +61,7 @@ const Admin = ({children, header}) => {
                                         </div>
                                         <p className="text-sm font-medium text-black">Inquiries</p>
                                     </Link>
-                                    {/* main container */}
                                     <div className="w-full flex flex-col">
-                                    {/* button to trigger the dropdown toggle */}
                                     <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-10 px-2">
                                         <div className="flex justify-center w-10">
                                             <Settings className="w-5 h-5 text-gray-700" />
@@ -76,7 +75,6 @@ const Admin = ({children, header}) => {
                                             />
                                         </div>
                                     </div>
-                                    {/* dropdown  */}
                                     {isOpen && (
                                         <div className="pl-4">
                                         <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-10 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
@@ -85,18 +83,14 @@ const Admin = ({children, header}) => {
                                             </div>
                                             <p className="text-sm text-black font-medium">Users</p>
                                         </Link>
-                                        {/* <Link to="/roles"  className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-12 px-2 ${location.pathname === "/roles" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                            <div className="flex justify-center w-10">
-                                            <img src={role} alt="icon" className="w-7 h-7" />
-                                            </div>
-                                            <p className="text-sm text-black font-semibold">Roles</p>
-                                        </Link> */}
+                                        
                                         </div>
                                     )}
                                     </div>
                                 </div>
                             </div>
                         </div>
+
                         <div className="w-full h-full min-h-96 p-4 pt-2">
                             <div className="w-full layout-head bg-white h-24 p-4 pl-8 mb-4 shadow-sm flex flex-col items-start justify-center">
                                 <div className='pl-2 border-l-4 border-orange-600'>

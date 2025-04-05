@@ -34,7 +34,7 @@ const Home = () => {
 
 
     return (
-        <div className="bg-gray-50 w-screen h-auto min-h-screen overflow-x-hidden">
+        <div className="bg-gray-50 max-w-screen w-screen h-auto min-h-screen overflow-hidden">
             <Header />
 
             <section className="bg-gradient-to-tl from-orange to-white py-20 pb-5">

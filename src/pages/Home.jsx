@@ -79,7 +79,7 @@ const Home = () => {
                                     <div
                                         key={index}
                                         onClick={() => setCurrentIndex(index)}
-                                        className={`w-5 h-3 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
+                                        className={`w-4 h-2 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
                                     ></div>
                                 ))}
                             </div>

@@ -111,7 +111,7 @@ const Registration = () => {
             )}
 
             <div className="w-full min-h-screen h-auto flex items-center justify-center p-5">
-                <div className="w-full md:w-4/6 min-h-[570px] h-auto shadow rounded-xl flex items-start bg-white">
+                <div className="w-fit md:w-4/6 min-h-[450px] h-auto shadow-sm rounded-xl flex items-start bg-white">
                     <div className="hidden lg:block w-[50%] h-full rounded-l-xl">
                         <div className="w-full h-full rounded-l-xl">
                             <div className="relative w-full h-[500px] md:h-auto overflow-hidden rounded-l-xl ">
@@ -123,7 +123,7 @@ const Registration = () => {
                                         className="w-[1200px] h-[600px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
                                     />
                                     <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-l-xl"></div>
-                                    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-2xl font-bold text-center px-5">
+                                    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-xl font-bold text-center px-5">
                                         <p className="poppins-regular">{images[currentIndex].text}</p>
                                     </div>
                                 </div>
@@ -148,7 +148,7 @@ const Registration = () => {
                                         <div
                                             key={index}
                                             onClick={() => setCurrentIndex(index)}
-                                            className={`w-5 h-3 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
+                                            className={`w-3 h-2 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
                                         ></div>
                                     ))}
                                 </div>

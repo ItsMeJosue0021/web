@@ -198,12 +198,12 @@ const Members = () => {
         <div className="w-full mx-auto flex flex-col gap-4">
             <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
                 <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                    <p className="text-sm">Search</p>
+                    <p className="text-xs">Search</p>
                     <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for name or facebook account.." />
                 </div>
-                <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ New</button>
+                <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ New</button>
             </div>
-            <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
+            <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
                 <thead className="bg-orange-500 text-white">
                 <tr>
                     <th className="p-3 text-start">First Name</th>

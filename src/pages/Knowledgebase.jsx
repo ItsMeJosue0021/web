@@ -3,9 +3,9 @@ import { Edit, Trash2, X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { _post, _get, _put, _delete } from "../api";
 import { toast } from 'react-toastify';
-import ChatBox from "../components/chatbot/ChatBox";
 import ChatButton from "../components/chatbot/ChatButton";
-import Test from "../layouts/Test";
+import { useCallback } from "react";
+import debounce from "lodash.debounce";
 
 const Knowledgebase = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -88,16 +88,30 @@ const Knowledgebase = () => {
         }
     };
 
-    const handleSearch = async (search) => {
-        if (search.trim() === "") return;
+    // const handleSearch = async (search) => {
+    //     if (search.trim() === "") return;
 
-        try {
+    //     try {
+    //         const response = await _get(`/knowledgebase/search?search=${search}`);
+    //         setKnowledgebase(response.data);
+    //     } catch (error) {
+    //         console.error("Error fetching data:", error);
+    //     }
+    // }
+
+    const handleSearch = useCallback(
+        debounce(async (search) => {
+          if (search.trim() === "") return;
+    
+          try {
             const response = await _get(`/knowledgebase/search?search=${search}`);
             setKnowledgebase(response.data);
-        } catch (error) {
+          } catch (error) {
             console.error("Error fetching data:", error);
-        }
-    }
+          }
+        }, 500), // delay in ms
+        [] // ensures debounce is only created once
+      );
     
 
     const header = {
@@ -110,12 +124,12 @@ const Knowledgebase = () => {
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="bg-white flex items-center justify-between p-3 rounded-lg border border-gray-100">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                        <p className="text-sm">Search</p>
+                        <p className="text-xs">Search</p>
                         <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for Knowledgebases.." />
                     </div>
                     <div className="flex items-start justify-end">
                         {!isOpen ? (
-                            <button className="bg-orange-500 hover:bg-orange-600 text-white text-sm px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
+                            <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
                                 + New
                             </button>
                         ) : (
@@ -161,7 +175,7 @@ const Knowledgebase = () => {
 
                 <div className="w-full">
                     <div className="w-full">
-                        <table className="bg-white text-sm w-full border rounded-lg overflow-hidden table-auto">
+                        <table className="bg-white text-xs w-full border rounded-lg overflow-hidden table-auto">
                             <thead className="bg-orange-500 text-white">
                                 <tr>
                                     <th className="p-3 text-start w-1/4">Title</th>

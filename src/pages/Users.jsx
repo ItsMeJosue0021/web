@@ -7,6 +7,7 @@ import UpdateUserForm from "../components/forms/UpdateUserForm";
 import PrintButton from "../components/buttons/PrintButton";
 import PrintPreview from "../components/PrintPreview";
 import '../css/loading.css'; 
+import { motion, AnimatePresence } from 'framer-motion';
 
 const Users = () => {
 
@@ -137,28 +138,36 @@ const Users = () => {
 
                  {/* Delete Confirmation Modal */}
                 {isDeleteModalOpen && (
-                    <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-                        <div className="bg-white p-6 rounded-lg shadow-lg">
-                            <h3 className="text-lg font-semibold">Confirm Deletion</h3>
-                            <p className="text-sm text-gray-600">
-                                Are you sure you want to delete this user?
-                            </p>
-                            <div className="flex justify-end gap-2 mt-4">
-                                <button
-                                    className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded text-sm"
-                                    onClick={() => setIsDeleteModalOpen(false)}
-                                >
-                                    Cancel
-                                </button>
-                                <button
-                                    className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-sm"
-                                    onClick={handleDelete}
-                                >
-                                    {isDeleting ? "Deleting.." : "Delete"}
-                                </button>
+                    <AnimatePresence>
+                        <motion.div
+                        role="alert"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }} 
+                        className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+                            <div className="bg-white p-6 rounded-lg shadow-lg ">
+                                <h3 className="text-base font-semibold text-red-500 mb-2">Confirm Deletion</h3>
+                                <p className="text-xs text-gray-600">
+                                    Are you sure you want to delete this user?
+                                </p>
+                                <div className="flex justify-end gap-2 mt-4">
+                                    <button
+                                        className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded text-xs"
+                                        onClick={() => setIsDeleteModalOpen(false)}
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded text-xs"
+                                        onClick={handleDelete}
+                                    >
+                                        {isDeleting ? "Deleting.." : "Delete"}
+                                    </button>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                        </motion.div>
+                    </AnimatePresence>
+                    
                 )}
             </div>
         </Admin>

@@ -4,11 +4,12 @@ import { useContext } from "react";
 import { AuthContext } from "../AuthProvider";
 import Logout from "../components/Logout";
 import { div } from "framer-motion/client";
-import { SlidersHorizontal } from "lucide-react";
+import { SlidersHorizontal, X } from "lucide-react";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatButton from "../components/chatbot/ChatButton";
+import EventDetailsModal from "../components/EventDetailsModal";
 
 const events = [
     {
@@ -39,6 +40,7 @@ const events = [
         date: "2023-10-12",
         time: "9:30 AM",
         description: "Learn about budgeting, savings, and smart financial planning for women.",
+        thumbnail: "logo.png",
     },
     {
         title: "Women in Leadership Forum",
@@ -94,24 +96,28 @@ const prevEvents = [
         date: "2023-10-05",
         time: "9:00 AM",
         description: "A session on women’s health and self-care with guest medical professionals.",
+        thumbnail: "about.png",
     },
     {
         title: "Livelihood Training Workshop",
         date: "2023-10-06",
         time: "1:00 PM",
         description: "Hands-on workshop on soap-making and other income-generating skills.",
+        thumbnail: "activity1.png",
     },
     {
         title: "Legal Rights Awareness Seminar",
         date: "2023-10-07",
         time: "10:30 AM",
         description: "Discussion about women’s legal rights and protection against abuse.",
+        thumbnail: "activity2.png",
     },
     {
         title: "Empowerment Through Art",
         date: "2023-10-08",
         time: "3:00 PM",
         description: "Creative painting and storytelling session to express women's strength.",
+        thumbnail: "feeding.png",
     }
 ];
 
@@ -122,6 +128,7 @@ const Portal = () => {
 
     const [selectedIamge, setSelectedImage] = useState();
     const [viewImage, setViewImage] = useState(false);
+    const [showDetails, setShowDetails] = useState(false);
 
     const handleImageClick = (url) => {
         setSelectedImage(url);
@@ -130,6 +137,7 @@ const Portal = () => {
 
     return (
         <User>
+            {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
             <div className="w-full flex items-center justify-center flex-col p-4 overflow-hidden ">
                 <div className="w-full max-w-[1200px] grid grid-cols-7 gap-4" >
                     <div className="col-span-2 h-72">
@@ -137,7 +145,7 @@ const Portal = () => {
                         <div className="flex flex-col gap-2">
                             {prevEvents.map((event, index) => (
                                 <div key={index} className="flex items-center gap-2 p-2 rounded-md shadow-sm bg-white">
-                                    <img src="logo.png" alt="img" className="w-10 h-10 rounded bg-gray-gray-300" />
+                                    <img src={event.thumbnail} alt="img" className="w-10 h-10 rounded bg-gray-gray-300 object-cover object-center" onClick={() => handleImageClick(event.thumbnail)}/>
                                     <div className="flex flex-col items-start justify-start gap-1">
                                         <h1 className="text-xs font-semibold text-gray-700">{event.title}</h1>
                                         <p className="text-[9px] text-gray-500">{event.date} - {event.time}</p>
@@ -167,6 +175,14 @@ const Portal = () => {
                         <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[530px] overflow-y-auto py-2 hide-scrollbar">
                             {events.map((event, index) => (
                                 <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
+                                    <div className="flex items-center justify-start gap-2">
+                                        <img src="logo.png" alt="img" className="w-8 h-8 rounded-full"/>
+                                        <div className="flex flex-col items-start justify-start ">
+                                            <p className="text-xs font-medium">Kalinga ng Kababaihan</p>
+                                            <p className="text-[9px]">April 9 10:00 AM</p>
+                                        </div>
+                                        
+                                    </div>
                                     <div className="flex flex-col items-start justify-start gap-1">
                                         <h1 className="text-sm font-semibold text-gray-700">{event.title}</h1>
                                         <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{event.date} - {event.time}</p>
@@ -181,7 +197,10 @@ const Portal = () => {
                                             </div>
                                         )}
                                     </div>
-                                    <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
+                                    <div className="flex items-center justify-start gap-2 mt-2">
+                                        <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button>
+                                        <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
+                                    </div>
                                 </div>
                             ))}
                         </div>
@@ -207,12 +226,46 @@ const Portal = () => {
                         }
                     </div>
 
-                    <div className="col-span-2 h-fit w-full max-w-sm bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <div className="flex flex-col items-center p-8">
-                            <img className="w-24 h-24 mb-3 rounded-full shadow-lg bg-gray-400 object-center object-cover cursor-pointer" src="sampleprofile.jpg" alt="image" onClick={() => handleImageClick("sampleprofile.jpg")}/>
+                    <div className="col-span-2 h-fit w-full flex flex-col gap-4">
+                        <div className="flex flex-col items-center p-8 bg-white rounded-lg shadow-sm">
+                            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-orange-100 mb-2">
+                                <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
+                            </div>
                             <h5 className="mb-1  font-medium text-gray-900 dark:text-white">{user.fullName}</h5>
                             <span className="text-xs text-gray-500 dark:text-gray-400">{user.email}</span>
                             <span className="text-xs text-blue-500 dark:text-gray-400">@{user.username}</span>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-2 p-6 bg-white rounded-lg shadow-sm">
+                            <p className="text-sm font-semibold w-full text-left pb-1 border-b">Other Information</p>
+                            <div className="w-full flex items-center justify-start gap-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold min-w-20">Email</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{user.email}</p>
+                            </div>
+
+                            <div className="w-full flex items-center justify-start gap-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold min-w-20">Contact No.</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{user.contactNumber}</p>
+                            </div>
+
+                            <div className="w-full flex items-center justify-start gap-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold min-w-20">Username</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">{user.username}</p>
+                            </div>
+                           
+                            <div className="w-full flex items-start justify-start gap-2">
+                                <p className="text-xs text-gray-500 dark:text-gray-400 font-semibold min-w-20">Address</p>
+                                <p className="text-xs text-gray-500 dark:text-gray-400">
+                                    {(user.address.block ?? '') + ' '}  
+                                    {(user.address.lot ?? '') + ' '} 
+                                    {(user.address.street ?? '') + ' '} 
+                                    {(user.subdivision ?? '') + ' '} 
+                                    {(user.address.barangay ?? '') + ' '} 
+                                    {(user.address.city ?? '') + ' '} 
+                                    {(user.address.province ?? '') + ' '} 
+                                    {user.address.code ?? ''} 
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

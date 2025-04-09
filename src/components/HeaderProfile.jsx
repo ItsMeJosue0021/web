@@ -17,12 +17,12 @@ const HeaderProfile = () => {
                 </div>
 
             {isProfileOpen && (
-                <div className="absolute top-14 right-0 w-48 bg-white border border-gray-200 rounded-md shadow-md z-30">
+                <div className="absolute top-14 right-0 w-52 bg-white border border-gray-200 rounded-md shadow-md z-30">
                     <div className="flex flex-col items-center justify-start p-4 gap-4">
                         <div className="flex items-center justify-center w-16 h-16 rounded-full bg-orange-100">
                             <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
                         </div>
-                        <p>{user.fullName }</p>
+                        <p className='text-sm'>{user.fullName }</p>
                         <Logout/>
                     </div>
                 </div>

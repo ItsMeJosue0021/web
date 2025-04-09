@@ -8,6 +8,7 @@ import { SlidersHorizontal } from "lucide-react";
 import { Search } from "lucide-react";
 import { useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
+import ChatButton from "../components/chatbot/ChatButton";
 
 const events = [
     {
@@ -17,7 +18,11 @@ const events = [
         description: "A talk on mental well-being and stress management for women.",
         images: [
             {src: "volunteers.png", alt: "Volunteer" },
-            {src: "supermom.png", alt: "Supermom" },    
+            {src: "supermom.png", alt: "Supermom" }, 
+            {src: "volunteers.png", alt: "Volunteer" },
+            {src: "supermom.png", alt: "Supermom" }, 
+            {src: "volunteers.png", alt: "Volunteer" },
+            {src: "supermom.png", alt: "Supermom" },   
         ]
     },
     {
@@ -143,7 +148,7 @@ const Portal = () => {
                     </div>
 
                     <div className="col-span-3 h-auto rounded flex items-start flex-col justify-start gap-2">
-                        <div className="w-full pr-5">
+                        <div className="w-full">
                             <div className="w-full text-xs rounded px-4 py-1.5 flex items-center justify-start gap-2 bg-white shadow-sm">
                                 <Search className="w-4 h-4 text-gray-500" />
                                 <input type="text" placeholder="Search.." className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none"/>
@@ -159,7 +164,7 @@ const Portal = () => {
                                 <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Previous</button>
                             </div>
                         </div>
-                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[530px] overflow-y-auto py-2 pr-2">
+                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[530px] overflow-y-auto py-2 hide-scrollbar">
                             {events.map((event, index) => (
                                 <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
                                     <div className="flex flex-col items-start justify-start gap-1">
@@ -169,7 +174,7 @@ const Portal = () => {
                                     </div>
                                     <div>
                                         {event.images && event.images.length > 0 && (
-                                            <div className="flex items-center justify-start gap-2 mt-2">
+                                            <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
                                                 {event.images.map((image, index) => (
                                                     <img key={index} src={image.src} alt={image.alt} className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer" onClick={() => handleImageClick(image.src)}/>
                                                 ))}
@@ -198,11 +203,8 @@ const Portal = () => {
                                         </motion.div>
                                     </motion.div>
                                 </AnimatePresence>
-                             
                             )
                         }
-                       
-
                     </div>
 
                     <div className="col-span-2 h-fit w-full max-w-sm bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
@@ -213,8 +215,8 @@ const Portal = () => {
                             <span className="text-xs text-blue-500 dark:text-gray-400">@{user.username}</span>
                         </div>
                     </div>
-
                 </div>
+                <ChatButton/>
             </div>
         </User>
     );

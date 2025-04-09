@@ -41,7 +41,7 @@ const Home = () => {
                 <div className="px-4 pt-20 flex justify-center items-start ">
                     <div className="flex flex-col space-y-14 text-center">
                         <div className="flex flex-col space-y-2">
-                            <h1 className="text-5xl font-bold chewy">Welcome to the <span className="text-orange-600">Kalinga ng Kababaihan</span></h1>
+                            <h1 className="text-5xl font-bold chewy">Welcome to the <span className="text-orange-600 chewy">Kalinga ng Kababaihan</span></h1>
                             <p className="text-gray-600 text-base poppins-regular">We are a non-profit organization that is dedicated to helping the less fortunate.</p>
                         </div>
 

@@ -3,108 +3,214 @@ import User from "../layouts/User";
 import { useContext } from "react";
 import { AuthContext } from "../AuthProvider";
 import Logout from "../components/Logout";
+import { div } from "framer-motion/client";
+import { SlidersHorizontal } from "lucide-react";
+import { Search } from "lucide-react";
+import { useState } from "react";
+import { motion, AnimatePresence } from 'framer-motion';
 
 const events = [
     {
-        title: "Event 1",
-        date: "2023-10-01",
+        title: "Mental Health Awareness Session",
+        date: "2023-10-10",
         time: "10:00 AM",
-        description: "Description for Event 1",
+        description: "A talk on mental well-being and stress management for women.",
+        images: [
+            {src: "volunteers.png", alt: "Volunteer" },
+            {src: "supermom.png", alt: "Supermom" },    
+        ]
     },
     {
-        title: "Event 2",
-        date: "2023-10-02",
+        title: "Self-Defense Workshop",
+        date: "2023-10-11",
+        time: "1:00 PM",
+        description: "Practical self-defense techniques for personal safety and confidence.",
+        images: [
+            {src: "feeding.png", alt: "Volunteer" }   
+        ]
+    },
+    {
+        title: "Financial Literacy Seminar",
+        date: "2023-10-12",
+        time: "9:30 AM",
+        description: "Learn about budgeting, savings, and smart financial planning for women.",
+    },
+    {
+        title: "Women in Leadership Forum",
+        date: "2023-10-13",
         time: "2:00 PM",
-        description: "Description for Event 2",
+        description: "Inspiring stories and strategies from female leaders in the community.",
     },
     {
-        title: "Event 3",
-        date: "2023-10-03",
-        time: "4:00 PM",
-        description: "Description for Event 3",
+        title: "Community Outreach Program",
+        date: "2023-10-14",
+        time: "8:00 AM",
+        description: "Outreach activity where women volunteers extend support to underserved areas.",
+        images: [
+            {src: "about.png", alt: "About" },
+            {src: "banner.png", alt: "Banner" },    
+        ]
     },
     {
-        title: "Event 4",
-        date: "2023-10-04",
-        time: "6:00 PM",
-        description: "Description for Event 4",
+        title: "Health and Wellness Talk",
+        date: "2023-10-05",
+        time: "9:00 AM",
+        description: "A session on women’s health and self-care with guest medical professionals.",
     },
+    {
+        title: "Livelihood Training Workshop",
+        date: "2023-10-06",
+        time: "1:00 PM",
+        description: "Hands-on workshop on soap-making and other income-generating skills.",
+    },
+    {
+        title: "Legal Rights Awareness Seminar",
+        date: "2023-10-07",
+        time: "10:30 AM",
+        description: "Discussion about women’s legal rights and protection against abuse.",
+    },
+    {
+        title: "Empowerment Through Art",
+        date: "2023-10-08",
+        time: "3:00 PM",
+        description: "Creative painting and storytelling session to express women's strength.",
+    },
+    {
+        title: "Closing Ceremony and Recognition Day",
+        date: "2023-10-09",
+        time: "5:00 PM",
+        description: "Program finale with performances, reflections, and recognition of participants.",
+    }
 ];
+
+const prevEvents = [
+    {
+        title: "Health and Wellness Talk",
+        date: "2023-10-05",
+        time: "9:00 AM",
+        description: "A session on women’s health and self-care with guest medical professionals.",
+    },
+    {
+        title: "Livelihood Training Workshop",
+        date: "2023-10-06",
+        time: "1:00 PM",
+        description: "Hands-on workshop on soap-making and other income-generating skills.",
+    },
+    {
+        title: "Legal Rights Awareness Seminar",
+        date: "2023-10-07",
+        time: "10:30 AM",
+        description: "Discussion about women’s legal rights and protection against abuse.",
+    },
+    {
+        title: "Empowerment Through Art",
+        date: "2023-10-08",
+        time: "3:00 PM",
+        description: "Creative painting and storytelling session to express women's strength.",
+    }
+];
+
 
 const Portal = () => {
 
     const {user} = useContext(AuthContext);
 
+    const [selectedIamge, setSelectedImage] = useState();
+    const [viewImage, setViewImage] = useState(false);
+
+    const handleImageClick = (url) => {
+        setSelectedImage(url);
+        setViewImage(true);
+    };
+
     return (
         <User>
             <div className="w-full flex items-center justify-center flex-col p-4 overflow-hidden ">
                 <div className="w-full max-w-[1200px] grid grid-cols-7 gap-4" >
-                    {/* <div className="min-w-80 h-72 bg-gray-200 rounded flex items-center justify-center">
-                        <p className="text-gray-500 text-sm">Your Image Here</p>
-                    </div>
-                    <div className="w-full flex items-start justify-between py-2 h-fit border-b border-gray-200">
-                        <div className="w-full">
-                            <h1 className="text-2xl text-gray-700 font-semibold text-left mt-4 ">Welcome {user.fullName}!</h1>
-                            <p className="text-left text-orange-500 text-sm">You are now logged in</p>
+                    <div className="col-span-2 h-72">
+                        <p className="font-medium text-sm py-2 mb-2">My Previous Eevents</p>
+                        <div className="flex flex-col gap-2">
+                            {prevEvents.map((event, index) => (
+                                <div key={index} className="flex items-center gap-2 p-2 rounded-md shadow-sm bg-white">
+                                    <img src="logo.png" alt="img" className="w-10 h-10 rounded bg-gray-gray-300" />
+                                    <div className="flex flex-col items-start justify-start gap-1">
+                                        <h1 className="text-xs font-semibold text-gray-700">{event.title}</h1>
+                                        <p className="text-[9px] text-gray-500">{event.date} - {event.time}</p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                        <div className="min-w-32">
-                            <Logout/>
-                        </div>
-                    </div> */}
-                    <div className="col-span-2 h-72 bg-gray-200 rounded flex items-center justify-center">
-
                     </div>
 
                     <div className="col-span-3 h-auto rounded flex items-start flex-col justify-start gap-2">
                         <div className="w-full pr-5">
-                            <input type="text" placeholder="Search.." className="w-full text-sm placeholder:text-sm rounded border px-6 py-2"/>
+                            <div className="w-full text-xs rounded px-4 py-1.5 flex items-center justify-start gap-2 bg-white shadow-sm">
+                                <Search className="w-4 h-4 text-gray-500" />
+                                <input type="text" placeholder="Search.." className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none"/>
+                            </div>
+                            
+
+                            <div className="flex items-center justify-start gap-1 mt-2">
+                                <div className="bg-white mr-1 p-1 border rounded">
+                                    <SlidersHorizontal className="w-4 h-4 text-gray-500" />
+                                </div>
+                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">All</button>
+                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Upcoming</button>
+                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Previous</button>
+                            </div>
                         </div>
-                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[550px] overflow-y-auto pr-2">
+                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[530px] overflow-y-auto py-2 pr-2">
                             {events.map((event, index) => (
-                                <div key={index} className="w-full min-h-36 flex items-start justify-start gap-2 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
+                                <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
                                     <div className="flex flex-col items-start justify-start gap-1">
                                         <h1 className="text-sm font-semibold text-gray-700">{event.title}</h1>
-                                        <p className="text-xs text-gray-500">{event.date} - {event.time}</p>
+                                        <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{event.date} - {event.time}</p>
+                                        <p className="text-xs text-gray-500">{event.description}</p>
                                     </div>
-                                    <div className="flex-grow"></div>
-                                    <p className="text-xs text-gray-500">{event.description}</p>
+                                    <div>
+                                        {event.images && event.images.length > 0 && (
+                                            <div className="flex items-center justify-start gap-2 mt-2">
+                                                {event.images.map((image, index) => (
+                                                    <img key={index} src={image.src} alt={image.alt} className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer" onClick={() => handleImageClick(image.src)}/>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+                                    <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
                                 </div>
                             ))}
                         </div>
+                        {viewImage && (
+                                <AnimatePresence>
+                                    <motion.div 
+                                    role="alert"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="w-screen h-screen flex items-center justify-center bg-black/40 fixed top-0 left-0 z-50 cursor-pointer px-5" onClick={() => setViewImage(false)}>
+                                        <motion.div 
+                                        initial={{ scale: 0.95, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        exit={{ scale: 0.95, opacity: 0 }}
+                                        transition={{ duration: 0.2 }}
+                                        className="bg-white rounded-lg h-auto w-full max-w-[600px] flex flex-col justify-start gap-4">
+                                            <img src={selectedIamge} alt="image" className="h-full w-full rounded-lg" />
+                                        </motion.div>
+                                    </motion.div>
+                                </AnimatePresence>
+                             
+                            )
+                        }
+                       
 
                     </div>
 
-                    <div className="col-span-2 h-fit w-full max-w-sm bg-white border border-gray-100 rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
-                        <div className="flex justify-end px-4 pt-4">
-                            <button id="dropdownButton" data-dropdown-toggle="dropdown" class="inline-block text-gray-500 dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-200 dark:focus:ring-gray-700 rounded-lg text-sm p-1.5" type="button">
-                                <span className="sr-only">Open dropdown</span>
-                                <svg className="w-5 h-5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 16 3">
-                                    <path d="M2 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm6.041 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3ZM14 0a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Z"/>
-                                </svg>
-                            </button>
-                            {/* <!-- Dropdown menu --> */}
-                            <div id="dropdown" class="z-10 hidden text-base list-none bg-white divide-y divide-gray-100 rounded-lg shadow-sm w-44 dark:bg-gray-700">
-                                <ul className="py-2" aria-labelledby="dropdownButton">
-                                <li>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Edit</a>
-                                </li>
-                                <li>
-                                    <a href="#" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Export Data</a>
-                                </li>
-                                <li>
-                                    <a href="#" className="block px-4 py-2 text-sm text-red-600 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Delete</a>
-                                </li>
-                                </ul>
-                            </div>
-                        </div>
-                        <div className="flex flex-col items-center pb-10">
-                            <img className="w-24 h-24 mb-3 rounded-full shadow-lg bg-gray-400 object-center object-cover" src="sampleprofile.jpg" alt="image"/>
-                            <h5 className="mb-1 text-xl font-medium text-gray-900 dark:text-white">Bonnie Green</h5>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">Visual Designer</span>
-                            {/* <div className="flex mt-4 md:mt-6">
-                                <a href="#" className="inline-flex items-center px-4 py-2 text-sm font-medium text-center text-white bg-blue-700 rounded-lg hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Add friend</a>
-                                <a href="#" className="py-2 px-4 ms-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700">Message</a>
-                            </div> */}
+                    <div className="col-span-2 h-fit w-full max-w-sm bg-white rounded-lg shadow-sm dark:bg-gray-800 dark:border-gray-700">
+                        <div className="flex flex-col items-center p-8">
+                            <img className="w-24 h-24 mb-3 rounded-full shadow-lg bg-gray-400 object-center object-cover cursor-pointer" src="sampleprofile.jpg" alt="image" onClick={() => handleImageClick("sampleprofile.jpg")}/>
+                            <h5 className="mb-1  font-medium text-gray-900 dark:text-white">{user.fullName}</h5>
+                            <span className="text-xs text-gray-500 dark:text-gray-400">{user.email}</span>
+                            <span className="text-xs text-blue-500 dark:text-gray-400">@{user.username}</span>
                         </div>
                     </div>
 

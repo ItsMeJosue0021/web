@@ -4,6 +4,9 @@ import Admin from "../layouts/Admin";
 import { _get, _delete } from "../api";
 import { toast } from 'react-toastify';
 import UpdateUserForm from "../components/forms/UpdateUserForm";
+import PrintButton from "../components/buttons/PrintButton";
+import PrintPreview from "../components/PrintPreview";
+import '../css/loading.css'; 
 
 const Users = () => {
 
@@ -56,13 +59,33 @@ const Users = () => {
         subTitle: "Manage all users in the system",
     }
 
+    const breadcrumbs = [
+        { name: "Settings", link: "/settings/users" },
+        { name: "Users", link: "/settings/users" }
+    ]
+
+    const [showPrintPreview, setShowPrintPreview] = useState(false);
+    
+    const handlePrintPreview = () => {
+        setShowPrintPreview(true);
+    }
+
+    const printData = {
+        title: "List of Users",
+        subtitle: "This is the official list of all users of the system",
+    }
+
     return (
-        <Admin header={header}>
+        <Admin header={header} breadcrumbs={breadcrumbs}>
+            {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} />}
             <div className="w-full mx-auto flex flex-col gap-4">
-                <div className="w-full flex items-center p-3 rounded-lg border border-gray-100 bg-white">
+                <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4 ">
                         <p className="text-sm">Search</p>
                         <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for Users.." />
+                    </div>
+                    <div>
+                        <PrintButton onView={handlePrintPreview}/>
                     </div>
                 </div>
                
@@ -71,15 +94,19 @@ const Users = () => {
                     <tr>
                         <th className="p-3 text-start">Name</th>
                         <th className="p-3 text-start">Email</th>
+                        <th className="p-3 text-start">Username</th>
+                        <th className="p-3 text-start">Contact No.</th>
                         <th className="p-3 text-end">Actions</th>
                     </tr>
                     </thead>
                     <tbody>
                         {users.map((row, index) => (
                             <tr key={row.id}
-                            className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                <td className="p-3">{row.name}</td>
+                            className={`text-xs ${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                <td className="p-3">{row.first_name} {row.middle_name} {row.last_name}</td>
                                 <td className="p-3">{row.email}</td>
+                                <td className="p-3">{row.username}</td>
+                                <td className="p-3">{row.contact_number}</td>
                                 <td className="p-3 flex justify-end gap-2">
                                     <button onClick={() => setEditUser(row)} className="bg-red-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
                                     <button onClick={() => handleDeleteAction(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
@@ -90,7 +117,16 @@ const Users = () => {
                     </tbody>
                 </table>
                 {loading && (
-                    <div className="w-full h-20 flex items-center justify-center"><p>Loading..</p></div>
+                    <div className="w-full h-36 flex items-center text-xs justify-center">
+                        <div className="self-start h-full px-3 py-2 text-sm">
+                            <div className="h-full flex items-center space-x-1">
+                                <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
+                                <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
+                                <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
+                                <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
+                            </div>
+                        </div>
+                    </div>
                 )}
 
                 {editUser && (

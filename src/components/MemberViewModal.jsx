@@ -14,8 +14,8 @@ const MemberViewModal = ({ onClose, member }) => {
     }
 
     const printData = {
-        title: "List of Users",
-        subtitle: "This is the official list of all users of the system",
+        title: "Member Details",
+        subtitle: "Membership Information",
     }
 
     return (

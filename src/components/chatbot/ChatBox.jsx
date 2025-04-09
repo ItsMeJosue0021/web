@@ -78,7 +78,7 @@ const ChatBox = ({toggleChatbot}) => {
                 </div>
                 <div className="">
                     <div className="w-full rounded-lg p-4 ">
-                        <div className='relative p-4 h-[300px] overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
+                        <div className='relative p-4 h-[300px] hide-scrollbar overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
                             {messages.map((msg, index) => (
                                 <div 
                                 key={index} 

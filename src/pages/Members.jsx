@@ -9,6 +9,7 @@ import PrintButton from "../components/buttons/PrintButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import { title } from "framer-motion/client";
+import { generateMembershipFormPdf } from "../services/pdf/membershipForm";
 import '../css/loading.css'; 
 
 const Members = () => {
@@ -204,6 +205,7 @@ const Members = () => {
 
     const handlePrintPreview = () => {
         setShowPrintPreview(true);
+        handlePreview();
     }
 
     const printData = {
@@ -211,9 +213,34 @@ const Members = () => {
         subtitle: "This is the official list of all members registered in the system",
     }
 
+    // printing
+    const [pdfUrl, setPdfUrl] = useState(null);
+
+    const handlePreview = async () => {
+        const data = {
+            fullname: 'Jane Doe',
+            nickname: 'Jane',
+            address: '123 Main St',
+            birthdate: '01/01/1990',
+            status: 'Single',
+            contact: '09123456789',
+            facebook: 'janedoe',
+            emergencyPerson: 'John Doe',
+            emergencyAddress: '456 Elm St',
+            emergencyContact: '09987654321',
+            emergencyFacebook: 'johndoe',
+            relation: 'Brother',
+        };
+
+        const pdfBytes = await generateMembershipFormPdf(data);
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+    };
+
   return (
     <Admin header={header} breadcrumbs={breadcrumbs}>
-        {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} />}
+        {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} pdfUrl={pdfUrl} />}
         {confirmDelete && <ConfirmationAlert title="Confirm Deletion" message="Are you sure you want to delete this member?" onClose={closeDeleteConfirmation} onConfirm={handleDelete} isDelete={true} isDeleting={isDeleting} />}
         {viewMember && <MemberViewModal onClose={() => setViewMember(false)} member={currentViewableMember}/>}
         <div className="w-full mx-auto flex flex-col gap-4">

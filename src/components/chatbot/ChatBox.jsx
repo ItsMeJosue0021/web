@@ -58,6 +58,12 @@ const ChatBox = ({toggleChatbot}) => {
         console.log(question);
     };
 
+    const handleEnter = (e) => {
+        if (e.key === "Enter") {
+            sendMessage(input);
+        }
+    }
+
     return (
         <AnimatePresence>
             <motion.div 
@@ -118,7 +124,7 @@ const ChatBox = ({toggleChatbot}) => {
                             )}
                         </div>
                         <div className="flex items-center gap-2 input-box p-2 rounded-md border">
-                            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='text-xs outline-none' />
+                            <input type="text" value={input} onKeyDown={handleEnter} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='text-xs outline-none' />
                             <button className='text-xs text-white bg-orange-600 rounded' onClick={() => sendMessage()}>Send</button>
                         </div>
                     </div>

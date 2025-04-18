@@ -10,6 +10,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatButton from "../components/chatbot/ChatButton";
 import EventDetailsModal from "../components/EventDetailsModal";
+import { useRef } from 'react';
 
 const events = [
     {
@@ -135,6 +136,20 @@ const Portal = () => {
         setViewImage(true);
     };
 
+    const imageContainers = useRef([]);
+
+    const scrollImagesLeft = (index) => {
+        if (imageContainers.current[index]) {
+            imageContainers.current[index].scrollBy({ left: -100, behavior: 'smooth' });
+        }
+    };
+
+    const scrollImagesRight = (index) => {
+        if (imageContainers.current[index]) {
+            imageContainers.current[index].scrollBy({ left: 100, behavior: 'smooth' });
+        }
+    };
+
     return (
         <User>
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
@@ -188,6 +203,7 @@ const Portal = () => {
                                         <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{event.date} - {event.time}</p>
                                         <p className="text-xs text-gray-500">{event.description}</p>
                                     </div>
+                                    
                                     <div>
                                         {event.images && event.images.length > 0 && (
                                             <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
@@ -197,6 +213,38 @@ const Portal = () => {
                                             </div>
                                         )}
                                     </div>
+                                    {/* {event.images && event.images.length > 0 && (
+                                        <div className="relative w-full">
+                                           
+                                            <button
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow px-2 py-1 rounded-l hover:bg-gray-100"
+                                                onClick={() => scrollImagesLeft(index)}
+                                            >
+                                                ◀
+                                            </button>
+                                            <div
+                                                className="flex items-center justify-start gap-2 mt-2 overflow-x-auto hide-scrollbar scroll-smooth"
+                                                ref={(el) => (imageContainers.current[index] = el)}
+                                            >
+                                                {event.images.map((image, imgIndex) => (
+                                                    <img
+                                                        key={imgIndex}
+                                                        src={image.src}
+                                                        alt={image.alt}
+                                                        className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer"
+                                                        onClick={() => handleImageClick(image.src)}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <button
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow px-2 py-1 rounded-r hover:bg-gray-100"
+                                                onClick={() => scrollImagesRight(index)}
+                                            >
+                                                ▶
+                                            </button>
+                                        </div>
+                                    )} */}
+
                                     <div className="flex items-center justify-start gap-2 mt-2">
                                         <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button>
                                         <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>

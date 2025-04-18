@@ -22,9 +22,9 @@ import Users from './pages/Users';
 const App = () => {
     useEffect(() => {
         AOS.init({
-            duration: 2000, // Animation duration in milliseconds
-            once: true, // Whether animation should happen only once
-            easing: "ease-in-out", // Type of easing
+            duration: 2000, 
+            once: true, 
+            easing: "ease-in-out", 
           });
     }, []);
 

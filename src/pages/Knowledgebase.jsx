@@ -10,6 +10,7 @@ import PrintButton from "../components/buttons/PrintButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import '../css/loading.css'; 
+import {generateKnowledgebaseList} from "../services/pdf/knowledgebaseList";
 
 const Knowledgebase = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -120,6 +121,7 @@ const Knowledgebase = () => {
     
     const handlePrintPreview = () => {
         setShowPrintPreview(true);
+        handlePreview();
     }
 
     const printData = {
@@ -127,9 +129,19 @@ const Knowledgebase = () => {
         subtitle: "This is the official list of all knowledgebase in the system",
     }
 
+    // printing
+    const [pdfUrl, setPdfUrl] = useState(null);
+
+    const handlePreview = async () => {
+        const pdfBytes = await generateKnowledgebaseList(knowledgebase);
+        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
+        const url = URL.createObjectURL(blob);
+        setPdfUrl(url);
+    };
+
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
-            {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} />}
+            {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} pdfUrl={pdfUrl} />}
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="bg-white flex items-center justify-between p-3 rounded-lg border border-gray-100">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">

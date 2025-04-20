@@ -10,6 +10,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import { title } from "framer-motion/client";
 import { generateMembershipFormPdf } from "../services/pdf/membershipForm";
+import {generateMembersListPdf} from "../services/pdf/membersList";
 import '../css/loading.css'; 
 
 const Members = () => {
@@ -232,7 +233,7 @@ const Members = () => {
             relation: 'Brother',
         };
 
-        const pdfBytes = await generateMembershipFormPdf(data);
+        const pdfBytes = await generateMembersListPdf(members);
         const blob = new Blob([pdfBytes], { type: 'application/pdf' });
         const url = URL.createObjectURL(blob);
         setPdfUrl(url);

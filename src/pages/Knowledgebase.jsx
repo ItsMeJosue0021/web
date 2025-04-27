@@ -103,8 +103,8 @@ const Knowledgebase = () => {
           } catch (error) {
             console.error("Error fetching data:", error);
           }
-        }, 500), // delay in ms
-        [] // ensures debounce is only created once
+        }, 500), 
+        [] 
       );
     
 
@@ -117,31 +117,14 @@ const Knowledgebase = () => {
         { name: "Knowledgebase", link: "/knowledgebase" }
     ];
 
-    const [showPrintPreview, setShowPrintPreview] = useState(false);
-    
-    const handlePrintPreview = () => {
-        setShowPrintPreview(true);
-        handlePreview();
-    }
 
     const printData = {
         title: "List of Knowledgebase",
         subtitle: "This is the official list of all knowledgebase in the system",
     }
 
-    // printing
-    const [pdfUrl, setPdfUrl] = useState(null);
-
-    const handlePreview = async () => {
-        const pdfBytes = await generateKnowledgebaseList(knowledgebase);
-        const blob = new Blob([pdfBytes], { type: 'application/pdf' });
-        const url = URL.createObjectURL(blob);
-        setPdfUrl(url);
-    };
-
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
-            {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} pdfUrl={pdfUrl} />}
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="bg-white flex items-center justify-between p-3 rounded-lg border border-gray-100">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
@@ -149,7 +132,6 @@ const Knowledgebase = () => {
                         <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for Knowledgebases.." />
                     </div>
                     <div className="flex items-start justify-end  gap-2">
-                        <PrintButton onView={handlePrintPreview}/>
                         {!isOpen ? (
                             <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded" onClick={() => setIsOpen(true)}>
                                 + New

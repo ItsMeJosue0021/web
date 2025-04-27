@@ -6,11 +6,12 @@ import Logout from "../components/Logout";
 import { div } from "framer-motion/client";
 import { SlidersHorizontal, X } from "lucide-react";
 import { Search } from "lucide-react";
-import { useState } from "react";
+import { useState, useRef  } from "react";
 import { motion, AnimatePresence } from 'framer-motion';
 import ChatButton from "../components/chatbot/ChatButton";
 import EventDetailsModal from "../components/EventDetailsModal";
-import { useRef } from 'react';
+import { PencilLine, Image } from "lucide-react";
+
 
 const events = [
     {
@@ -130,11 +131,30 @@ const Portal = () => {
     const [selectedIamge, setSelectedImage] = useState();
     const [viewImage, setViewImage] = useState(false);
     const [showDetails, setShowDetails] = useState(false);
+    const [showUpdateProfilePic, setShowUpdateProfilePic] = useState(false);
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const fileInputRef = useRef(null);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+        setSelectedFile(file);
+        }
+    };
+
+    // const handleDivClick = () => {
+    //     fileInputRef.current.click(); // This will open the file manager
+    // };
 
     const handleImageClick = (url) => {
         setSelectedImage(url);
         setViewImage(true);
     };
+
+    const openUpdateProfilePicModal = () => {
+        setShowUpdateProfilePic(true);
+    }
 
     const imageContainers = useRef([]);
 
@@ -154,8 +174,8 @@ const Portal = () => {
         <User>
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
             <div className="w-full flex items-center justify-center flex-col p-4 overflow-hidden ">
-                <div className="w-full max-w-[1200px] grid grid-cols-7 gap-4" >
-                    <div className="col-span-2 h-72">
+                <div className="w-full max-w-[1200px] grid grid-cols-3 md:grid-cols-7 gap-4" >
+                    <div className="hidden md:block col-span-2 h-72">
                         <p className="font-medium text-sm py-2 mb-2">My Previous Eevents</p>
                         <div className="flex flex-col gap-2">
                             {prevEvents.map((event, index) => (
@@ -187,7 +207,7 @@ const Portal = () => {
                                 <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Previous</button>
                             </div>
                         </div>
-                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto max-h-[530px] overflow-y-auto py-2 hide-scrollbar">
+                        <div className="flex flex-col items-start justify-start gap-2 w-full h-auto md:max-h-[530px] overflow-y-auto py-2 hide-scrollbar">
                             {events.map((event, index) => (
                                 <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
                                     <div className="flex items-center justify-start gap-2">
@@ -274,11 +294,83 @@ const Portal = () => {
                         }
                     </div>
 
-                    <div className="col-span-2 h-fit w-full flex flex-col gap-4">
+                    <div className="hidden md:flex col-span-2 h-fit w-full flex-col gap-4">
                         <div className="flex flex-col items-center p-8 bg-white rounded-lg shadow-sm">
-                            <div className="flex items-center justify-center w-20 h-20 rounded-full bg-orange-100 mb-2">
+                            <div className="relative flex items-center justify-center w-20 h-20 rounded-full bg-orange-100 mb-2 z-0">
                                 <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
+                                <PencilLine size={14} onClick={openUpdateProfilePicModal} className="absolute -right-0 bottom-0 hover:text-blue-500 cursor-pointer" />
                             </div>
+                            {showUpdateProfilePic && (
+                                    <AnimatePresence>
+                                        <motion.div
+                                            role="alert"
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            exit={{ opacity: 0 }}
+                                            className="w-screen h-screen flex items-center justify-center bg-black/40 fixed top-0 left-0 z-40 cursor-pointer px-5"
+                                            
+                                        >
+                                            <motion.div
+                                            initial={{ scale: 0.95, opacity: 0 }}
+                                            animate={{ scale: 1, opacity: 1 }}
+                                            exit={{ scale: 0.95, opacity: 0 }}
+                                            transition={{ duration: 0.2 }}
+                                            className="bg-white rounded-lg h-auto flex flex-col w-fit justify-start gap-4"
+                                            >
+                                                <div className="flex flex-col w-fit items-center justify-center p-4">
+
+                                                    {/* Hidden input + clickable label */}
+                                                    <input
+                                                    type="file"
+                                                    id="fileUpload"
+                                                    onChange={handleFileChange}
+                                                    className="hidden"
+                                                    accept="image/*"
+                                                    />
+
+                                                    <label
+                                                    htmlFor="fileUpload"
+                                                    className="w-80 h-72 rounded-lg border-dashed border-2 border-gray-300 hover:border-gray-400 group flex items-center justify-center cursor-pointer overflow-hidden relative"
+                                                    >
+                                                    {selectedFile ? (
+                                                        <img
+                                                        src={URL.createObjectURL(selectedFile)}
+                                                        alt="Preview"
+                                                        className="object-cover w-full h-full"
+                                                        />
+                                                    ) : (
+                                                        <Image size={42} strokeWidth={1} className="text-gray-300 group-hover:text-gray-700" />
+                                                    )}
+                                                    </label>
+
+                                                    {/* Buttons */}
+                                                    <div className="w-full flex items-center justify-end gap-2 mt-4">
+                                                    <button
+                                                        className="px-4 py-2 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded"
+                                                        onClick={() => {
+                                                        // upload logic here
+                                                        }}
+                                                    >
+                                                        Save
+                                                    </button>
+
+                                                    <button
+                                                        className="px-4 py-2 text-xs bg-gray-200 hover:bg-gray-300 rounded"
+                                                        onClick={() => {
+                                                        setSelectedFile(null);
+                                                        setShowUpdateProfilePic(false);
+                                                        }}
+                                                    >
+                                                        Cancel
+                                                    </button>
+                                                    </div>
+
+                                                </div>
+
+                                            </motion.div>
+                                        </motion.div>
+                                    </AnimatePresence>
+                                )}
                             <h5 className="mb-1  font-medium text-gray-900 dark:text-white">{user.fullName}</h5>
                             <span className="text-xs text-gray-500 dark:text-gray-400">{user.email}</span>
                             <span className="text-xs text-blue-500 dark:text-gray-400">@{user.username}</span>

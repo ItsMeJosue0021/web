@@ -7,7 +7,9 @@ import UpdateUserForm from "../components/forms/UpdateUserForm";
 import PrintButton from "../components/buttons/PrintButton";
 import PrintPreview from "../components/PrintPreview";
 import '../css/loading.css'; 
+import { Eye } from "lucide-react";
 import { motion, AnimatePresence } from 'framer-motion';
+import UserViewModal from "../components/UserViewModal";
 
 const Users = () => {
 
@@ -17,6 +19,8 @@ const Users = () => {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [viewUser, setViewUser] = useState(false);
+    const [user, setUser] = useState(null);
 
     const fetchUsers = async () => {
         setLoading(true);
@@ -55,6 +59,12 @@ const Users = () => {
         }
     }
 
+    const viewUserDetails = (user) => {
+        setUser(user);
+        setViewUser(true);
+        console.log(user);
+    }
+
     const header = {
         title: "User Management",
         subTitle: "Manage all users in the system",
@@ -79,6 +89,7 @@ const Users = () => {
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
             {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} />}
+            {viewUser && <UserViewModal onClose={() => setViewUser(false)} user={user}/>}
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4 ">
@@ -109,7 +120,7 @@ const Users = () => {
                                 <td className="p-3">{row.username}</td>
                                 <td className="p-3">{row.contact_number}</td>
                                 <td className="p-3 flex justify-end gap-2">
-                                    <button onClick={() => setEditUser(row)} className="bg-red-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                                    <button onClick={() => viewUserDetails(row)}><Eye size={16}/></button>
                                     <button onClick={() => handleDeleteAction(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
                                 </td>
                             </tr>

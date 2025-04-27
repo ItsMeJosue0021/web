@@ -71,7 +71,7 @@ const ChatBox = ({toggleChatbot}) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed z-50 bottom-32 right-20 w-80 bg-white rounded-xl shadow-lg overflow-hidden">
+            className="fixed z-50 bottom-32 md:right-20 w-80 bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="bg-orange-600 text-white p-3 flex justify-between items-center">
                     <div className='flex items-end gap-2'>
                         <Bot strokeWidth={4} className="w-7 h-7" />

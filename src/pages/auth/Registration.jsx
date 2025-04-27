@@ -111,16 +111,16 @@ const Registration = () => {
             )}
 
             <div className="w-full min-h-screen h-auto flex items-center justify-center p-5">
-                <div className="w-fit md:w-4/6 min-h-[450px] h-auto shadow-sm rounded-xl flex items-start bg-white">
+                <div className="w-fit md:w-4/6 min-h-[400px] h-auto shadow-sm rounded-xl flex items-start bg-white">
                     <div className="hidden lg:block w-[50%] h-full rounded-l-xl">
                         <div className="w-full h-full rounded-l-xl">
-                            <div className="relative w-full h-[500px] md:h-auto overflow-hidden rounded-l-xl ">
+                            <div className="relative w-full h-[565px] md:h-auto overflow-hidden rounded-l-xl ">
                                 {/* Image and Text */}
                                 <div className="relative">
                                     <img
                                         src={images[currentIndex].src}
                                         alt={`Slide ${currentIndex + 1}`}
-                                        className="w-[1200px] h-[600px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
+                                        className="w-[1200px] h-[565px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
                                     />
                                     <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-l-xl"></div>
                                     <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-xl font-bold text-center px-5">
@@ -174,7 +174,7 @@ const Registration = () => {
                                         name="firstName" 
                                         hasError={Boolean(errors.firstName)} 
                                         onChange={handleChange} required/>
-                                        {errors.firstName && <p className="text-red-500 text-[11px]">{errors.firstName}</p>}
+                                        {errors.firstName && <p className="text-red-500 text-[101px]">{errors.firstName}</p>}
                                     </div>
 
                                     <TextInput 

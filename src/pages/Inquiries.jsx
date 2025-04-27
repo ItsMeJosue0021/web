@@ -101,12 +101,6 @@ const Inquiries = () => {
         { name: "Inquiries", link: "/inquiries" }
     ]
 
-    const [showPrintPreview, setShowPrintPreview] = useState(false);
-    
-    const handlePrintPreview = () => {
-        setShowPrintPreview(true);
-    }
-
     const printData = {
         title: "List of Inquiries",
         subtitle: "This is the official list of all inquiries received through the system",
@@ -114,15 +108,11 @@ const Inquiries = () => {
 
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
-            {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} />}
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4 ">
                         <p className="text-sm">Search</p>
                         <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
-                    </div>
-                    <div>
-                        <PrintButton onView={handlePrintPreview}/>
                     </div>
                 </div>
                
@@ -139,15 +129,15 @@ const Inquiries = () => {
                         {enquiries.map((row, index) => (
                             <tr key={row.id}
                             className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                <td className="p-3">{row.name}</td>
-                                <td className="p-3">{row.email}</td>
+                                <td className="p-3 text-xs">{row.name}</td>
+                                <td className="p-3 text-xs">{row.email}</td>
                                 <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
-                                <td className="p-3 flex justify-start gap-2">
+                                <td className="p-3 text-xs flex justify-start gap-2">
                                 <button 
                                         onClick={() => openReplyModal(row.email)}
-                                        className="bg-orange-500 text-xs text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
+                                        className="bg-orange-500 text-[10px] text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
                                     >
-                                        <Mail size={16} /> Reply
+                                        <Mail size={14} /> Reply
                                 </button>
                                     <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
                                 </td>

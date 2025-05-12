@@ -6,6 +6,9 @@ import activity2 from "../assets/img/activity2.png";
 import { useState, useEffect } from "react";
 import logo from '../assets/img/logo.png';
 import ChatButton from "../components/chatbot/ChatButton";
+import { Link } from "react-router-dom";
+import projects from "../data/projects.json"
+
 
 const images = [
     { src: banner, text: "Think of giving not as a duty, but as a privilege." },
@@ -32,6 +35,18 @@ const Home = () => {
         setCurrentIndex((prevIndex) => (prevIndex === images.length - 1 ? 0 : prevIndex + 1));
     };
 
+    const [currentPIndex, setCurrentPIndex] = useState(0);
+
+    const prevPSlide = () => {
+        setCurrentPIndex((prev) => (prev === 0 ? projects.length - 1 : prev - 1));
+    };
+
+    const nextPSlide = () => {
+        setCurrentPIndex((prev) => (prev === projects.length - 1 ? 0 : prev + 1));
+    };
+
+    const project = projects[currentIndex];
+
 
     return (
         <div className="bg-gray-50 max-w-screen w-screen h-auto min-h-screen overflow-hidden">
@@ -55,7 +70,7 @@ const Home = () => {
                                 />
                                 <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-3xl"></div>
                                 <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-3xl font-bold text-center px-5">
-                                    <p className="poppins-regular">{images[currentIndex].text}</p>
+                                    <p className=" italic">{images[currentIndex].text}</p>
                                 </div>
                             </div>
 
@@ -88,12 +103,13 @@ const Home = () => {
                 </div>
             </section>
 
-            <section className="w-screen max-w-[1200px] mx-auto px-4">
+            <section className="w-screen max-w-[1200px] mx-auto px-4 pb-16">
                 <div className="px-4 py-20 flex flex-col space-y-8 items-center">
                     <h1 className="text-4xl chewy">Recent Projects</h1>
                 </div>
                 <div className="w-full flex items-center justify-center flex-wrap gap-4">
-                    <div data-aos="fade-down" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
+                    {projects.slice(0, 2).map((project, index) => (
+                        <div key={index} data-aos="fade-down" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
                         <img
                             src={activity1}
                             alt="activity1"
@@ -102,29 +118,24 @@ const Home = () => {
                         <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
 
                         <div className="absolute bottom-0 left-0 w-full text-white p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <p className="text-2xl font-bold">Lorem ipsum dolor sit amet</p>
-                            <p className="text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta dolores, assumenda nostrum possimus praesentium eos. Dicta dolores, assumenda nostrum possimus praesentium eos.</p>
-                            <p className="text-sm mt-1 cursor-pointer">See more</p>
+                            <p className="text-xl font-bold">{project.title}</p>
+                            <p className="text-xs">
+                            {project.description.length > 150
+                                ? project.description.slice(0, 150) + '...'
+                                : project.description}
+                            </p>
+                            <div className="mt-3">
+                            <Link to={`/projects/${project.id}`} className="px-3 text-gray-200 hover:text-white py-1 text-xs border border-gray-200 hover:border-white rounded">
+                                Read More
+                            </Link>
+                            </div>
                         </div>
-                    </div>
-                    <div data-aos="fade-up" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
-                        <img
-                            src={activity2}
-                            alt="activity2"
-                            className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
-
-                        <div className="absolute bottom-0 left-0 w-full text-white p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <p className="text-2xl font-bold">Lorem ipsum dolor sit</p>
-                            <p className="text-sm">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta dolores, assumenda nostrum possimus praesentium eos. Dicta dolores, assumenda nostrum possimus praesentium eos.</p>
-                            <p className="text-sm mt-1 cursor-pointer">See more</p>
                         </div>
-                    </div>
+                    ))}
                 </div>
             </section>
 
-            <section>
+            {/* <section>
                 <div className="px-4 py-20 flex flex-col space-y-8 items-center">
                     <h1 className="text-4xl chewy">Our Mission</h1>
                     <p className="w-full md:w-1/2 text-lg poppins-regular text-center">Our mission is to help the less fortunate by providing them with the necessary resources they need to survive. We believe that everyone deserves a chance to live a better life.</p>
@@ -133,7 +144,7 @@ const Home = () => {
                     <h1 className="text-4xl chewy">Our Vision</h1>
                     <p className="w-full md:w-1/2 text-lg poppins-regular text-center">Our mission is to help the less fortunate by providing them with the necessary resources they need to survive. We believe that everyone deserves a chance to live a better life.</p>
                 </div>
-            </section>
+            </section> */}
 
             <section className="bg-orange-600 w-full py-20">
                 <div className="max-w-[1200px] mx-auto px-4">

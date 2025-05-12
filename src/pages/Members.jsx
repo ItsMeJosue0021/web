@@ -258,6 +258,7 @@ const Members = () => {
             <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
                 <thead className="bg-orange-500 text-white">
                 <tr>
+                    <th className="p-3 text-start">Member Id</th>
                     <th className="p-3 text-start">First Name</th>
                     <th className="p-3 text-start">Last Name</th>
                     <th className="p-3 text-start">Nick Name</th>
@@ -269,6 +270,7 @@ const Members = () => {
                 <tbody>
                 {members.map((member, index) => (
                     <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                    <td className="p-3">{member.member_id}</td>
                     <td className="p-3">{member.first_name}</td>
                     <td className="p-3">{member.last_name}</td>
                     <td className="p-3">{member.nick_name}</td>

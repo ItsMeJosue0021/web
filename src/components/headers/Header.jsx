@@ -55,6 +55,9 @@ const Header = () => {
                         <li>
                             <Link to="/faqs" className='text-black'>FAQs</Link>
                         </li>
+                        <li>
+                            <Link to="/contact-us" className='text-black'>Contact Us</Link>
+                        </li>
                     </ul>
                 )}
 

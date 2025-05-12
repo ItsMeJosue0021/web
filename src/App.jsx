@@ -18,6 +18,10 @@ import Registration from './pages/auth/Registration';
 import Inquiries from './pages/Inquiries';
 import Knowledgebase from './pages/Knowledgebase';
 import Users from './pages/Users';
+import ProjectDetails from './pages/ProjectDetails';
+import BannerImg from './pages/BannerImg';
+import ContactInfo from './pages/ContactInfo';
+import ContactUs from './pages/ContactUs';
 
 const App = () => {
     useEffect(() => {
@@ -73,9 +77,22 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
-
-
+                <Route
+                    path="/settings/banner-images"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <BannerImg />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings/contact-info"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <ContactInfo />
+                        </ProtectedRoute>
+                    }
+                />
 
 
                 {/* User */}
@@ -118,6 +135,18 @@ const App = () => {
                     path="/faqs"
                     element={
                         <Faqs />
+                    }
+                />
+                <Route
+                    path="/contact-us"
+                    element={
+                        <ContactUs />
+                    }
+                />
+                <Route
+                    path="/projects/:id"
+                    element={
+                        <ProjectDetails />
                     }
                 />
                 <Route path="/login"

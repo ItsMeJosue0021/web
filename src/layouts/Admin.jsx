@@ -133,7 +133,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
      const [isOpen, setIsOpen] = useState(false);
 
      useEffect(() => {
-        if (location.pathname === "/settings/users") {
+        if (location.pathname.includes("/settings")) {
             setIsOpen(true);
         }
      }, [location.pathname]);
@@ -199,6 +199,20 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                     <img src={role} alt="icon" className="w-5 h-5" />
                                                 </div>
                                                 <p className="text-xs text-black font-medium">Users</p>
+                                            </Link>
+
+                                            <Link to="/settings/banner-images" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/banner-images" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                <div className="flex justify-center w-10">
+                                                    <img src={role} alt="icon" className="w-5 h-5" />
+                                                </div>
+                                                <p className="text-xs text-black font-medium">Banner Images</p>
+                                            </Link>
+
+                                            <Link to="/settings/contact-info" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/contact-info" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                <div className="flex justify-center w-10">
+                                                    <img src={role} alt="icon" className="w-5 h-5" />
+                                                </div>
+                                                <p className="text-xs text-black font-medium">Contact Info</p>
                                             </Link>
                                         </div>
                                     )}

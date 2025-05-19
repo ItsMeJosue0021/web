@@ -3,11 +3,13 @@ import Header from "../components/headers/Header";
 import banner from "../assets/img/banner.png";
 import activity1 from "../assets/img/activity1.png";
 import activity2 from "../assets/img/activity2.png";
+import donateNowImg from "../assets/img/donateNow.png";
 import { useState, useEffect } from "react";
 import logo from '../assets/img/logo.png';
 import ChatButton from "../components/chatbot/ChatButton";
 import { Link } from "react-router-dom";
 import projects from "../data/projects.json"
+import Footer from "../components/Footer";
 
 
 const images = [
@@ -103,48 +105,52 @@ const Home = () => {
                 </div>
             </section>
 
-            <section className="w-screen max-w-[1200px] mx-auto px-4 pb-16">
-                <div className="px-4 py-20 flex flex-col space-y-8 items-center">
-                    <h1 className="text-4xl chewy">Recent Projects</h1>
-                </div>
-                <div className="w-full flex items-center justify-center flex-wrap gap-4">
-                    {projects.slice(0, 2).map((project, index) => (
-                        <div key={index} data-aos="fade-down" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
-                        <img
-                            src={activity1}
-                            alt="activity1"
-                            className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
-                        />
-                        <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
+            <section className="bg-gray-200">
+                <div className="max-w-[1200px] mx-auto px-4 py-16 mt-12">
+                    <div className="px-4 pb-8 flex flex-col space-y-8 items-center">
+                        <h1 className="text-4xl chewy">Recent Projects</h1>
+                    </div>
+                    <div className="w-full flex items-center justify-center flex-wrap gap-4">
+                        {projects.slice(0, 2).map((project, index) => (
+                            <div key={index} data-aos="fade-down" className="relative w-[500px] h-80 rounded-lg overflow-hidden group">
+                            <img
+                                src={activity1}
+                                alt="activity1"
+                                className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
 
-                        <div className="absolute bottom-0 left-0 w-full text-white p-4 bg-gradient-to-t from-black/80 to-transparent">
-                            <p className="text-xl font-bold">{project.title}</p>
-                            <p className="text-xs">
-                            {project.description.length > 150
-                                ? project.description.slice(0, 150) + '...'
-                                : project.description}
-                            </p>
-                            <div className="mt-3">
-                            <Link to={`/projects/${project.id}`} className="px-3 text-gray-200 hover:text-white py-1 text-xs border border-gray-200 hover:border-white rounded">
-                                Read More
-                            </Link>
+                            <div className="absolute bottom-0 left-0 w-full text-white p-4 bg-gradient-to-t from-black/80 to-transparent">
+                                <p className="text-xl font-bold">{project.title}</p>
+                                <p className="text-xs">
+                                {project.description.length > 150
+                                    ? project.description.slice(0, 150) + '...'
+                                    : project.description}
+                                </p>
+                                <div className="mt-3">
+                                <Link to={`/projects/${project.id}`} className="px-3 text-gray-200 hover:text-white py-1 text-xs border border-gray-200 hover:border-white rounded">
+                                    Read More
+                                </Link>
+                                </div>
                             </div>
-                        </div>
-                        </div>
-                    ))}
+                            </div>
+                        ))}
+                    </div>
                 </div>
             </section>
 
-            {/* <section>
-                <div className="px-4 py-20 flex flex-col space-y-8 items-center">
-                    <h1 className="text-4xl chewy">Our Mission</h1>
-                    <p className="w-full md:w-1/2 text-lg poppins-regular text-center">Our mission is to help the less fortunate by providing them with the necessary resources they need to survive. We believe that everyone deserves a chance to live a better life.</p>
+            <section className="bg-white w-full py-20">
+                <div className="max-w-[1200px] mx-auto px-4">
+                    <div className="flex items-center justify-center gap-8 ">
+                        <img src={donateNowImg} alt="img" className="w-[500px] " />
+                        <div className="flex flex-col gap-5">
+                            <p className="text-5xl font-bold">Give food and bring Hope.</p>
+                            <p className="text-3xl ">Every meal matters. Every donation counts. Start giving today.</p>
+                            <button className="w-fit px-6 py-3 rounded-md text-sm text-white bg-orange-600 hover:bg-orange-700">Donate Now</button>
+                        </div>
+                    </div>
                 </div>
-                <div className="px-4 pb-20 flex flex-col space-y-8 items-center">
-                    <h1 className="text-4xl chewy">Our Vision</h1>
-                    <p className="w-full md:w-1/2 text-lg poppins-regular text-center">Our mission is to help the less fortunate by providing them with the necessary resources they need to survive. We believe that everyone deserves a chance to live a better life.</p>
-                </div>
-            </section> */}
+            </section>
 
             <section className="bg-orange-600 w-full py-20">
                 <div className="max-w-[1200px] mx-auto px-4">
@@ -174,7 +180,7 @@ const Home = () => {
                     <div className="flex flex-col space-y-6 items-center text-center">
                         <h1 className="text-4xl chewy">Get Involved</h1>
                         <p className="text-lg poppins-regular">We are always looking for volunteers to help us with our projects. If you are interested in helping out, please contact us.</p>
-                        <button className="px-8 py-4 rounded-md text-white bg-orange-600 border-0 hover:outline-none active:outline-none">Contact Us</button>
+                        <Link to="/contact-us" className="w-fit px-6 py-3 rounded-md text-sm text-white bg-orange-600 hover:bg-orange-700">Contact Us</Link>
                     </div>
                 </div>
             </section>
@@ -212,60 +218,8 @@ const Home = () => {
                     </div>
                 </div>
             </section>
-
-            <footer className="bg-gray-50">
-                <div className="max-w-[1200px] mx-auto px-4 py-20 ">
-                   <div className="flex flex-col md:flex-row items-center gap-10 md:items-start md:justify-between">
-                        <div className="w-full flex flex-col md:flex-row md:gap-12 items-center md:items-start">
-                            <img src={logo} alt="logo" className="w-40 h-40 rounded-full"/>
-                            <div className="flex flex-col items-center md:items-start pt-5 text-lg poppins-regular">
-                                <p>About Us</p>
-                                <p>Mission</p>
-                                <p>Vision</p>
-                                <p>Contact Us</p>
-                            </div>
-                            <div className="flex flex-col items-center md:items-start pt-5 text-lg poppins-regular">
-                                <p>Volunteers</p>
-                                <p>FAQs</p>
-                                <p>Sign Up</p>
-                            </div>
-                        </div>
-                        <div className="flex items-center gap-5 cursor-pointer">
-                            <span class="[&>svg]:h-5 [&>svg]:w-5 [&>svg]:fill-[#6a76ac]">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    viewBox="0 0 448 512">
-                                    
-                                    <path
-                                    d="M448 209.9a210.1 210.1 0 0 1 -122.8-39.3V349.4A162.6 162.6 0 1 1 185 188.3V278.2a74.6 74.6 0 1 0 52.2 71.2V0l88 0a121.2 121.2 0 0 0 1.9 22.2h0A122.2 122.2 0 0 0 381 102.4a121.4 121.4 0 0 0 67 20.1z" />
-                                </svg>
-                            </span>
-
-                            <span class="[&>svg]:h-5 [&>svg]:w-5 [&>svg]:fill-[#1877f2]">
-                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512">
-                                    <path
-                                    d="M80 299.3V512H196V299.3h86.5l18-97.8H196V166.9c0-51.7 20.3-71.5 72.7-71.5c16.3 0 29.4 .4 37 1.2V7.9C291.4 4 256.4 0 236.2 0C129.3 0 80 50.5 80 159.4v42.1H14v97.8H80z" />
-                                </svg>
-                            </span>
-
-                            <span class="[&>svg]:h-5 [&>svg]:w-5 [&>svg]:fill-[#0084ff]">
-                                <svg
-                                    xmlns="http://www.w3.org/2000/svg"
-                                    fill="currentColor"
-                                    viewBox="0 0 512 512">
-                                    <path
-                                    d="M256.6 8C116.5 8 8 110.3 8 248.6c0 72.3 29.7 134.8 78.1 177.9 8.4 7.5 6.6 11.9 8.1 58.2A19.9 19.9 0 0 0 122 502.3c52.9-23.3 53.6-25.1 62.6-22.7C337.9 521.8 504 423.7 504 248.6 504 110.3 396.6 8 256.6 8zm149.2 185.1l-73 115.6a37.4 37.4 0 0 1 -53.9 9.9l-58.1-43.5a15 15 0 0 0 -18 0l-78.4 59.4c-10.5 7.9-24.2-4.6-17.1-15.7l73-115.6a37.4 37.4 0 0 1 53.9-9.9l58.1 43.5a15 15 0 0 0 18 0l78.4-59.4c10.4-8 24.1 4.5 17.1 15.6z" />
-                                </svg>
-                            </span>
-
-                        </div>    
-                   </div>
-                   <div className="pt-12">
-                        <p className="text-center text-lg poppins-regular">© 2021 Kalinga ng Kababaihan. All rights reserved.</p>
-                   </div>
-                </div>
-            </footer>
+            <Footer />
+            
             <ChatButton />
         </div>
     );

@@ -31,7 +31,7 @@ const UserViewModal = ({ onClose, user }) => {
                     <div className="mt-4 space-y-2 text-xs">
                         <p><span className="font-medium text-gray-700">Full Name:</span> {user.first_name} {user.middle_name} {user.last_name}</p>
                         <p><span className="font-medium text-gray-700">Address:</span> {user.email}</p>
-                        <p><span className="font-medium text-gray-700">Date of Birth:</span> {user.contact_number}</p>
+                        <p><span className="font-medium text-gray-700">Contact:</span> {user.contact_number}</p>
                         <p><span className="font-medium text-gray-700">Civil Status:</span> {user.username}</p>
                     </div>
 

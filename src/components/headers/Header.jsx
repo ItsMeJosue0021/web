@@ -7,6 +7,7 @@ import Logo from "../Logo";
 
 const Header = () => {
     
+    const [active, setActive] = useState('home');
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const location = useLocation();
@@ -15,6 +16,19 @@ const Header = () => {
     const isRegisterPage = location.pathname === "/register";
 
     useEffect(() => {
+
+        if (location.pathname.includes("about-us")) {
+            setActive("about");
+        } else if (location.pathname.includes("volunteers")) {
+            setActive("volunteers");
+        } else if (location.pathname.includes("faqs")) {
+             setActive("faqs");
+        } else if (location.pathname.includes("contact-us")) {
+             setActive("contact");
+        } else if (location.pathname.includes("events")) {
+             setActive("events");
+        }
+
         const handleScroll = () => {
             if (window.scrollY > 50) {
                 setIsScrolled(true);
@@ -44,19 +58,22 @@ const Header = () => {
                 {!isLoginPage && !isRegisterPage && (
                     <ul className='flex space-x-10'>
                         <li>
-                            <Link to="/" className="text-black">Home</Link>
+                            <Link to="/" className={`${active === "home" ? 'text-blue-600' : 'text-black'}`}>Home</Link>
                         </li>
                         <li>
-                            <Link to="/about-us" className='text-black'>About Us</Link>
+                            <Link to="/about-us" className={`${active === "about" ? 'text-blue-600' : 'text-black'}`}>About Us</Link>
                         </li>
                         <li>
-                            <Link to="/volunteers" className='text-black'>Volunteers</Link>
+                            <Link to="/volunteers" className={`${active === "volunteers" ? 'text-blue-600' : 'text-black'}`}>Volunteers</Link>
                         </li>
                         <li>
-                            <Link to="/faqs" className='text-black'>FAQs</Link>
+                            <Link to="/events" className={`${active === "events" ? 'text-blue-600' : 'text-black'}`}>Events</Link>
                         </li>
                         <li>
-                            <Link to="/contact-us" className='text-black'>Contact Us</Link>
+                            <Link to="/faqs" className={`${active === "faqs" ? 'text-blue-600' : 'text-black'}`}>FAQs</Link>
+                        </li>
+                        <li>
+                            <Link to="/contact-us" className={`${active === "contact" ? 'text-blue-600' : 'text-black'}`}>Contact Us</Link>
                         </li>
                     </ul>
                 )}

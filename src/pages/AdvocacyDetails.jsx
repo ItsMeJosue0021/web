@@ -3,7 +3,7 @@ import activity1 from "../assets/img/activity1.png";
 import { Link } from 'react-router-dom';
 import Guest from '../layouts/Guest';
 
-const ProjectDetails = () => {
+const AdvocacyDetails = () => {
 
     // const { id } = useParams();
     // const [project, setProject] = useState({});
@@ -20,7 +20,7 @@ const ProjectDetails = () => {
     // }
 
     const project ={
-            "id": "97hfsdfsuwef",
+            "id": "iuh09u3rhnf9h",
             "title": "Gabay at Ginhawa: Women’s Health Fair",
             "date": "2025-03-08",
             "location": "Barangay Malusak, Sta. Rosa, Laguna",
@@ -34,7 +34,7 @@ const ProjectDetails = () => {
             <div className="w-screen bg-white pt-20">
                 <div className='max-w-[1200px] mx-auto flex flex-col gap-4 p-4'>
                     <div>
-                        <Link to="/" className='text-xs '>Back</Link>
+                        <Link to="/volunteers" className='text-xs '>Back</Link>
                     </div>
                     <div>
                         <img src={project.image} alt="img" className="w-full h-[600px]" />
@@ -49,4 +49,4 @@ const ProjectDetails = () => {
     );
 }
 
-export default ProjectDetails; 
+export default AdvocacyDetails; 

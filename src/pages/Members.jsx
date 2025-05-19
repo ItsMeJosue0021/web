@@ -8,8 +8,6 @@ import MemberViewModal from "../components/MemberViewModal";
 import PrintButton from "../components/buttons/PrintButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
-import { title } from "framer-motion/client";
-import { generateMembershipFormPdf } from "../services/pdf/membershipForm";
 import {generateMembersListPdf} from "../services/pdf/membersList";
 import '../css/loading.css'; 
 

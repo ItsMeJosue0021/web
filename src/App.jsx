@@ -22,6 +22,11 @@ import ProjectDetails from './pages/ProjectDetails';
 import BannerImg from './pages/BannerImg';
 import ContactInfo from './pages/ContactInfo';
 import ContactUs from './pages/ContactUs';
+import AdvocacyDetails from './pages/AdvocacyDetails';
+import EventsList from './pages/EventsList';
+import EventDetails from './pages/EventDetails';
+import Projects from './pages/admin/Projects';
+import Events from './pages/admin/Events';
 
 const App = () => {
     useEffect(() => {
@@ -66,6 +71,22 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <Knowledgebase />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/projects"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Projects />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/events-management"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Events />
                         </ProtectedRoute>
                     }
                 />
@@ -144,11 +165,32 @@ const App = () => {
                     }
                 />
                 <Route
+                    path="/events"
+                    element={
+                        <EventsList />
+                    }
+                />
+                 <Route
+                    path="/events/:id"
+                    element={
+                        <EventDetails />
+                    }
+                />
+                <Route
                     path="/projects/:id"
                     element={
                         <ProjectDetails />
                     }
                 />
+                <Route
+                    path="/volunteers/advocacy/:id"
+                    element={
+                        <AdvocacyDetails />
+                    }
+                />
+
+
+
                 <Route path="/login"
                     element={
                         <UnuathenticatedRoute>

@@ -144,9 +144,9 @@ const Home = () => {
                     <div className="flex items-center justify-center gap-8 ">
                         <img src={donateNowImg} alt="img" className="w-[500px] " />
                         <div className="flex flex-col gap-5">
-                            <p className="text-5xl font-bold">Give food and bring Hope.</p>
-                            <p className="text-3xl ">Every meal matters. Every donation counts. Start giving today.</p>
-                            <button className="w-fit px-6 py-3 rounded-md text-sm text-white bg-orange-600 hover:bg-orange-700">Donate Now</button>
+                            <p className="text-6xl font-bold chewy">Give food and bring Hope.</p>
+                            <p className="text-3xl font-light ">Every meal matters. Every donation counts. Start giving today.</p>
+                            <Link to="/donate" className="w-fit px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer">Donate Now</Link>
                         </div>
                     </div>
                 </div>

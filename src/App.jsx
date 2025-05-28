@@ -27,6 +27,9 @@ import EventsList from './pages/EventsList';
 import EventDetails from './pages/EventDetails';
 import Projects from './pages/admin/Projects';
 import Events from './pages/admin/Events';
+import Option from './pages/donation/Option';
+import Cash from './pages/donation/Cash';
+import Goods from './pages/donation/Goods';
 
 const App = () => {
     useEffect(() => {
@@ -188,9 +191,28 @@ const App = () => {
                         <AdvocacyDetails />
                     }
                 />
+                <Route
+                    path="/donate"
+                    element={
+                        <Option />
+                    }
+                />
+                <Route
+                    path="/donate/cash"
+                    element={
+                        <Cash />
+                    }
+                />
+                <Route
+                    path="/donate/goods"
+                    element={
+                        <Goods />
+                    }
+                />
 
 
 
+                {/* Auth */}
                 <Route path="/login"
                     element={
                         <UnuathenticatedRoute>

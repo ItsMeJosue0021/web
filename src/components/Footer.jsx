@@ -3,21 +3,21 @@ import { Link } from "react-router-dom";
 
 const Footer = () => {
     return (
-       <footer className="bg-gray-50 border-t mt-4">
+       <footer className="bg-gray-50 border-t mt-4 text-gray-700 text-xs">
             <div className="max-w-[1200px] mx-auto px-4 py-20 ">
                 <div className="flex flex-col md:flex-row items-center gap-10 md:items-start md:justify-between">
                     <div className="w-full flex flex-col md:flex-row md:gap-12 items-center md:items-start">
                         <img src={logo} alt="logo" className="w-40 h-40 rounded-full"/>
                         <div className="flex flex-col items-center md:items-start pt-5 text-lg poppins-regular">
-                            <Link to="/">Home</Link>
-                            <Link to="/about-us">About Us</Link>
-                            <Link to="/events">Events</Link>
-                            <Link to="/volunteers">Volunteers</Link>
+                            <Link to="/" className="text-gray-700">Home</Link>
+                            <Link to="/about-us" className="text-gray-700">About Us</Link>
+                            <Link to="/events" className="text-gray-700">Events</Link>
+                            <Link to="/volunteers" className="text-gray-700">Volunteers</Link>
                         </div>
                         <div className="flex flex-col items-center md:items-start pt-5 text-lg poppins-regular">
-                            <Link to="/faqs">FAQs</Link>
-                            <Link to="/register">Sign Up</Link>
-                            <Link to="/login">Login</Link>
+                            <Link to="/faqs" className="text-gray-700">FAQs</Link>
+                            <Link to="/register" className="text-gray-700">Sign Up</Link>
+                            <Link to="/login" className="text-gray-700">Login</Link>
                         </div>
                     </div>
                     <div className="flex items-center gap-5 cursor-pointer">

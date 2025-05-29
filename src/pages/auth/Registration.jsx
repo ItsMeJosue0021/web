@@ -110,8 +110,8 @@ const Registration = () => {
                 onConfirm={redirectToTlogin}/>
             )}
 
-            <div className="w-full min-h-screen h-auto flex items-center justify-center p-5">
-                <div className="w-fit md:w-4/6 min-h-[400px] h-auto shadow-sm rounded-xl flex items-start bg-white">
+            <div className="w-full min-h-screen h-auto flex items-center justify-center md:p-5">
+                <div className="w-fit md:w-4/6 min-h-[400px] h-auto shadow-sm rounded-xl flex items-start bg-transparent md:bg-white">
                     <div className="hidden lg:block w-[50%] h-full rounded-l-xl">
                         <div className="w-full h-full rounded-l-xl">
                             <div className="relative w-full h-[565px] md:h-auto overflow-hidden rounded-l-xl ">
@@ -155,7 +155,7 @@ const Registration = () => {
                             </div>
                         </div>
                     </div>
-                    <div className="w-full lg:w-[50%] bg-white p-10 rounded-xl">
+                    <div className="w-full lg:w-[50%] md:bg-white p-5 md:p-10 rounded-xl">
                         <div className="mb-4">
                             <Logo />
                         </div>
@@ -174,7 +174,7 @@ const Registration = () => {
                                         name="firstName" 
                                         hasError={Boolean(errors.firstName)} 
                                         onChange={handleChange} required/>
-                                        {errors.firstName && <p className="text-red-500 text-[101px]">{errors.firstName}</p>}
+                                        {errors.firstName && <p className="text-red-500 text-[10px]">{errors.firstName}</p>}
                                     </div>
 
                                     <TextInput 

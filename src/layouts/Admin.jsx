@@ -26,7 +26,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
      }, [location.pathname]);
 
     return (
-        <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden"> 
+        <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden text-gray-700"> 
             <ToastContainer />
             <div className="w-full flex flex-col"> 
                 <div className="w-full h-40 bg-orange-500 ">

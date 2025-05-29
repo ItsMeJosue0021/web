@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 
 const Guest = ({children}) => {
   return (
-    <div className="bg-gray-50 w-screen h-auto min-h-screen">
+    <div className="bg-gray-50 w-screen h-auto min-h-screen text-gray-700">
       <ToastContainer />
       <Header />
       {children}

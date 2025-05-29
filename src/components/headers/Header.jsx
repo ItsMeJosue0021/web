@@ -4,6 +4,8 @@ import { Link, useLocation  } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../AuthProvider";
 import Logo from "../Logo";
+import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
 const Header = () => {
     
@@ -111,27 +113,43 @@ const Header = () => {
                 </button>
 
                 {isModalOpen && (
-                    <div className='absolute right-0 top-16 w-80 bg-white px-2 py-5 rounded-lg shadow-md'>
-                        <ul className='w-full flex flex-col poppins-bold text-black cursor-pointer text-lg'>
-                            <Link to="/" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Home</a>
-                            </Link>
-                            <Link to="/about-us" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                <a onClick={toggleModal} className="text-black group-hover:text-orange-600">About Us</a>
-                            </Link>
-                            <Link to="/volunteers" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Volunteers</a>
-                            </Link>
-                            <Link to="/faqs" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                <a onClick={toggleModal} className="text-black group-hover:text-orange-600">FAQs</a>
-                            </Link>
-                            {!isLoginPage && (
-                                <Link to="/login" className="w-full px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a  className="text-black group-hover:text-orange-600" onClick={toggleModal}>Login</a>
-                                </Link>  
-                            )}
-                         </ul>
-                    </div>
+                    <AnimatePresence>
+                        <motion.div 
+                        role="alert"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className='fixed top-0 right-0 md:absolute md:right-0 md:top-16 h-full w-full md:h-fit md:w-72 bg-white px-2 py-5 rounded-lg shadow-md'>
+                            <ul className='w-full h-full flex flex-col items-center justify-center gap-4 md:gap-0 poppins-bold text-black cursor-pointer text-lg md:text-sm'>
+                                <div className="md:hidden flex">
+                                    <X className="w-7 h-7 absolute top-4 right-4" onClick={toggleModal} />
+                                </div>
+                                <Link to="/" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600 ">Home</a>
+                                </Link>
+                                <Link to="/about-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">About Us</a>
+                                </Link>
+                                <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Volunteers</a>
+                                </Link>
+                                <Link to="/events" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Events</a>
+                                </Link>
+                                <Link to="/faqs" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">FAQs</a>
+                                </Link>
+                                 <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Contact Us</a>
+                                </Link>
+                                {!isLoginPage && (
+                                    <Link to="/login" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                        <a  className="text-black group-hover:text-orange-600" onClick={toggleModal}>Login</a>
+                                    </Link>  
+                                )}
+                            </ul>
+                        </motion.div>
+                    </AnimatePresence>
                  )}
             </div>
            

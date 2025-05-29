@@ -71,7 +71,7 @@ const ChatBox = ({toggleChatbot}) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed z-50 bottom-32 md:right-20 w-80 bg-white rounded-xl shadow-lg overflow-hidden">
+            className="fixed bottom-0 right-0 z-50 md:bottom-32 md:right-20 h-full max-h-screen md:h-fit w-full md:w-80 bg-white md:rounded-xl shadow-lg md:overflow-hidden">
                 <div className="bg-orange-600 text-white p-3 flex justify-between items-center">
                     <div className='flex items-end gap-2'>
                         <Bot strokeWidth={4} className="w-7 h-7" />
@@ -82,9 +82,9 @@ const ChatBox = ({toggleChatbot}) => {
                         <X/>
                     </button>
                 </div>
-                <div className="">
-                    <div className="w-full rounded-lg p-4 ">
-                        <div className='relative p-4 h-[300px] hide-scrollbar overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
+                <div className="h-full ">
+                    <div className="w-full h-full rounded-lg p-4 ">
+                        <div className='relative p-4 h-[85%] md:h-[300px] hide-scrollbar overflow-y-auto w-full flex flex-col rounded-lg space-y-2 bg-white bg-opacity-40'>
                             {messages.map((msg, index) => (
                                 <div 
                                 key={index} 
@@ -123,8 +123,8 @@ const ChatBox = ({toggleChatbot}) => {
                                 </div>
                             )}
                         </div>
-                        <div className="flex items-center gap-2 input-box p-2 rounded-md border">
-                            <input type="text" value={input} onKeyDown={handleEnter} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='text-xs outline-none' />
+                        <div className=" flex items-center gap-2 input-box p-2 rounded-md border">
+                            <input type="text" value={input} onKeyDown={handleEnter} onChange={(e) => setInput(e.target.value)} placeholder="Ask something..." className='text-xs outline-none bg-transparent' />
                             <button className='text-xs text-white bg-orange-600 rounded' onClick={() => sendMessage()}>Send</button>
                         </div>
                     </div>

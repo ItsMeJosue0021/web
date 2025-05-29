@@ -43,9 +43,9 @@ const Login = () => {
 
     return (
         <Guest>
-             <section className="w-screen bg-gray-50 dark:bg-gray-900">
+             <section className="w-screen bg-gray-50">
                 <div className="flex flex-col items-center justify-center p-4 mx-auto h-screen lg:py-0">
-                    <div className="w-full md:w-[340px] bg-gary-50 md:bg-white border rounded-lg dark:border md:mt-0  xl:p-0 dark:bg-gray-800 dark:border-gray-700">
+                    <div className="w-full md:w-[340px] bg-gary-50 md:bg-white md:border rounded-lg  md:mt-0 xl:p-0">
                         <div className="text-sm px-6 py-4 space-y-4">
                             <Logo/>
                             <form onSubmit={handleSubmit} className="space-y-4" action="#">
@@ -57,7 +57,7 @@ const Login = () => {
                                     type="email" 
                                     name="email" 
                                     id="email" 
-                                    className="bg-gray-50 border border-gray-300 text-[12px] text-gray-900 rounded focus:ring-primary-600 focus:border-primary-600 block w-full px-4 py-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" placeholder="sample@email.com" required="" />
+                                    className="bg-transparent bg-gray-50 border border-gray-300 text-[12px] text-gray-900 rounded focus:ring-primary-600 focus:border-primary-600 block w-full px-4 py-2 " placeholder="sample@email.com" required="" />
                                 </div>
                                 <div>
                                     <label className="block text-[10px] font-medium text-gray-900 dark:text-white">Password</label>
@@ -80,7 +80,7 @@ const Login = () => {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-start">
                                         <div className="flex items-center h-5">
-                                            <input id="remember" type="checkbox" className="w-3 h-3 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-primary-300 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-primary-600 dark:ring-offset-gray-800" required="" />
+                                            <input id="remember" type="checkbox" className="bg-transparent w-3 h-3 border border-gray-300 rounded  focus:ring-3 focus:ring-primary-300" required="" />
                                         </div>
                                         <div className="ml-1 text-sm">
                                             <label className="text-gray-500 dark:text-gray-300 text-[10px]">Remember me</label>

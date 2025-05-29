@@ -6,6 +6,9 @@ import PrintButton from "../components/buttons/PrintButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import '../css/loading.css'; 
+import { _post } from "../api";
+import { useNavigate } from "react-router-dom";
+import { toast } from 'react-toastify';
 
 const Inquiries = () => {
 
@@ -81,16 +84,30 @@ const Inquiries = () => {
         setIsReplyModalOpen(true);
     };
 
+    const [sendingReply, setSendingReply] = useState(false);
+    const [fieldErrors, setFieldErrors] = useState({});
+
     // Handle reply submission
     const handleSendReply = async () => {
+        setSendingReply(true);
+        setFieldErrors({}); // clear previous errors
+
         try {
-            await _post("/enquiries/reply", replyData);
+            await _post("/send-email", replyData);
             setIsReplyModalOpen(false);
-            alert("Reply sent successfully!");
+            toast.success("Reply sent successfully!");
         } catch (error) {
-            console.error("Error sending reply:", error);
+            if (error.response?.data?.errors) {
+                setFieldErrors(error.response.data.errors);
+            } else {
+                toast.error("Something went wrong. Please try again.");
+                console.error("Error sending reply:", error);
+            }
+        } finally {
+            setSendingReply(false);
         }
     };
+
 
     const header = {
         title: "Inquiry Management",
@@ -214,18 +231,33 @@ const Inquiries = () => {
                                     value={replyData.subject}
                                     onChange={(e) => setReplyData({ ...replyData, subject: e.target.value })}
                                 />
+                                {fieldErrors.subject && (
+                                    <p className="text-red-500 text-[10px]">{fieldErrors.subject[0]}</p>
+                                )}
+
                                 <textarea 
                                     placeholder="Message..." 
                                     className="w-full h-28 p-2 border rounded text-xs" 
                                     value={replyData.message}
                                     onChange={(e) => setReplyData({ ...replyData, message: e.target.value })}
                                 />
+                                {fieldErrors.message && (
+                                    <p className="text-red-500 text-[10px]">{fieldErrors.message[0]}</p>
+                                )}
                             </div>
 
                             <div className="flex justify-end gap-2 mt-4">
                                 <button 
                                     className="bg-gray-300 hover:bg-gray-400 px-4 py-2 rounded text-xs"
-                                    onClick={() => setIsReplyModalOpen(false)}
+                                    onClick={() => {
+                                        setIsReplyModalOpen(false);
+                                        setReplyData({
+                                            email: "",
+                                            subject: "",
+                                            message: "",
+                                        });
+                                        setFieldErrors({}); 
+                                    }}
                                 >
                                     Cancel
                                 </button>
@@ -233,7 +265,7 @@ const Inquiries = () => {
                                     className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 rounded text-xs"
                                     onClick={handleSendReply}
                                 >
-                                    Send Reply
+                                    {sendingReply ? 'Sending..' : 'Send'} 
                                 </button>
                             </div>
                         </div>

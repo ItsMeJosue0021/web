@@ -167,7 +167,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                                 </div>
                             </div>
-                            <div className='w-full h-full max-h-[600px] overflow-y-auto'>
+                            <div className='w-full h-full max-h-[500px] overflow-y-auto pb-4'>
                                 {children}
                             </div>
                             

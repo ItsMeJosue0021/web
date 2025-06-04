@@ -159,7 +159,7 @@ const Goods = () => {
                                 <p className="text-xl font-semibold text-orange-600">Select Location to Donate</p>
                                 <p className="text-xs">You may personally hand in your cash donations at the following addresses:</p>
                             </div>
-                            <div onClick={() => handleChooseAddress('Main Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm bg-white">
+                            <div onClick={() => handleChooseAddress('Main Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm bg-transparent">
                                 <p className="text-orange-500 text-base font-semibold">Main Address</p>
                                 <p className="text-sm">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Piñas City</p>
                                 {address === 'Main Address' && (
@@ -169,7 +169,7 @@ const Goods = () => {
                                 )}
                             </div>
 
-                            <div onClick={() => handleChooseAddress('Satellite Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm bg-white">
+                            <div onClick={() => handleChooseAddress('Satellite Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm bg-transparent">
                                 <p className="text-orange-500 text-base  font-semibold">Satellite Address</p>
                                 <p className="text-sm">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Piñas City</p>
                                 {address === 'Satellite Address' && (

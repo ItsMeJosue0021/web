@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { X, Edit, Trash2 } from "lucide-react";
 import { _get, _post, _put, _delete } from "../../api";
 import { toast } from 'react-toastify';
-import { set } from "lodash";
+import { AnimatePresence, motion } from "framer-motion";
 
 const Projects = () => {
 
@@ -151,65 +151,72 @@ const Projects = () => {
             </div>
 
             {showAddProjectModal && (
-                <div className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-                <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
-                    <div className=" flex items-center justify-between mb-4">
-                        <p className="text-xs">Add New Project</p>
-                        <X onClick={() => setShowAddProjectModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
-                    </div>
-                    <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleSubmit}>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
-                            <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
-                            <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
-                            <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
-                            <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
-                        </div>
-                        <div className="flex flex-col gap-2">
-                            <label className="text-xs">Image</label>
-                            <input
-                            type="file"
-                            onChange={(e) => setImage(e.target.files[0])}
-                            className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs"
-                            />
+                <AnimatePresence>
+                    <motion.div 
+                    role="alert"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }} 
+                    className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+                        <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
+                            <div className=" flex items-center justify-between mb-4">
+                                <p className="text-xs">Add New Project</p>
+                                <X onClick={() => setShowAddProjectModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                            </div>
+                            <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleSubmit}>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
+                                    <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
+                                    <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
+                                    <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
+                                    <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs">Image</label>
+                                    <input
+                                    type="file"
+                                    onChange={(e) => setImage(e.target.files[0])}
+                                    className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs"
+                                    />
 
+                                </div>
+                                {/* <div>
+                                    <label className="text-xs">Tags</label>
+                                    <div className="w-fit flex items-center gap-2">
+                                        <input value={currentTag} onChange={(e) => setCurrentTag(e.target.value)} type="text" className="w-64 min-w-64 placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Tags.." />
+                                        <div onClick={() => handleAddTag(currentTag)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Add</div>
+                                    </div>
+                                    <div className="flex items-center flex-wrap gap-2 mt-2">
+                                        {tags.map((tag, index) => (
+                                            <span key={index} className=" text-[10px] px-2 py-1 pr-0 rounded flex items-center gap-1">
+                                                <span className="text-blue-600">#{tag}</span>
+                                                <button type="button" className="text-red-500 bg-transparent border-0" onClick={() => setTags(tags.filter(t => t !== tag))}>
+                                                    <X size={12} />
+                                                </button>
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div> */}
+                                <div className="flex items-center justify-end gap-2 mt-4">
+                                    <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
+                                    <div onClick={() => {
+                                        clearForm();
+                                        setShowAddProjectModal(false)
+                                    }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
+                                </div>
+                            </form>
                         </div>
-                        {/* <div>
-                            <label className="text-xs">Tags</label>
-                            <div className="w-fit flex items-center gap-2">
-                                <input value={currentTag} onChange={(e) => setCurrentTag(e.target.value)} type="text" className="w-64 min-w-64 placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Tags.." />
-                                <div onClick={() => handleAddTag(currentTag)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Add</div>
-                            </div>
-                            <div className="flex items-center flex-wrap gap-2 mt-2">
-                                {tags.map((tag, index) => (
-                                    <span key={index} className=" text-[10px] px-2 py-1 pr-0 rounded flex items-center gap-1">
-                                        <span className="text-blue-600">#{tag}</span>
-                                        <button type="button" className="text-red-500 bg-transparent border-0" onClick={() => setTags(tags.filter(t => t !== tag))}>
-                                            <X size={12} />
-                                        </button>
-                                    </span>
-                                ))}
-                            </div>
-                        </div> */}
-                        <div className="flex items-center justify-end gap-2 mt-4">
-                            <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
-                            <div onClick={() => {
-                                clearForm();
-                                setShowAddProjectModal(false)
-                            }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
-                        </div>
-                    </form>
-                </div>
-            </div>
+                    </motion.div>
+                </AnimatePresence>
             )}
         </Admin>
     )

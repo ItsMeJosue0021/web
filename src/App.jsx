@@ -30,6 +30,8 @@ import Events from './pages/admin/Events';
 import Option from './pages/donation/Option';
 import Cash from './pages/donation/Cash';
 import Goods from './pages/donation/Goods';
+import Donations from './pages/admin/donations';
+import Dashboard from './pages/admin/dashboard';
 
 const App = () => {
     useEffect(() => {
@@ -117,6 +119,25 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
+
+                <Route
+                    path="/donations"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Donations />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/dashboard"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+
 
 
                 {/* User */}
@@ -209,7 +230,6 @@ const App = () => {
                         <Goods />
                     }
                 />
-
 
 
                 {/* Auth */}

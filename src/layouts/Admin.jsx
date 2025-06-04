@@ -4,7 +4,7 @@ import arrowDown from '../assets/icons/down-arrow.png';
 import HeaderProfile from '../components/HeaderProfile';
 import role from '../assets/icons/setting.png';
 import { Link } from 'react-router-dom';
-import { Users, Lightbulb, MessageSquareMore, Settings, Folder, LayoutPanelLeftIcon } from 'lucide-react';
+import { Users, Lightbulb, MessageSquareMore, Settings, Folder, LayoutPanelLeftIcon, CalendarCog, HandHeart, LayoutDashboard } from 'lucide-react';
 import Logout from '../components/Logout';
 import { useEffect, useState } from 'react';
 import { ToastContainer } from 'react-toastify';
@@ -45,8 +45,20 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                 <div className="relative w-full">
                     <div className="w-full absolute left-0 -top-16 flex items-start">
                         <div className="min-w-56 w-56 h-screen p-4 pt-2 pr-2 pl-0">
-                            <div className='bg-white layout-sidebar h-full pl-2 p-8 shadow-sm'>
+                            <div className='bg-white layout-sidebar h-full pl-2 p-8 pr-5 shadow-sm'>
                                 <div className="w-full h-full min-h-[650px] flex flex-col justify-start items-start gap-1">
+                                    <Link to="/dashboard" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/dashboard" ? "bg-gray-200" : "hover:bg-gray-100"}`}>
+                                        <div className="flex justify-center w-10">
+                                        <LayoutDashboard className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <p className="text-xs font-medium text-black">Dashboard</p>
+                                    </Link>
+                                    <Link to="/donations" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                        <div className="flex justify-center w-10">
+                                        <HandHeart className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <p className="text-xs font-medium text-black">Donations</p>
+                                    </Link>
                                     <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <Users className="w-5 h-5 text-gray-700" />
@@ -71,12 +83,13 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Projects</p>
                                     </Link>
-                                     <Link to="/events-management" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/events-management" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    <Link to="/events-management" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/events-management" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
-                                        <Folder className="w-5 h-5 text-gray-700" />
+                                        <CalendarCog className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Events</p>
                                     </Link>
+                                    
                                     <div className="w-full flex flex-col">
                                     <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
                                         <div className="flex justify-center w-10">

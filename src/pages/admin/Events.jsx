@@ -73,7 +73,8 @@ const Events = () => {
                     </tr>
                 ))}
                 </tbody>
-                {loading && (
+            </table>
+            {loading && (
                     <div className="w-full h-36 flex items-center text-xs justify-center">
                         <div className="self-start h-full px-3 py-2 text-sm">
                             <div className="h-full flex items-center space-x-1">
@@ -85,7 +86,6 @@ const Events = () => {
                         </div>
                     </div>
                 )}
-            </table>
         </div>
     </Admin>
     )

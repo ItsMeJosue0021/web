@@ -98,13 +98,18 @@ const Header = () => {
                                     </Link>
                                 </div>
                             )} 
+
+                             {!isRegisterPage && !isLoginPage && (
+                                <Link to='/donate' className='px-4 py-2 rounded text-white hover:text-white bg-orange-600 border-0 hover:outline-none active:outline-none'>Donate Now</Link>
+                             )}
+                            
                         </div>
                     ) : (
                         <Link to="/portal">
                             <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Portal</button>
                         </Link>
                     )}
-                    <Link to='/donate' className='px-4 py-2 rounded text-white hover:text-white bg-orange-600 border-0 hover:outline-none active:outline-none'>Donate Now</Link>
+                    
                 </div>
             </div>
             

@@ -32,6 +32,7 @@ import Cash from './pages/donation/Cash';
 import Goods from './pages/donation/Goods';
 import Donations from './pages/admin/donations';
 import Dashboard from './pages/admin/dashboard';
+import GoodsDonations from './pages/admin/GoodsDonations';
 
 const App = () => {
     useEffect(() => {
@@ -121,10 +122,19 @@ const App = () => {
                 />
 
                 <Route
-                    path="/donations"
+                    path="/donations/cash"
                     element={
                         <ProtectedRoute role="admin">
                             <Donations />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/donations/goods"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <GoodsDonations />
                         </ProtectedRoute>
                     }
                 />

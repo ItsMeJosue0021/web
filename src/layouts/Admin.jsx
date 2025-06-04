@@ -15,6 +15,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
 
      const [isOpen, setIsOpen] = useState(false);
      const [isWebOpen, setIsWebOpen] = useState(false);
+     const [isDonOpen, setIsDonOpen] = useState(false);
 
      useEffect(() => {
         if (location.pathname.includes("/settings")) {
@@ -22,6 +23,9 @@ const Admin = ({children, header, breadcrumbs = []}) => {
         }
         if (location.pathname.includes("/web")) {
             setIsWebOpen(true);
+        }
+        if (location.pathname.includes("/donations")) {
+            setIsDonOpen(true);
         }
      }, [location.pathname]);
 
@@ -53,12 +57,40 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Dashboard</p>
                                     </Link>
-                                    <Link to="/donations" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    {/* <Link to="/donations" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <HandHeart className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Donations</p>
-                                    </Link>
+                                    </Link> */}
+
+
+                                    <div onClick={() => setIsDonOpen(!isDonOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
+                                        <div className="flex justify-center w-10">
+                                            <HandHeart className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <div className="flex items-center justify-between w-full">
+                                            <p className="text-xs text-black font-medium">Donations</p>
+                                            <img
+                                            src={arrowDown}
+                                            alt="icon"
+                                            className={`w-4 h-4 transition-transform ${isDonOpen ? "rotate-180" : "rotate-0"}`}
+                                            />
+                                        </div>
+                                    </div>
+                                    {isDonOpen && (
+                                        <div className="w-full pl-4 pt-1">
+                                            <Link to="/donations/cash" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations/cash" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                <p className="text-xs text-black font-medium">Cash</p>
+                                            </Link>
+                                             <Link to="/donations/goods" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations/goods" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                <p className="text-xs text-black font-medium">Goods</p>
+                                            </Link>
+                                        </div>
+                                    )}
+
+
+
                                     <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <Users className="w-5 h-5 text-gray-700" />
@@ -91,80 +123,80 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     </Link>
                                     
                                     <div className="w-full flex flex-col">
-                                    <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
-                                        <div className="flex justify-center w-10">
-                                            <Settings className="w-5 h-5 text-gray-700" />
+                                        <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
+                                            <div className="flex justify-center w-10">
+                                                <Settings className="w-5 h-5 text-gray-700" />
+                                            </div>
+                                            <div className="flex items-center justify-between w-full">
+                                                <p className="text-xs text-black font-medium">Settings</p>
+                                                <img
+                                                src={arrowDown}
+                                                alt="icon"
+                                                className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
+                                                />
+                                            </div>
                                         </div>
-                                        <div className="flex items-center justify-between w-full">
-                                            <p className="text-xs text-black font-medium">Settings</p>
-                                            <img
-                                            src={arrowDown}
-                                            alt="icon"
-                                            className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
-                                            />
-                                        </div>
-                                    </div>
-                                    {isOpen && (
-                                        <div className="pl-4 pt-1">
-                                            <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                {/* <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div> */}
-                                                <p className="text-xs text-black font-medium">Users</p>
-                                            </Link>
+                                        {isOpen && (
+                                            <div className="pl-4 pt-1">
+                                                <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    {/* <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div> */}
+                                                    <p className="text-xs text-black font-medium">Users</p>
+                                                </Link>
 
-                                            {/* <Link to="/settings/banner-images" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/banner-images" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div>
-                                                <p className="text-xs text-black font-medium">Banner Images</p>
-                                            </Link>
+                                                {/* <Link to="/settings/banner-images" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/banner-images" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div>
+                                                    <p className="text-xs text-black font-medium">Banner Images</p>
+                                                </Link>
 
-                                            <Link to="/settings/contact-info" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/contact-info" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div>
-                                                <p className="text-xs text-black font-medium">Contact Info</p>
-                                            </Link> */}
+                                                <Link to="/settings/contact-info" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/contact-info" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div>
+                                                    <p className="text-xs text-black font-medium">Contact Info</p>
+                                                </Link> */}
+                                            </div>
+                                        )}
+                                        <div onClick={() => setIsWebOpen(!isWebOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
+                                            <div className="flex justify-center w-10">
+                                                <LayoutPanelLeftIcon className="w-5 h-5 text-gray-700" />
+                                            </div>
+                                            <div className="flex items-center justify-between w-full">
+                                                <p className="text-xs text-black font-medium">Web Content</p>
+                                                <img
+                                                src={arrowDown}
+                                                alt="icon"
+                                                className={`w-4 h-4 transition-transform ${isWebOpen ? "rotate-180" : "rotate-0"}`}
+                                                />
+                                            </div>
                                         </div>
-                                    )}
-                                    <div onClick={() => setIsWebOpen(!isWebOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
-                                        <div className="flex justify-center w-10">
-                                            <LayoutPanelLeftIcon className="w-5 h-5 text-gray-700" />
-                                        </div>
-                                        <div className="flex items-center justify-between w-full">
-                                            <p className="text-xs text-black font-medium">Web Content</p>
-                                            <img
-                                            src={arrowDown}
-                                            alt="icon"
-                                            className={`w-4 h-4 transition-transform ${isWebOpen ? "rotate-180" : "rotate-0"}`}
-                                            />
-                                        </div>
-                                    </div>
-                                    {isWebOpen && (
-                                        <div className="pl-4 pt-1">
-                                            <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                {/* <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div> */}
-                                                <p className="text-xs text-black font-medium">Landing Page</p>
-                                            </Link>
+                                        {isWebOpen && (
+                                            <div className="pl-4 pt-1">
+                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    {/* <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div> */}
+                                                    <p className="text-xs text-black font-medium">Landing Page</p>
+                                                </Link>
 
-                                            <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                {/* <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div> */}
-                                                <p className="text-xs text-black font-medium">About Us</p>
-                                            </Link>
+                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    {/* <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div> */}
+                                                    <p className="text-xs text-black font-medium">About Us</p>
+                                                </Link>
 
-                                            <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                {/* <div className="flex justify-center w-10">
-                                                    <img src={role} alt="icon" className="w-5 h-5" />
-                                                </div> */}
-                                                <p className="text-xs text-black font-medium">Contact Us</p>
-                                            </Link>
-                                        </div>
-                                    )}
+                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    {/* <div className="flex justify-center w-10">
+                                                        <img src={role} alt="icon" className="w-5 h-5" />
+                                                    </div> */}
+                                                    <p className="text-xs text-black font-medium">Contact Us</p>
+                                                </Link>
+                                            </div>
+                                        )}
                                     </div>
                                 </div>
                             </div>

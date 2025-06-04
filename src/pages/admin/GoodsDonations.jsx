@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Edit, Trash2 } from "lucide-react";
 import { _get } from "../../api"; 
 
-const Donations = () => {
+const GoodsDonations = () => {
 
     const [donations, setDonations] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -14,7 +14,7 @@ const Donations = () => {
 
     const fetchDonations = async () => {
         try {
-            const response = await _get("/donations"); 
+            const response = await _get("/goods-donations"); 
             const data = await response.data;
             setDonations(data);
         } catch (error) {
@@ -26,12 +26,12 @@ const Donations = () => {
 
 
     const header = { 
-        title: "Donations Management",
-        subTitle: "Easily manage incoming donations — add new entries, view donor details, or update donation records with ease."
+        title: "Goods Donations Management",
+        subTitle: "Easily manage incoming goodonations — add new entries, view donor details, or update donation records with ease."
     };
 
     const breadcrumbs = [
-        { name: "Donations", link: "/donations" }
+        { name: "Goods Donations", link: "/goods-donations" }
     ];
 
     return (
@@ -51,9 +51,8 @@ const Donations = () => {
                     <tr>
                         <th className="p-3 text-start">Date of Donation</th>
                         <th className="p-3 text-start">Donor</th>
-                        <th className="p-3 text-start">Amount</th>
-                        <th className="p-3 text-start">Reference No.</th>
                         <th className="p-3 text-start">Email</th>
+                        <th className="p-3 text-start">Type of Donation</th>
                         <th className="p-3 text-end">Actions</th>
                     </tr>
                     </thead>
@@ -70,9 +69,18 @@ const Donations = () => {
                                 : ''}
                             </td>
                             <td className="p-3">{donation.name || ''}</td>
-                            <td className="p-3">{donation.amount || ''}</td>
-                            <td className="p-3">{donation.reference || ''}</td>
                             <td className="p-3">{donation.email || ''}</td>
+                            <td className="p-3">
+                                {
+                                    donation.type && donation.type.length > 0 && (
+                                        donation.type.map((type, idx) => (
+                                        <span key={idx} className="inline-block border text-gray-500 border-gray-300 px-2 py-1 rounded text-[10px] mr-1">
+                                            {type}
+                                        </span>
+                                        ))
+                                    )
+                                }
+                            </td>
                             <td className="p-3 h-full flex items-center justify-end gap-2">
                                 <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
                                 <button className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
@@ -98,4 +106,4 @@ const Donations = () => {
     )
 }
 
-export default Donations;
+export default GoodsDonations;

@@ -80,29 +80,32 @@ const Header = () => {
                     </ul>
                 )}
 
-                {!user ? (
-                    <div className="flex items-center gap-2">
-                        {!isLoginPage && !isRegisterPage && (
-                            <div>
-                                <Link to="/login">
-                                    <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Login</button>
-                                </Link>
-                            </div>
-                        )} 
+                <div className="flex gap-2">
+                    {!user ? (
+                        <div className="flex items-center gap-2">
+                            {!isLoginPage && !isRegisterPage && (
+                                <div>
+                                    <Link to="/login">
+                                        <button className='px-4 py-2 rounded text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
+                                    </Link>
+                                </div>
+                            )} 
 
-                        {!isRegisterPage && !isLoginPage && (
-                            <div>
-                                <Link to="/register">
-                                    <button className='px-4 py-2 rounded text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
-                                </Link>
-                            </div>
-                        )} 
-                    </div>
-                ) : (
-                    <Link to="/portal">
-                        <button className='px-6 py-3 rounded-md text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Portal</button>
-                    </Link>
-                )}
+                            {!isRegisterPage && !isLoginPage && (
+                                <div>
+                                    <Link to="/register">
+                                        <button className='px-4 py-2 rounded text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
+                                    </Link>
+                                </div>
+                            )} 
+                        </div>
+                    ) : (
+                        <Link to="/portal">
+                            <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Portal</button>
+                        </Link>
+                    )}
+                    <Link to='/donate' className='px-4 py-2 rounded text-white hover:text-white bg-orange-600 border-0 hover:outline-none active:outline-none'>Donate Now</Link>
+                </div>
             </div>
             
             <div className='relative flex lg:hidden'>

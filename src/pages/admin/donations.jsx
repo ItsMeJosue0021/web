@@ -30,7 +30,7 @@ const Donations = () => {
     const [toBeEdited, setToBeEdited] = useState(null);
     const [openEdtitModal, setOpenEditModal] = useState(false);
 
-    const baseURL = "https://www.kalingangkababaihan.com/storage/";
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
     useEffect(() => {
         fetchDonations();

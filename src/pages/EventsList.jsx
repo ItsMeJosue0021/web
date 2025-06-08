@@ -8,6 +8,10 @@ import Footer from "../components/Footer";
 
 const EventsList = () => {
 
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
+    // const baseURL = "http://127.0.0.1:8000/storage/";
+
+
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -56,7 +60,7 @@ const EventsList = () => {
                         events.map((event, index) => (
                             <div key={index} className="w-full md:w-96 h-fit p-4 shadow bg-white rounded-md flex flex-col gap-2">
                                 {event.image && (
-                                    <img src={event.image} alt={event.title} className="w-full h-52 object-center object-cover rounded-md" />
+                                    <img src={`${baseURL}${event.image}`} alt={event.title} className="w-full h-52 object-center object-cover rounded-md" />
                                 )}
                                 {/* <img src={logo} alt="logo" className="w-full h-52 object-center object-cover rounded-md" /> */}
                                 <div className="flex flex-col gap-1">

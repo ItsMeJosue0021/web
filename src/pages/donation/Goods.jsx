@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useState } from "react";
 import { _post } from "../../api";
 import { toast } from "react-toastify";
-import { add } from "lodash";
+import { add, set } from "lodash";
 import { Check } from "lucide-react";
 
 const Goods = () => {
@@ -17,6 +17,8 @@ const Goods = () => {
     const [address, setAddress] = useState('Main Address');
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
+
+    const [isAnonymous, setIsAnonymous] = useState(false);
 
 
     // Handle checkbox change for categories
@@ -87,18 +89,31 @@ const Goods = () => {
                             <div className="w-full flex items-center justify-center p-1">
                                 <form onSubmit={handleSubmit} className="w-full flex flex-col items-start justify-start gap-3">
                                     {/* Name */}
-                                    <div className="w-full flex items-center justify-between gap-4">
-                                        <label className="w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                        <input
-                                            type="text"
-                                            name="name"
-                                            value={name}
-                                            onChange={(e) => setName(e.target.value)}
-                                            className="w-[60%] px-4 py-2 rounded-md border border-gray-200 bg-gray-100 text-xs"
-                                        />
+                                    <div className="w-full flex items-center gap-3">
+                                         <div className="w-full flex items-center justify-between gap-4">
+                                            <label className="w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-100'} border-gray-200 text-xs`}
+                                                disabled={isAnonymous} 
+                                            />
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                type="checkbox"
+                                                value={isAnonymous}
+                                                checked={isAnonymous}
+                                                onChange={() => setIsAnonymous(!isAnonymous)}
+                                                />
+                                                <span className="text-[13px] capitalize">Anonymous</span>
+                                            </label>
+                                        </div>
                                     </div>
+                                   
                                     <div className="w-full flex items-center justify-between gap-4">
-                                        <label className="w-[40%] text-xs font-medium">email <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                        <label className="w-[40%] text-xs font-medium">email</label>
                                         <input
                                             type="text"
                                             name="email"

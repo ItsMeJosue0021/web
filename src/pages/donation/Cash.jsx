@@ -20,6 +20,8 @@ const Cash = () => {
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
+    const [isAnonymous, setIsAnonymous] = useState(false);
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
@@ -72,6 +74,7 @@ const Cash = () => {
         clearForm();
         setErrors({})
         setSelectedPayment(paymentMethod);
+        setIsAnonymous(false);
     }
 
     const handleChooseAddress = (address, type) => {
@@ -120,14 +123,31 @@ const Cash = () => {
                                 </div>
 
                                 <form onSubmit={handleSubmit} className="w-[95%] flex flex-col items-start justify-start gap-3">
-                                    <div className="w-full flex items-center justify-between gap-4">
-                                        <label className="w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                        <input type="text" name="name" className="w-[60%] px-4 py-2 rounded-md border border-gray-200 text-xs bg-transparent"
-                                        value={name} onChange={(e) => setName(e.target.value)} />
+                                    <div className="w-full flex items-center gap-3">
+                                         <div className="w-full flex items-center justify-between gap-4">
+                                            <label className="w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={name}
+                                                onChange={(e) => setName(e.target.value)}
+                                                className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-transparent'} border-gray-200 text-xs`}
+                                                disabled={isAnonymous} 
+                                            />
+                                            <label className="flex items-center gap-2">
+                                                <input
+                                                type="checkbox"
+                                                value={isAnonymous}
+                                                checked={isAnonymous}
+                                                onChange={() => setIsAnonymous(!isAnonymous)}
+                                                />
+                                                <span className="text-[13px] capitalize">Anonymous</span>
+                                            </label>
+                                        </div>
                                     </div>
 
                                     <div className="w-full flex items-center justify-between gap-4">
-                                        <label className="w-[40%] text-xs font-medium">Email <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                        <label className="w-[40%] text-xs font-medium">Email </label>
                                         <input type="email" name="email" className="w-[60%] px-4 py-2 rounded-md border border-gray-200 text-xs bg-transparent"
                                         value={email} onChange={(e) => setEmail(e.target.value)} />
                                     </div>

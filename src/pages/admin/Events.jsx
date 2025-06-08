@@ -2,11 +2,30 @@ import Admin from "../../layouts/Admin";
 import { useEffect, useState } from "react";
 import { X, Edit, Trash2 } from "lucide-react";
 import { _get, _post, _put, _delete } from "../../api";
+import { AnimatePresence, motion } from "framer-motion";
+import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
+import { toast } from 'react-toastify';
 
 const Events = () => {
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [deleteId, setDeleteId] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    const [openAddModal, setOpenAddModal] = useState(false);
+    const [openEditModal, setOpenEditModal] = useState(false);
+
+    const [title, setTitle] = useState('');
+    const [description, setDescription] = useState('');
+    const [location, setLocation] = useState('');
+    const [date, setDate] = useState('');
+    const [image, setImage] = useState(null);
+
+    const [toBeEditedEvent, setToBeEditedEvent] = useState(null);
+
 
     useEffect(() => {
         fetchEvents();
@@ -23,6 +42,74 @@ const Events = () => {
             setLoading(false);
         }
     }
+
+    const resetForm = () => {
+        setTitle('');
+        setDescription('');
+        setLocation('');
+        setDate('');
+        setImage(null);
+    }
+
+    const handleAddEvent = async (e) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('location', location);
+        formData.append('date', date);
+        if (image) {
+            formData.append('image', image);
+        }
+
+        try {
+            const response = await _post("/events", formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            setEvents([...events, response.data]);
+            toast.success("Event added successfully!");
+            setOpenAddModal(false);
+            resetForm();
+        } catch (error) {
+            toast.error("Error adding event. Please try again.");
+            console.error('Error adding event:', error);
+        }
+    }
+    
+    const handleConfirmDelete = (id) => {
+        setDeleteId(id);
+        setIsDeleteOpen(true);
+    }
+
+    const handleDelete = async () => {
+        setIsDeleting(true);
+        try {
+            await _delete(`/events/${deleteId}`);
+            setEvents(events.filter(event => event.id !== deleteId));
+            toast.success("Event deleted successfully!");
+        } catch (error) {
+            toast.error("Error deleting event. Please try again.");
+            console.error('Error deleting event:', error);
+        } finally {
+            setIsDeleting(false);
+            setIsDeleteOpen(false);
+        }
+    }
+
+    const handleEditEvent = (event) => {
+        setToBeEditedEvent(event);  
+        setTitle(event.title);
+        setDescription(event.description);
+        setLocation(event.location);
+        setDate(event.date);
+        setImage(null);
+        setOpenEditModal(true);
+    }
+
+    
 
     const header = {
         title: "Events Management",
@@ -42,7 +129,7 @@ const Events = () => {
                     <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Type something.." />
                 </div>
                 <div className="flex items-center justify-end gap-2">
-                    <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
+                    <button onClick={() => setOpenAddModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
                 </div>
             </div>
             <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
@@ -67,8 +154,8 @@ const Events = () => {
                         <td className="p-3">{event.location || ''}</td>
                         <td className="p-3">{event.date || ''}</td>
                         <td className="p-3 h-full flex items-center justify-end gap-2">
-                            <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                            <button className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
+                            <button onClick={() => handleEditEvent(event)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                            <button onClick={() => handleConfirmDelete(event.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
                         </td>
                     </tr>
                 ))}
@@ -87,6 +174,121 @@ const Events = () => {
                     </div>
                 )}
         </div>
+
+        {openAddModal && (
+            <AnimatePresence>
+                <motion.div 
+                role="alert"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }} 
+                className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+                    <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
+                        <div className=" flex items-center justify-between mb-4">
+                            <p className="text-xs">Add New Event</p>
+                            <X onClick={() => setOpenAddModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                        </div>
+                        <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleAddEvent}>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
+                                <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
+                                <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
+                                <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
+                                <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Image</label>
+                                <input
+                                type="file"
+                                onChange={(e) => setImage(e.target.files[0])}
+                                className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs"
+                                />
+
+                            </div>
+                            <div className="flex items-center justify-end gap-2 mt-4">
+                                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
+                                <div onClick={() => {
+                                    resetForm();
+                                    setOpenAddModal(false)
+                                }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
+                            </div>
+                        </form>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+        )}
+
+        {openEditModal && (
+            <AnimatePresence>
+                <motion.div 
+                role="alert"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }} 
+                className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
+                    <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
+                        <div className=" flex items-center justify-between mb-4">
+                            <p className="text-xs">Add New Event</p>
+                            <X onClick={() => setOpenEditModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                        </div>
+                        <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleAddEvent}>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
+                                <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
+                                <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
+                                <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
+                                <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                            </div>
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs">Image</label>
+                                <input
+                                type="file"
+                                onChange={(e) => setImage(e.target.files[0])}
+                                className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs"
+                                />
+
+                            </div>
+                            <div className="flex items-center justify-end gap-2 mt-4">
+                                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
+                                <div onClick={() => {
+                                    resetForm();
+                                    setOpenEditModal(false)
+                                }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
+                            </div>
+                        </form>
+                    </div>
+                </motion.div>
+            </AnimatePresence>
+        )}
+
+        {isDeleteOpen && (
+            <ConfirmationAlert 
+            onClose={() => setIsDeleteOpen(false)} 
+            onConfirm={() => handleDelete(deleteId)}
+            title="Delete Project"
+            message="Are you sure you want to delete this project? This action cannot be undone."
+            isDelete={true}
+            isDeleting={isDeleting}
+            />
+        )}
     </Admin>
     )
 }

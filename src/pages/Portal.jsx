@@ -11,86 +11,88 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ChatButton from "../components/chatbot/ChatButton";
 import EventDetailsModal from "../components/EventDetailsModal";
 import { PencilLine, Image } from "lucide-react";
+import { _get } from "../api";
+import { toast } from "react-toastify";
 
 
-const events = [
-    {
-        title: "Mental Health Awareness Session",
-        date: "2023-10-10",
-        time: "10:00 AM",
-        description: "A talk on mental well-being and stress management for women.",
-        images: [
-            {src: "volunteers.png", alt: "Volunteer" },
-            {src: "supermom.png", alt: "Supermom" }, 
-            {src: "volunteers.png", alt: "Volunteer" },
-            {src: "supermom.png", alt: "Supermom" }, 
-            {src: "volunteers.png", alt: "Volunteer" },
-            {src: "supermom.png", alt: "Supermom" },   
-        ]
-    },
-    {
-        title: "Self-Defense Workshop",
-        date: "2023-10-11",
-        time: "1:00 PM",
-        description: "Practical self-defense techniques for personal safety and confidence.",
-        images: [
-            {src: "feeding.png", alt: "Volunteer" }   
-        ]
-    },
-    {
-        title: "Financial Literacy Seminar",
-        date: "2023-10-12",
-        time: "9:30 AM",
-        description: "Learn about budgeting, savings, and smart financial planning for women.",
-        thumbnail: "logo.png",
-    },
-    {
-        title: "Women in Leadership Forum",
-        date: "2023-10-13",
-        time: "2:00 PM",
-        description: "Inspiring stories and strategies from female leaders in the community.",
-    },
-    {
-        title: "Community Outreach Program",
-        date: "2023-10-14",
-        time: "8:00 AM",
-        description: "Outreach activity where women volunteers extend support to underserved areas.",
-        images: [
-            {src: "about.png", alt: "About" },
-            {src: "banner.png", alt: "Banner" },    
-        ]
-    },
-    {
-        title: "Health and Wellness Talk",
-        date: "2023-10-05",
-        time: "9:00 AM",
-        description: "A session on women’s health and self-care with guest medical professionals.",
-    },
-    {
-        title: "Livelihood Training Workshop",
-        date: "2023-10-06",
-        time: "1:00 PM",
-        description: "Hands-on workshop on soap-making and other income-generating skills.",
-    },
-    {
-        title: "Legal Rights Awareness Seminar",
-        date: "2023-10-07",
-        time: "10:30 AM",
-        description: "Discussion about women’s legal rights and protection against abuse.",
-    },
-    {
-        title: "Empowerment Through Art",
-        date: "2023-10-08",
-        time: "3:00 PM",
-        description: "Creative painting and storytelling session to express women's strength.",
-    },
-    {
-        title: "Closing Ceremony and Recognition Day",
-        date: "2023-10-09",
-        time: "5:00 PM",
-        description: "Program finale with performances, reflections, and recognition of participants.",
-    }
-];
+// const events = [
+//     {
+//         title: "Mental Health Awareness Session",
+//         date: "2023-10-10",
+//         time: "10:00 AM",
+//         description: "A talk on mental well-being and stress management for women.",
+//         images: [
+//             {src: "volunteers.png", alt: "Volunteer" },
+//             {src: "supermom.png", alt: "Supermom" }, 
+//             {src: "volunteers.png", alt: "Volunteer" },
+//             {src: "supermom.png", alt: "Supermom" }, 
+//             {src: "volunteers.png", alt: "Volunteer" },
+//             {src: "supermom.png", alt: "Supermom" },   
+//         ]
+//     },
+//     {
+//         title: "Self-Defense Workshop",
+//         date: "2023-10-11",
+//         time: "1:00 PM",
+//         description: "Practical self-defense techniques for personal safety and confidence.",
+//         images: [
+//             {src: "feeding.png", alt: "Volunteer" }   
+//         ]
+//     },
+//     {
+//         title: "Financial Literacy Seminar",
+//         date: "2023-10-12",
+//         time: "9:30 AM",
+//         description: "Learn about budgeting, savings, and smart financial planning for women.",
+//         thumbnail: "logo.png",
+//     },
+//     {
+//         title: "Women in Leadership Forum",
+//         date: "2023-10-13",
+//         time: "2:00 PM",
+//         description: "Inspiring stories and strategies from female leaders in the community.",
+//     },
+//     {
+//         title: "Community Outreach Program",
+//         date: "2023-10-14",
+//         time: "8:00 AM",
+//         description: "Outreach activity where women volunteers extend support to underserved areas.",
+//         images: [
+//             {src: "about.png", alt: "About" },
+//             {src: "banner.png", alt: "Banner" },    
+//         ]
+//     },
+//     {
+//         title: "Health and Wellness Talk",
+//         date: "2023-10-05",
+//         time: "9:00 AM",
+//         description: "A session on women’s health and self-care with guest medical professionals.",
+//     },
+//     {
+//         title: "Livelihood Training Workshop",
+//         date: "2023-10-06",
+//         time: "1:00 PM",
+//         description: "Hands-on workshop on soap-making and other income-generating skills.",
+//     },
+//     {
+//         title: "Legal Rights Awareness Seminar",
+//         date: "2023-10-07",
+//         time: "10:30 AM",
+//         description: "Discussion about women’s legal rights and protection against abuse.",
+//     },
+//     {
+//         title: "Empowerment Through Art",
+//         date: "2023-10-08",
+//         time: "3:00 PM",
+//         description: "Creative painting and storytelling session to express women's strength.",
+//     },
+//     {
+//         title: "Closing Ceremony and Recognition Day",
+//         date: "2023-10-09",
+//         time: "5:00 PM",
+//         description: "Program finale with performances, reflections, and recognition of participants.",
+//     }
+// ];
 
 const prevEvents = [
     {
@@ -127,6 +129,11 @@ const prevEvents = [
 const Portal = () => {
 
     const {user} = useContext(AuthContext);
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
+
+
+    const [events, setEvents] = useState([]);
+    const [projects, setPrjects] = useState([]);
 
     const [selectedIamge, setSelectedImage] = useState();
     const [viewImage, setViewImage] = useState(false);
@@ -135,6 +142,31 @@ const Portal = () => {
 
     const [selectedFile, setSelectedFile] = useState(null);
     const fileInputRef = useRef(null);
+
+    const [tab, setTab] = useState('events'); 
+
+    useEffect(() => {
+        fetchEvents();
+        fetchProjects();
+    }, []);
+
+    const fetchEvents = async () => {
+        try {
+            const response = await _get('/events');
+            setEvents(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    const fetchProjects = async () => {
+        try {
+            const response = await _get('/projects');
+            setPrjects(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const handleFileChange = (e) => {
         const file = e.target.files[0];
@@ -202,13 +234,83 @@ const Portal = () => {
                                 <div className="bg-white mr-1 p-1 border rounded">
                                     <SlidersHorizontal className="w-4 h-4 text-gray-500" />
                                 </div>
-                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">All</button>
-                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Upcoming</button>
-                                <button className="bg-white text-[10px] px-2 py-1 rounded border border-gray-200">Previous</button>
+                                <button onClick={() => setTab('events')} className={`text-[10px] px-2 py-1 rounded  ${tab === 'events' ? 'bg-blue-500 text-white border-0' : 'border border-gray-200'}`}>Events</button>
+                                <button onClick={() => setTab('projects')} className={`text-[10px] px-2 py-1 rounded  ${tab === 'projects' ? 'bg-blue-500 text-white border-0' : 'border border-gray-200'}`}>Projects</button>
                             </div>
                         </div>
                         <div className="flex flex-col items-start justify-start gap-2 w-full h-auto md:max-h-[530px] overflow-y-auto py-2 hide-scrollbar">
-                            {events.map((event, index) => (
+                            {tab === 'projects' && projects.map((project, index) => (
+                               <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
+                                    <div className="flex items-center justify-start gap-2">
+                                        <img src="logo.png" alt="img" className="w-8 h-8 rounded-full"/>
+                                        <div className="flex flex-col items-start justify-start ">
+                                            <p className="text-xs font-medium">Kalinga ng Kababaihan</p>
+                                            <p className="text-[9px]">April 9 10:00 AM</p>
+                                        </div>
+                                        
+                                    </div>
+                                    <div className="flex flex-col items-start justify-start gap-1">
+                                        <h1 className="text-sm font-semibold text-gray-700">{project.title}</h1>
+                                        <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{project.date} - {project.time}</p>
+                                        <p className="text-xs text-gray-500">{project.description}</p>
+                                    </div>
+
+                                    <div>
+                                        {project.image && (
+                                            <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
+                                                <img onClick={() => handleImageClick(project.image)} key={index} src={`${baseURL}${project.image}`} className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer"/>
+                                            </div>
+                                        )}
+                                    </div>
+                                    
+                                    {/* <div>
+                                        {event.images && event.images.length > 0 && (
+                                            <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
+                                                {event.images.map((image, index) => (
+                                                    <img key={index} src={image.src} alt={image.alt} className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer" onClick={() => handleImageClick(image.src)}/>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div> */}
+                                    {/* {event.images && event.images.length > 0 && (
+                                        <div className="relative w-full">
+                                           
+                                            <button
+                                                className="absolute left-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow px-2 py-1 rounded-l hover:bg-gray-100"
+                                                onClick={() => scrollImagesLeft(index)}
+                                            >
+                                                ◀
+                                            </button>
+                                            <div
+                                                className="flex items-center justify-start gap-2 mt-2 overflow-x-auto hide-scrollbar scroll-smooth"
+                                                ref={(el) => (imageContainers.current[index] = el)}
+                                            >
+                                                {event.images.map((image, imgIndex) => (
+                                                    <img
+                                                        key={imgIndex}
+                                                        src={image.src}
+                                                        alt={image.alt}
+                                                        className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer"
+                                                        onClick={() => handleImageClick(image.src)}
+                                                    />
+                                                ))}
+                                            </div>
+                                            <button
+                                                className="absolute right-0 top-1/2 -translate-y-1/2 z-10 bg-white shadow px-2 py-1 rounded-r hover:bg-gray-100"
+                                                onClick={() => scrollImagesRight(index)}
+                                            >
+                                                ▶
+                                            </button>
+                                        </div>
+                                    )} */}
+
+                                    <div className="flex items-center justify-start gap-2 mt-2">
+                                        <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button>
+                                        <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
+                                    </div>
+                                </div> 
+                            ))}
+                            {tab === 'events' && events.map((event, index) => (
                                 <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-md shadow-sm p-4 border border-gray-50">
                                     <div className="flex items-center justify-start gap-2">
                                         <img src="logo.png" alt="img" className="w-8 h-8 rounded-full"/>
@@ -223,8 +325,16 @@ const Portal = () => {
                                         <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{event.date} - {event.time}</p>
                                         <p className="text-xs text-gray-500">{event.description}</p>
                                     </div>
+
+                                    {/* <div>
+                                        {event.image && (
+                                            <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
+                                                <img key={index} src={`${baseURL}${event.image}`} className="w-24 h-24 rounded bg-gray-gray-300 object-cover object-center cursor-pointer" onClick={() => handleImageClick(image.src)}/>
+                                            </div>
+                                        )}
+                                    </div> */}
                                     
-                                    <div>
+                                    {/* <div>
                                         {event.images && event.images.length > 0 && (
                                             <div className="flex items-center justify-start gap-2 mt-2 overflow-scroll hide-scrollbar">
                                                 {event.images.map((image, index) => (
@@ -232,7 +342,7 @@ const Portal = () => {
                                                 ))}
                                             </div>
                                         )}
-                                    </div>
+                                    </div> */}
                                     {/* {event.images && event.images.length > 0 && (
                                         <div className="relative w-full">
                                            
@@ -285,8 +395,8 @@ const Portal = () => {
                                         animate={{ scale: 1, opacity: 1 }}
                                         exit={{ scale: 0.95, opacity: 0 }}
                                         transition={{ duration: 0.2 }}
-                                        className="bg-white rounded-lg h-auto w-full max-w-[600px] flex flex-col justify-start gap-4">
-                                            <img src={selectedIamge} alt="image" className="h-full w-full rounded-lg" />
+                                        className="bg-white h-auto min-h-80 rounded-lg w-full max-w-[600px] flex flex-col justify-start gap-4">
+                                            <img src={`${baseURL}${selectedIamge}`} alt="image" className="h-full w-full rounded-lg" />
                                         </motion.div>
                                     </motion.div>
                                 </AnimatePresence>

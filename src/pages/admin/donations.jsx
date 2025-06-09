@@ -30,23 +30,45 @@ const Donations = () => {
     const [toBeEdited, setToBeEdited] = useState(null);
     const [openEdtitModal, setOpenEditModal] = useState(false);
 
+    const [selectedMonth, setSelectedMonth] = useState('');
+    const [selectedYear, setSelectedYear] = useState('');
+
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
     useEffect(() => {
-        fetchDonations();
-    }, []);
+        const filters = {};
+        if (selectedMonth) filters.month = selectedMonth;
+        if (selectedYear) filters.year = selectedYear;
 
-    const fetchDonations = async () => {
+        fetchDonations(filters);
+    }, [selectedMonth, selectedYear]);
+
+    const fetchDonations = async (filters = {}) => {
         try {
-            const response = await _get("/donations"); 
-            const data = await response.data;
-            setDonations(data);
+            // Construct query string if filters exist
+            const query = new URLSearchParams(filters).toString();
+            const url = query ? `/donations?${query}` : `/donations`;
+
+            const response = await _get(url);
+            setDonations(response.data);
         } catch (error) {
             console.error('Error fetching donations:', error);
         } finally {
             setLoading(false);
         }
-    }
+    };
+
+    // const fetchDonations = async () => {
+    //     try {
+    //         const response = await _get("/donations"); 
+    //         const data = await response.data;
+    //         setDonations(data);
+    //     } catch (error) {
+    //         console.error('Error fetching donations:', error);
+    //     } finally {
+    //         setLoading(false);
+    //     }
+    // }
 
     const handleConfirmDelete = (id) => {
         setIsDeleteOpen(true);
@@ -173,10 +195,40 @@ const Donations = () => {
                         <p className="text-xs">Search</p>
                         <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Type something.." />
                     </div>
-                    {/* <div className="flex items-center justify-end gap-2">
-                        <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
-                    </div> */}
+                    <div className="flex gap-4 items-center">
+                        <div>
+                            <label className="text-[11px] block">Filter by Month</label>
+                            <select
+                            className="text-[10px] px-3 py-1.5 border border-gray-300 rounded"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            >
+                            <option value="">All Months</option>
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i + 1} value={new Date(0, i).toLocaleString('default', { month: 'long' })}>
+                                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                                </option>
+                            ))}
+                            </select>
+                        </div>
+
+                        <div>
+                            <label className="text-[11px] block">Filter by Year</label>
+                           <select
+                                className="text-[10px] px-3 py-1.5 border border-gray-300 rounded"
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                            >
+                                <option value="">All Years</option>
+                                {Array.from({ length: 26 }, (_, i) => 2000 + i).map(year => (
+                                <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
+                
+
                 <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
                     <thead className="bg-orange-500 text-white">
                     <tr>

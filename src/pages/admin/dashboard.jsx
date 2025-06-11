@@ -19,6 +19,10 @@ const Dashboard = () => {
     const print2BtnRef = useRef();
     const logo2Ref = useRef();
 
+    const print3Ref = useRef();
+    const print3BtnRef = useRef();
+    const logo3Ref = useRef();
+
     const preparingRef = useRef();
 
     const [cashDonationSummary, setCashDonationSummary] = useState();
@@ -105,6 +109,36 @@ const Dashboard = () => {
         const element = print2Ref.current;
         const printBtn = print2BtnRef.current;
         const logo = logo2Ref.current;
+        const preparing = preparingRef.current;
+        
+        preparing.classList.remove('hidden');
+        printBtn.classList.add('hidden');
+        logo.classList.remove('hidden');
+
+        const opt = {
+            margin: 0.5,
+            filename: 'Monthly_Donation_Trend.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .outputPdf('blob') 
+            .then((pdfBlob) => {
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl); 
+                preparing.classList.add('hidden');
+                printBtn.classList.remove('hidden');
+                logo.classList.replace('hidden',);
+            });
+    };
+
+    const handlePrint3 = () => {
+        const element = print3Ref.current;
+        const printBtn = print3BtnRef.current;
+        const logo = logo3Ref.current;
         const preparing = preparingRef.current;
         
         preparing.classList.remove('hidden');
@@ -264,6 +298,34 @@ const Dashboard = () => {
                                             <td className="px-4 py-2 text-left text-xs">₱{item.cash}</td>
                                             <td className="px-4 py-2 text-left text-xs">₱{item.gcash}</td>
                                             <td className="px-4 py-2 text-left text-xs font-medium">₱{item.total}</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
+                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print3Ref}>
+                                <div ref={logo3Ref} className="hidden mb-5">
+                                    <Logo/>
+                                </div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-semibold text-gray-600">Yearly Goods Donation Comparison</h2>
+                                    <button onClick={handlePrint3} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={print3BtnRef}>Print</button>
+                                </div>
+                                <div className="overflow-x-auto rounded-md">
+                                    <table className="min-w-full table-auto text-sm">
+                                        <thead className="bg-pink-400 text-white ">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs">Year</th>
+                                            <th className="px-4 py-2 text-left text-xs">Total Count</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {cashDonationSummary?.goodsYearlySummary && cashDonationSummary?.goodsYearlySummary.map((item, index) => (
+                                            <tr key={index} className=" border-gray-100 even:bg-gray-50">
+                                            <td className="px-4 py-2 text-xs">{item.year}</td>
+                                            <td className="px-4 py-2 text-left text-xs font-medium">{item.total}</td>
                                             </tr>
                                         ))}
                                         </tbody>

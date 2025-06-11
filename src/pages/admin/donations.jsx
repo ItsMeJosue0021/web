@@ -250,7 +250,7 @@ const Donations = () => {
                         <th className="p-3 text-start">Reference No.</th>
                         <th className="p-3 text-start">Email</th>
                         <th className="p-3 text-start">Proof</th>
-                        <th className="p-3 text-end">Actions</th>
+                        {/* <th className="p-3 text-end">Actions</th> */}
                     </tr>
                     </thead>
                     <tbody>
@@ -281,10 +281,10 @@ const Donations = () => {
                                         <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
                                     )}
                                 </td>
-                                <td className="p-3 h-full flex items-center justify-end gap-2">
+                                {/* <td className="p-3 h-full flex items-center justify-end gap-2">
                                     <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
                                     <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                                </td>
+                                </td> */}
                             </tr>
                         ))}
                     </tbody>

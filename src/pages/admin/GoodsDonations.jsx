@@ -168,7 +168,7 @@ const GoodsDonations = () => {
                                 {
                                     donation.type && donation.type.length > 0 && (
                                         donation.type.map((type, idx) => (
-                                        <span key={idx} className="inline-block border text-gray-500 border-gray-300 p-1 py-0 rounded text-[10px] mr-1 my-1">
+                                        <span key={idx} className={`inline-block ${type === 'food' ? 'text-green-500 bg-green-50' : type === 'clothes' ? 'text-blue-500 bg-blue-50': 'text-pink-500 bg-pink-50'} p-1.5 py-1 rounded text-[11px] mr-1 my-1`}>
                                             {type}
                                         </span>
                                         ))

@@ -259,7 +259,7 @@ const Donations = () => {
                             <td className="p-3">{donation.email || ''}</td>
                             <td className="p-3">
                                 {donation.type === 'gcash' && (
-                                    <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
+                                    <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
                                 )}
                             </td>
                             <td className="p-3 h-full flex items-center justify-end gap-2">

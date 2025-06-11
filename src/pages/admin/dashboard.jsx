@@ -49,8 +49,6 @@ const Dashboard = () => {
         
         preparing.classList.remove('hidden');
         printBtn.classList.add('hidden');
-        element.classList.remove('w-[55%]');
-        element.classList.add('w-full');
         logo.classList.remove('hidden');
 
         const opt = {
@@ -69,8 +67,6 @@ const Dashboard = () => {
                 window.open(blobUrl); 
                 preparing.classList.add('hidden');
                 printBtn.classList.remove('hidden');
-                element.classList.add('w-[55%]');
-                element.classList.remove('w-full');
                 logo.classList.add('hidden');
             });
     };
@@ -171,63 +167,32 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="w-full flex items-start gap-5">
-                        <div className="w-[55%] bg-white rounded-xl shadow-sm p-4" ref={printRef}>
-                            <div ref={logoRef} className="hidden mb-5">
-                                <Logo/>
-                            </div>
-                            <div className="flex items-center justify-between mb-3">
-                                <h2 className="text-sm font-semibold text-gray-600">Monthly Monetary Donation Trend</h2>
-                                <button onClick={handlePrint} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={printBtnRef}>Print</button>
-                            </div>
-                            <div className="overflow-x-auto rounded-md">
-                                <table className="min-w-full table-auto text-sm">
-                                    <thead className="bg-blue-400 text-white text-xs">
-                                        <tr>
-                                            <th className="px-4 py-2 text-left font-semibold align-middle">Month</th>
-                                            <th className="px-4 py-2 text-left font-semibold align-middle">Year</th>
-                                            <th className="px-4 py-2 text-left font-semibold align-middle">Total</th>
-                                            <th className="px-4 py-2 text-left font-semibold align-middle">No. of Donations</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                    {cashDonationSummary?.monthlyTrend && cashDonationSummary?.monthlyTrend.map((item, index) => (
-                                        <tr key={index} className=" border-gray-100 even:bg-gray-50">
-                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.month}</td>
-                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.year}</td>
-                                            <td className="px-4 py-2 text-xs text-blue-600 align-middle">₱{item.totalAmount}</td>
-                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.numberOfDonations}</td>
-                                        </tr>
-                                    ))}
-                                    </tbody>
-                                </table>
-                            </div>
-                        </div>
-                        <div className="w-[45%] flex flex-col gap-4">
-                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print1Ref}>
-                                <div ref={logo1Ref} className="hidden mb-5">
+                        <div className="w-[55%] flex flex-col gap-4">
+                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={printRef}>
+                                <div ref={logoRef} className="hidden mb-5">
                                     <Logo/>
                                 </div>
                                 <div className="flex items-center justify-between mb-3">
-                                    <h2 className="text-sm font-semibold text-gray-600">Yearly Monetary Donation Comparison</h2>
-                                    <button onClick={handlePrint1} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={print1BtnRef}>Print</button>
+                                    <h2 className="text-sm font-semibold text-gray-600">Monthly Monetary Donation Trend</h2>
+                                    <button onClick={handlePrint} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={printBtnRef}>Print</button>
                                 </div>
                                 <div className="overflow-x-auto rounded-md">
                                     <table className="min-w-full table-auto text-sm">
-                                        <thead className="bg-purple-400 text-white ">
-                                        <tr>
-                                            <th className="px-4 py-2 text-left text-xs">Year</th>
-                                            <th className="px-4 py-2 text-left text-xs">Cash</th>
-                                            <th className="px-4 py-2 text-left text-xs">GCash </th>
-                                            <th className="px-4 py-2 text-left text-xs">Total</th>
-                                        </tr>
+                                        <thead className="bg-blue-400 text-white text-xs">
+                                            <tr>
+                                                <th className="px-4 py-2 text-left font-semibold align-middle">Month</th>
+                                                <th className="px-4 py-2 text-left font-semibold align-middle">Year</th>
+                                                <th className="px-4 py-2 text-left font-semibold align-middle">Total</th>
+                                                <th className="px-4 py-2 text-left font-semibold align-middle">No. of Donations</th>
+                                            </tr>
                                         </thead>
                                         <tbody>
-                                        {cashDonationSummary?.yearlyComparison && cashDonationSummary?.yearlyComparison.map((item, index) => (
+                                        {cashDonationSummary?.monthlyTrend && cashDonationSummary?.monthlyTrend.map((item, index) => (
                                             <tr key={index} className=" border-gray-100 even:bg-gray-50">
-                                            <td className="px-4 py-2 text-xs">{item.year}</td>
-                                            <td className="px-4 py-2 text-left text-xs">₱{item.cash}</td>
-                                            <td className="px-4 py-2 text-left text-xs">₱{item.gcash}</td>
-                                            <td className="px-4 py-2 text-left text-xs font-medium">₱{item.total}</td>
+                                                <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.month}</td>
+                                                <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.year}</td>
+                                                <td className="px-4 py-2 text-xs text-blue-600 align-middle">₱{item.totalAmount}</td>
+                                                <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.numberOfDonations}</td>
                                             </tr>
                                         ))}
                                         </tbody>
@@ -271,6 +236,41 @@ const Dashboard = () => {
                                     </table>
                                 </div>
                             </div>
+                        </div>
+
+                        <div className="w-[45%] flex flex-col gap-4">
+                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print1Ref}>
+                                <div ref={logo1Ref} className="hidden mb-5">
+                                    <Logo/>
+                                </div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-semibold text-gray-600">Yearly Monetary Donation Comparison</h2>
+                                    <button onClick={handlePrint1} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={print1BtnRef}>Print</button>
+                                </div>
+                                <div className="overflow-x-auto rounded-md">
+                                    <table className="min-w-full table-auto text-sm">
+                                        <thead className="bg-purple-400 text-white ">
+                                        <tr>
+                                            <th className="px-4 py-2 text-left text-xs">Year</th>
+                                            <th className="px-4 py-2 text-left text-xs">Cash</th>
+                                            <th className="px-4 py-2 text-left text-xs">GCash </th>
+                                            <th className="px-4 py-2 text-left text-xs">Total</th>
+                                        </tr>
+                                        </thead>
+                                        <tbody>
+                                        {cashDonationSummary?.yearlyComparison && cashDonationSummary?.yearlyComparison.map((item, index) => (
+                                            <tr key={index} className=" border-gray-100 even:bg-gray-50">
+                                            <td className="px-4 py-2 text-xs">{item.year}</td>
+                                            <td className="px-4 py-2 text-left text-xs">₱{item.cash}</td>
+                                            <td className="px-4 py-2 text-left text-xs">₱{item.gcash}</td>
+                                            <td className="px-4 py-2 text-left text-xs font-medium">₱{item.total}</td>
+                                            </tr>
+                                        ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                            
                         </div>
                     </div>
                 </div>

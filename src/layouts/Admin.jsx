@@ -48,9 +48,9 @@ const Admin = ({children, header, breadcrumbs = []}) => {
 
                 <div className="relative w-full">
                     <div className="w-full absolute left-0 -top-16 flex items-start">
-                        <div className="min-w-56 w-56 h-screen p-4 pt-2 pr-2 pl-0">
-                            <div className='bg-white layout-sidebar h-full pl-2 p-8 pr-5 shadow-sm'>
-                                <div className="w-full h-full min-h-[650px] flex flex-col justify-start items-start gap-1">
+                        <div className="min-w-56 w-56 h-auto p-4 pt-2 pr-2 pl-0">
+                            <div className='bg-white layout-sidebar h-full max-h-[600px] overflow-y-auto pl-2 p-8 pr-5 shadow-sm scrollbar-hide'>
+                                <div className="w-full h-auto  flex flex-col justify-start items-start gap-1">
                                     <Link to="/dashboard" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/dashboard" ? "bg-gray-200" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <LayoutDashboard className="w-5 h-5 text-gray-700" />
@@ -175,24 +175,27 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         {isWebOpen && (
                                             <div className="pl-4 pt-1">
-                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    {/* <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div> */}
-                                                    <p className="text-xs text-black font-medium">Landing Page</p>
+                                                <Link to="/web-content/home" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/home" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Home</p>
                                                 </Link>
 
-                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    {/* <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div> */}
+                                                <Link to="/web-content/about-us" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/about-us" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">About Us</p>
                                                 </Link>
 
-                                                <Link className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    {/* <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div> */}
+                                                <Link to="/web-content/faqs" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/faqs" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Faqs</p>
+                                                </Link>
+
+                                                <Link to="/web-content/volunteers" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/volunteers" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Volunteers</p>
+                                                </Link>
+
+                                                <Link  to="/web-content/events" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/events" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Events</p>
+                                                </Link>
+
+                                                <Link to="/web-content/contact-us"className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/contact-us" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Contact Us</p>
                                                 </Link>
                                             </div>
@@ -212,7 +215,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                                 </div>
                             </div>
-                            <div className='w-full h-full max-h-[500px] overflow-y-auto pb-4'>
+                            <div className='w-full h-full max-h-[530px] overflow-y-auto pb-4'>
                                 {children}
                             </div>
                             

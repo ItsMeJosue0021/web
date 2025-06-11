@@ -33,6 +33,12 @@ import Goods from './pages/donation/Goods';
 import Donations from './pages/admin/donations';
 import Dashboard from './pages/admin/dashboard';
 import GoodsDonations from './pages/admin/GoodsDonations';
+import WebHome from './pages/admin/website/Home';
+import WebAboutUs from './pages/admin/website/AboutUs';
+import WebFaqs from './pages/admin/website/Faqs';
+import WebVolunteers from './pages/admin/website/Volunteers';
+import WebEvents from './pages/admin/website/Events';
+import WebContactUs from './pages/admin/website/ContactUs';
 
 const App = () => {
     useEffect(() => {
@@ -120,7 +126,6 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/donations/cash"
                     element={
@@ -129,7 +134,6 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/donations/goods"
                     element={
@@ -138,12 +142,59 @@ const App = () => {
                         </ProtectedRoute>
                     }
                 />
-
                 <Route
                     path="/dashboard"
                     element={
                         <ProtectedRoute role="admin">
                             <Dashboard />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/home"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebHome />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/about-us"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebAboutUs />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/faqs"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebFaqs />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/volunteers"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebVolunteers />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/events"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebEvents />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/web-content/contact-us"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <WebContactUs />
                         </ProtectedRoute>
                     }
                 />

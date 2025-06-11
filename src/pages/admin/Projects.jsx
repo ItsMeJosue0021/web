@@ -29,7 +29,10 @@ const Projects = () => {
     const [openImage, setOpenImage] = useState(false);
     const [viewImageURL, setViewImageURL] = useState("");
 
+    const [validationErrors, setValidationErrors] = useState({});
+
     const handleOpenEditModal = (project) => {
+        setValidationErrors({});
         if (project) {
             setToBeEditedProject(project);
             setTitle(project.title || "");
@@ -108,10 +111,14 @@ const Projects = () => {
             clearForm();
             setShowAddProjectModal(false);
             toast.success("Project added successfully!");
+            setValidationErrors({});
         } catch (error) {
-
-            toast.error("Error adding project. Please try again.");
-            console.error('Error adding project:', error);
+            if (error.response && error.response.data && error.response.data.errors) {
+                setValidationErrors(error.response.data.errors); // <- Set error messages
+            } else {
+                 toast.error("Error adding project. Please try again.");
+                console.error('Error adding project:', error);
+            }
         } finally 
         {
             setLoading(false);
@@ -143,8 +150,8 @@ const Projects = () => {
             clearForm();
             setShowEditProjectModal(false);
             toast.success("Project updated successfully!");
+            setValidationErrors({});
         } catch (error) {
-
             toast.error("Error updating project. Please try again.");
             console.error('Error updating project:', error);
         } finally 
@@ -253,24 +260,40 @@ const Projects = () => {
                         <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
                             <div className=" flex items-center justify-between mb-4">
                                 <p className="text-xs">Add New Project</p>
-                                <X onClick={() => setShowAddProjectModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                                <X onClick={() => {
+                                        clearForm();
+                                        setShowAddProjectModal(false)
+                                        setValidationErrors({})
+                                    }} className="absolute top-4 right-4 cursor-pointer" size={20} />
                             </div>
                             <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleSubmit}>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                     <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                                    {validationErrors.title && (
+                                        <p className="text-red-500 text-xs">{validationErrors.title[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
                                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                                    {validationErrors.description && (
+                                        <p className="text-red-500 text-xs">{validationErrors.description[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
                                     <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                                    {validationErrors.location && (
+                                        <p className="text-red-500 text-xs">{validationErrors.location[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
                                     <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                                    {validationErrors.date && (
+                                        <p className="text-red-500 text-xs">{validationErrors.date[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Image</label>
@@ -303,6 +326,7 @@ const Projects = () => {
                                     <div onClick={() => {
                                         clearForm();
                                         setShowAddProjectModal(false)
+                                        setValidationErrors({})
                                     }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
                                 </div>
                             </form>
@@ -325,6 +349,7 @@ const Projects = () => {
                                 <X  onClick={() => {
                                         clearForm();
                                         setShowEditProjectModal(false)
+                                        setValidationErrors({})
                                     }} 
                                     className="absolute top-4 right-4 cursor-pointer" size={20} />
                             </div>
@@ -332,18 +357,30 @@ const Projects = () => {
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                     <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                                    {validationErrors.title && (
+                                        <p className="text-red-500 text-xs">{validationErrors.title[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
                                     <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                                    {validationErrors.description && (
+                                        <p className="text-red-500 text-xs">{validationErrors.description[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
                                     <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                                    {validationErrors.location && (
+                                        <p className="text-red-500 text-xs">{validationErrors.location[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
                                     <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                                    {validationErrors.date && (
+                                        <p className="text-red-500 text-xs">{validationErrors.date[0]}</p>
+                                    )}
                                 </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Image</label>
@@ -376,6 +413,7 @@ const Projects = () => {
                                     <div onClick={() => {
                                         clearForm();
                                         setShowEditProjectModal(false)
+                                        setValidationErrors({})
                                     }} className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
                                 </div>
                             </form>

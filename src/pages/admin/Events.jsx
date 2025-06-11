@@ -8,6 +8,8 @@ import { toast } from 'react-toastify';
 
 const Events = () => {
 
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
+
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -24,7 +26,11 @@ const Events = () => {
     const [date, setDate] = useState('');
     const [image, setImage] = useState(null);
 
+    const [validationErrors, setValidationErrors] = useState({});
     const [toBeEditedEvent, setToBeEditedEvent] = useState(null);
+
+    const [openImage, setOpenImage] = useState(false);
+    const [viewImageURL, setViewImageURL] = useState("");
 
 
     useEffect(() => {
@@ -51,6 +57,11 @@ const Events = () => {
         setImage(null);
     }
 
+    const handleViewImage = (image) => {
+        setViewImageURL(image);
+        setOpenImage(true);
+    }
+
     const handleAddEvent = async (e) => {
         event.preventDefault();
 
@@ -69,13 +80,51 @@ const Events = () => {
                     'Content-Type': 'multipart/form-data'
                 }
             });
-            setEvents([...events, response.data]);
+            fetchEvents();
             toast.success("Event added successfully!");
             setOpenAddModal(false);
             resetForm();
+            setValidationErrors({});
         } catch (error) {
-            toast.error("Error adding event. Please try again.");
-            console.error('Error adding event:', error);
+            if (error.response && error.response.data && error.response.data.errors) {
+                setValidationErrors(error.response.data.errors); // <- Set error messages
+            } else {
+                 toast.error("Error adding project. Please try again.");
+                console.error('Error adding project:', error);
+            }
+        }
+    }
+
+        const handleEditEventSubmit = async (e) => {
+        event.preventDefault();
+
+        const formData = new FormData();
+        formData.append('title', title);
+        formData.append('description', description);
+        formData.append('location', location);
+        formData.append('date', date);
+        if (image) {
+            formData.append('image', image);
+        }
+
+        try {
+            const response = await _post(`/events/update/${toBeEditedEvent.id}`, formData, {
+                headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            fetchEvents();
+            toast.success("Event added successfully!");
+            setOpenEditModal(false);
+            resetForm();
+            setValidationErrors({});
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.errors) {
+                setValidationErrors(error.response.data.errors); // <- Set error messages
+            } else {
+                 toast.error("Error adding project. Please try again.");
+                console.error('Error adding project:', error);
+            }
         }
     }
     
@@ -88,7 +137,7 @@ const Events = () => {
         setIsDeleting(true);
         try {
             await _delete(`/events/${deleteId}`);
-            setEvents(events.filter(event => event.id !== deleteId));
+            fetchEvents();
             toast.success("Event deleted successfully!");
         } catch (error) {
             toast.error("Error deleting event. Please try again.");
@@ -100,6 +149,7 @@ const Events = () => {
     }
 
     const handleEditEvent = (event) => {
+        setValidationErrors({});
         setToBeEditedEvent(event);  
         setTitle(event.title);
         setDescription(event.description);
@@ -139,6 +189,7 @@ const Events = () => {
                     <th className="p-3 text-start">Description</th>
                     <th className="p-3 text-start">Location</th>
                     <th className="p-3 text-start">Date</th>
+                    <th className="p-3 text-start">Image</th>
                     <th className="p-3 text-end">Actions</th>
                 </tr>
                 </thead>
@@ -153,6 +204,9 @@ const Events = () => {
                         </td>
                         <td className="p-3">{event.location || ''}</td>
                         <td className="p-3">{event.date || ''}</td>
+                         <td className="p-3">
+                            <button onClick={() => handleViewImage(event.image)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
+                        </td>
                         <td className="p-3 h-full flex items-center justify-end gap-2">
                             <button onClick={() => handleEditEvent(event)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
                             <button onClick={() => handleConfirmDelete(event.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
@@ -186,24 +240,40 @@ const Events = () => {
                     <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
                         <div className=" flex items-center justify-between mb-4">
                             <p className="text-xs">Add New Event</p>
-                            <X onClick={() => setOpenAddModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                            <X onClick={() => {
+                                    resetForm();
+                                    setOpenAddModal(false)
+                                    setValidationErrors({});
+                                }} className="absolute top-4 right-4 cursor-pointer" size={20} />
                         </div>
                         <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleAddEvent}>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                 <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                                {validationErrors.title && (
+                                    <p className="text-red-500 text-xs">{validationErrors.title[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
                                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                                {validationErrors.description && (
+                                    <p className="text-red-500 text-xs">{validationErrors.description[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
                                 <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                                {validationErrors.location && (
+                                    <p className="text-red-500 text-xs">{validationErrors.location[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
                                 <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                                {validationErrors.date && (
+                                    <p className="text-red-500 text-xs">{validationErrors.date[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Image</label>
@@ -219,6 +289,7 @@ const Events = () => {
                                 <div onClick={() => {
                                     resetForm();
                                     setOpenAddModal(false)
+                                    setValidationErrors({})
                                 }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
                             </div>
                         </form>
@@ -238,24 +309,40 @@ const Events = () => {
                     <div className="relative bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
                         <div className=" flex items-center justify-between mb-4">
                             <p className="text-xs">Add New Event</p>
-                            <X onClick={() => setOpenEditModal(false)} className="absolute top-4 right-4 cursor-pointer" size={20} />
+                            <X onClick={() => {
+                                    resetForm();
+                                    setOpenEditModal(false)
+                                    setValidationErrors({});
+                                }} className="absolute top-4 right-4 cursor-pointer" size={20} />
                         </div>
-                        <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleAddEvent}>
+                        <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleEditEventSubmit}>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                 <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
+                                {validationErrors.title && (
+                                    <p className="text-red-500 text-xs">{validationErrors.title[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Description <span className="text-xs text-red-500">*</span></label>
                                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Description"></textarea>
+                                {validationErrors.description && (
+                                    <p className="text-red-500 text-xs">{validationErrors.description[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Location <span className="text-xs text-red-500">*</span></label>
                                 <input value={location} onChange={(e) => setLocation(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Location" />
+                                {validationErrors.location && (
+                                    <p className="text-red-500 text-xs">{validationErrors.location[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Date <span className="text-xs text-red-500">*</span></label>
                                 <input value={date} onChange={(e) => setDate(e.target.value)} type="date" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" />
+                                {validationErrors.date && (
+                                    <p className="text-red-500 text-xs">{validationErrors.date[0]}</p>
+                                )}
                             </div>
                             <div className="flex flex-col gap-2">
                                 <label className="text-xs">Image</label>
@@ -271,12 +358,21 @@ const Events = () => {
                                 <div onClick={() => {
                                     resetForm();
                                     setOpenEditModal(false)
+                                    setValidationErrors({});
                                 }} type="submit" className="bg-gray-200 hover:bg-gray-300 text-xs px-4 py-2 rounded cursor-pointer">Cancel</div>
                             </div>
                         </form>
                     </div>
                 </motion.div>
             </AnimatePresence>
+        )}
+
+        {openImage && (
+            <div onClick={() => setOpenImage(false)} className="fixed top-0 left-0 w-full h-screen bg-black/10 z-50 flex items-center justify-center">
+                <div className="bg-white rounded h-[400px] max-h-[400px] w-auto min-w-[600px] max-w-[600px]">
+                    <img src={`${baseURL}${viewImageURL}`} alt="img" className="w-full h-full rounded object-cover object-center obje"/>
+                </div>
+            </div>
         )}
 
         {isDeleteOpen && (

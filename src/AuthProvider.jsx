@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
             await fetchUser();
 
             if (res.data.user.role.name === 'admin') {
-                navigate('/dashboards');
+                navigate('/dashboard');
             } else if (res.data.user.role.name === 'user') {
                 navigate('/');
             }

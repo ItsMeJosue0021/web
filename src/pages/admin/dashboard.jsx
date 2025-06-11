@@ -1,9 +1,23 @@
 import Admin from "../../layouts/Admin";
 import { Coins, HandCoins } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef  } from "react";
 import { _get } from "../../api";
+import html2pdf from 'html2pdf.js';
+import Logo from "../../components/Logo";
 
 const Dashboard = () => {
+
+    const printRef = useRef();
+    const printBtnRef = useRef();
+    const logoRef = useRef();
+
+    const print1Ref = useRef();
+    const print1BtnRef = useRef();
+    const logo1Ref = useRef();
+
+    const print2Ref = useRef();
+    const print2BtnRef = useRef();
+    const logo2Ref = useRef();
 
     const [cashDonationSummary, setCashDonationSummary] = useState();
     const [loadingCashDoSumary, setLoadingCasgDoSummary] = useState(true);
@@ -24,6 +38,91 @@ const Dashboard = () => {
             setLoadingCasgDoSummary(false);
         }
     }
+
+    const handlePrint = () => {
+        const element = printRef.current;
+        const printBtn = printBtnRef.current;
+        const logo = logoRef.current;
+        
+        printBtn.classList.add('hidden');
+        element.classList.remove('w-[55%]');
+        element.classList.add('w-full');
+        logo.classList.remove('hidden');
+
+        const opt = {
+            margin: 0.5,
+            filename: 'Monthly_Donation_Trend.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .outputPdf('blob') 
+            .then((pdfBlob) => {
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl); 
+                printBtn.classList.remove('hidden');
+                element.classList.add('w-[55%]');
+                element.classList.remove('w-full');
+                logo.classList.add('hidden');
+            });
+    };
+
+    const handlePrint1 = () => {
+        const element = print1Ref.current;
+        const printBtn = print1BtnRef.current;
+        const logo = logo1Ref.current;
+        
+        printBtn.classList.add('hidden');
+        logo.classList.remove('hidden');
+
+        const opt = {
+            margin: 0.5,
+            filename: 'Monthly_Donation_Trend.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .outputPdf('blob') 
+            .then((pdfBlob) => {
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl); 
+                printBtn.classList.remove('hidden');
+                logo.classList.add('hidden');
+            });
+    };
+
+        const handlePrint2 = () => {
+        const element = print2Ref.current;
+        const printBtn = print2BtnRef.current;
+        const logo = logo2Ref.current;
+        
+        printBtn.classList.add('hidden');
+        logo.classList.remove('hidden');
+
+        const opt = {
+            margin: 0.5,
+            filename: 'Monthly_Donation_Trend.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(element)
+            .outputPdf('blob') 
+            .then((pdfBlob) => {
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl); 
+                printBtn.classList.remove('hidden');
+                logo.classList.add('hidden');
+            });
+    };
 
     const header = {
         title: "Dashboard",
@@ -61,25 +160,31 @@ const Dashboard = () => {
                         </div>
                     </div>
                     <div className="w-full flex items-start gap-5">
-                        <div className="w-[55%] bg-white rounded-xl shadow-sm p-4">
-                            <h2 className="text-sm font-semibold mb-4 text-gray-600">Monthly Monetary Donation Trend</h2>
+                        <div className="w-[55%] bg-white rounded-xl shadow-sm p-4" ref={printRef}>
+                            <div ref={logoRef} className="hidden mb-5">
+                                <Logo/>
+                            </div>
+                            <div className="flex items-center justify-between mb-3">
+                                <h2 className="text-sm font-semibold text-gray-600">Monthly Monetary Donation Trend</h2>
+                                <button onClick={handlePrint} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={printBtnRef}>Print</button>
+                            </div>
                             <div className="overflow-x-auto rounded-md">
                                 <table className="min-w-full table-auto text-sm">
                                     <thead className="bg-blue-400 text-white text-xs">
                                         <tr>
-                                            <th className="px-4 py-2 text-left font-semibold">Month</th>
-                                            <th className="px-4 py-2 text-left font-semibold">Year</th>
-                                            <th className="px-4 py-2 text-left font-semibold">Total</th>
-                                            <th className="px-4 py-2 text-left font-semibold">No. of Donations</th>
+                                            <th className="px-4 py-2 text-left font-semibold align-middle">Month</th>
+                                            <th className="px-4 py-2 text-left font-semibold align-middle">Year</th>
+                                            <th className="px-4 py-2 text-left font-semibold align-middle">Total</th>
+                                            <th className="px-4 py-2 text-left font-semibold align-middle">No. of Donations</th>
                                         </tr>
                                     </thead>
                                     <tbody>
                                     {cashDonationSummary?.monthlyTrend && cashDonationSummary?.monthlyTrend.map((item, index) => (
                                         <tr key={index} className=" border-gray-100 even:bg-gray-50">
-                                            <td className="px-4 py-2 text-xs text-gray-500">{item.month}</td>
-                                            <td className="px-4 py-2 text-xs text-gray-500">{item.year}</td>
-                                            <td className="px-4 py-2 text-xs text-blue-600">₱{item.totalAmount}</td>
-                                            <td className="px-4 py-2 text-xs text-gray-500">{item.numberOfDonations}</td>
+                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.month}</td>
+                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.year}</td>
+                                            <td className="px-4 py-2 text-xs text-blue-600 align-middle">₱{item.totalAmount}</td>
+                                            <td className="px-4 py-2 text-xs text-gray-500 align-middle">{item.numberOfDonations}</td>
                                         </tr>
                                     ))}
                                     </tbody>
@@ -87,8 +192,14 @@ const Dashboard = () => {
                             </div>
                         </div>
                         <div className="w-[55%] flex flex-col gap-4">
-                            <div className="w-full bg-white rounded-xl shadow-sm p-4">
-                                <h2 className="text-sm font-semibold mb-4 text-gray-600">Yearly Monetary Donation Comparison</h2>
+                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print1Ref}>
+                                <div ref={logo1Ref} className="hidden mb-5">
+                                    <Logo/>
+                                </div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-semibold text-gray-600">Yearly Monetary Donation Comparison</h2>
+                                    <button onClick={handlePrint1} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={print1BtnRef}>Print</button>
+                                </div>
                                 <div className="overflow-x-auto rounded-md">
                                     <table className="min-w-full table-auto text-sm">
                                         <thead className="bg-purple-400 text-white ">
@@ -112,8 +223,14 @@ const Dashboard = () => {
                                     </table>
                                 </div>
                             </div>
-                            <div className="w-full bg-white rounded-xl shadow-sm p-4">
-                                <h2 className="text-sm font-semibold mb-4 text-gray-600">Monthly Goods Donation Trend</h2>
+                            <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print2Ref}>
+                                <div ref={logo2Ref} className="hidden mb-5">
+                                    <Logo/>
+                                </div>
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-semibold text-gray-600">Monthly Goods Donation Trend</h2>
+                                    <button onClick={handlePrint2} className="text-[11px] bg-gray-100 hover:bg-gray-200 rounded px-3 py-1.5 print-mode" ref={print2BtnRef}>Print</button>
+                                </div>
                                 <div className="overflow-x-auto rounded-md">
                                     <table className="min-w-full table-auto text-sm">
                                         <thead className="bg-green-400 text-white text-xs">

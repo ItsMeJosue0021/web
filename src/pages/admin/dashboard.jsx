@@ -191,7 +191,7 @@ const Dashboard = () => {
                                 </table>
                             </div>
                         </div>
-                        <div className="w-[55%] flex flex-col gap-4">
+                        <div className="w-[45%] flex flex-col gap-4">
                             <div className="w-full bg-white rounded-xl shadow-sm p-4" ref={print1Ref}>
                                 <div ref={logo1Ref} className="hidden mb-5">
                                     <Logo/>

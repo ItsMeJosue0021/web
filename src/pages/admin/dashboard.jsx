@@ -19,6 +19,8 @@ const Dashboard = () => {
     const print2BtnRef = useRef();
     const logo2Ref = useRef();
 
+    const preparingRef = useRef();
+
     const [cashDonationSummary, setCashDonationSummary] = useState();
     const [loadingCashDoSumary, setLoadingCasgDoSummary] = useState(true);
 
@@ -43,7 +45,9 @@ const Dashboard = () => {
         const element = printRef.current;
         const printBtn = printBtnRef.current;
         const logo = logoRef.current;
+        const preparing = preparingRef.current;
         
+        preparing.classList.remove('hidden');
         printBtn.classList.add('hidden');
         element.classList.remove('w-[55%]');
         element.classList.add('w-full');
@@ -63,6 +67,7 @@ const Dashboard = () => {
             .then((pdfBlob) => {
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 window.open(blobUrl); 
+                preparing.classList.add('hidden');
                 printBtn.classList.remove('hidden');
                 element.classList.add('w-[55%]');
                 element.classList.remove('w-full');
@@ -74,9 +79,11 @@ const Dashboard = () => {
         const element = print1Ref.current;
         const printBtn = print1BtnRef.current;
         const logo = logo1Ref.current;
+        const preparing = preparingRef.current;
         
+        preparing.classList.remove('hidden');
         printBtn.classList.add('hidden');
-        logo.classList.remove('hidden');
+        logo.classList.replace('hidden', 'flex');
 
         const opt = {
             margin: 0.5,
@@ -92,6 +99,7 @@ const Dashboard = () => {
             .then((pdfBlob) => {
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 window.open(blobUrl); 
+                preparing.classList.add('hidden');
                 printBtn.classList.remove('hidden');
                 logo.classList.add('hidden');
             });
@@ -101,7 +109,9 @@ const Dashboard = () => {
         const element = print2Ref.current;
         const printBtn = print2BtnRef.current;
         const logo = logo2Ref.current;
+        const preparing = preparingRef.current;
         
+        preparing.classList.remove('hidden');
         printBtn.classList.add('hidden');
         logo.classList.remove('hidden');
 
@@ -119,8 +129,9 @@ const Dashboard = () => {
             .then((pdfBlob) => {
                 const blobUrl = URL.createObjectURL(pdfBlob);
                 window.open(blobUrl); 
+                preparing.classList.add('hidden');
                 printBtn.classList.remove('hidden');
-                logo.classList.add('hidden');
+                logo.classList.replace('hidden',);
             });
     };
 
@@ -262,6 +273,11 @@ const Dashboard = () => {
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+            <div ref={preparingRef} className="hidden fixed top-0 left-0 w-screen h-screen bg-black">
+                <div className="relative w-screen h-screen ">
+                    <p className="absolute top-96 left-[650px] text-white text-lg font-semibold">Preparing to print....</p>
                 </div>
             </div>
         </Admin>

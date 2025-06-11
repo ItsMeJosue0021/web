@@ -1,6 +1,6 @@
 import Admin from "../../layouts/Admin";
 import { useState, useEffect } from "react";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, SlidersHorizontal, Search } from "lucide-react";
 import { _get, _delete, _post } from "../../api"; 
 import { toast } from "react-toastify";
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
@@ -30,18 +30,27 @@ const Donations = () => {
     const [toBeEdited, setToBeEdited] = useState(null);
     const [openEdtitModal, setOpenEditModal] = useState(false);
 
-    const [selectedMonth, setSelectedMonth] = useState('');
-    const [selectedYear, setSelectedYear] = useState('');
+    const currentDate = new Date();
+    const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+    const currentYear = currentDate.getFullYear().toString();
+
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [searchTerm, setSearchTerm] = useState('');
 
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
     useEffect(() => {
-        const filters = {};
-        if (selectedMonth) filters.month = selectedMonth;
-        if (selectedYear) filters.year = selectedYear;
+        const delayDebounce = setTimeout(() => {
+            fetchDonations({
+                month: selectedMonth,
+                year: selectedYear,
+                name: searchTerm
+            });
+        }, 500); // 500ms delay
 
-        fetchDonations(filters);
-    }, [selectedMonth, selectedYear]);
+        return () => clearTimeout(delayDebounce);
+    }, [selectedMonth, selectedYear, searchTerm]);
 
     const fetchDonations = async (filters = {}) => {
         try {
@@ -58,17 +67,6 @@ const Donations = () => {
         }
     };
 
-    // const fetchDonations = async () => {
-    //     try {
-    //         const response = await _get("/donations"); 
-    //         const data = await response.data;
-    //         setDonations(data);
-    //     } catch (error) {
-    //         console.error('Error fetching donations:', error);
-    //     } finally {
-    //         setLoading(false);
-    //     }
-    // }
 
     const handleConfirmDelete = (id) => {
         setIsDeleteOpen(true);
@@ -89,7 +87,12 @@ const Donations = () => {
         {
             setIsDeleting(false);
             setIsDeleteOpen(false);
-            fetchDonations();
+            fetchDonations({
+                month: selectedMonth,
+                year: selectedYear,
+                name: searchTerm,
+            });
+
         }
     }
 
@@ -191,15 +194,25 @@ const Donations = () => {
         <Admin header={header} breadcrumbs={breadcrumbs}>
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
-                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                        <p className="text-xs">Search</p>
-                        <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Type something.." />
+                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-2">
+                        <label className="text-xs">
+                            <Search size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
+                        </label>
+                        <input
+                            type="text"
+                            className="placeholder:text-xs px-4 py-1.5 rounded border border-gray-200 text-sm"
+                            placeholder="Type something.."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                    <div className="flex gap-4 items-center">
+                    <div className="flex gap-2 items-center">
+                        <label className="text-xs">
+                            <SlidersHorizontal size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
+                        </label>
                         <div>
-                            <label className="text-[11px] block">Filter by Month</label>
                             <select
-                            className="text-[10px] px-3 py-1.5 border border-gray-300 rounded"
+                            className="text-[10px] px-3 py-2 border border-gray-300 rounded"
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
                             >
@@ -213,9 +226,8 @@ const Donations = () => {
                         </div>
 
                         <div>
-                            <label className="text-[11px] block">Filter by Year</label>
                            <select
-                                className="text-[10px] px-3 py-1.5 border border-gray-300 rounded"
+                                className="text-[10px] px-3 py-2 border border-gray-300 rounded"
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
                             >
@@ -242,32 +254,39 @@ const Donations = () => {
                     </tr>
                     </thead>
                     <tbody>
-                    {donations.map((donation, index) => (
-                        <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                            <td className="p-3">
-                            {donation.created_at
-                                ? new Date(donation.created_at).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                })
-                                : ''}
-                            </td>
-                            <td className="p-3">{donation.name || ''}</td>
-                            <td className="p-3">{donation.amount || ''}</td>
-                            <td className="p-3">{donation.reference || ''}</td>
-                            <td className="p-3">{donation.email || ''}</td>
-                            <td className="p-3">
-                                {donation.type === 'gcash' && (
-                                    <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
-                                )}
-                            </td>
-                            <td className="p-3 h-full flex items-center justify-end gap-2">
-                                <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                                <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                            </td>
-                        </tr>
-                    ))}
+                        {donations.length <= 0 && (
+                            <tr className="p-3">
+                                <td colSpan={7} className="p-3 text-center">
+                                    No Records Found
+                                </td>
+                            </tr>
+                        )}
+                        {donations.map((donation, index) => (
+                            <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                <td className="p-3">
+                                {donation.created_at
+                                    ? new Date(donation.created_at).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric',
+                                    })
+                                    : ''}
+                                </td>
+                                <td className="p-3">{donation.name || ''}</td>
+                                <td className="p-3">{donation.amount || ''}</td>
+                                <td className="p-3">{donation.reference || ''}</td>
+                                <td className="p-3">{donation.email || ''}</td>
+                                <td className="p-3">
+                                    {donation.type === 'gcash' && (
+                                        <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
+                                    )}
+                                </td>
+                                <td className="p-3 h-full flex items-center justify-end gap-2">
+                                    <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                                    <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
+                                </td>
+                            </tr>
+                        ))}
                     </tbody>
                 </table>
                 {loading && (

@@ -38,7 +38,7 @@ const Dashboard = () => {
         <Admin header={header} breadcrumbs={breadcrumbs}>
             <div className="w-full h-full flex items-center justify-center p-1 mt-4">
                 <div className="w-full h-full flex flex-col gap-5">
-                    <div className="w-full h-full flex items-start justify-between ">
+                    <div className="w-full h-full flex flex-wrap gap-4 items-start justify-between ">
                         <div className="relative w-72 h-24 rounded-xl bg-white p-4 shadow-sm flex flex-col gap-1 items-start justify-center overflow-hidden">
                             <p className="text-2xl text-green-500 font-bold">&#8369; {loadingCashDoSumary ? '...' : (cashDonationSummary?.totalCash || 0)}</p>
                             <p className="text-xs text-gray-600">Total <span className="text-green-600 font-bold">Cash</span> Donations</p>

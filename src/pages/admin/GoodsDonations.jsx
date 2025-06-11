@@ -1,6 +1,6 @@
 import Admin from "../../layouts/Admin";
 import { useState, useEffect } from "react";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, SlidersHorizontal, Search } from "lucide-react";
 import { _get, _delete, _post, _put } from "../../api"; 
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
 import { toast } from "react-toastify";
@@ -24,16 +24,36 @@ const GoodsDonations = () => {
     const [errors, setErrors] = useState({});
     const [loadingSubmit, setLoadingSubmit] = useState(false);
 
+    const currentDate = new Date();
+    const currentMonth = currentDate.toLocaleString('default', { month: 'long' });
+    const currentYear = currentDate.getFullYear().toString();
+
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [searchTerm, setSearchTerm] = useState('');
+
 
     useEffect(() => {
-        fetchDonations();
-    }, []);
+        const delayDebounce = setTimeout(() => {
+            fetchDonations({
+                month: selectedMonth,
+                year: selectedYear,
+                name: searchTerm
+            });
+        }, 500); 
 
-    const fetchDonations = async () => {
+        return () => clearTimeout(delayDebounce);
+    }, [selectedMonth, selectedYear, searchTerm]);
+
+
+    const fetchDonations = async (filters = {}) => {
         try {
-            const response = await _get("/goods-donations"); 
-            const data = await response.data;
-            setDonations(data);
+
+            const query = new URLSearchParams(filters).toString();
+            const url = query ? `/goods-donations?${query}` : `/goods-donations`;
+
+            const response = await _get(url);
+            setDonations(response.data);
         } catch (error) {
             console.error('Error fetching donations:', error);
         } finally {
@@ -60,7 +80,11 @@ const GoodsDonations = () => {
         {
             setIsDeleting(false);
             setIsDeleteOpen(false);
-            fetchDonations();
+            fetchDonations({
+                month: selectedMonth,
+                year: selectedYear,
+                name: searchTerm,
+            });
         }
     }
 
@@ -129,13 +153,50 @@ const GoodsDonations = () => {
         <Admin header={header} breadcrumbs={breadcrumbs}>
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
-                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                        <p className="text-xs">Search</p>
-                        <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Type something.." />
+                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-2">
+                        <label className="text-xs">
+                            <Search size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
+                        </label>
+                        <input
+                            type="text"
+                            className="placeholder:text-xs px-4 py-1.5 rounded border border-gray-200 text-sm"
+                            placeholder="Type something.."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                        />
                     </div>
-                    {/* <div className="flex items-center justify-end gap-2">
-                        <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
-                    </div> */}
+                    <div className="flex gap-2 items-center">
+                        <label className="text-xs">
+                            <SlidersHorizontal size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
+                        </label>
+                        <div>
+                            <select
+                            className="text-[10px] px-3 py-2 border border-gray-300 rounded"
+                            value={selectedMonth}
+                            onChange={(e) => setSelectedMonth(e.target.value)}
+                            >
+                            <option value="">All Months</option>
+                            {Array.from({ length: 12 }, (_, i) => (
+                                <option key={i + 1} value={new Date(0, i).toLocaleString('default', { month: 'long' })}>
+                                    {new Date(0, i).toLocaleString('default', { month: 'long' })}
+                                </option>
+                            ))}
+                            </select>
+                        </div>
+
+                        <div>
+                           <select
+                                className="text-[10px] px-3 py-2 border border-gray-300 rounded"
+                                value={selectedYear}
+                                onChange={(e) => setSelectedYear(e.target.value)}
+                            >
+                                <option value="">All Years</option>
+                                {Array.from({ length: 26 }, (_, i) => 2000 + i).map(year => (
+                                <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </div>
+                    </div>
                 </div>
                 <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
                     <thead className="bg-orange-500 text-white">
@@ -150,6 +211,13 @@ const GoodsDonations = () => {
                     </tr>
                     </thead>
                     <tbody>
+                    {donations.length <= 0 && (
+                        <tr className="p-3">
+                            <td colSpan={7} className="p-3 text-center">
+                                No Records Found
+                            </td>
+                        </tr>
+                    )}
                     {donations.map((donation, index) => (
                         <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
                             <td className="p-3">

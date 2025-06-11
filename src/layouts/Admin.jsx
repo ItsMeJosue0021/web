@@ -49,7 +49,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                 <div className="relative w-full">
                     <div className="w-full absolute left-0 -top-16 flex items-start">
                         <div className="min-w-56 w-56 h-auto p-4 pt-2 pr-2 pl-0">
-                            <div className='bg-white layout-sidebar h-full max-h-[600px] overflow-y-auto pl-2 p-8 pr-5 shadow-sm scrollbar-hide'>
+                            <div className='bg-white layout-sidebar h-[600px] max-h-[600px] overflow-y-auto pl-2 p-8 pr-5 shadow-sm scrollbar-hide'>
                                 <div className="w-full h-auto  flex flex-col justify-start items-start gap-1">
                                     <Link to="/dashboard" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/dashboard" ? "bg-gray-200" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">

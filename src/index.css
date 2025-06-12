@@ -264,3 +264,20 @@ button {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+
+@media print {
+  thead { 
+    display: table-header-group;
+  }
+  tfoot { 
+    display: table-footer-group;
+  }
+  tr { 
+    page-break-inside: avoid; 
+  }
+
+  .page-break {
+    page-break-before: always;
+  }
+}
+

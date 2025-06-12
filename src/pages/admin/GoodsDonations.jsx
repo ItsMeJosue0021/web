@@ -1,10 +1,12 @@
 import Admin from "../../layouts/Admin";
-import { useState, useEffect } from "react";
-import { Edit, Trash2, SlidersHorizontal, Search } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { Edit, Trash2, SlidersHorizontal, Search, X } from "lucide-react";
 import { _get, _delete, _post, _put } from "../../api"; 
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
 import { toast } from "react-toastify";
-import { set } from "lodash";
+import { AnimatePresence, motion } from "framer-motion";
+import Logo from "../../components/Logo";
+import html2pdf from 'html2pdf.js';
 
 const GoodsDonations = () => {
 
@@ -32,6 +34,34 @@ const GoodsDonations = () => {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [searchTerm, setSearchTerm] = useState('');
 
+    // reports
+    const [isReportView, setIsReportView] = useState(false);
+    const [cashDonations, setCashDonations] = useState([]);
+    const [dateFrom, setDateFrom] = useState('');
+    const [dateTo, setDateTo] = useState('');
+
+    useEffect(() => {
+        fetchCashDonations();
+    }, []);
+
+    const handleFilterCashDonations = async () => {
+        fetchCashDonations({
+            dateFrom: dateFrom,
+            dateTo: dateTo
+        });
+    }
+
+    const fetchCashDonations = async (filters = {}) => {
+        try {
+            const query = new URLSearchParams(filters).toString();
+            const url = query ? `/reports/goods-donations?${query}` : `/reports/goods-donations`;
+
+            const response = await _get(url);
+            setCashDonations(response.data);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
@@ -139,6 +169,46 @@ const GoodsDonations = () => {
         setCategories(donation.type || []);
     }
 
+    const containerRef = useRef();
+    const printBtnRef = useRef();
+
+
+    const handlePrint = () => {
+        const container = containerRef.current;
+        const printBtn = printBtnRef.current;
+
+        const opt = {
+            margin: 0,
+            filename: 'Cash_Donations_Report.pdf',
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+        };
+
+        html2pdf()
+            .set(opt)
+            .from(container)
+            .outputPdf('blob') 
+            .then((pdfBlob) => {
+                const blobUrl = URL.createObjectURL(pdfBlob);
+                window.open(blobUrl);
+            });
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+
+        const months = [
+            'January', 'February', 'March', 'April', 'May', 'June',
+            'July', 'August', 'September', 'October', 'November', 'December'
+        ];
+
+        const monthName = months[date.getMonth()];
+        const day = date.getDate();
+        const year = date.getFullYear();
+
+        return `${monthName} ${day}, ${year}`;
+    };
+
 
     const header = { 
         title: "Goods Donations Management",
@@ -164,6 +234,7 @@ const GoodsDonations = () => {
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
+                        <button onClick={() => setIsReportView(true)} className="text-xs text-white bg-blue-500 px-3 py-1.5 rounded">Generate Report</button>
                     </div>
                     <div className="flex gap-2 items-center">
                         <label className="text-xs">
@@ -226,10 +297,13 @@ const GoodsDonations = () => {
                                     year: 'numeric',
                                     month: 'long',
                                     day: 'numeric',
+                                    timeZone: 'UTC'
                                 })
                                 : ''}
                             </td>
-                            <td className="p-3">{donation.name || ''}</td>
+                            <td className="p-3">
+                                {donation.name || <span className="p-1 px-2 rounded bg-gray-100 text-gray-600 text-[10px]">Anonymous</span>}
+                            </td>
                             <td className="p-3">{donation.description || ''}</td>
                             <td className="p-3">{donation.email || ''}</td>
                             <td className="p-3">
@@ -357,6 +431,110 @@ const GoodsDonations = () => {
                         </form>
                     </div>
                 </div>
+            )}
+
+            {isReportView && (
+                <AnimatePresence>
+                    <motion.div 
+                        role="alert"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="fixed top-0 left-0 w-full h-full min-h-screen z-50 bg-white flex items-center justify-center overflow-auto p-5">
+                        <div className="w-full h-full overflow-auto p-5">
+                            <div className="w-full flex justify-end">
+                                <X onClick={() => setIsReportView(false)} size={18} className="text-gray-500 hover:text-gray-700 cursor-pointer"/>
+                            </div>
+
+                            <div className="w-full max-w-[800px] p-4 px-0 mx-auto mt-5 mb-3 flex items-start justify-between">
+                                <div className="">
+                                    <span className="text-sm font-semibold ">Filter Donations</span>
+                                    <div className="flex items-center gap-4">
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-xs">From</label>
+                                            <input onChange={(e) => setDateFrom(e.target.value)} type="date" className="w-fit text-xs px-3 py-1.5 border border-gray-200 rounded "/>
+                                        </div>
+                                        <div className="flex items-center gap-2">
+                                            <label className="text-xs">To</label>
+                                            <input onChange={(e) => setDateTo(e.target.value)} type="date" className="w-fit text-xs px-3 py-1.5 border border-gray-200 rounded"/>
+                                        </div>
+                                        <button onClick={handleFilterCashDonations} className="text-xs text-white bg-blue-500 hover:bg-blue-600 px-3 py-1.5 rounded">Go</button>
+                                    </div>
+                                </div>
+                                <button onClick={handlePrint} ref={printBtnRef} className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded">Print</button>
+                            </div>
+
+                            <div ref={containerRef} className="w-full max-w-[800px] p-10 mx-auto shadow print:p-0">
+                                {/* REPEATED HEADER FOR PRINT */}
+                                <div className="print-header">
+                                    <Logo />
+                                    <div className="w-full flex flex-col items-center justify-center mt-5">
+                                    <p className="font-bold">Cash Donations Report</p>
+                                    <p className="text-xs text-gray-600">
+                                        From <span>{dateFrom ? formatDate(dateFrom) : '--date--'}</span> to <span>{dateTo ? formatDate(dateTo) : '--date--'}</span>
+                                    </p>
+                                    </div>
+                                </div>
+
+                                {/* TABLE */}
+                                <div className="mt-8">
+                                    <table className="w-full overflow-hidden bg-white text-xs">
+                                    <thead className="bg-gray-200">
+                                        <tr>
+                                            <th className="p-3 text-start">Date</th>
+                                            <th className="p-3 text-start">Donor</th>
+                                            <th className="p-3 text-start">Desciption</th>
+                                            <th className="p-3 text-start">Email</th>
+                                            <th className="p-3 text-start">Type of Donation</th>
+                                            <th className="p-3 text-start">Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {cashDonations.length === 0 && (
+                                        <tr>
+                                            <td colSpan={5} className="p-3 text-center">
+                                            No Records Found
+                                            </td>
+                                        </tr>
+                                        )}
+                                        {cashDonations.map((donation, index) => (
+                                            <tr key={donation.id} className={`${index % 2 === 0 ? "bg-gray-50" : ""} text-[11px]`}>
+                                               <td className="p-3">
+                                                {donation.created_at
+                                                    ? new Date(donation.created_at).toLocaleDateString('en-US', {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                        day: 'numeric',
+                                                        timeZone: 'UTC'
+                                                    })
+                                                    : ''}
+                                                </td>
+                                                <td className="p-3">
+                                                    {donation.name || <span className="p-1 px-2 rounded bg-gray-100 text-gray-600 text-[10px]">Anonymous</span>}
+                                                </td>
+                                                <td className="p-3">{donation.description || ''}</td>
+                                                <td className="p-3">{donation.email || ''}</td>
+                                                <td className="p-3">
+                                                    {
+                                                        donation.type && donation.type.length > 0 && (
+                                                            donation.type.map((type, idx) => (
+                                                            <span key={idx} className={`inline-block ${type === 'food' ? 'text-green-500 bg-green-50' : type === 'clothes' ? 'text-blue-500 bg-blue-50': 'text-pink-500 bg-pink-50'} p-1.5 py-1 rounded text-[11px] mr-1 my-1`}>
+                                                                {type}
+                                                            </span>
+                                                            ))
+                                                        )
+                                                    }
+                                                </td>
+                                                <td className="p-3">{donation.address || ''}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </motion.div>
+                </AnimatePresence>
             )}
         </Admin>
     )

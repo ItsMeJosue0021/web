@@ -11,88 +11,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import ChatButton from "../components/chatbot/ChatButton";
 import EventDetailsModal from "../components/EventDetailsModal";
 import { PencilLine, Image } from "lucide-react";
-import { _get } from "../api";
+import { _get, _post } from "../api";
 import { toast } from "react-toastify";
-
-
-// const events = [
-//     {
-//         title: "Mental Health Awareness Session",
-//         date: "2023-10-10",
-//         time: "10:00 AM",
-//         description: "A talk on mental well-being and stress management for women.",
-//         images: [
-//             {src: "volunteers.png", alt: "Volunteer" },
-//             {src: "supermom.png", alt: "Supermom" }, 
-//             {src: "volunteers.png", alt: "Volunteer" },
-//             {src: "supermom.png", alt: "Supermom" }, 
-//             {src: "volunteers.png", alt: "Volunteer" },
-//             {src: "supermom.png", alt: "Supermom" },   
-//         ]
-//     },
-//     {
-//         title: "Self-Defense Workshop",
-//         date: "2023-10-11",
-//         time: "1:00 PM",
-//         description: "Practical self-defense techniques for personal safety and confidence.",
-//         images: [
-//             {src: "feeding.png", alt: "Volunteer" }   
-//         ]
-//     },
-//     {
-//         title: "Financial Literacy Seminar",
-//         date: "2023-10-12",
-//         time: "9:30 AM",
-//         description: "Learn about budgeting, savings, and smart financial planning for women.",
-//         thumbnail: "logo.png",
-//     },
-//     {
-//         title: "Women in Leadership Forum",
-//         date: "2023-10-13",
-//         time: "2:00 PM",
-//         description: "Inspiring stories and strategies from female leaders in the community.",
-//     },
-//     {
-//         title: "Community Outreach Program",
-//         date: "2023-10-14",
-//         time: "8:00 AM",
-//         description: "Outreach activity where women volunteers extend support to underserved areas.",
-//         images: [
-//             {src: "about.png", alt: "About" },
-//             {src: "banner.png", alt: "Banner" },    
-//         ]
-//     },
-//     {
-//         title: "Health and Wellness Talk",
-//         date: "2023-10-05",
-//         time: "9:00 AM",
-//         description: "A session on women’s health and self-care with guest medical professionals.",
-//     },
-//     {
-//         title: "Livelihood Training Workshop",
-//         date: "2023-10-06",
-//         time: "1:00 PM",
-//         description: "Hands-on workshop on soap-making and other income-generating skills.",
-//     },
-//     {
-//         title: "Legal Rights Awareness Seminar",
-//         date: "2023-10-07",
-//         time: "10:30 AM",
-//         description: "Discussion about women’s legal rights and protection against abuse.",
-//     },
-//     {
-//         title: "Empowerment Through Art",
-//         date: "2023-10-08",
-//         time: "3:00 PM",
-//         description: "Creative painting and storytelling session to express women's strength.",
-//     },
-//     {
-//         title: "Closing Ceremony and Recognition Day",
-//         date: "2023-10-09",
-//         time: "5:00 PM",
-//         description: "Program finale with performances, reflections, and recognition of participants.",
-//     }
-// ];
 
 const prevEvents = [
     {
@@ -171,13 +91,9 @@ const Portal = () => {
     const handleFileChange = (e) => {
         const file = e.target.files[0];
         if (file) {
-        setSelectedFile(file);
+            setSelectedFile(file);
         }
     };
-
-    // const handleDivClick = () => {
-    //     fileInputRef.current.click(); // This will open the file manager
-    // };
 
     const handleImageClick = (url) => {
         setSelectedImage(url);
@@ -201,6 +117,18 @@ const Portal = () => {
             imageContainers.current[index].scrollBy({ left: 100, behavior: 'smooth' });
         }
     };
+
+    const handleEditProfilePic = async () => {
+
+        const formData = new FormData();
+        formData.append('picture', selectedFile);
+
+        try {
+            const response = await _post('/profile/picture-update', formData);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <User>

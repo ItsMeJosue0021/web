@@ -46,6 +46,8 @@ const Donations = () => {
     const [cashDonations, setCashDonations] = useState([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [totalAmount, setTotalAmount] = useState(0);
+    const [totalCount, setTotalCount] = useState(0);
 
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
@@ -78,7 +80,9 @@ const Donations = () => {
             const url = query ? `/reports/cash-donations?${query}` : `/reports/cash-donations`;
 
             const response = await _get(url);
-            setCashDonations(response.data);
+            setCashDonations(response.data.donations);
+            setTotalAmount(response.data.totalAmount);
+            setTotalCount(response.data.totalCount);
         } catch (error) {
             console.log(error);
         }
@@ -364,7 +368,7 @@ const Donations = () => {
                                 <td className="p-3">
                                     {donation.name || <span className="p-1 px-2 rounded bg-blue-100 text-blue-600 text-[10px]">Anonymous</span>}
                                 </td>
-                                <td className="p-3">{donation.amount || ''}</td>
+                                <td className="p-3">₱{donation.amount || '0.00'}</td>
                                 <td className="p-3">{donation.reference || ''}</td>
                                 <td className="p-3">{donation.email || ''}</td>
                                 <td className="p-3">
@@ -570,8 +574,13 @@ const Donations = () => {
                                     </div>
                                 </div>
 
+                                <div className="w-full flex items-center gap-5 mt-6">
+                                    <p className="text-xs font-medium">Total Amount: <span>₱{totalAmount || '0.00'}</span></p>
+                                    <p className="text-xs font-medium">Total Count: <span>{totalCount}</span></p>
+                                </div>
+
                                 {/* TABLE */}
-                                <div className="mt-8">
+                                <div className="mt-2">
                                     <table className="w-full overflow-hidden bg-white text-xs">
                                     <thead className="bg-gray-200">
                                         <tr>
@@ -603,7 +612,7 @@ const Donations = () => {
                                                         : ''}
                                                 </td>
                                                 <td className="p-3">{donation.name || 'Anonymous'}</td>
-                                                <td className="p-3">{donation.amount || ''}</td>
+                                                <td className="p-3">₱{donation.amount || '0.00'}</td>
                                                 <td className="p-3">{donation.reference || 'N/A'}</td>
                                                 <td className="p-3">{donation.email || ''}</td>
                                             </tr>

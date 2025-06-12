@@ -39,6 +39,7 @@ const GoodsDonations = () => {
     const [cashDonations, setCashDonations] = useState([]);
     const [dateFrom, setDateFrom] = useState('');
     const [dateTo, setDateTo] = useState('');
+    const [totalCount, setTotalCount] = useState(0);
 
     useEffect(() => {
         fetchCashDonations();
@@ -57,7 +58,8 @@ const GoodsDonations = () => {
             const url = query ? `/reports/goods-donations?${query}` : `/reports/goods-donations`;
 
             const response = await _get(url);
-            setCashDonations(response.data);
+            setCashDonations(response.data.donations);
+            setTotalCount(response.data.totalCount);
         } catch (error) {
             console.log(error);
         }
@@ -476,8 +478,12 @@ const GoodsDonations = () => {
                                     </div>
                                 </div>
 
+                                <div className="w-full flex items-center gap-5 mt-6">
+                                    <p className="text-xs font-medium">Total Count: <span>{totalCount}</span></p>
+                                </div>
+
                                 {/* TABLE */}
-                                <div className="mt-8">
+                                <div className="mt-2">
                                     <table className="w-full overflow-hidden bg-white text-xs">
                                     <thead className="bg-gray-200">
                                         <tr>

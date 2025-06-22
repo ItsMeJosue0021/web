@@ -111,16 +111,16 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
-                                        <Folder className="w-5 h-5 text-gray-700" />
+                                        <CalendarCog className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Projects</p>
                                     </Link>
-                                    <Link to="/events-management" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/events-management" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    {/* <Link to="/events-management" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/events-management" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <CalendarCog className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Events</p>
-                                    </Link>
+                                    </Link> */}
                                     
                                     <div className="w-full flex flex-col">
                                         <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">

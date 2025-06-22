@@ -27,8 +27,8 @@ const Header = () => {
              setActive("faqs");
         } else if (location.pathname.includes("contact-us")) {
              setActive("contact");
-        } else if (location.pathname.includes("events")) {
-             setActive("events");
+        } else if (location.pathname.includes("our-projects")) {
+             setActive("projects");
         }
 
         const handleScroll = () => {
@@ -69,7 +69,7 @@ const Header = () => {
                             <Link to="/volunteers" className={`${active === "volunteers" ? 'text-blue-600' : 'text-black'}`}>Volunteers</Link>
                         </li>
                         <li>
-                            <Link to="/events" className={`${active === "events" ? 'text-blue-600' : 'text-black'}`}>Events</Link>
+                            <Link to="/our-projects" className={`${active === "projects" ? 'text-blue-600' : 'text-black'}`}>Projects</Link>
                         </li>
                         <li>
                             <Link to="/faqs" className={`${active === "faqs" ? 'text-blue-600' : 'text-black'}`}>FAQs</Link>

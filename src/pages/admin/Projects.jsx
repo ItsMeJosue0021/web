@@ -22,6 +22,7 @@ const Projects = () => {
     const [location, setLocation] = useState("");
     const [date, setDate] = useState("");
     const [image, setImage] = useState(null);
+    const [isEvent, setIsEvent] = useState(false);
 
     const [showEditProjectModal, setShowEditProjectModal] = useState(false);
     const [toBeEditedProject, setToBeEditedProject] = useState(null);
@@ -94,6 +95,8 @@ const Projects = () => {
         formData.append("description", description);
         formData.append("location", location);
         formData.append("date", date);
+        formData.append("is_event", isEvent ? '1' : '0');
+
         if (image) {
             formData.append("image", image);
         }
@@ -133,6 +136,8 @@ const Projects = () => {
         formData.append("description", description);
         formData.append("location", location);
         formData.append("date", date);
+        formData.append("is_event", isEvent ? '1' : '0');
+        
         if (image) {
             formData.append("image", image);
         }
@@ -262,11 +267,22 @@ const Projects = () => {
                                 <p className="text-xs">Add New Project</p>
                                 <X onClick={() => {
                                         clearForm();
-                                        setShowAddProjectModal(false)
+                                        setShowAddProjectModal(false)   
                                         setValidationErrors({})
                                     }} className="absolute top-4 right-4 cursor-pointer" size={20} />
                             </div>
                             <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleSubmit}>
+                                <div className="w-full flex items-center justify-start gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isEvent"
+                                        checked={isEvent}
+                                        onChange={(e) => setIsEvent(e.target.checked)}
+                                        className=" text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                                    />
+                                    <label htmlFor="isEvent" className="w-full text-xs">Is this an event?</label>
+                                </div>
+
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                     <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />
@@ -354,6 +370,16 @@ const Projects = () => {
                                     className="absolute top-4 right-4 cursor-pointer" size={20} />
                             </div>
                             <form className="flex flex-col gap-4" encType="multipart/form-data" onSubmit={handleEditSubmit}>
+                                <div className="w-full flex items-center justify-start gap-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isEvent"
+                                        checked={isEvent}
+                                        onChange={(e) => setIsEvent(e.target.checked)}
+                                        className=" text-orange-500 border-gray-300 rounded focus:ring-orange-500"
+                                    />
+                                    <label htmlFor="isEvent" className="w-full text-xs">Is this an event?</label>
+                                </div>
                                 <div className="flex flex-col gap-2">
                                     <label className="text-xs">Title <span className="text-xs text-red-500">*</span></label>
                                     <input value={title} onChange={(e) => setTitle(e.target.value)} type="text" className="placeholder:text-[11px] px-4 py-2 rounded border border-gray-200 text-xs" placeholder="Project Title" />

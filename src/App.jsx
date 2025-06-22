@@ -250,13 +250,13 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/events"
+                    path="/our-projects"
                     element={
                         <EventsList />
                     }
                 />
                  <Route
-                    path="/events/:id"
+                    path="/our-projects/:id"
                     element={
                         <EventDetails />
                     }

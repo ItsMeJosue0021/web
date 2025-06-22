@@ -19,7 +19,7 @@ const EventDetails = () => {
 
     const fetchProject = async () => {
         try {
-            const response = await _get(`/events/${id}`);
+            const response = await _get(`/projects/${id}`);
             const data = await response.data;
             setEvent(data);
 
@@ -45,7 +45,7 @@ const EventDetails = () => {
                     ) : (
                         <div className='flex flex-col gap-4 p-4'>
                             <div>
-                                <Link to="/events" className='text-xs '>Back</Link>
+                                <Link to="/our-projects" className='text-xs '>Back</Link>
                             </div>
                             {event.image && (
                                 <img src={event.image} alt={event.title} className="w-full min-h-[400px] bg-gray-200 h-auto object-center object-cover rounded-md" />

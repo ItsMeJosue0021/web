@@ -11,6 +11,7 @@ import html2pdf from 'html2pdf.js';
 const Donations = () => {
 
     const [donations, setDonations] = useState([]);
+    const [filteredDonations, setFilteredDonations] = useState([]);
     const [loading, setLoading] = useState(true);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -42,6 +43,9 @@ const Donations = () => {
 
     const [isReportView, setIsReportView] = useState(false);
 
+    // tab
+    const [tab, setTab] = useState("cash");
+
     // reports
     const [cashDonations, setCashDonations] = useState([]);
     const [dateFrom, setDateFrom] = useState('');
@@ -66,6 +70,20 @@ const Donations = () => {
     useEffect(() => {
         fetchCashDonations();
     }, []);
+
+    useEffect(() => {
+        const filtered = donations.filter(donation => {
+            if (tab === "cash") {
+                return donation.type === "cash";
+            } else if (tab === "gcash") {
+                return donation.type === "gcash";
+            } else {
+                return true; 
+            }
+        });
+
+        setFilteredDonations(filtered);
+    }, [tab, donations]);
 
     const handleFilterCashDonations = async () => {
         fetchCashDonations({
@@ -331,8 +349,20 @@ const Donations = () => {
                         </div>
                     </div>
                 </div>
-                
 
+                <div className="w-full flex items-center gap-2">
+                    <a 
+                        onClick={() => setTab("cash")} 
+                        className={`cursor-pointer px-4 py-2 text-xs rounded-none hover:border-orange-500 border-0 border-b-2 hover:bg-orange-50 hover:text-orange-500 ${tab === "cash" ? "border-orange-500 bg-orange-50 text-orange-500" : "border-gray-300 bg-gray-100 text-gray-600"}`}>
+                        Cash
+                    </a>
+                    <a 
+                        onClick={() => setTab("gcash")} 
+                        className={`cursor-pointer outline-none px-4 py-2 text-xs rounded-none hover:border-orange-500 border-0 border-b-2 hover:bg-orange-50 hover:text-orange-500 ${tab === "gcash" ? "border-orange-500 bg-orange-50 text-orange-500" : "border-gray-300 bg-gray-100 text-gray-600"}`}>
+                        GCash
+                    </a>
+                </div>
+                
                 <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
                     <thead className="bg-orange-500 text-white">
                     <tr>
@@ -341,19 +371,19 @@ const Donations = () => {
                         <th className="p-3 text-start">Amount</th>
                         <th className="p-3 text-start">Reference No.</th>
                         <th className="p-3 text-start">Email</th>
-                        <th className="p-3 text-start">Proof</th>
+                        {tab === "gcash" && <th className="p-3 text-start">Proof</th>}
                         {/* <th className="p-3 text-end">Actions</th> */}
                     </tr>
                     </thead>
                     <tbody>
-                        {donations.length <= 0 && (
+                        {filteredDonations.length <= 0 && (
                             <tr className="p-3">
                                 <td colSpan={7} className="p-3 text-center">
                                     No Records Found
                                 </td>
                             </tr>
                         )}
-                        {donations.map((donation, index) => (
+                        {filteredDonations.map((donation, index) => (
                             <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
                                 <td className="p-3">
                                     {donation.created_at
@@ -371,11 +401,14 @@ const Donations = () => {
                                 <td className="p-3">₱{donation.amount || '0.00'}</td>
                                 <td className="p-3">{donation.reference || ''}</td>
                                 <td className="p-3">{donation.email || ''}</td>
-                                <td className="p-3">
-                                    {donation.type === 'gcash' && (
-                                        <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
-                                    )}
-                                </td>
+                                {tab === "gcash" && 
+                                    <td className="p-3">
+                                        {donation.type === 'gcash' && (
+                                            <button onClick={() => handleViewProof(donation.proof)} className="text-[10px] px-2 py-1 bg-blue-500 text-white rounded">View</button>
+                                        )}
+                                    </td>
+                                }
+                                
                                 {/* <td className="p-3 h-full flex items-center justify-end gap-2">
                                     <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
                                     <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>

@@ -81,7 +81,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     {isDonOpen && (
                                         <div className="w-full pl-4 pt-1">
                                             <Link to="/donations/cash" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations/cash" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                <p className="text-xs text-black font-medium">Cash</p>
+                                                <p className="text-xs text-black font-medium">Monetary</p>
                                             </Link>
                                              <Link to="/donations/goods" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/donations/goods" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                 <p className="text-xs text-black font-medium">Goods</p>

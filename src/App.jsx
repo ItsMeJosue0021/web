@@ -39,6 +39,7 @@ import WebFaqs from './pages/admin/website/Faqs';
 import WebVolunteers from './pages/admin/website/Volunteers';
 import WebEvents from './pages/admin/website/Events';
 import WebContactUs from './pages/admin/website/ContactUs';
+import User from './layouts/User';
 
 const App = () => {
     useEffect(() => {
@@ -207,7 +208,9 @@ const App = () => {
                     path="/portal"
                     element={
                         <ProtectedRoute role="user">
-                            <Portal />
+                            <User>
+                                <Portal />
+                            </User>
                         </ProtectedRoute>
                     }
                 />

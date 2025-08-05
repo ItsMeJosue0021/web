@@ -1,19 +1,46 @@
 import React from "react";
-import { useState } from "react";
+import { useState, createContext, useContext } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import HeaderProfile from "../components/HeaderProfile";
 import Logo from "../components/Logo";
 import { Link } from "react-router-dom";
+import { GoHome } from "react-icons/go";
+import { FaRegUser } from "react-icons/fa";
+import { BiLogOut } from "react-icons/bi";
+import { GiHamburgerMenu } from "react-icons/gi";
+import { AuthContext } from "../AuthProvider";
+import LoggingOut from "../components/LoggingOut";
+
+export const PortalContext = createContext();
 
 const User = ({ children }) => {
 
+  const { logout } = useContext(AuthContext);
+
+  const [isOpen, setIsOpen] = useState(true);
+  const [activeTab, setActiveTab] = useState('home');
+  const [loggingOut, setLoggingOut] = useState(false);
+
+  const handleLogout = async () => {
+    setLoggingOut(true);
+    try {
+      await logout();
+    } catch (error) { 
+      toast.error("Failed to log out");
+    } finally {
+      setLoggingOut(false);
+    }
+  }
+
+
+
   return (
-    <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden">
+    <div className="w-screen min-h-screen h-auto overflow-hidden">
       <ToastContainer />
-      <div className="z- w-full flex flex-col items-start justify-start ">
+      <div className="w-full flex flex-col items-start justify-start ">
         <div className="fixed w-full h-fit flex items-center justify-between bg-white shadow-sm px-8 py-2">
-          <div className=" h-fit flex items-center justify-between w-full max-w-[1200px] mx-auto">
+          <div className=" h-fit flex items-center justify-between w-full  ">
             <Logo/>
             <div className="flex items-center space-x-10">
               <ul className='text-xs flex space-x-10'>
@@ -30,18 +57,74 @@ const User = ({ children }) => {
                       <Link to="/faqs" className='text-black'>FAQs</Link>
                   </li>
               </ul>
-              <HeaderProfile />
+              {/* <HeaderProfile /> */}
             </div>
           </div>
         </div>
-        <div className="w-full h-auto overflow-hidden">
-          <div className="w-full h-full pt-20">
-           {children}
+        <div className="w-full h-auto flex items-start px-8 ">
+          <div className={`${isOpen ? 'w-56 min-w-56' : 'w-fit'} pr-8 min-h-screen h-auto flex pt-28 border-r border-gray-100`}>
+              <div className="w-full flex flex-col items-start justify-start gap-1">
+                  <div 
+                    onClick={() => setIsOpen(!isOpen)} 
+                    className="flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
+                  >
+                    <GiHamburgerMenu  
+                      size={20} 
+                      strokeWidth={0.5} 
+                      className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
+                    />
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab('home')} 
+                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'home' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
+                      <div>
+                        <GoHome 
+                          size={20} 
+                          strokeWidth={0.5} 
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        />
+                      </div>
+                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Home</span>)}
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab('profile')} 
+                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'profile' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
+                      <div>
+                        <FaRegUser 
+                          size={18} 
+                          strokeWidth={0.5} 
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
+                        />
+                      </div>
+                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Profile</span>)}
+                  </div>
+
+                  <div 
+                    onClick={() => handleLogout()} 
+                    className={`${isOpen ? 'w-full' : 'w-fit'} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-red-50 hover:border-red-100 group`}>
+                      <div>
+                        <BiLogOut 
+                          size={18} 
+                          strokeWidth={0.2} 
+                          className="group-hover:text-red-500 transition-all duration-300 ease-in-out"/>
+                      </div>
+                      {isOpen && (<span className="text-xs group-hover:text-red-500 transition-all duration-300 ease-in-out">Logout</span>)}
+                  </div>
+              </div>
+          </div>
+          <div className="w-full min-screen h-screen pt-24 ">
+            <PortalContext.Provider value={{ activeTab, setActiveTab }}>
+              {children}
+            </PortalContext.Provider>
           </div>
         </div>
       </div>
+      {loggingOut && <LoggingOut />}
     </div>
   );
 }
 
 export default User;
+

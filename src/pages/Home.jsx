@@ -107,8 +107,9 @@ const Home = () => {
 
             <section className="bg-gray-200">
                 <div className="max-w-[1200px] mx-auto px-4 py-16 mt-12">
-                    <div className="px-4 pb-8 flex flex-col space-y-8 items-center">
+                    <div className="px-4 pb-8 flex flex-col gap-2 items-center">
                         <h1 className="text-4xl chewy">Recent Projects</h1>
+                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus, consequuntur.</p>
                     </div>
                     <div className="w-full flex items-center justify-center flex-wrap gap-4">
                         {projects.slice(0, 2).map((project, index) => (
@@ -154,18 +155,22 @@ const Home = () => {
 
             <section className="bg-orange-600 w-full py-20">
                 <div className="max-w-[1200px] mx-auto px-4">
+                    <div className="px-4 pb-8 flex flex-col gap-2 items-center text-white">
+                        <h1 className="text-4xl chewy ">Recent Projects</h1>
+                        <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus, consequuntur.</p>
+                    </div>
                     <div className="max-w-screen-2xl mx-auto md:px-4">
                         <div className="flex flex-wrap justify-center gap-6">
-                            <div data-aos="fade-left" data-aos-delay="100" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md  shadow-lg ">
-                                <p className="text-lg italic">"I don’t think you ever stop giving. I really don’t. I think it’s an on-going process. And it’s not just about being able to write a check. It’s being able to touch somebody’s life."</p>
+                            <div data-aos="fade-left" data-aos-delay="100" className="text-white w-full md:w-80 h-fit p-5 rounded-lg bg-white/15 backdrop-blur-md ">
+                                <p className="text-base italic chewy">"I don’t think you ever stop giving. I really don’t. I think it’s an on-going process. And it’s not just about being able to write a check. It’s being able to touch somebody’s life."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Oprah Winfrey</p>
                             </div>
-                            <div data-aos="fade-left" data-aos-delay="2-00" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
-                                <p className="text-lg italic">"At the end of the day it’s not about what you have or even what you’ve accomplished… it’s about who you’ve lifted up, who you’ve made better. It’s about what you’ve given back."</p>
+                            <div data-aos="fade-left" data-aos-delay="2-00" className="text-white w-full md:w-80 h-fit p-5 rounded-lg bg-white/15 backdrop-blur-md shadow-lg ">
+                                <p className="text-base italic chewy">"At the end of the day it’s not about what you have or even what you’ve accomplished… it’s about who you’ve lifted up, who you’ve made better. It’s about what you’ve given back."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Denzel Washington</p>
                             </div>
-                            <div data-aos="fade-left" data-aos-delay="300" className="w-full md:w-80 p-5 rounded-lg bg-white/60 backdrop-blur-md shadow-lg ">
-                                <p className="text-lg italic">"Volunteers are the only human beings on the face of the earth who reflect this nation’s compassion, unselfish caring, patience, and just plain loving one another."</p>
+                            <div data-aos="fade-left" data-aos-delay="300" className="text-white w-full md:w-80 p-5 h-fit rounded-lg bg-white/15 backdrop-blur-md shadow-lg ">
+                                <p className="text-base italic chewy">"Volunteers are the only human beings on the face of the earth who reflect this nation’s compassion, unselfish caring, patience, and just plain loving one another."</p>
                                 <p className="pt-4 text-right text-xl chewy">-Erma Bombeck</p>
                             </div>
                         </div>

@@ -4,7 +4,7 @@ const SuccesAlert = ({ message, onClose }) => {
   return (
     <AnimatePresence>
       <motion.div
-        className="fixed top-0 left-0 z-50 w-full h-screen flex items-center justify-center p-4 bg-black/10"
+        className="fixed top-0 left-0 z-[999] w-full h-screen flex items-center justify-center p-4 bg-black/10"
         role="alert"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}

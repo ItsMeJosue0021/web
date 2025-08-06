@@ -43,6 +43,8 @@ const Portal = () => {
         profileUpdateSuccessful: false
     });
 
+    const [changingPassword, setChangingPassword] = useState(false);
+    const [showChangePasswordSuucess, setShowChangePasswordSuccess] = useState(false);
     const [errors, setErrors] = useState([]);
     const [password, setPassword] = useState({
         oldPassword: '',
@@ -132,6 +134,32 @@ const Portal = () => {
     const onSave = () => {
         setModal(prev => ({...prev, profileUpdateSuccessful: true}));
         refreshUser();
+    }
+
+    const handleChangePassword = async () => {
+        setErrors([]);
+        setChangingPassword(true);
+        try {
+            const response = await _post(`/users/change-password/${user.id}`, password);
+            if (response.status === 200) {
+                setPassword({
+                    oldPassword: '',
+                    newPassword: '',
+                    newPassword_confirmation: ''
+                });
+            }
+            setShowChangePasswordSuccess(true);
+        } catch (error) {
+            if (error.response && error.response.data && error.response.data.errors) {
+                setErrors(error.response.data.errors);
+            } else if (error.response && error.response.data && error.response.data.error) {
+                setErrors(prev => ({...prev, oldPassword: [error.response.data.error]}));
+            } else {
+                console.error('An unexpected error occurred:', error);
+            }
+        } finally {
+            setChangingPassword(false);
+        }
     }
 
     return (
@@ -276,7 +304,7 @@ const Portal = () => {
                                                 onChange={handleInputChange}
                                             />
                                             {errors.oldPassword && (
-                                                <span className="text-red-500 text-[9px] px-2">{errors.oldPassword[0]}</span>
+                                                <span className="text-red-500 text-[11px] px-2">{errors.oldPassword[0]}</span>
                                             )}
                                         </div>
                                     </div>
@@ -292,7 +320,7 @@ const Portal = () => {
                                                 onChange={handleInputChange}
                                             />
                                             {errors.newPassword && (
-                                                <span className="text-red-500 text-[9px] px-2">{errors.newPassword[0]}</span>
+                                                <span className="text-red-500 text-[11px] px-2">{errors.newPassword[0]}</span>
                                             )}
                                         </div>
                                     </div>
@@ -301,6 +329,7 @@ const Portal = () => {
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
+                                                value={password.newPassword_confirmation}
                                                 className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-300 px-2 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='Confirm Password'
                                                 name='newPassword_confirmation'
@@ -310,7 +339,11 @@ const Portal = () => {
                                     </div>
                                 </div>
                                 <div className="w-full flex items-center justify-end mt-4">
-                                    <button className="px-4 py-1.5 text-[11px] text-white rounded bg-blue-500 hover:bg-blue-600">Change</button>
+                                    <button 
+                                        onClick={() => handleChangePassword()} 
+                                        className="px-4 py-1.5 text-[11px] text-white rounded bg-blue-500 hover:bg-blue-600">
+                                            {changingPassword ? 'Changing...' : 'Change Password'}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -342,6 +375,13 @@ const Portal = () => {
                     <SuccesAlert 
                         message='Your information has been updated succesfully!'
                         onClose={() => setModal(prev => ({...prev, profileUpdateSuccessful: false}))}
+                    />
+                )}
+
+                {showChangePasswordSuucess && (
+                    <SuccesAlert 
+                        message='Your password has been updated succesfully!'
+                        onClose={() => setShowChangePasswordSuccess(false)}
                     />
                 )}
 

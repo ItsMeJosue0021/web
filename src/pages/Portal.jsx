@@ -14,6 +14,7 @@ import UpdateProfileModal from "../components/profile/UpdateProfileModal";
 import UpdateProfilePicModal from "../components/profile/UpdateProfilePicModal";
 import SuccesAlert from "../components/alerts/SuccesAlert";
 import CircularLoading from "../components/CircularLoading";
+import { MdOutlineCameraAlt } from "react-icons/md";
 
 const Portal = () => {
 
@@ -32,7 +33,6 @@ const Portal = () => {
     const [showUpdateProfilePic, setShowUpdateProfilePic] = useState(false);
 
     const [selectedFile, setSelectedFile] = useState(null);
-    const fileInputRef = useRef(null);
 
     const [tab, setTab] = useState('events'); 
 
@@ -193,7 +193,7 @@ const Portal = () => {
                                     </button>
                                 </div> */}
                             </div>
-                            {loading ? (<CircularLoading />) : (
+                            {loading ? (<CircularLoading customClass='text-blue-500 w-6 h-6' />) : (
                                 <div className="flex flex-col items-start justify-start gap-2 h-full overflow-y-auto py-2 hide-scrollbar">
                                     {projects.map((project, index) => (
                                         <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-xl shadow-sm p-4 border border-gray-200">
@@ -259,8 +259,25 @@ const Portal = () => {
 
                             <div className="p-4  bg-transparent rounded-xl border border-gray-200">
                                 <div className="flex items-center justify-start gap-4">
-                                    <div className="flex items-center justify-center min-w-32 w-32 min-h-32 h-32 rounded-full bg-orange-100">
-                                        <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
+                                    <div className="flex items-center justify-center min-w-32 w-32 min-h-32 h-32 rounded-full bg-gray-100">
+                                        {/* <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p> */}
+                                        {user?.image && (
+                                            <img 
+                                                src={`${baseURL}${user.image}`} 
+                                                alt="Profile" 
+                                                className="w-full h-full rounded-full object-cover object-center cursor-pointer" 
+                                                onClick={() => setViewImage(true)} 
+                                            />
+                                        )}
+                                        {!user?.image && (
+                                            <div className="w-full h-full flex items-center justify-center rounded-full cursor-pointer"
+                                            onClick={() => setModal(prev => ({...prev, updateProfilePic: true}))}>
+                                                <MdOutlineCameraAlt 
+                                                    size={24} 
+                                                    className="text-gray-400 cursor-pointer" 
+                                                />
+                                            </div>
+                                        )}
                                     </div>
                                     <div className="w-full flex flex-col gap-1 items-start justify-start">
                                         <div className="w-full flex items-center justify-between">
@@ -297,7 +314,7 @@ const Portal = () => {
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-300 px-2 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300  focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='Old Password'
                                                 value={password.oldPassword}
                                                 name='oldPassword'
@@ -313,7 +330,7 @@ const Portal = () => {
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-300 px-2 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='New Password'
                                                 value={password.newPassword}
                                                 name='newPassword'
@@ -330,7 +347,7 @@ const Portal = () => {
                                             <input 
                                                 type="password" 
                                                 value={password.newPassword_confirmation}
-                                                className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-300 px-2 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='Confirm Password'
                                                 name='newPassword_confirmation'
                                                 onChange={handleInputChange}
@@ -341,8 +358,8 @@ const Portal = () => {
                                 <div className="w-full flex items-center justify-end mt-4">
                                     <button 
                                         onClick={() => handleChangePassword()} 
-                                        className="px-4 py-1.5 text-[11px] text-white rounded bg-blue-500 hover:bg-blue-600">
-                                            {changingPassword ? 'Changing...' : 'Change Password'}
+                                        className="px-4 py-2 text-[11px] text-white rounded bg-blue-500 hover:bg-blue-600">
+                                            {changingPassword ? <div className="flex items-center gap-2"><CircularLoading customClass='text-white w-4 h-4' /><span>Changing...</span></div> : 'Change Password'}
                                     </button>
                                 </div>
                             </div>
@@ -363,11 +380,8 @@ const Portal = () => {
 
                 {modal.updateProfilePic && (
                     <UpdateProfilePicModal 
-                        data={user} 
-                        setSelectedFile={setSelectedFile} 
-                        selectedFile={selectedFile} 
+                        id={user.id}  
                         setModal={setModal} 
-                        handleFileChange={handleFileChange} 
                     />
                 )}
 

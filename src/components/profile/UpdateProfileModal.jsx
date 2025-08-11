@@ -59,7 +59,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.2 }}
                 className="bg-white rounded-lg h-auto flex flex-col w-fit justify-start gap-4">
-                    <div className='w-[600px] max-w-[800px] p-10 py-8'>
+                    <div className='min-w-[600px] w-fit p-10 py-8'>
                         <div className='flex items-center justify-between mb-4'>
                             <p className="text-base font-semibold">Update your profile information</p>
                             <IoMdClose size={18} onClick={() => {
@@ -72,7 +72,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                 <div className='flex flex-col'>
                                     <input 
                                         type="text" 
-                                        className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                        className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                         placeholder='@username'
                                         value={profileData.username}
                                         name='username'
@@ -88,7 +88,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                 <div className='flex flex-col'>
                                     <input 
                                         type="text" 
-                                        className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                        className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                         placeholder='youremail@sample.com'
                                         value={profileData.email}
                                         name='email'
@@ -104,7 +104,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                 <div className='flex flex-col'>
                                     <input 
                                         type="text" 
-                                        className='text-[11px] w-80 max-w-80 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                        className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                         placeholder='09-xxx-xxx-xxx'
                                         value={profileData.contactNo}
                                         name='contactNo'
@@ -122,7 +122,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Block</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-24  max-w-24 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-24  max-w-24 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Block'
                                             value={profileData.block}
                                             name='block'
@@ -136,7 +136,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Lot</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-24 max-w-24 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-24 max-w-24 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Lot'
                                             value={profileData.lot}
                                             name='lot'
@@ -150,7 +150,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Street</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-30 max-w-30 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-30 max-w-30 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Street'
                                             value={profileData.street}
                                             name='street'
@@ -164,7 +164,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Subdivision</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-30 max-w-30 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-30 max-w-30 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Subdivision'
                                             value={profileData.subdivision}
                                             name='subdivision'
@@ -180,7 +180,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Barangay</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-40 max-w-40 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-40 max-w-40 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Barangay'
                                             value={profileData.barangay}
                                             name='barangay'
@@ -194,7 +194,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>City</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-40 max-w-40 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-40 max-w-40 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='City'
                                             value={profileData.city}
                                             name='city'
@@ -208,7 +208,7 @@ const UpdateProfileModal = ({data, setModal, onSave}) => {
                                         <label className='text-[11px] text-gray-500'>Province</label>
                                         <input 
                                             type="text" 
-                                            className='text-[10px] w-40 max-w-40 border-0 border-b border-gray-200 px-2 focus:outline-none' 
+                                            className='text-[10px] w-40 max-w-40 rounded-md px-4 py-2 border border-gray-200 focus:outline-none' 
                                             placeholder='Province'
                                             value={profileData.province}
                                             name='province'

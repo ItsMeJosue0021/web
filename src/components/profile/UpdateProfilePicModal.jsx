@@ -1,7 +1,43 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image } from "lucide-react";
+import { useState } from 'react';
+import { _post } from '../../api';  
 
-const UpdateProfilePicModal = ({ data, setSelectedFile, selectedFile, setModal, handleFileChange }) => {
+const UpdateProfilePicModal = ({ id, setModal }) => {
+
+    const [selectedFile, setSelectedFile] = useState(null);
+    const [isSuccess, setIsSuccess] = useState(false);
+    const [saving, setSaving] = useState(false);
+
+    const handleFileChange = (e) => {
+        const file = e.target.files[0];
+        if (file) {
+            setSelectedFile(file);
+        }
+    };
+
+    const handleSave = async () => {
+        setSaving(true);
+        try {
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+            const response = await _post(`/users/profile-update/${id}`, formData, {
+               headers: {
+                    'Content-Type': 'multipart/form-data'
+                }
+            });
+            if (response.status === 200) {
+                setModal(prev => ({...prev, updateProfilePic: false}));
+                setIsSuccess(true);
+                setSelectedFile(null);
+            }
+        } catch (error) {
+            console.error("Error uploading file:", error);
+        } finally {
+            setSaving(false);
+        }
+    }
+
     return (
         <AnimatePresence>
             <motion.div
@@ -17,17 +53,17 @@ const UpdateProfilePicModal = ({ data, setSelectedFile, selectedFile, setModal, 
                 animate={{ scale: 1, opacity: 1 }}
                 exit={{ scale: 0.95, opacity: 0 }}
                 transition={{ duration: 0.2 }}
-                className="bg-white rounded-lg h-auto flex flex-col w-fit justify-start gap-4"
+                className="bg-white rounded-xl h-auto flex flex-col w-fit justify-start gap-4 p-6"
                 >
-                    <div className="flex flex-col w-fit items-center justify-center p-4">
+                    <div className="flex flex-col w-fit items-center justify-center">
 
                         {/* Hidden input + clickable label */}
                         <input
-                        type="file"
-                        id="fileUpload"
-                        onChange={handleFileChange}
-                        className="hidden"
-                        accept="image/*"
+                            type="file"
+                            id="fileUpload"
+                            onChange={handleFileChange}
+                            className="hidden"
+                            accept="image/*"
                         />
 
                         <label
@@ -49,9 +85,7 @@ const UpdateProfilePicModal = ({ data, setSelectedFile, selectedFile, setModal, 
                         <div className="w-full flex items-center justify-end gap-2 mt-4">
                             <button
                                 className="px-4 py-2 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded"
-                                onClick={() => {
-                                // upload logic here
-                                }}
+                                onClick={() => handleSave()}
                             >
                                 Save
                             </button>

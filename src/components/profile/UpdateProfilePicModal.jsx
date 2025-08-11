@@ -21,7 +21,7 @@ const UpdateProfilePicModal = ({ id, setModal }) => {
         try {
             const formData = new FormData();
             formData.append('image', selectedFile);
-            const response = await _post(`/users/profile-update/${id}`, formData, {
+            const response = await _post(`/users/profile-picture/${id}`, formData, {
                headers: {
                     'Content-Type': 'multipart/form-data'
                 }

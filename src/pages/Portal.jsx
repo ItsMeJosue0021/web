@@ -266,7 +266,7 @@ const Portal = () => {
                                                 src={`${baseURL}${user.image}`} 
                                                 alt="Profile" 
                                                 className="w-full h-full rounded-full object-cover object-center cursor-pointer" 
-                                                onClick={() => setViewImage(true)} 
+                                                onClick={() => setModal(prev => ({...prev, updateProfilePic: true}))}
                                             />
                                         )}
                                         {!user?.image && (

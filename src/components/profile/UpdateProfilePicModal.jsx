@@ -1,9 +1,13 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { Image } from "lucide-react";
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { _post } from '../../api';  
+import SuccesAlert from '../alerts/SuccesAlert';
+import { AuthContext } from "../../AuthProvider";
 
-const UpdateProfilePicModal = ({ id, setModal }) => {
+const UpdateProfilePicModal = ({ id, setModal, onSuccess }) => {
+
+    const {refreshUser} = useContext(AuthContext);
 
     const [selectedFile, setSelectedFile] = useState(null);
     const [isSuccess, setIsSuccess] = useState(false);
@@ -30,6 +34,8 @@ const UpdateProfilePicModal = ({ id, setModal }) => {
                 setModal(prev => ({...prev, updateProfilePic: false}));
                 setIsSuccess(true);
                 setSelectedFile(null);
+                refreshUser();
+                onSuccess();
             }
         } catch (error) {
             console.error("Error uploading file:", error);
@@ -87,7 +93,7 @@ const UpdateProfilePicModal = ({ id, setModal }) => {
                                 className="px-4 py-2 text-xs bg-blue-500 hover:bg-blue-600 text-white rounded"
                                 onClick={() => handleSave()}
                             >
-                                Save
+                                {saving ? "Saving..." : "Save"}
                             </button>
                             <button
                                 className="px-4 py-2 text-xs bg-gray-200 hover:bg-gray-300 rounded"

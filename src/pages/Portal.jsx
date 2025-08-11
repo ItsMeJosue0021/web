@@ -52,6 +52,8 @@ const Portal = () => {
         newPassword_confirmation: ''
     });
 
+    const [CPSuccess, setCPSuccess] = useState(false);
+
     const handleInputChange = (e) => {
         const { name, value } = e.target;
         setPassword(prevData => ({
@@ -255,7 +257,7 @@ const Portal = () => {
                     )}
                     
                     {activeTab === 'profile' && (
-                        <div className="w-full hidden md:flex  h-fit flex-col gap-4">
+                        <div className="w-full flex h-fit flex-col gap-4">
 
                             <div className="p-4  bg-transparent rounded-xl border border-gray-200">
                                 <div className="flex items-center justify-start gap-4">
@@ -309,12 +311,12 @@ const Portal = () => {
                             <div className="flex flex-col items-center gap-2 p-6 bg-white rounded-xl border border-gray-200">
                                 <p className="text-sm font-semibold w-full text-left pb-1 ">Change Password</p>
                                 <div className='w-full flex flex-col gap-2'>
-                                    <div className='w-full flex items-center justify-between gap-4'>
+                                    <div className='w-full md:flex items-center justify-between gap-4'>
                                         <label className='text-xs font-medium text-gray-600'>Old Password</label>
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300  focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-full  md:w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300  focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='Old Password'
                                                 value={password.oldPassword}
                                                 name='oldPassword'
@@ -325,12 +327,12 @@ const Portal = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className='flex items-center justify-between gap-4'>
+                                    <div className='md:flex items-center justify-between gap-4'>
                                         <label className='text-xs font-medium text-gray-600'>New Password</label>
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-full md:w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='New Password'
                                                 value={password.newPassword}
                                                 name='newPassword'
@@ -341,13 +343,13 @@ const Portal = () => {
                                             )}
                                         </div>
                                     </div>
-                                    <div className='flex items-center justify-between gap-4'>
+                                    <div className='md:flex items-center justify-between gap-4'>
                                         <label className='text-xs font-medium text-gray-600'>Confirm Password</label>
                                         <div className='flex flex-col'>
                                             <input 
                                                 type="password" 
                                                 value={password.newPassword_confirmation}
-                                                className='text-[11px] w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
+                                                className='text-[11px] w-full md:w-80 max-w-80 rounded-md px-4 py-2 border border-gray-300 focus:outline-none placeholder:text-gray-300 focus:border-blue-500' 
                                                 placeholder='Confirm Password'
                                                 name='newPassword_confirmation'
                                                 onChange={handleInputChange}
@@ -382,6 +384,7 @@ const Portal = () => {
                     <UpdateProfilePicModal 
                         id={user.id}  
                         setModal={setModal} 
+                        onSuccess ={() => setCPSuccess(true)}
                     />
                 )}
 
@@ -396,6 +399,13 @@ const Portal = () => {
                     <SuccesAlert 
                         message='Your password has been updated succesfully!'
                         onClose={() => setShowChangePasswordSuccess(false)}
+                    />
+                )}
+
+                {CPSuccess && (
+                    <SuccesAlert 
+                        message="Profile picture updated successfully!" 
+                        onClose={() => setCPSuccess(false)} 
                     />
                 )}
 

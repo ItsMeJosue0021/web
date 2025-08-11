@@ -11,6 +11,7 @@ import { BiLogOut } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AuthContext } from "../AuthProvider";
 import LoggingOut from "../components/LoggingOut";
+import logopng from "../assets/img/logo.png";
 
 export const PortalContext = createContext();
 
@@ -21,6 +22,8 @@ const User = ({ children }) => {
   const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [loggingOut, setLoggingOut] = useState(false);
+
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -39,10 +42,16 @@ const User = ({ children }) => {
     <div className="w-screen min-h-screen h-auto overflow-hidden">
       <ToastContainer />
       <div className="w-full flex flex-col items-start justify-start ">
-        <div className="fixed w-full h-fit flex items-center justify-between bg-white shadow-sm px-8 py-2">
+        <div className="fixed w-full h-fit flex items-center justify-between bg-white shadow-sm px-4 md:px-8 py-2">
           <div className=" h-fit flex items-center justify-between w-full  ">
-            <Logo/>
-            <div className="flex items-center space-x-10">
+            <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
+                <img src={logopng} alt="logo" className='min-w-14 w-14  min-h-14 h-14 rounded-full'/>
+                <div className='hidden md:flex flex-col text-sm font-bold'>
+                    <p className='text-xs md:text-sm chewy'>Kalinga ng Kababaihan</p>
+                    <p className='text-[10px]  poppins-regular'>Women's League Las Piñas</p>
+                </div>
+            </Link>
+            <div className="hidden md:flex items-center space-x-10">
               <ul className='text-xs flex space-x-10'>
                   <li>
                       <Link to="/" className="text-black">Home</Link>
@@ -59,10 +68,20 @@ const User = ({ children }) => {
               </ul>
               {/* <HeaderProfile /> */}
             </div>
+            <div 
+              onClick={() => setMobileNavOpen(!mobileNavOpen)} 
+              className="flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
+            >
+              <GiHamburgerMenu  
+                size={20} 
+                strokeWidth={0.5} 
+                className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
+              />
+            </div>
           </div>
         </div>
-        <div className="w-full h-auto flex items-start px-8 ">
-          <div className={`${isOpen ? 'w-56 min-w-56' : 'w-fit'} pr-8 min-h-screen h-auto flex pt-28 border-r border-gray-100`}>
+        <div className="w-full h-auto flex items-start px-0 md:px-8 ">
+          <div className={`${isOpen ? 'w-56 min-w-56' : 'w-fit'} hidden md:flex pr-8 min-h-screen h-auto pt-28 border-r border-gray-100`}>
               <div className="w-full flex flex-col items-start justify-start gap-1">
                   <div 
                     onClick={() => setIsOpen(!isOpen)} 
@@ -114,7 +133,7 @@ const User = ({ children }) => {
                   </div>
               </div>
           </div>
-          <div className="w-full min-screen h-screen pt-24 ">
+          <div className="w-full min-screen h-screen pt-20 md:pt-24 ">
             <PortalContext.Provider value={{ activeTab, setActiveTab }}>
               {children}
             </PortalContext.Provider>
@@ -122,6 +141,36 @@ const User = ({ children }) => {
         </div>
       </div>
       {loggingOut && <LoggingOut />}
+      {mobileNavOpen && (
+        <div className="fixed top-0 left-0 w-full h-full flex flex-col gap-4 items-center justify-center bg-white">
+            <div>
+              <span onClick={() => setMobileNavOpen(false)} className="border border-gray-200 px-4 py-2 rounded-xl bg-gray-100">Close</span>
+            </div>
+            <div className="flex items-center justify-center flex-col space-y-4">
+              <span>
+                  <Link to="/" className="text-black">Home</Link>
+              </span>
+              <span>
+                  <Link to="/about-us" className='text-black'>About Us</Link>
+              </span>
+              <span>
+                  <Link to="/volunteers" className='text-black'>Volunteers</Link>
+              </span>
+              <span>
+                  <Link to="/faqs" className='text-black'>FAQs</Link>
+              </span>
+              <span onClick={() => {setMobileNavOpen(false); setActiveTab('home')}}>
+                  <p className='text-black font-medium'>Portal</p>
+              </span>
+              <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile')}}>
+                  <p className='text-black font-medium'>Profile</p>
+              </span>
+              <span onClick={() => handleLogout()}>
+                  <p className='text-black font-medium'>Logout</p>
+              </span>
+            </div>
+        </div>
+      )}
     </div>
   );
 }

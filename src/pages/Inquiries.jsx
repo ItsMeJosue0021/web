@@ -9,6 +9,9 @@ import '../css/loading.css';
 import { _post } from "../api";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'react-toastify';
+import { useCallback } from "react";
+import debounce from "lodash.debounce";
+import CircularLoading from "../components/CircularLoading";
 
 const Inquiries = () => {
 
@@ -63,16 +66,29 @@ const Inquiries = () => {
         }
     };
 
-    const handleSearch = async (search) => {
-        if (search.trim() === "") return;
+    // const handleSearch = async (search) => {
+    //     try {
+    //         const response = await _get(`/enquiries/search?search=${search}`);
+    //         setEnquiries(response.data);
+    //     } catch (error) {
+    //         console.error("Error fetching data:", error);
+    //     }
+    // }
 
-        try {
-            const response = await _get(`/enquiries/search?search=${search}`);
-            setEnquiries(response.data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    }
+    const handleSearch = useCallback(
+        debounce(async (search) => {
+            setLoading(true);
+            try {
+                const response = await _get(`/enquiries/search?search=${search}`);
+                setEnquiries(response.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }, 500), 
+        [] 
+    );
 
     // Open reply modal
     const openReplyModal = (email) => {
@@ -142,37 +158,32 @@ const Inquiries = () => {
                         <th className="p-3 text-start">Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
-                        {enquiries.map((row, index) => (
-                            <tr key={row.id}
-                            className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                <td className="p-3 text-xs">{row.name}</td>
-                                <td className="p-3 text-xs">{row.email}</td>
-                                <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
-                                <td className="p-3 text-xs flex justify-start gap-2">
-                                <button 
-                                        onClick={() => openReplyModal(row.email)}
-                                        className="bg-orange-500 text-[10px] text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
-                                    >
-                                        <Mail size={14} /> Reply
-                                </button>
-                                    <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
-                                </td>
-                            </tr>
-                        ))}
-                        
-                    </tbody>
+                    {!loading && (
+                        <tbody>
+                            {enquiries.map((row, index) => (
+                                <tr key={row.id}
+                                className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                    <td className="p-3 text-xs">{row.name}</td>
+                                    <td className="p-3 text-xs">{row.email}</td>
+                                    <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
+                                    <td className="p-3 text-xs flex justify-start gap-2">
+                                    <button 
+                                            onClick={() => openReplyModal(row.email)}
+                                            className="bg-orange-500 text-[10px] text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
+                                        >
+                                            <Mail size={14} /> Reply
+                                    </button>
+                                        <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    )}
+                    
                 </table>
                 {loading && (
-                    <div className="w-full h-36 flex items-center text-xs justify-center">
-                        <div className="self-start h-full px-3 py-2 text-sm">
-                            <div className="h-full flex items-center space-x-1">
-                                <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            </div>
-                        </div>
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
                     </div>
                 )}
             </div>

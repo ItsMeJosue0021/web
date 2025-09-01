@@ -11,6 +11,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import '../css/loading.css'; 
 import {generateKnowledgebaseList} from "../services/pdf/knowledgebaseList";
+import CircularLoading from "../components/CircularLoading";
 
 const Knowledgebase = () => {
     const [isOpen, setIsOpen] = useState(false);
@@ -95,17 +96,18 @@ const Knowledgebase = () => {
 
     const handleSearch = useCallback(
         debounce(async (search) => {
-          if (search.trim() === "") return;
-    
-          try {
-            const response = await _get(`/knowledgebase/search?search=${search}`);
-            setKnowledgebase(response.data);
-          } catch (error) {
-            console.error("Error fetching data:", error);
-          }
+            setLoading(true);
+            try {
+                const response = await _get(`/knowledgebase/search?search=${search}`);
+                setKnowledgebase(response.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
         }, 500), 
         [] 
-      );
+    );
     
 
     const header = {
@@ -187,45 +189,41 @@ const Knowledgebase = () => {
                                     <th colSpan={2} className="p-3 text-start w-1/6">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody>
-                                {knowledgebase.map((row, index) => (
-                                    <tr
-                                        key={row.id}
-                                        className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}
-                                    >
-                                        <td className="p-3">{row.title}</td>
-                                        <td className="p-3 w-full text-xs ">{row.content}</td>
-                                        <td className="p-3 flex justify-start gap-2">
-                                            <button
-                                                onClick={() => handleEdit(row)}
-                                                className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
-                                            >
-                                                <Edit size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() => {
-                                                    setDeleteId(row.id);
-                                                    setIsDeleteModalOpen(true);
-                                                }}
-                                                className="bg-red-50 text-red-600 px-1 py-1 rounded"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))}
-                            </tbody>
+                            {!loading && (
+                                <tbody>
+                                    {knowledgebase.map((row, index) => (
+                                        <tr
+                                            key={row.id}
+                                            className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}
+                                        >
+                                            <td className="p-3">{row.title}</td>
+                                            <td className="p-3 w-full text-xs ">{row.content}</td>
+                                            <td className="p-3 flex justify-start gap-2">
+                                                <button
+                                                    onClick={() => handleEdit(row)}
+                                                    className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
+                                                >
+                                                    <Edit size={16} />
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        setDeleteId(row.id);
+                                                        setIsDeleteModalOpen(true);
+                                                    }}
+                                                    className="bg-red-50 text-red-600 px-1 py-1 rounded"
+                                                >
+                                                    <Trash2 size={16} />
+                                                </button>
+                                            </td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            )}
+                            
                         </table>
                         {loading && (
-                            <div className="w-full h-36 flex items-center text-xs justify-center">
-                                <div className="self-start h-full px-3 py-2 text-sm">
-                                    <div className="h-full flex items-center space-x-1">
-                                        <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                        <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                        <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                        <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                    </div>
-                                </div>
+                            <div className="w-full h-40 flex items-center justify-center">
+                                <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
                             </div>
                         )}
                     </div>

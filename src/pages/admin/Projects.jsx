@@ -5,13 +5,16 @@ import { _get, _post, _put, _delete } from "../../api";
 import { toast } from 'react-toastify';
 import { AnimatePresence, motion } from "framer-motion";
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
+import { useCallback } from "react";
+import debounce from "lodash.debounce";
+import CircularLoading from "../../components/CircularLoading";
 
 const Projects = () => {
 
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
     // const baseURL = "http://127.0.0.1:8000/storage/";
 
-    const [projects, setPorjects] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
     const [currentTag, setCurrentTag] = useState("");
     const [showAddProjectModal, setShowAddProjectModal] = useState(false);
@@ -53,7 +56,7 @@ const Projects = () => {
         try {
             const response = await _get("/projects"); 
             const data = await response.data;
-            setPorjects(data);
+            setProjects(data);
         } catch (error) {
             console.error('Error fetching projects:', error);
         } finally {
@@ -183,7 +186,7 @@ const Projects = () => {
         setIsDeleting(true);
         try {
             await _delete(`/projects/${deleteId}`);
-            setPorjects(projects.filter(project => project.id !== deleteId));
+            setProjects(projects.filter(project => project.id !== deleteId));
             toast.success("Project deleted successfully!");
         } catch (error) {
             toast.error("Error deleting project. Please try again.");
@@ -193,6 +196,21 @@ const Projects = () => {
             setIsDeleteOpen(false);
         }
     }
+    
+    const handleSearch = useCallback(
+        debounce(async (search) => {
+            setLoading(true);
+            try {
+                const response = await _get(`/projects/search?search=${search}`);
+                setProjects(response.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                setLoading(false);
+            }
+        }, 500), 
+        [] 
+    );
 
 
     return (
@@ -201,7 +219,12 @@ const Projects = () => {
                 <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
                         <p className="text-xs">Search</p>
-                        <input type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Type something.." />
+                        <input 
+                            onChange={(e) => handleSearch(event.target.value)}
+                            type="text" 
+                            className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" 
+                            placeholder="Type something.." 
+                        />
                     </div>
                     <div className="flex items-center justify-end gap-2">
                         <button onClick={() => setShowAddProjectModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
@@ -218,38 +241,33 @@ const Projects = () => {
                         <th className="p-3 text-end">Actions</th>
                     </tr>
                     </thead>
-                    <tbody>
-                    {projects.map((project, index) => (
-                        <tr key={project.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                            <td className="p-3">{project.title || ''}</td>
-                            <td className="p-3">
-                            {(project.description || '').length > 100
-                                ? project.description.substring(0, 100) + '...'
-                                : project.description || ''}
-                            </td>
-                            <td className="p-3">{project.location || ''}</td>
-                            <td className="p-3">
-                                <button onClick={() => handleViewImage(project.image)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
-                            </td>
-                            <td className="p-3">{project.date || ''}</td>
-                            <td className="p-3 h-full flex items-center justify-end gap-2">
-                                <button onClick={() => handleOpenEditModal(project)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                                <button onClick={() => handleConfirmDelete(project.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                            </td>
-                        </tr>
-                    ))}
-                    </tbody>
+                    {!loading && (
+                        <tbody>
+                            {projects.map((project, index) => (
+                                <tr key={project.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                    <td className="p-3">{project.title || ''}</td>
+                                    <td className="p-3">
+                                    {(project.description || '').length > 100
+                                        ? project.description.substring(0, 100) + '...'
+                                        : project.description || ''}
+                                    </td>
+                                    <td className="p-3">{project.location || ''}</td>
+                                    <td className="p-3">
+                                        <button onClick={() => handleViewImage(project.image)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
+                                    </td>
+                                    <td className="p-3">{project.date || ''}</td>
+                                    <td className="p-3 h-full flex items-center justify-end gap-2">
+                                        <button onClick={() => handleOpenEditModal(project)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                                        <button onClick={() => handleConfirmDelete(project.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    )}
                 </table>
                 {loading && (
-                    <div className="w-full h-36 flex items-center text-xs justify-center">
-                        <div className="self-start h-full px-3 py-2 text-sm">
-                            <div className="h-full flex items-center space-x-1">
-                                <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            </div>
-                        </div>
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
                     </div>
                 )}
             </div>

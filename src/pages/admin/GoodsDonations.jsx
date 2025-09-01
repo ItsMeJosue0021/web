@@ -7,6 +7,8 @@ import { toast } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
 import Logo from "../../components/Logo";
 import html2pdf from 'html2pdf.js';
+import { set } from "lodash";
+import CircularLoading from "../../components/CircularLoading";
 
 const GoodsDonations = () => {
 
@@ -67,11 +69,19 @@ const GoodsDonations = () => {
 
     useEffect(() => {
         const delayDebounce = setTimeout(() => {
-            fetchDonations({
-                month: selectedMonth,
-                year: selectedYear,
-                name: searchTerm
-            });
+            setLoading(true);
+            try {
+                fetchDonations({
+                    month: selectedMonth,
+                    year: selectedYear,
+                    name: searchTerm
+                });
+            } catch (error) {
+                console.log(error);
+            } finally {
+                setLoading(false);
+            }
+            
         }, 500); 
 
         return () => clearTimeout(delayDebounce);
@@ -226,25 +236,21 @@ const GoodsDonations = () => {
             <div className="w-full mx-auto flex flex-col gap-4">
                 <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
                     <div className="w-full min-w-80 max-w-[500px] flex items-center gap-2">
-                        <label className="text-xs">
-                            <Search size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
-                        </label>
+                        <p className="text-sm">Search</p>
                         <input
                             type="text"
-                            className="placeholder:text-xs px-4 py-1.5 rounded border border-gray-200 text-sm"
+                            className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm"
                             placeholder="Type something.."
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
                         />
-                        <button onClick={() => setIsReportView(true)} className="text-xs text-white bg-blue-500 px-3 py-1.5 rounded">Generate Report</button>
+                        <button onClick={() => setIsReportView(true)} className="text-xs text-white bg-gray-500 px-3 py-2 rounded">Generate Report</button>
                     </div>
-                    <div className="flex gap-2 items-center">
-                        <label className="text-xs">
-                            <SlidersHorizontal size={30} className="text-white bg-blue-600 p-1.5 rounded"/>
-                        </label>
+                    <div className="flex gap-4 items-center">
+                        <p className="text-sm">Filter</p>
                         <div>
                             <select
-                            className="text-[10px] px-3 py-2 border border-gray-300 rounded"
+                            className="text-xs px-3 py-2 border border-gray-300 rounded"
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
                             >
@@ -259,7 +265,7 @@ const GoodsDonations = () => {
 
                         <div>
                            <select
-                                className="text-[10px] px-3 py-2 border border-gray-300 rounded"
+                                className="text-xs px-3 py-2 border border-gray-300 rounded"
                                 value={selectedYear}
                                 onChange={(e) => setSelectedYear(e.target.value)}
                             >
@@ -283,63 +289,58 @@ const GoodsDonations = () => {
                         {/* <th className="p-3 text-end">Actions</th> */}
                     </tr>
                     </thead>
-                    <tbody>
-                    {donations.length <= 0 && (
-                        <tr className="p-3">
-                            <td colSpan={7} className="p-3 text-center">
-                                No Records Found
-                            </td>
-                        </tr>
+                    {!loading && (
+                        <tbody>
+                            {donations.length <= 0 && (
+                                <tr className="p-3">
+                                    <td colSpan={7} className="p-3 text-center">
+                                        No Records Found
+                                    </td>
+                                </tr>
+                            )}
+                            {donations.map((donation, index) => (
+                                <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                    <td className="p-3">
+                                    {donation.created_at
+                                        ? new Date(donation.created_at).toLocaleDateString('en-US', {
+                                            year: 'numeric',
+                                            month: 'long',
+                                            day: 'numeric',
+                                            timeZone: 'UTC'
+                                        })
+                                        : ''}
+                                    </td>
+                                    <td className="p-3">
+                                        {donation.name || <span className="p-1 px-2 rounded bg-gray-100 text-gray-600 text-[10px]">Anonymous</span>}
+                                    </td>
+                                    <td className="p-3">{donation.description || ''}</td>
+                                    <td className="p-3">{donation.email || ''}</td>
+                                    <td className="p-3">
+                                        {
+                                            donation.type && donation.type.length > 0 && (
+                                                donation.type.map((type, idx) => (
+                                                <span key={idx} className={`inline-block ${type === 'food' ? 'text-green-500 bg-green-50' : type === 'clothes' ? 'text-blue-500 bg-blue-50': 'text-pink-500 bg-pink-50'} p-1.5 py-1 rounded text-[11px] mr-1 my-1`}>
+                                                    {type}
+                                                </span>
+                                                ))
+                                            )
+                                        }
+                                    </td>
+                                    <td className="p-3">{donation.address || ''}</td>
+                                    {/* <td className="p-3 h-full flex items-center justify-end gap-2">
+                                        <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                                        <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
+                                    </td> */}
+                                </tr>
+                            ))}
+                        </tbody>
                     )}
-                    {donations.map((donation, index) => (
-                        <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                            <td className="p-3">
-                            {donation.created_at
-                                ? new Date(donation.created_at).toLocaleDateString('en-US', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    timeZone: 'UTC'
-                                })
-                                : ''}
-                            </td>
-                            <td className="p-3">
-                                {donation.name || <span className="p-1 px-2 rounded bg-gray-100 text-gray-600 text-[10px]">Anonymous</span>}
-                            </td>
-                            <td className="p-3">{donation.description || ''}</td>
-                            <td className="p-3">{donation.email || ''}</td>
-                            <td className="p-3">
-                                {
-                                    donation.type && donation.type.length > 0 && (
-                                        donation.type.map((type, idx) => (
-                                        <span key={idx} className={`inline-block ${type === 'food' ? 'text-green-500 bg-green-50' : type === 'clothes' ? 'text-blue-500 bg-blue-50': 'text-pink-500 bg-pink-50'} p-1.5 py-1 rounded text-[11px] mr-1 my-1`}>
-                                            {type}
-                                        </span>
-                                        ))
-                                    )
-                                }
-                            </td>
-                            <td className="p-3">{donation.address || ''}</td>
-                            {/* <td className="p-3 h-full flex items-center justify-end gap-2">
-                                <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                                <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                            </td> */}
-                        </tr>
-                    ))}
-                    </tbody>
                 </table>
                 {loading && (
-                        <div className="w-full h-36 flex items-center text-xs justify-center">
-                            <div className="self-start h-full px-3 py-2 text-sm">
-                                <div className="h-full flex items-center space-x-1">
-                                    <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                    <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                    <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                    <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                </div>
-                            </div>
-                        </div>
-                    )}
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
+                    </div>
+                )}
             </div>
             {isDeleteOpen && (
                 <ConfirmationAlert 

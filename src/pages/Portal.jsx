@@ -115,22 +115,6 @@ const Portal = () => {
         }
     }
 
-    // const handleSearchProjects = async(e) => {
-    //     if (e.key === "Enter") {
-    //         e.preventDefault(); 
-
-    //         setLoading(true);
-    //         try {
-    //             const response = await _get(`/projects/search?search=${e.target.value}`);
-    //             setProjects(response.data);
-    //         } catch (error) {
-    //             console.log(error);
-    //         } finally {
-    //             setLoading(false);
-    //         }
-    //     }
-    // }
-
     const handleSearchProjects = async(e) => {
         setLoading(true);
         try {
@@ -155,7 +139,7 @@ const Portal = () => {
                                 <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow hover:bg-blue-50 border-2 border-transparent hover:border-blue-300 group transition-colors duration-300 ease-in-out">
                                     <Search className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ease-in-out" />
                                     <input  
-                                        onChange={(e) => handleSearchProjects(e)}   
+                                        onChange={handleSearchProjects}   
                                         type="text" 
                                         placeholder="Search.." 
                                         className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400` transition-colors duration-300 ease-in-out"/>

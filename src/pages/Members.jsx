@@ -9,7 +9,10 @@ import PrintButton from "../components/buttons/PrintButton";
 import { motion, AnimatePresence } from 'framer-motion';
 import PrintPreview from "../components/PrintPreview";
 import {generateMembersListPdf} from "../services/pdf/membersList";
+import { useCallback } from "react";
+import debounce from "lodash.debounce";
 import '../css/loading.css'; 
+import CircularLoading from "../components/CircularLoading";
 
 const Members = () => {
 
@@ -170,16 +173,20 @@ const Members = () => {
         setConfirmDelete(false);
     }
 
-    const handleSearch = async (search) => {
-        if (search.trim() === "") return;
-
-        try {
-            const response = await _get(`/members/search?search=${search}`);
-            setMembers(response.data);
-        } catch (error) {
-            console.error("Error fetching data:", error);
-        }
-    }
+    const handleSearch = useCallback(
+        debounce(async (search) => {
+            isLoading(true);
+            try {
+                const response = await _get(`/members/search?search=${search}`);
+                setMembers(response.data);
+            } catch (error) {
+                console.error("Error fetching data:", error);
+            } finally {
+                isLoading(false);
+            }
+        }, 500), 
+        [] 
+    );
 
     const [currentViewableMember, setCurrentViewableMember] = useState(false);
     const [viewMember, setViewMember] = useState(false);
@@ -265,38 +272,33 @@ const Members = () => {
                     <th className="p-3 text-end">Actions</th>
                 </tr>
                 </thead>
-                <tbody>
-                {members.map((member, index) => (
-                    <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                    <td className="p-3">{member.member_id}</td>
-                    <td className="p-3">{member.first_name}</td>
-                    <td className="p-3">{member.last_name}</td>
-                    <td className="p-3">{member.nick_name}</td>
-                    <td className="p-3">{member.contact_number}</td>
-                    <td className="p-3">{new Date(member.created_at).toLocaleDateString("en-US", { 
-                        month: "long", 
-                        day: "numeric", 
-                        year: "numeric" 
-                    })}</td>
-                    <td className="p-3 flex justify-end gap-2">
-                        <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
-                        <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
-                        <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
-                    </td>
-                    </tr>
-                ))}
-                </tbody>
+                {!loading && (
+                    <tbody>
+                        {members.map((member, index) => (
+                            <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                            <td className="p-3">{member.member_id}</td>
+                            <td className="p-3">{member.first_name}</td>
+                            <td className="p-3">{member.last_name}</td>
+                            <td className="p-3">{member.nick_name}</td>
+                            <td className="p-3">{member.contact_number}</td>
+                            <td className="p-3">{new Date(member.created_at).toLocaleDateString("en-US", { 
+                                month: "long", 
+                                day: "numeric", 
+                                year: "numeric" 
+                            })}</td>
+                            <td className="p-3 flex justify-end gap-2">
+                                <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
+                                <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
+                                <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
+                            </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                )}
             </table>
             {loading && (
-                <div className="w-full h-36 flex items-center text-xs justify-center">
-                    <div className="self-start h-full px-3 py-2 text-sm">
-                        <div className="h-full flex items-center space-x-1">
-                            <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                        </div>
-                    </div>
+                 <div className="w-full h-40 flex items-center justify-center">
+                    <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
                 </div>
             )}
 

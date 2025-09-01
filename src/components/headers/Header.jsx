@@ -141,19 +141,21 @@ const Header = () => {
                                 <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Volunteers</a>
                                 </Link>
-                                <Link to="/events" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Events</a>
-                                </Link>
                                 <Link to="/faqs" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">FAQs</a>
                                 </Link>
-                                 <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Contact Us</a>
                                 </Link>
                                 {!isLoginPage && (
                                     <Link to="/login" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                         <a  className="text-black group-hover:text-orange-600" onClick={toggleModal}>Login</a>
                                     </Link>  
+                                )}
+                                {user && (
+                                <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Portal</a>
+                                </Link>
                                 )}
                             </ul>
                         </motion.div>

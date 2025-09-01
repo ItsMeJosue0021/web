@@ -24,7 +24,7 @@ const Portal = () => {
 
 
     const [events, setEvents] = useState([]);
-    const [projects, setPrjects] = useState([]);
+    const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
 
     const [selectedIamge, setSelectedImage] = useState();
@@ -62,28 +62,11 @@ const Portal = () => {
         }));
     }
 
-    useEffect(() => {
-        fetchEvents();
-        fetchProjects();
-    }, []);
-
-    const fetchEvents = async () => {
-        setLoading(true);
-        try {
-            const response = await _get('/events');
-            setEvents(response.data);
-        } catch (error) {
-            console.log(error);
-        } finally {
-            setLoading(false);
-        }
-    }
-
     const fetchProjects = async () => {
         setLoading(true);
         try {
             const response = await _get('/projects');
-            setPrjects(response.data);
+            setProjects(response.data);
         } catch (error) {
             console.log(error);
         } finally {
@@ -91,47 +74,15 @@ const Portal = () => {
         }
     }
 
-    const handleFileChange = (e) => {
-        const file = e.target.files[0];
-        if (file) {
-            setSelectedFile(file);
-        }
-    };
+    useEffect(() => {
+        fetchProjects();
+    }, []);
+
 
     const handleImageClick = (url) => {
         setSelectedImage(url);
         setViewImage(true);
     };
-
-    const openUpdateProfilePicModal = () => {
-        setShowUpdateProfilePic(true);
-    }
-
-    const imageContainers = useRef([]);
-
-    const scrollImagesLeft = (index) => {
-        if (imageContainers.current[index]) {
-            imageContainers.current[index].scrollBy({ left: -100, behavior: 'smooth' });
-        }
-    };
-
-    const scrollImagesRight = (index) => {
-        if (imageContainers.current[index]) {
-            imageContainers.current[index].scrollBy({ left: 100, behavior: 'smooth' });
-        }
-    };
-
-    const handleEditProfilePic = async () => {
-
-        const formData = new FormData();
-        formData.append('picture', selectedFile);
-
-        try {
-            const response = await _post('/profile/picture-update', formData);
-        } catch (error) {
-            console.log(error);
-        }
-    }
 
     const onSave = () => {
         setModal(prev => ({...prev, profileUpdateSuccessful: true}));
@@ -164,6 +115,34 @@ const Portal = () => {
         }
     }
 
+    // const handleSearchProjects = async(e) => {
+    //     if (e.key === "Enter") {
+    //         e.preventDefault(); 
+
+    //         setLoading(true);
+    //         try {
+    //             const response = await _get(`/projects/search?search=${e.target.value}`);
+    //             setProjects(response.data);
+    //         } catch (error) {
+    //             console.log(error);
+    //         } finally {
+    //             setLoading(false);
+    //         }
+    //     }
+    // }
+
+    const handleSearchProjects = async(e) => {
+        setLoading(true);
+        try {
+            const response = await _get(`/projects/search?search=${e.target.value}`);
+            setProjects(response.data);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setLoading(false);
+        }
+    }
+
     return (
         <div className="h-full">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
@@ -173,27 +152,14 @@ const Portal = () => {
                     {activeTab === 'home' && (
                         <div className="w-full h-full rounded flex items-start flex-col justify-start gap-2">
                             <div className="w-full">
-                                <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow ">
-                                    <Search className="w-4 h-4 text-gray-500" />
-                                    <input type="text" placeholder="Search.." className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none"/>
+                                <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow hover:bg-blue-50 border-2 border-transparent hover:border-blue-300 group transition-colors duration-300 ease-in-out">
+                                    <Search className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ease-in-out" />
+                                    <input  
+                                        onChange={(e) => handleSearchProjects(e)}   
+                                        type="text" 
+                                        placeholder="Search.." 
+                                        className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400` transition-colors duration-300 ease-in-out"/>
                                 </div>
-                                
-                                {/* <div className="flex items-center justify-start gap-1 mt-2">
-                                    <div className="bg-white mr-1 p-1 border rounded">
-                                        <SlidersHorizontal className="w-5 h-5 text-gray-500" />
-                                    </div>
-                                    <button 
-                                        onClick={() => setTab('events')} 
-                                        className={`text-[10px] px-2 py-1.5 rounded  ${tab === 'events' ? 'bg-blue-500 text-white border-0' : 'border border-gray-200'}`}>
-                                        Events
-                                    </button>
-
-                                    <button 
-                                        onClick={() => setTab('projects')} 
-                                        className={`text-[10px] px-2 py-1.5 rounded  ${tab === 'projects' ? 'bg-blue-500 text-white border-0' : 'border border-gray-200'}`}>
-                                        Projects
-                                    </button>
-                                </div> */}
                             </div>
                             {loading ? (<CircularLoading customClass='text-blue-500 w-6 h-6' />) : (
                                 <div className="flex flex-col items-start justify-start gap-2 h-full overflow-y-auto py-2 hide-scrollbar">
@@ -222,33 +188,11 @@ const Portal = () => {
                                             </div>
                                             
                                             <div className="flex items-center justify-start gap-2 mt-2">
-                                                <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button>
+                                                {/* <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button> */}
                                                 <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
                                             </div>
                                         </div> 
                                     ))}
-                                    {/* {tab === 'events' && events.map((event, index) => (
-                                        <div key={index} className="w-full h-fit flex flex-col items-start justify-start gap-2 bg-white rounded-lg shadow-sm p-4 border border-gray-200">
-                                            <div className="flex items-center justify-start gap-2">
-                                                <img src="logo.png" alt="img" className="w-8 h-8 rounded-full"/>
-                                                <div className="flex flex-col items-start justify-start ">
-                                                    <p className="text-xs font-medium">Kalinga ng Kababaihan</p>
-                                                    <p className="text-[9px]">April 9 10:00 AM</p>
-                                                </div>
-                                                
-                                            </div>
-                                            <div className="flex flex-col items-start justify-start gap-1">
-                                                <h1 className="text-sm font-semibold text-gray-700">{event.title}</h1>
-                                                <p className="text-[10px] text-gray-500 rounded-md px-2 bg-green-100">{event.date} - {event.time}</p>
-                                                <p className="text-xs text-gray-500">{event.description}</p>
-                                            </div>
-
-                                            <div className="flex items-center justify-start gap-2 mt-2">
-                                                <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button>
-                                                <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
-                                            </div>
-                                        </div>
-                                    ))} */}
                                 </div>
                             )}
                             

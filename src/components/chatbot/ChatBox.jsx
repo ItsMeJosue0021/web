@@ -5,6 +5,7 @@ import axios from "axios";
 import { Bot } from 'lucide-react';
 import '../../css/loading.css'; 
 import { motion, AnimatePresence } from 'framer-motion';
+import { _post } from '../../api';
 
 const ChatBox = ({toggleChatbot}) => {
 
@@ -30,7 +31,7 @@ const ChatBox = ({toggleChatbot}) => {
         setIsLoading(true);
 
         try {
-            const response = await axios.post("https://api.kalingangkababaihan.com/api/chat", {
+            const response = await _post("/chat", {
                 message: message,
                 history: newMessages.map(msg => ({ text: msg.text, sender: msg.sender })) // Send full chat history
             });

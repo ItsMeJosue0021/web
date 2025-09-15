@@ -8,6 +8,9 @@ import { _get } from "../api";
 
 const EventDetails = () => {
 
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
+    // const baseURL = "http://127.0.0.1:8000/storage/";
+
     const { id } = useParams();
     const [event, setEvent] = useState({});
     const [loading, setLoading] = useState(true);
@@ -48,7 +51,7 @@ const EventDetails = () => {
                                 <Link to="/our-projects" className='text-xs '>Back</Link>
                             </div>
                             {event.image && (
-                                <img src={event.image} alt={event.title} className="w-full min-h-[400px] bg-gray-200 h-auto object-center object-cover rounded-md" />
+                                <img src={`${baseURL}${event.image}`} alt={event.title} className="w-full min-h-[400px] bg-gray-200 h-auto object-center object-cover rounded-md" />
                             )}
                             <div className='flex flex-col gap-4'>
                                 <h1 className="text-xl font-semibold text-orange-600">{event.title}</h1>

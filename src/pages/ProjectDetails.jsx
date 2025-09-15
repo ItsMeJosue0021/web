@@ -5,20 +5,6 @@ import Guest from '../layouts/Guest';
 
 const ProjectDetails = () => {
 
-    // const { id } = useParams();
-    // const [project, setProject] = useState({});
-    
-
-    // const fetchProject = async () => {
-    //     try {
-    //         const response = await fetch(`https://api.example.com/projects/${id}`);
-    //         const data = await response.json();
-    //         setProject(data);
-    //     } catch (error) {
-    //         console.error("Error fetching project:", error);
-    //     }
-    // }
-
     const project ={
             "id": "97hfsdfsuwef",
             "title": "Gabay at Ginhawa: Women’s Health Fair",

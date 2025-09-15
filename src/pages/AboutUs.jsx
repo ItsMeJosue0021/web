@@ -1,14 +1,10 @@
-import React from "react";
 import Guest from "../layouts/Guest";
 import aboutImage from "../assets/img/about.png";
-import supermom from "../assets/img/supermom.png";
-import feeding from "../assets/img/feeding.png";
-import volunteers from "../assets/img/volunteers.png";
-import logo from "../assets/img/logo.png";
 import { toast } from 'react-toastify';
 import { useState } from "react";
 import { _post } from "../api";
 import Footer from "../components/Footer";
+import { FaUserAlt } from "react-icons/fa";
 
 const AboutUs = () => {
 
@@ -69,26 +65,46 @@ const AboutUs = () => {
                             <div className="w-full flex flex-col gap-24">
                                 <h2 className="text-3xl font-bold text-center">Organizational Chart</h2>
                                 <div className="flex flex-col items-center justify-center">
+                                    <div className="mb-2">
+                                        <FaUserAlt className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white p-5 text-gray-400"/>
+                                        {/* <img src="" alt="img" className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white mb-2" /> */}
+                                    </div>
                                     <p className="text-xl font-bold">Beavin Soriano</p>
                                     <p className="text-sm text-gray-600">President</p>
                                 </div>
                                 <div className="w-full flex items-start justify-evenly">
                                     <div className="flex flex-col items-center justify-center">
+                                        <div className="mb-2">
+                                            <FaUserAlt className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white p-5 text-gray-400"/>
+                                            {/* <img src="" alt="img" className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white mb-2" /> */}
+                                        </div>
                                         <p className="text-xl font-bold">Juliet Eronico</p>
                                         <p className="text-sm text-gray-600">Vice President</p>
                                     </div>
                                     <div className="flex flex-col items-center justify-center">
-                                        <p className="text-xl font-bold">Beavin Soriano</p>
+                                        <div className="mb-2">
+                                            <FaUserAlt className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white p-5 text-gray-400"/>
+                                            {/* <img src="" alt="img" className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white mb-2" /> */}
+                                        </div>
+                                        <p className="text-xl font-bold">Cherry Balili</p>
                                         <p className="text-sm text-gray-600">Secretary</p>
                                     </div>
                                 </div>
                                 <div className="w-full flex items-start justify-evenly">
                                     <div className="flex flex-col items-center justify-center">
-                                        <p className="text-xl font-bold">Beavin Soriano</p>
+                                        <div className="mb-2">
+                                            <FaUserAlt className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white p-5 text-gray-400"/>
+                                            {/* <img src="" alt="img" className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white mb-2" /> */}
+                                        </div>
+                                        <p className="text-xl font-bold">Gina Losare</p>
                                         <p className="text-sm text-gray-600">Treasurer</p>
                                     </div>
                                     <div className="flex flex-col items-center justify-center">
-                                        <p className="text-xl font-bold">Beavin Soriano</p>
+                                        <div className="mb-2">
+                                            <FaUserAlt className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white p-5 text-gray-400"/>
+                                            {/* <img src="" alt="img" className="w-28 min-w-28 h-28 min-h-28 rounded-full bg-white mb-2" /> */}
+                                        </div>
+                                        <p className="text-xl font-bold">Marieatha Lim</p>
                                         <p className="text-sm text-gray-600">Auditor</p>
                                     </div>
                                 </div>
@@ -96,39 +112,7 @@ const AboutUs = () => {
                         </div>
                     </div>
                 </section>
-                {/* <section className="bg-gradient-to-tl from-orange-500 w-full py-20 pt-56">
-                    <div className="max-w-[1200px] mx-auto px-4">
-                        <div className="flex justify-center p-4 mb-8">
-                            <h2 className="text-5xl font-bold chewy">Our Foundation Advocacy</h2>
-                        </div>
-                        <div className="flex flex-col md:flex-row items-center justify-center p-4 gap-5">
-                           <div data-aos="fade-left" data-aos-delay="100" className="p-5 rounded-md bg-white flex flex-col justify-start items-start gap-5">
-                                <img src={supermom} alt=""  className="w-64 h-48 object-cover object-fit" />
-                                <div className="flex flex-col gap-3 w-64">
-                                    <h2 className="text-xl font-bold">Super Mom Program</h2>
-                                    <p className="text-justify">Your performance throughout the competition was nothing short of spectacular, and your crowning as the winner is a testament to your hard work, dedication, and grace.</p>
-                                    <button className="text-sm text-orange-600 bg-white border border-orange-600 px-4 py-2 rounded hover:border-orange-600">See More</button>
-                                </div>
-                           </div>
-                           <div data-aos="fade-left" data-aos-delay="200" className="p-5 rounded-md bg-white flex flex-col justify-start items-start gap-5">
-                                <img src={feeding} alt=""  className="w-64 h-48 object-cover object-fit" />
-                                <div className="flex flex-col gap-3 w-64">
-                                    <h2 className="text-xl font-bold">Feeding Program</h2>
-                                    <p className="text-justify">Your performance throughout the competition was nothing short of spectacular, and your crowning as the winner is a testament to your hard work, dedication, and grace.</p>
-                                    <button className="text-sm text-orange-600 bg-white border border-orange-600 px-4 py-2 rounded hover:border-orange-600">See More</button>
-                                </div>
-                           </div>
-                           <div data-aos="fade-left" data-aos-delay="300" className="p-5 rounded-md bg-white flex flex-col justify-start items-start gap-5">
-                                <img src={volunteers} alt=""  className="w-64 h-48 object-cover object-fit" />
-                                <div className="flex flex-col gap-3 w-64">
-                                    <h2 className="text-xl font-bold">Volunterism</h2>
-                                    <p className="text-justify">Your performance throughout the competition was nothing short of spectacular, and your crowning as the winner is a testament to your hard work, dedication, and grace.</p>
-                                    <button className="text-sm text-orange-600 bg-white border border-orange-600 px-4 py-2 rounded hover:border-orange-600">See More</button>
-                                </div>
-                           </div>
-                        </div>
-                    </div>
-                </section> */}
+                
                 <section className="bg-white w-full py-20">
                     <div className="max-w-[1200px] mx-auto px-4">
                         <div className="flex flex-col gap-12 items-center text-center">

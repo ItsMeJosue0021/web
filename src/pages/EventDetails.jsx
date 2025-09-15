@@ -51,7 +51,7 @@ const EventDetails = () => {
                                 <Link to="/our-projects" className='text-xs '>Back</Link>
                             </div>
                             {event.image && (
-                                <img src={`${baseURL}${event.image}`} alt={event.title} className="w-full min-h-[400px] bg-gray-200 h-auto object-center object-cover rounded-md" />
+                                <img src={`${baseURL}${event.image}`} alt={event.title} className="w-fit min-h-[400px] max-h-[400px] bg-gray-200 h-auto object-center object-contain rounded-md" />
                             )}
                             <div className='flex flex-col gap-4'>
                                 <h1 className="text-xl font-semibold text-orange-600">{event.title}</h1>

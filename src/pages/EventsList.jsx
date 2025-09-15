@@ -70,7 +70,7 @@ const EventsList = () => {
                                         <p className="text-xs">|</p>
                                         <p className="text-xs">{event.location}</p>
                                     </div>
-                                    <p className="text-xs">{event.description}</p>
+                                    <p className="text-xs line-clamp-3">{event.description}</p>
                                     <Link to={`/our-projects/${event.id}`} className="mt-2 w-fit text-xs px-4 py-1 rounded text-gray-600 border border-gray-200 hover:border-orange-600 hover:text-orange-600">See More</Link>
                                 </div>
                             </div>

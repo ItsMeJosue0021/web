@@ -40,6 +40,7 @@ import WebVolunteers from './pages/admin/website/Volunteers';
 import WebEvents from './pages/admin/website/Events';
 import WebContactUs from './pages/admin/website/ContactUs';
 import User from './layouts/User';
+import GoodsTest from './pages/donation/Goods-test';
 
 const App = () => {
     useEffect(() => {
@@ -294,7 +295,6 @@ const App = () => {
                         <Goods />
                     }
                 />
-
 
                 {/* Auth */}
                 <Route path="/login"

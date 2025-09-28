@@ -88,17 +88,22 @@ const Goods = () => {
     }
 
     return (
-        <Guest>     
+        <Guest>   
+            {loading && (
+                <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
+                    <p className="text-black text-xl">Sending your donation...</p>
+                </div>
+            )}  
             <div className="bg-gray-50 h-screen w-full p-4">
-                <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col p-4 pt-24">
-                    <Link to="/donate" className="px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
+                <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
+                    <Link to="/donate" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
                         <div className="flex items-center gap-2">
                             <FaArrowLeft size={14} />
                             <span>Back</span>
                         </div>
                     </Link>
 
-                    <div className="flex items-start gap-12 mt-8">
+                    <div className="flex items-start gap-12 md:mt-8">
                         <div className="w-full max-w-[800px] mx-auto">
                             {activeStep < 4 && (
                                 <div className="w-full flex flex-col items-start justify-start mb-8">
@@ -111,15 +116,16 @@ const Goods = () => {
                                 <div className="w-full flex items-center justify-center p-1">
                                     <div className="w-full flex flex-col items-start justify-start gap-3">
                                         {/* Name */}
-                                        <div className="w-full flex items-center gap-3">
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
+                                            <label className="md:hidden text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                             <div className="w-full flex items-center justify-between gap-4">
-                                                <label className="w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                                <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                                 <input
                                                     type="text"
                                                     name="name"
                                                     value={name}
                                                     onChange={(e) => setName(e.target.value)}
-                                                    className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-100'} border-gray-200 text-xs`}
+                                                    className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'} border-gray-300 text-xs`}
                                                     disabled={isAnonymous} 
                                                 />
                                                 <label className="flex items-center gap-2">
@@ -134,31 +140,36 @@ const Goods = () => {
                                             </div>
                                         </div>
                                     
-                                        <div className="w-full flex items-center justify-between gap-4">
-                                            <label className="w-[40%] text-xs font-medium">email</label>
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
+                                            <label className="w-full md:w-[40%] text-xs font-medium">email <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                             <input
                                                 type="text"
                                                 name="email"
                                                 value={email}
                                                 onChange={(e) => setEmail(e.target.value)}
-                                                className="w-[60%] px-4 py-2 rounded-md border border-gray-200 bg-gray-100 text-xs"
+                                                className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 bg-gray-50 text-xs"
                                             />
                                         </div>
 
                                         {/* Categories */}
                                         <div className="w-full">
-                                            <div className="w-full flex items-center justify-between gap-4">
-                                                <label className="w-[40%] text-xs font-medium">Type of Donation <span className="text-sm text-red-500">*</span></label>
-                                                <div className="w-[60%] flex items-start justify-end gap-2">
+                                            <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
+                                                <label className="w-full md:w-[40%] text-xs font-medium">Type of Donation <span className="text-sm text-red-500">*</span></label>
+                                                <div className="w-full md:w-[60%] flex items-start justify-start md:justify-end gap-2">
                                                     {['food', 'clothes', 'supplies'].map((item) => (
-                                                    <label key={item} className="flex items-center gap-2">
+                                                    <label
+                                                        key={item}
+                                                        className={`cursor-pointer px-4 py-1.5 rounded-md border transition flex items-center hover:bg-orange-100 hover:border-orange-500
+                                                        ${categories.includes(item) ? "bg-orange-100 border-orange-500" : "bg-white border-gray-300"}`}
+                                                    >
                                                         <input
                                                         type="checkbox"
                                                         value={item}
                                                         checked={categories.includes(item)}
                                                         onChange={handleCategoryChange}
+                                                        className="hidden"
                                                         />
-                                                        <span className="text-[13px] capitalize">{item}</span>
+                                                        <span className={`text-xs capitalize ${categories.includes(item) ? "text-orange-500" : ""}`}>{item}</span>
                                                     </label>
                                                     ))}
                                                 </div>
@@ -174,7 +185,7 @@ const Goods = () => {
                                                 <textarea
                                                     value={description}
                                                     onChange={(e) => setDescription(e.target.value)}
-                                                    className="w-full h-24 px-4 py-2 rounded-md border border-gray-200 text-xs bg-gray-100"
+                                                    className="w-full h-24 px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
                                                 ></textarea>
                                             </div>
                                             {errors.type && <p className="text-[10px] text-red-500">{errors.type[0]}</p>}
@@ -197,60 +208,60 @@ const Goods = () => {
                             ) : activeStep === 2 ? (
                                 <div className="w-full flex flex-col justify-center items-center gap-4 ">
                                     <div className="w-full h-fit flex flex-col items-start justify-start">
-                                            <p className="text-base font-medium">Select Location to Donate</p>
-                                            <p className="text-xs">You may personally hand in your cash donations at the following addresses:</p>
-                                        </div>
-                                        <div className="flex items-center gap-4 w-full">
-                                            <div onClick={() => handleChooseAddress('Main Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow bg-transparent hover:bg-gray-100 border border-transparent hover:border-blue-200">
-                                                <p className="text-orange-500 text-base font-semibold mb-2">Main Address</p>
-                                                <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Piñas City</p>
-                                                {address === 'Main Address' && (
-                                                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
-                                                        <Check size={23}/>
-                                                    </div>
-                                                )}
-                                                <div className="pt-2 z-20">
-                                                    <FaMapMarkedAlt 
-                                                    size={25} 
-                                                    className="text-blue-500 cursor-pointer"
-                                                    onClick={() => setMap(prev => ({...prev, main: true}))} />
+                                        <p className="text-base font-medium">Select location to hand in you donations</p>
+                                        <p className="text-xs">You may personally hand in your cash donations at the following addresses:</p>
+                                    </div>
+                                    <div className="flex flex-col md:flex-row items-center gap-4 w-full pt-4">
+                                        <div onClick={() => setAddress("Main Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Main Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
+                                            <p className="text-orange-500 text-base font-semibold mb-2">Main Address</p>
+                                            <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Piñas City</p>
+                                            {address === 'Main Address' && (
+                                                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
+                                                    <Check size={23}/>
                                                 </div>
+                                            )}
+                                            <div className="pt-2 z-20">
+                                                <FaMapMarkedAlt 
+                                                size={25} 
+                                                className="text-blue-500 cursor-pointer"
+                                                onClick={() => setMap(prev => ({...prev, main: true}))} />
                                             </div>
+                                        </div>
 
-                                            <div onClick={() => handleChooseAddress('Satellite Address')} className="cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow bg-transparent hover:bg-gray-100 border border-transparent hover:border-blue-200">
-                                                <p className="text-orange-500 text-base  font-semibold mb-2">Satellite Address</p>
-                                                <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Piñas City</p>
-                                                {address === 'Satellite Address' && (
-                                                    <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
-                                                        <Check size={23}/>
-                                                    </div>
-                                                )}
-                                                <div className="pt-2">
-                                                    <FaMapMarkedAlt 
-                                                    size={25} 
-                                                    className="text-blue-500 cursor-pointer"
-                                                    onClick={() => setMap(prev => ({...prev, satellite: true}))} />
+                                        <div onClick={() => setAddress("Satellite Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Satellite Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
+                                            <p className="text-orange-500 text-base  font-semibold mb-2">Satellite Address</p>
+                                            <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Piñas City</p>
+                                            {address === 'Satellite Address' && (
+                                                <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
+                                                    <Check size={23}/>
                                                 </div>
+                                            )}
+                                            <div className="pt-2">
+                                                <FaMapMarkedAlt 
+                                                size={25} 
+                                                className="text-blue-500 cursor-pointer"
+                                                onClick={() => setMap(prev => ({...prev, satellite: true}))} />
                                             </div>
-                                        </div>
-                                        
-                                        <div className="flex items-center gap-2 w-full mt-4">
-                                            <button
-                                                type="submit"
-                                                className="w-fit text-xs px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors duration-300 border-0"
-                                                onClick={() => setActiveStep(1)}
-                                            >
-                                                Back
-                                            </button>
-                                            <button
-                                                type="submit"
-                                                className="w-fit text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0"
-                                                onClick={() => setActiveStep(3)}
-                                            >
-                                                Next
-                                            </button>
                                         </div>
                                     </div>
+                                    
+                                    <div className="flex items-center gap-2 w-full mt-4">
+                                        <button
+                                            type="submit"
+                                            className="w-fit text-xs px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors duration-300 border-0"
+                                            onClick={() => setActiveStep(1)}
+                                        >
+                                            Back
+                                        </button>
+                                        <button
+                                            type="submit"
+                                            className="w-fit text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0"
+                                            onClick={() => setActiveStep(3)}
+                                        >
+                                            Next
+                                        </button>
+                                    </div>
+                                </div>
                             ) : activeStep === 3 ? (
                                 <div className="w-full">
                                     <h2 className="w-full border-b text-sm font-semibold mb-2">Review Your Information</h2>
@@ -300,7 +311,7 @@ const Goods = () => {
                                         className="w-fit text-xs px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0"
                                         onClick={handleSubmit}
                                         >
-                                            {loading ? 'Submitting...' : 'Submit Donation'}
+                                            {loading ? 'Sending...' : 'Send Donation'}
                                         </button>
                                     </div>
                                 </div>
@@ -317,28 +328,28 @@ const Goods = () => {
                                     </p>
                                     </div>
 
-                                    <div className="flex gap-3 mt-6">
-                                    <button
-                                        className="px-6 py-2 text-xs rounded-md bg-orange-500 hover:bg-orange-600 text-white"
-                                        onClick={() => {
-                                            setName("");
-                                            setDescription("");
-                                            setEmail("");
-                                            setCategories([]);
-                                            setAddress("Main Address");
-                                            setIsAnonymous(false);
-                                            setActiveStep(1);
-                                        }}
-                                    >
-                                        Make Another Donation
-                                    </button>
+                                    <div className="flex flex-col md:flex-row items-center gap-3 mt-6">
+                                        <button
+                                            className="px-6 py-2 text-xs rounded-md bg-orange-500 hover:bg-orange-600 text-white"
+                                            onClick={() => {
+                                                setName("");
+                                                setDescription("");
+                                                setEmail("");
+                                                setCategories([]);
+                                                setAddress("Main Address");
+                                                setIsAnonymous(false);
+                                                setActiveStep(1);
+                                            }}
+                                        >
+                                            Make Another Donation
+                                        </button>
 
-                                    <Link
-                                        to="/"
-                                        className="px-6 py-2 text-xs rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
-                                    >
-                                        Back to Home
-                                    </Link>
+                                        <Link
+                                            to="/"
+                                            className="w-fit px-6 py-2 text-xs rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
+                                        >
+                                            Back to Home
+                                        </Link>
                                     </div>
                                 </div>
                             )}

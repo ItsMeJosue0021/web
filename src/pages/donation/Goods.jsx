@@ -1,4 +1,4 @@
-import React from "react";
+import React, { act } from "react";
 import Guest from '../../layouts/Guest'
 import { Link } from "react-router-dom";
 import { useState } from "react";
@@ -96,12 +96,14 @@ const Goods = () => {
             )}  
             <div className="bg-gray-50 h-screen w-full p-4">
                 <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
-                    <Link to="/donate" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
-                        <div className="flex items-center gap-2">
-                            <FaArrowLeft size={14} />
-                            <span>Back</span>
-                        </div>
-                    </Link>
+                    {activeStep < 4 && (
+                        <Link to="/donate" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
+                            <div className="flex items-center gap-2">
+                                <FaArrowLeft size={14} />
+                                <span>Back</span>
+                            </div>
+                        </Link>
+                    )}
 
                     <div className="flex items-start gap-12 md:mt-8">
                         <div className="w-full max-w-[800px] mx-auto">
@@ -328,7 +330,7 @@ const Goods = () => {
                                     </p>
                                     </div>
 
-                                    <div className="flex flex-col md:flex-row items-center gap-3 mt-6">
+                                    <div className="flex flex-col items-center gap-3 mt-6">
                                         <button
                                             className="px-6 py-2 text-xs rounded-md bg-orange-500 hover:bg-orange-600 text-white"
                                             onClick={() => {
@@ -346,7 +348,7 @@ const Goods = () => {
 
                                         <Link
                                             to="/"
-                                            className="w-fit px-6 py-2 text-xs rounded-md bg-gray-200 hover:bg-gray-300 text-gray-700"
+                                            className="text-xs text-gray-600 hover:underline"
                                         >
                                             Back to Home
                                         </Link>

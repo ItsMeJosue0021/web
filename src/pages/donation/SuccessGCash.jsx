@@ -34,7 +34,7 @@ const SuccessGCash = () => {
 
                         <div className="flex flex-col items-center gap-3 mt-6">
                             <Link
-                                to="/donate"
+                                to="/donate/monetary/gcash"
                                 className="px-6 py-2 text-xs rounded-md bg-orange-500 hover:bg-orange-600 text-white hover:text-white"
                             >
                                 Make Another Donation

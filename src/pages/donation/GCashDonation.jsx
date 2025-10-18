@@ -21,7 +21,8 @@ const GCashDonation = () => {
     const handlePayment = async () => {
         setLoading(true);
         try {
-            const response = await _post('/payments/gcash', data);
+            // const response = await _post('/payments/gcash', data);
+            const response = await _post('/donations/gcash/save', data);
 
             if (response.status === 200) {
                 const source = response.data.data; 

@@ -42,7 +42,7 @@ import WebContactUs from './pages/admin/website/ContactUs';
 import User from './layouts/User';
 import MonetaryOption from './pages/donation/MonetaryOption';
 import GCashDonation from './pages/donation/GCashDonation';
-import SuccessGCash from './pages/donation/SuccessGcash';
+import SuccessGCash from './pages/donation/SuccessGCash';
 import FailedGCash from './pages/donation/FailedGCash';
 import CashDonation from './pages/donation/CashDonation';
 

@@ -43,7 +43,7 @@ const Home = () => {
       {/* Hero Section */}
       <section className="w-full py-20 pb-5">
         <div className="w-full max-w-[1200px] mx-auto pt-20 flex justify-center items-start">
-          <div className="flex flex-col space-y-14 text-center">
+          <div className="flex flex-col space-y-10 text-center">
             <div className="flex flex-col space-y-2">
               <h1 className="text-5xl font-bold chewy">
                 Welcome to the{" "}
@@ -54,8 +54,21 @@ const Home = () => {
               </p>
             </div>
 
+            <div className="w-full flex items-center justify-center gap-4">
+                <Link className="px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer" to="/donate">
+                  Donate Now
+                </Link>
+
+                <Link
+                  to="/contact-us"
+                  className="w-fit px-6 py-3 rounded-md text-sm text-gray-700 hover:text-gray-900 border border-gray-300 bg-white hover:bg-ray-200 transform transition-transform duration-300 hover:scale-105 cursor-pointer"
+                >
+                  Contact Us
+                </Link>
+            </div>
+
             {/* Slider */}
-            <div className="relative w-full h-[450px] mt-5 mx-auto overflow-hidden rounded-3xl shadow-xl">
+            <div className="relative w-full h-[450px] mx-auto overflow-hidden rounded-3xl shadow-xl">
               <div className="relative">
                 <img
                   src={images[currentIndex].src}

@@ -34,7 +34,7 @@ const SuccesAlert = ({ message, onClose }) => {
                 >
                   <FaRegCircleCheck size={65} className="text-green-500" />
                 </motion.div>
-            </div>
+              </div>
               <h1 className="w-full text-center text-xl font-semibold text-green-600">Success</h1>
               <p className="text-sm">{message}</p>
               <div className='w-full flex items-center justify-center'>

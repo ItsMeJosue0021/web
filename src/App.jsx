@@ -40,6 +40,11 @@ import WebVolunteers from './pages/admin/website/Volunteers';
 import WebEvents from './pages/admin/website/Events';
 import WebContactUs from './pages/admin/website/ContactUs';
 import User from './layouts/User';
+import MonetaryOption from './pages/donation/MonetaryOption';
+import GCashDonation from './pages/donation/GCashDonation';
+import SuccessGCash from './pages/donation/SuccessGcash';
+import FailedGCash from './pages/donation/FailedGCash';
+import CashDonation from './pages/donation/CashDonation';
 
 const App = () => {
     useEffect(() => {
@@ -288,6 +293,42 @@ const App = () => {
                         <Cash />
                     }
                 />
+
+                <Route
+                    path="/donate/monetary"
+                    element={
+                        <MonetaryOption />
+                    }
+                />
+
+                <Route
+                    path="/donate/monetary/gcash"
+                    element={
+                        <GCashDonation />
+                    }
+                />
+
+                <Route
+                    path="/donate/success"
+                    element={
+                        <SuccessGCash />
+                    }
+                />
+
+                <Route
+                    path="/donate/failed"
+                    element={
+                        <FailedGCash />
+                    }
+                />
+
+                <Route
+                    path="/donate/monetary/cash"
+                    element={
+                        <CashDonation />
+                    }
+                />
+
                 <Route
                     path="/donate/goods"
                     element={

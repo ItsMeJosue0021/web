@@ -104,7 +104,7 @@ const Dashboard = () => {
                             <Coins size={60}  className="bg-pink-50 rounded-2xl p-3 absolute -bottom-3 -right-3 text-pink-300"/>
                         </div>
                         <div className="relative w-72 h-24 rounded-xl bg-white p-4 shadow-sm flex flex-col gap-1 items-start justify-center overflow-hidden">
-                            <p className="text-2xl text-purple-600 font-bold">{loadingCashDoSumary ? '...' : cashDonationSummary?.goodsDonTotal || 0}</p>
+                            <p className="text-2xl text-purple-600 font-bold">{loadingCashDoSumary ? '...' : goodsDonationCount || 0}</p>
                             <p className="text-xs text-gray-600">Total Cout of <span className="text-purple-600 font-bold">Goods</span> Donations</p>
                             <Coins size={60}  className="bg-purple-50 rounded-2xl p-3 absolute -bottom-3 -right-3 text-purple-300"/>
                         </div>

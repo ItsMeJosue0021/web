@@ -18,11 +18,24 @@ const Dashboard = () => {
     const [cashDonationTotalAmmount, setCashDonationTotalAmmount] = useState(0);
     const [cashDonationCount, setCashDonationCount] = useState(0);
 
+    const [goodsDonationCount, setGoodsDonationCount] = useState(0);
+
     useEffect(() => {
         fetchCashDonationSummary();
         fetchGcashDonationStats();
         fetchCashDonationStats();
     }, []);
+
+    const fetchGoodsDonationStats = async () => {
+        try {
+            const response = await _get('/goods-donations/v2/counts');
+            if (response && response.data) {
+                setGoodsDonationCount(response.data.total_approved_goods_donations);
+            }
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     const fetchCashDonationStats = async () => {
         try {

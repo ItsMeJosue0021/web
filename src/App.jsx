@@ -30,7 +30,6 @@ import Events from './pages/admin/Events';
 import Option from './pages/donation/Option';
 import Cash from './pages/donation/Cash';
 import Goods from './pages/donation/Goods';
-import Donations from './pages/admin/donations';
 import Dashboard from './pages/admin/dashboard';
 import GoodsDonations from './pages/admin/GoodsDonations';
 import WebHome from './pages/admin/website/Home';
@@ -45,6 +44,9 @@ import GCashDonation from './pages/donation/GCashDonation';
 import SuccessGCash from './pages/donation/SuccessGCash';
 import FailedGCash from './pages/donation/FailedGCash';
 import CashDonation from './pages/donation/CashDonation';
+import CashDonationsAdmin from './pages/admin/donations/CashDonations';
+import GCashDonationsAdmin from './pages/admin/donations/GCashDonations';
+import GoodsDonationsAdmin from './pages/admin/donations/GoodsDonations';
 
 const App = () => {
     useEffect(() => {
@@ -136,7 +138,15 @@ const App = () => {
                     path="/donations/cash"
                     element={
                         <ProtectedRoute role="admin">
-                            <Donations />
+                            <CashDonationsAdmin />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/donations/gcash"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <GCashDonationsAdmin />
                         </ProtectedRoute>
                     }
                 />
@@ -144,7 +154,7 @@ const App = () => {
                     path="/donations/goods"
                     element={
                         <ProtectedRoute role="admin">
-                            <GoodsDonations />
+                            <GoodsDonationsAdmin />
                         </ProtectedRoute>
                     }
                 />

@@ -24,6 +24,7 @@ const Dashboard = () => {
         fetchCashDonationSummary();
         fetchGcashDonationStats();
         fetchCashDonationStats();
+        fetchGoodsDonationStats();
     }, []);
 
     const fetchGoodsDonationStats = async () => {

@@ -168,7 +168,7 @@ const GoodsDonationsAdmin = () => {
 
     const breadcrumbs = [
         { name: "Donations", link: "/donations" }
-        , { name: "GCash", link: "/donations/gcash" }
+        , { name: "Goods", link: "/donations/goods" }
     ];
 
     return (

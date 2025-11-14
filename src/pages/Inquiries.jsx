@@ -141,46 +141,49 @@ const Inquiries = () => {
 
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
-            <div className="w-full mx-auto flex flex-col gap-4">
+            <div className="w-full mx-auto flex flex-col gap-4 mt-4 md:mt-0">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
-                    <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4 ">
-                        <p className="text-sm">Search</p>
+                    <div className="w-full md:in-w-80 md:max-w-[500px] flex items-center gap-4 ">
+                        <p className="hidden md:block text-sm">Search</p>
                         <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
                     </div>
                 </div>
                
-                <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
-                    <thead className="bg-orange-500 text-white ">
-                    <tr>
-                        <th className="p-3 text-start">Name</th>
-                        <th className="p-3 text-start">Email</th>
-                        <th colSpan={2} className="p-3 text-start ">Message</th>
-                        <th className="p-3 text-start">Actions</th>
-                    </tr>
-                    </thead>
-                    {!loading && (
-                        <tbody>
-                            {enquiries.map((row, index) => (
-                                <tr key={row.id}
-                                className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                    <td className="p-3 text-xs">{row.name}</td>
-                                    <td className="p-3 text-xs">{row.email}</td>
-                                    <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
-                                    <td className="p-3 text-xs flex justify-start gap-2">
-                                    <button 
-                                            onClick={() => openReplyModal(row.email)}
-                                            className="bg-orange-500 text-[10px] text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
-                                        >
-                                            <Mail size={14} /> Reply
-                                    </button>
-                                        <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    )}
-                    
-                </table>
+               <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
+                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
+                        <thead className="bg-orange-500 text-white ">
+                        <tr>
+                            <th className="p-3 text-start">Name</th>
+                            <th className="p-3 text-start">Email</th>
+                            <th colSpan={2} className="p-3 text-start ">Message</th>
+                            <th className="p-3 text-start">Actions</th>
+                        </tr>
+                        </thead>
+                        {!loading && (
+                            <tbody>
+                                {enquiries.map((row, index) => (
+                                    <tr key={row.id}
+                                    className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                        <td className="p-3 text-xs">{row.name}</td>
+                                        <td className="p-3 text-xs">{row.email}</td>
+                                        <td colSpan={2} className="p-3 text-xs ">{row.message}</td>
+                                        <td className="p-3 text-xs flex justify-start gap-2">
+                                        <button 
+                                                onClick={() => openReplyModal(row.email)}
+                                                className="bg-orange-500 text-[10px] text-white px-2 py-1 rounded flex items-center gap-1 hover:bg-orange-600"
+                                            >
+                                                <Mail size={14} /> Reply
+                                        </button>
+                                            <button onClick={() => confirmDelete(row.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded"><Trash2 size={16} /></button>
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        )}
+                        
+                    </table>
+               </div>
+
                 {loading && (
                     <div className="w-full h-40 flex items-center justify-center">
                         <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
@@ -229,8 +232,8 @@ const Inquiries = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }} 
-                    className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-                        <div className="bg-white p-6 rounded-lg shadow-lg min-w-96 w-[800px]">
+                    className="fixed inset-0 flex items-center justify-center bg-black/30 z-50 w-full p-4 ">
+                        <div className="bg-white p-4 rounded-lg shadow-lg w-full md:min-w-96 md:w-[800px]">
                             <h3 className="text-sm font-semibold text-orange-500">Reply to Inquiry</h3>
                             <p className="text-xs text-gray-600">Replying to: <span className="text-blue-600">{replyData.email}</span></p>
 

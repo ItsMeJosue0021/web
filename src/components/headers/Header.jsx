@@ -1,5 +1,3 @@
-import React from "react";
-import logo from '../../assets/img/logo.png';
 import { Link, useLocation  } from "react-router-dom";
 import { useState, useEffect, useContext } from "react";
 import { AuthContext } from "../../AuthProvider";
@@ -86,7 +84,7 @@ const Header = () => {
                             {!isLoginPage && !isRegisterPage && (
                                 <div>
                                     <Link to="/login">
-                                        <button className='px-4 py-2 rounded text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
+                                        <button className='px-4 py-2 rounded bg-gray-50 text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
                                     </Link>
                                 </div>
                             )} 

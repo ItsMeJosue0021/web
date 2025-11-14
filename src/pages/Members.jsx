@@ -246,13 +246,37 @@ const Members = () => {
 
   return (
     <Admin header={header} breadcrumbs={breadcrumbs}>
-        {showPrintPreview && <PrintPreview onClose={() => setShowPrintPreview(false)} data={printData} pdfUrl={pdfUrl} />}
-        {confirmDelete && <ConfirmationAlert title="Confirm Deletion" message="Are you sure you want to delete this member?" onClose={closeDeleteConfirmation} onConfirm={handleDelete} isDelete={true} isDeleting={isDeleting} />}
-        {viewMember && <MemberViewModal onClose={() => setViewMember(false)} member={currentViewableMember}/>}
-        <div className="w-full mx-auto flex flex-col gap-4">
-            <div className="flex items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
-                <div className="w-full min-w-80 max-w-[500px] flex items-center gap-4">
-                    <p className="text-xs">Search</p>
+
+        {showPrintPreview && 
+            <PrintPreview 
+            onClose={() => setShowPrintPreview(false)} 
+            data={printData} 
+            pdfUrl={pdfUrl} 
+            />
+        }
+
+        {confirmDelete && 
+            <ConfirmationAlert 
+            title="Confirm Deletion" 
+            message="Are you sure you want to delete this member?" 
+            onClose={closeDeleteConfirmation} 
+            onConfirm={handleDelete} 
+            isDelete={true} 
+            isDeleting={isDeleting} 
+            />
+        }
+        
+        {viewMember && 
+            <MemberViewModal 
+            onClose={() => setViewMember(false)} 
+            member={currentViewableMember}
+            />
+        }
+        
+        <div className="w-full mx-auto flex flex-col gap-4 mt-4 md:mt-0">
+            <div className="flex flex-col md:flex-row items-start gap-4 md:gap-0 md:items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
+                <div className="w-full md:min-w-80 md:max-w-[500px] flex items-center gap-4">
+                    <p className="hidden md:block text-xs">Search</p>
                     <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for name or facebook account.." />
                 </div>
                 <div className="flex items-center justify-end gap-2">
@@ -260,42 +284,45 @@ const Members = () => {
                     <button className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded" onClick={() => setShowAddModal(true)}>+ New</button>
                 </div>
             </div>
-            <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
-                <thead className="bg-orange-500 text-white">
-                <tr>
-                    <th className="p-3 text-start">Member Id</th>
-                    <th className="p-3 text-start">First Name</th>
-                    <th className="p-3 text-start">Last Name</th>
-                    <th className="p-3 text-start">Nick Name</th>
-                    <th className="p-3 text-start">Contact</th>
-                    <th className="p-3 text-start">Added On</th>
-                    <th className="p-3 text-end">Actions</th>
-                </tr>
-                </thead>
-                {!loading && (
-                    <tbody>
-                        {members.map((member, index) => (
-                            <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                            <td className="p-3">{member.member_id}</td>
-                            <td className="p-3">{member.first_name}</td>
-                            <td className="p-3">{member.last_name}</td>
-                            <td className="p-3">{member.nick_name}</td>
-                            <td className="p-3">{member.contact_number}</td>
-                            <td className="p-3">{new Date(member.created_at).toLocaleDateString("en-US", { 
-                                month: "long", 
-                                day: "numeric", 
-                                year: "numeric" 
-                            })}</td>
-                            <td className="p-3 flex justify-end gap-2">
-                                <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
-                                <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
-                                <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
-                            </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                )}
-            </table>
+            <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
+                <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
+                    <thead className="bg-orange-500 text-white">
+                    <tr>
+                        <th className="p-3 text-start">Member Id</th>
+                        <th className="p-3 text-start">First Name</th>
+                        <th className="p-3 text-start">Last Name</th>
+                        <th className="p-3 text-start">Nick Name</th>
+                        <th className="p-3 text-start">Contact</th>
+                        <th className="p-3 text-start">Added On</th>
+                        <th className="p-3 text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    {!loading && (
+                        <tbody>
+                            {members.map((member, index) => (
+                                <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                <td className="p-3">{member.member_id}</td>
+                                <td className="p-3">{member.first_name}</td>
+                                <td className="p-3">{member.last_name}</td>
+                                <td className="p-3">{member.nick_name}</td>
+                                <td className="p-3">{member.contact_number}</td>
+                                <td className="p-3">{new Date(member.created_at).toLocaleDateString("en-US", { 
+                                    month: "long", 
+                                    day: "numeric", 
+                                    year: "numeric" 
+                                })}</td>
+                                <td className="p-3 flex justify-end gap-2">
+                                    <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
+                                    <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
+                                    <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
+                                </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    )}
+                </table>
+            </div>
+            
             {loading && (
                  <div className="w-full h-40 flex items-center justify-center">
                     <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
@@ -310,13 +337,13 @@ const Members = () => {
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }} 
-                    className="fixed z-50 inset-0 flex items-center justify-center bg-gray-900/10 px-5">
-                        <div className="bg-white p-8 rounded-lg w-[1200px]">
+                    className="fixed inset-0 z-50 min-h-screen h-auto flex md:items-center justify-center bg-gray-900/10 overflow-y-auto">
+                        <div className="bg-white p-8 rounded-lg w-full md:w-[1200px] h-auto md:h-fit overflow-auto ">
                             <div className="flex justify-between mb-4">
                                 <h3 className="text-base font-semibold">Add Member</h3>
                                 <button onClick={handleCloseAddModel}><X className="w-5 h-5"/></button>
                             </div>
-                            <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs ">First Name</p>
                                     <input type="text" name="first_name" placeholder="First Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
@@ -333,9 +360,8 @@ const Members = () => {
                                     {errors.last_name && <p className="text-red-600 text-xs">{errors.last_name}</p>}
                                 </div>
                             </div>
-                            <div className="flex items-start justify-between gap-4 mb-3">
-                                
-                                <div className="flex flex-col w-1/3">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
+                                <div className="flex flex-col w-full md:w-1/3">
                                     <p className="text-xs">Nick Name</p>
                                     <input type="text" name="nick_name" placeholder="Nick Name" className="text-xs  border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.nick_name && <p className="text-red-600 text-xs">{errors.nick_name}</p>}
@@ -348,7 +374,7 @@ const Members = () => {
                             
                             
                             
-                            <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Birthday</p>
                                     <input type="date" name="dob" className="border p-2 w-full border-gray-100 rounded-md text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
@@ -361,7 +387,7 @@ const Members = () => {
                                 </div>
                             </div>
                             
-                            <div className="flex items-start justify-between gap-4 mb-3">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Contact Number</p>
                                     <input type="text" name="contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
@@ -374,7 +400,7 @@ const Members = () => {
                             </div>
                             
                             <h4 className="text-md font-semibold mt-4 mb-4">Emergency Contact</h4>
-                            <div className="flex items-start justify-between gap-4 mb-4">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-4">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Full Name</p>
                                     <input type="text" name="contact_person" placeholder="Contact Person" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
@@ -387,10 +413,10 @@ const Members = () => {
                                 </div>
                             </div>
                             
-                            <div className="flex items-start justify-between gap-4">
+                            <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Contact Number</p>
-                                    <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-sm" onChange={(e) => handleInputChange(e, setMemberData)} /> 
+                                    <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} /> 
                                     {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">

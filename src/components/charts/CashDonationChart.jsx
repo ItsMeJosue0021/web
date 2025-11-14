@@ -54,7 +54,7 @@ const CashDonationChart = () => {
   }, [year]);
 
   return (
-    <div className="h-auto w-full min-h-72 bg-white p-2">
+    <div className="h-auto w-full md:min-h-72 bg-white p-2">
         <div className="h-full w-full flex items-center justify-start gap-4">
             <p className="text-xs">Filter by year</p>
             <select

@@ -37,8 +37,7 @@ const Home = () => {
   };
 
   return (
-    // <div className="w-screen bg-gray-50 min-h-screen">
-    <div className="w-full bg-gray-50 min-h-screen overflow-x-hidden">
+    <div className="w-full md:w-screen bg-gray-50 min-h-screen overflow-x-hidden">
 
       <Header />
 

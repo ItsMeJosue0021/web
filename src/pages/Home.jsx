@@ -225,8 +225,8 @@ const Home = () => {
       <section className="w-full py-20">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex flex-col space-y-6 items-center text-center">
-            <h1 className="text-4xl chewy">Get Involved</h1>
-            <p className="text-lg poppins-regular">
+            <h1 className="text-4xl chewy text-gray-800">Get Involved</h1>
+            <p className="text-lg text-gray-700 poppins-regular">
               We are always looking for volunteers to help us with our projects. If you are interested in helping out, please contact us.
             </p>
             <Link

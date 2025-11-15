@@ -120,22 +120,26 @@ const Goods = () => {
                                         {/* Name */}
                                         <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
                                             <label className="md:hidden text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                            <div className="w-full flex items-center justify-between gap-4">
-                                                <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                                <input
-                                                    type="text"
-                                                    name="name"
-                                                    value={name}
-                                                    onChange={(e) => setName(e.target.value)}
-                                                    className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'} border-gray-300 text-xs`}
-                                                    disabled={isAnonymous} 
-                                                />
+                                            <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                                <div className="w-full flex item-center justify-between">
+                                                    <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                                    <input
+                                                        type="text"
+                                                        name="name"
+                                                        value={name}
+                                                        onChange={(e) => setName(e.target.value)}
+                                                        className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'} border-gray-300 text-xs`}
+                                                        disabled={isAnonymous} 
+                                                    />
+                                                </div>
+                                                
                                                 <label className="flex items-center gap-2">
                                                     <input
                                                     type="checkbox"
                                                     value={isAnonymous}
                                                     checked={isAnonymous}
                                                     onChange={() => setIsAnonymous(!isAnonymous)}
+                                                    className="bg-white"
                                                     />
                                                     <span className="text-[13px] capitalize">Anonymous</span>
                                                 </label>
@@ -208,7 +212,7 @@ const Goods = () => {
                                     </div>
                                 </div>
                             ) : activeStep === 2 ? (
-                                <div className="w-full flex flex-col justify-center items-center gap-4 ">
+                                <div className="w-full flex flex-col justify-center items-center gap-4 pb-4">
                                     <div className="w-full h-fit flex flex-col items-start justify-start">
                                         <p className="text-base font-medium">Select location to hand in you donations</p>
                                         <p className="text-xs">You may personally hand in your cash donations at the following addresses:</p>

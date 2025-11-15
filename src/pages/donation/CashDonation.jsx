@@ -73,25 +73,29 @@ const CashDonation = () => {
                                     <p className="text-sm font-light">Please share your details so we can properly record your donation and express our gratitude.</p>
                                 </div>
 
-                                <div className="w-[95%] flex flex-col items-start justify-start gap-3">
+                                <div className="w-full md:w-[95%] flex flex-col items-start justify-start gap-3">
                                     <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-4">
                                         <label className="md:hidden w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                        <div className="w-full flex items-center justify-between gap-4">
-                                            <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                            <input
-                                                type="text"
-                                                name="name"
-                                                value={data.name}
-                                                onChange={(e) => setData(prev => ({...prev, name: e.target.value}))}
-                                                className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-transparent'} border-gray-300 text-xs`}
-                                                disabled={isAnonymous} 
-                                            />
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                            <div className="w-full flex items-center justify-between">
+                                                <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                                <input
+                                                    type="text"
+                                                    name="name"
+                                                    value={data.name}
+                                                    onChange={(e) => setData(prev => ({...prev, name: e.target.value}))}
+                                                    className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-transparent'} border-gray-300 text-xs`}
+                                                    disabled={isAnonymous} 
+                                                />
+                                            </div>
+                                            
                                             <label className="flex items-center gap-2">
                                                 <input
                                                 type="checkbox"
                                                 value={isAnonymous}
                                                 checked={isAnonymous}
                                                 onChange={() => setIsAnonymous(!isAnonymous)}
+                                                className="bg-white"
                                                 />
                                                 <span className="text-[13px] capitalize">Anonymous</span>
                                             </label>
@@ -135,7 +139,7 @@ const CashDonation = () => {
                                 </div>
                             </div>
                         ) : step === 2 ? (
-                            <div className="w-full flex flex-col justify-center items-center gap-4 ">
+                            <div className="w-full flex flex-col justify-center items-center gap-4 pb-4">
                                 <div className="w-full h-fit flex flex-col items-start justify-start">
                                     <p className="text-base font-medium">Donation Handoff Details</p>
                                     <p className="text-xs">Pick the location, date, and time that works best for you to hand in your donation.</p>

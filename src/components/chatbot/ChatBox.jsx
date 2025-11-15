@@ -89,12 +89,12 @@ const ChatBox = ({toggleChatbot}) => {
                             {messages.map((msg, index) => (
                                 <div 
                                 key={index} 
-                                className={`max-w-[75%] px-3 py-2 border border-gray-300 rounded-md ${
+                                className={`max-w-[75%] px-3 text-gray-700 py-2 border border-gray-300 rounded-md ${
                                     msg.sender === 'user' ? 'bg-orange-50 self-end' : 'bg-gray-50 self-start'
                                 }`}
                                 >
                                 <strong className='text-sm'>{msg.sender === "user" ? "You:" : "Chatbot:"}</strong>
-                                <p className='text-xs'>{msg.text}</p>
+                                <p className='text-xs text-gray-700'>{msg.text}</p>
                                 </div>
                             ))}
 
@@ -115,7 +115,7 @@ const ChatBox = ({toggleChatbot}) => {
                                     {sampleQuestions.map((question, index) => (
                                         <button 
                                             key={index} 
-                                            className="px-3 py-2 text-xs text-left bg-orange-100 rounded-md hover:bg-orange-100 bg-opacity-50 transition"
+                                            className="px-3 py-2 text-xs text-left text-gray-700 bg-orange-100 rounded-md hover:bg-orange-100 bg-opacity-50 transition"
                                             onClick={() => handleSampleClick(question)}
                                         >
                                             {question}

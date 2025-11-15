@@ -37,7 +37,9 @@ const Home = () => {
   };
 
   return (
-    <div className="w-screen bg-gray-50 min-h-screen">
+    // <div className="w-screen bg-gray-50 min-h-screen">
+    <div className="w-full md:w-screen bg-gray-50 min-h-screen overflow-x-hidden">
+
       <Header />
 
       {/* Hero Section */}
@@ -45,7 +47,7 @@ const Home = () => {
         <div className="w-full max-w-[1200px] mx-auto pt-20 flex justify-center items-start">
           <div className="flex flex-col space-y-10 text-center">
             <div className="flex flex-col space-y-2">
-              <h1 className="text-5xl font-bold chewy">
+              <h1 className="text-5xl text-gray-800 font-bold chewy">
                 Welcome to the{" "}
                 <span className="text-orange-600 chewy">Kalinga ng Kababaihan</span>
               </h1>
@@ -68,46 +70,49 @@ const Home = () => {
             </div>
 
             {/* Slider */}
-            <div className="relative w-full h-[450px] mx-auto overflow-hidden rounded-3xl shadow-xl">
-              <div className="relative">
-                <img
-                  src={images[currentIndex].src}
-                  alt={`Slide ${currentIndex + 1}`}
-                  className="w-[1200px] h-[600px] rounded-3xl object-cover transition-transform duration-500 ease-in-out"
-                />
-                <div className="absolute inset-0 bg-black bg-opacity-50 rounded-3xl"></div>
-                <div className="absolute inset-0 flex justify-center items-center text-white text-3xl font-bold text-center px-5">
-                  <p className="italic">{images[currentIndex].text}</p>
+            <div className="px-5">
+               <div className="relative w-full h-[450px] mx-auto overflow-hidden rounded-3xl shadow-xl">
+                  <div className="relative">
+                    <img
+                      src={images[currentIndex].src}
+                      alt={`Slide ${currentIndex + 1}`}
+                      className="w-full md:w-[1200px] h-[600px] rounded-3xl object-cover transition-transform duration-500 ease-in-out"
+                    />
+                    <div className="absolute inset-0 bg-black bg-opacity-50 rounded-3xl"></div>
+                    <div className="absolute inset-0 flex justify-center items-center text-white text-3xl font-bold text-center px-5">
+                      <p className="italic">{images[currentIndex].text}</p>
+                    </div>
+                  </div>
+
+                  {/* Navigation */}
+                  <button
+                    onClick={prevSlide}
+                    className="absolute left-5 top-1/2 -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                  >
+                    ❮
+                  </button>
+                  <button
+                    onClick={nextSlide}
+                    className="absolute right-5 top-1/2 -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                  >
+                    ❯
+                  </button>
+
+                  {/* Dots */}
+                  <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+                    {images.map((_, index) => (
+                      <div
+                        key={index}
+                        onClick={() => setCurrentIndex(index)}
+                        className={`w-4 h-2 rounded-full transition-all ${
+                          index === currentIndex ? "bg-white" : "bg-gray-400"
+                        }`}
+                      ></div>
+                    ))}
+                  </div>
                 </div>
-              </div>
-
-              {/* Navigation */}
-              <button
-                onClick={prevSlide}
-                className="absolute left-5 top-1/2 -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
-              >
-                ❮
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-5 top-1/2 -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
-              >
-                ❯
-              </button>
-
-              {/* Dots */}
-              <div className="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
-                  <div
-                    key={index}
-                    onClick={() => setCurrentIndex(index)}
-                    className={`w-4 h-2 rounded-full transition-all ${
-                      index === currentIndex ? "bg-white" : "bg-gray-400"
-                    }`}
-                  ></div>
-                ))}
-              </div>
             </div>
+           
           </div>
         </div>
       </section>
@@ -116,11 +121,11 @@ const Home = () => {
       <section className="w-full bg-gray-200">
         <div className="max-w-[1200px] mx-auto px-4 py-16 mt-12">
           <div className="pb-8 flex flex-col gap-2 items-center">
-            <h1 className="text-4xl chewy">Recent Projects</h1>
-            <p>Lorem, ipsum dolor sit amet consectetur adipisicing elit. Possimus, consequuntur.</p>
+            <h1 className="text-4xl text-gray-800 chewy">Recent Projects</h1>
+            <p className="text-center text-gray-800">Here are some of our latest initiatives dedicated to supporting women, families, and communities in need.</p>
           </div>
 
-          <div className="w-full flex items-center justify-center flex-wrap gap-4">
+          <div className="w-full flex items-center justify-center flex-wrap gap-4 px-2">
             {projects.slice(0, 2).map((project, index) => (
               <div
                 key={index}
@@ -162,10 +167,10 @@ const Home = () => {
           <div className="flex flex-col md:flex-row items-center justify-center gap-8">
             <img src={donateNowImg} alt="img" className="w-full h-auto md:w-[500px]" />
             <div className="flex flex-col items-center md:items-start gap-5">
-              <p className="text-6xl font-bold chewy text-center md:text-left">
+              <p className="text-6xl text-gray-800 font-bold chewy text-center md:text-left">
                 Give food and bring Hope.
               </p>
-              <p className="text-3xl font-light text-center md:text-left">
+              <p className="text-3xl text-gray-700 font-light text-center md:text-left">
                 Every meal matters. Every donation counts. Start giving today.
               </p>
               <Link
@@ -184,7 +189,7 @@ const Home = () => {
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="pb-8 flex flex-col gap-2 items-center text-white">
             <h1 className="text-4xl chewy">Words That Inspire</h1>
-            <p>Timeless reminders of compassion, purpose, and giving.</p>
+            <p className="text-center">Timeless reminders of compassion, purpose, and giving.</p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6">

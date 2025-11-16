@@ -60,7 +60,7 @@ const GoodsDonationChart = () => {
             <select
             value={year}
             onChange={(e) => setYear(e.target.value)}
-            className="text-xs px-4 py-1.5 rounded-md border border-gray-300">
+            className="bg-white text-xs px-4 py-1.5 rounded-md border border-gray-300">
             {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
                 <option key={y} value={y}>
                 {y}

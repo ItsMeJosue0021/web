@@ -64,7 +64,7 @@ const UpdateUserForm = ({ user, onClose, onSuccess }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="min-w-96 w-auto max-w-[700px] mx-auto bg-white p-6 rounded-lg shadow-md">
+            className="min-w-96 w-full md:max-w-[700px] mx-auto bg-white p-6 rounded-lg shadow-md">
                 <h2 className="text-base font-semibold mb-4">Update User</h2>
 
                 <form onSubmit={handleSubmit}>

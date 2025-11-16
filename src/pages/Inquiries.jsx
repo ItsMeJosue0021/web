@@ -145,7 +145,7 @@ const Inquiries = () => {
                 <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
                     <div className="w-full md:in-w-80 md:max-w-[500px] flex items-center gap-4 ">
                         <p className="hidden md:block text-sm">Search</p>
-                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
+                        <input onChange={(e) => handleSearch(e.target.value)} type="text" className="bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
                     </div>
                 </div>
                
@@ -241,7 +241,7 @@ const Inquiries = () => {
                                 <input 
                                     type="text" 
                                     placeholder="Subject" 
-                                    className="w-full p-2 border rounded text-xs" 
+                                    className="bg-white w-full p-2 border rounded text-xs" 
                                     value={replyData.subject}
                                     onChange={(e) => setReplyData({ ...replyData, subject: e.target.value })}
                                 />
@@ -251,7 +251,7 @@ const Inquiries = () => {
 
                                 <textarea 
                                     placeholder="Message..." 
-                                    className="w-full h-28 p-2 border rounded text-xs" 
+                                    className="bg-white w-full h-28 p-2 border rounded text-xs" 
                                     value={replyData.message}
                                     onChange={(e) => setReplyData({ ...replyData, message: e.target.value })}
                                 />

@@ -277,7 +277,7 @@ const Members = () => {
             <div className="flex flex-col md:flex-row items-start gap-4 md:gap-0 md:items-center justify-between bg-white border-gray-100 p-3 rounded-lg">
                 <div className="w-full md:min-w-80 md:max-w-[500px] flex items-center gap-4">
                     <p className="hidden md:block text-xs">Search</p>
-                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for name or facebook account.." />
+                    <input onChange={(e) => handleSearch(e.target.value)} type="text" className="bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for name or facebook account.." />
                 </div>
                 <div className="flex items-center justify-end gap-2">
                     <PrintButton onView={handlePrintPreview} />
@@ -341,34 +341,34 @@ const Members = () => {
                         <div className="bg-white p-8 rounded-lg w-full md:w-[1200px] h-auto md:h-fit overflow-auto ">
                             <div className="flex justify-between mb-4">
                                 <h3 className="text-base font-semibold">Add Member</h3>
-                                <button onClick={handleCloseAddModel}><X className="w-5 h-5"/></button>
+                                <button onClick={handleCloseAddModel} className="bg-transparent"><X className="w-5 h-5"/></button>
                             </div>
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs ">First Name</p>
-                                    <input type="text" name="first_name" placeholder="First Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="first_name" placeholder="First Name" className="bg-white text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.first_name && <p className="text-red-600 text-xs">{errors.first_name}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs  ">Middle Name</p>
-                                    <input type="text" name="middle_name" placeholder="Middle Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="middle_name" placeholder="Middle Name" className="bg-white text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.middle_name && <p className="text-red-600 text-xs">{errors.middle_name}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs ">Last Name</p>
-                                    <input type="text" name="last_name" placeholder="Last Name" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs " onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="last_name" placeholder="Last Name" className="bg-white text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs " onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.last_name && <p className="text-red-600 text-xs">{errors.last_name}</p>}
                                 </div>
                             </div>
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full md:w-1/3">
                                     <p className="text-xs">Nick Name</p>
-                                    <input type="text" name="nick_name" placeholder="Nick Name" className="text-xs  border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="nick_name" placeholder="Nick Name" className="bg-white text-xs  border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.nick_name && <p className="text-red-600 text-xs">{errors.nick_name}</p>}
                                 </div>
                                 <div className="w-full">
                                     <p className="text-xs">Address</p>
-                                    <input type="text" name="address" placeholder="Address" className="border text-xs border-gray-100 p-2 w-full rounded-md mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="address" placeholder="Address" className="bg-white border text-xs border-gray-100 p-2 w-full rounded-md mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 </div>
                             </div>
                             
@@ -377,12 +377,12 @@ const Members = () => {
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Birthday</p>
-                                    <input type="date" name="dob" className="border p-2 w-full border-gray-100 rounded-md text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="date" name="dob" className="bg-white border p-2 w-full border-gray-100 rounded-md text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.dob && <p className="text-red-600 text-xs">{errors.dob}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Civil Status</p>
-                                    <input type="text" name="civil_status" placeholder="Civil Status" className="text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="civil_status" placeholder="Civil Status" className="bg-white text-xs border border-gray-100 rounded-md p-2 w-full  placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.civil_status && <p className="text-red-600 text-xs">{errors.civil_status}</p>}
                                 </div>
                             </div>
@@ -390,11 +390,11 @@ const Members = () => {
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-3">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Contact Number</p>
-                                    <input type="text" name="contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="contact_number" placeholder="Contact Number" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Facebook/Messenger</p>
-                                    <input type="text" name="fb_messenger_account" placeholder="FB Messenger" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="fb_messenger_account" placeholder="FB Messenger" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 </div>
                                 
                             </div>
@@ -403,12 +403,12 @@ const Members = () => {
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4 mb-4">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Full Name</p>
-                                    <input type="text" name="contact_person" placeholder="Contact Person" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                    <input type="text" name="contact_person" placeholder="Contact Person" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
                                     {errors.contact_person && <p className="text-red-600 text-xs">{errors.contact_person}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Address</p>
-                                    <input type="text" name="cp_address" placeholder="Address" className="border border-gray-100 text-xs rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
+                                    <input type="text" name="cp_address" placeholder="Address" className="bg-white border border-gray-100 text-xs rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />  
                                     {errors.cp_address && <p className="text-red-600 text-xs">{errors.cp_address}</p>}
                                 </div>
                             </div>
@@ -416,17 +416,17 @@ const Members = () => {
                             <div className="flex flex-col md:flex-row items-start justify-between gap-4">
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Contact Number</p>
-                                    <input type="text" name="cp_contact_number" placeholder="Contact Number" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} /> 
+                                    <input type="text" name="cp_contact_number" placeholder="Contact Number" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} /> 
                                     {errors.cp_contact_number && <p className="text-red-600 text-xs">{errors.cp_contact_number}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Relationship</p>
-                                    <input type="text" name="cp_relationship" placeholder="Relationship" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="cp_relationship" placeholder="Relationship" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                     {errors.cp_relationship && <p className="text-red-600 text-xs">{errors.cp_relationship}</p>}
                                 </div>
                                 <div className="flex flex-col w-full">
                                     <p className="text-xs">Facebook/Messenger</p>
-                                    <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
+                                    <input type="text" name="cp_fb_messenger_account" placeholder="FB Messenger" className="bg-white border text-xs border-gray-100 rounded-md p-2 w-full mb-3 placeholder:text-xs" onChange={(e) => handleInputChange(e, setMemberData)} />
                                 </div>
                             </div>
                             <div className="flex items-center justify-end gap-2">

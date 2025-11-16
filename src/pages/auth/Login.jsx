@@ -50,7 +50,7 @@ const Login = () => {
                             <Logo/>
                             <form onSubmit={handleSubmit} className="space-y-4" action="#">
                                 <div>
-                                    <label className="block text-[10px] font-medium text-gray-900 dark:text-white">Email</label>
+                                    <label className="block text-[10px] font-medium text-gray-900 ">Email</label>
                                     <input 
                                     onChange={handleChange} 
                                     value={credentials.email} 
@@ -60,7 +60,7 @@ const Login = () => {
                                     className="bg-transparent bg-gray-50 border border-gray-300 text-[12px] text-gray-900 rounded focus:ring-primary-600 focus:border-primary-600 block w-full px-4 py-2 " placeholder="sample@email.com" required="" />
                                 </div>
                                 <div>
-                                    <label className="block text-[10px] font-medium text-gray-900 dark:text-white">Password</label>
+                                    <label className="block text-[10px] font-medium text-gray-900 ">Password</label>
                                     <div className='flex items-center relative'>
                                         <input 
                                         onChange={handleChange} 
@@ -80,10 +80,15 @@ const Login = () => {
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-start">
                                         <div className="flex items-center h-5">
-                                            <input id="remember" type="checkbox" className="bg-transparent w-3 h-3 border border-gray-300 rounded  focus:ring-3 focus:ring-primary-300" required="" />
+                                            <input 
+                                                id="remember" 
+                                                type="checkbox" 
+                                                className="appearance-none w-3 h-3 bg-white border border-gray-300 rounded checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-300 cursor-pointer"
+                                                required="" 
+                                            />
                                         </div>
                                         <div className="ml-1 text-sm">
-                                            <label className="text-gray-500 dark:text-gray-300 text-[10px]">Remember me</label>
+                                            <label className="text-gray-500 text-[10px]">Remember me</label>
                                         </div>
                                     </div>
                                     <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500 text-[10px]">Forgot password?</a>

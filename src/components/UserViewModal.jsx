@@ -14,13 +14,13 @@ const UserViewModal = ({ onClose, user }) => {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 flex items-center justify-center bg-black/10 z-50">
-                <div className="bg-white w-full max-w-md p-6 rounded-lg shadow-lg">
+            className="fixed inset-0 flex items-center justify-center bg-black/10 z-50 p-4">
+                <div className="bg-white w-full md:max-w-md p-6 rounded-lg shadow-lg">
                     {/* User Header */}
                     <div className="flex justify-between items-center border-b pb-3">
                         <h2 className="text-md font-semibold text-gray-800">User Details</h2>
                         <button 
-                            className="text-gray-600 hover:text-gray-800 text-xl px-3" 
+                            className="bg-transparent text-gray-600 hover:text-gray-800 text-xl px-3" 
                             onClick={onClose}
                         >
                             &times;

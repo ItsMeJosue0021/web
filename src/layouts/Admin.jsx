@@ -61,7 +61,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
         <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden text-gray-700"> 
             <ToastContainer />
             <div className="w-full flex flex-col"> 
-                <div className="w-full h-40 bg-orange-500 ">
+                <div className="w-full h-36 md:h-40 bg-orange-500 ">
                     <div className='flex items-start justify-between h-full p-4'>
                         <div className='flex items-center space-x-2 text-white'>
                             <img src={logo} alt="logo" className='w-16 h-16 rounded-full p-0.5 bg-white'/>
@@ -102,7 +102,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
 
                                         {/* Close Button (Mobile Only) */}
                                         <button
-                                            className="md:hidden absolute top-4 right-4"
+                                            className="bg-transparent md:hidden absolute top-4 right-4"
                                             onClick={toggleModal}
                                         >
                                         <X className="w-7 h-7" />
@@ -326,9 +326,9 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                         </div>
 
                         <div className="w-full h-full min-h-96 p-4 pt-2">
-                            <div className="w-full layout-head bg-white h-20 p-4 pl-8 md:mb-4 shadow-sm flex items-center justify-between">
+                            <div className="w-full layout-head bg-white h-16 md:h-20 p-4 pl-8 md:mb-4 shadow-sm flex items-center justify-between">
                                 <div className='pl-2 border-l-4 border-orange-600'>
-                                    <h1 className="text-lg font-semibold">{header.title}</h1>
+                                    <h1 className="text-sm md:text-lg font-semibold">{header.title}</h1>
                                     <p className="hidden md:block text-xs">{header.subTitle}</p>
                                 </div>
                                 <div className='hidden md:block'>

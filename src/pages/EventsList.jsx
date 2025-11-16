@@ -37,13 +37,13 @@ const EventsList = () => {
             <div className="w-screen h-auto pt-32 px-4 pb-12">
                 <div className="flex items-center justify-center flex-col gap-2 text-center">
                   <h1 className="text-2xl font-semibold">Our Upcoming Projects</h1>
-                    <p className="text-sm">Stay informed about our latest activities and initiatives. Here’s a look at the upcoming events dedicated <br/> to empowering and supporting women in our community.</p>
+                    <p className="text-sm hidden md:block">Stay informed about our latest activities and initiatives. Here’s a look at the upcoming events dedicated <br/> to empowering and supporting women in our community.</p>
 
                     <div className="w-full min-w-80 max-w-[500px] flex items-center mt-4">
                         <div className="bg-orange-500 px-4 py-2 rounded-l">
                             <Search size={21} className="text-white" />
                         </div>
-                        <input type="text" className="placeholder:text-xs px-4 py-2 rounded-r border border-gray-200 text-sm w-full" placeholder="Search for projects.." />
+                        <input type="text" className="placeholder:text-xs px-4 py-2 rounded-r bg-white border border-gray-200 text-sm w-full" placeholder="Search for projects.." />
                     </div>
                 </div>
 

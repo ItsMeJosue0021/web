@@ -307,9 +307,9 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                     <p className="text-xs text-black font-medium">Faqs</p>
                                                 </Link>
 
-                                                <Link to="/web-content/volunteers" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/volunteers" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                {/* <Link to="/web-content/volunteers" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/volunteers" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Volunteers</p>
-                                                </Link>
+                                                </Link> */}
 
                                                 <Link  to="/web-content/events" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/events" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Events</p>

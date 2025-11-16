@@ -63,9 +63,9 @@ const Header = () => {
                         <li>
                             <Link to="/about-us" className={`${active === "about" ? 'text-blue-600' : 'text-black'}`}>About Us</Link>
                         </li>
-                        <li>
+                        {/* <li>
                             <Link to="/volunteers" className={`${active === "volunteers" ? 'text-blue-600' : 'text-black'}`}>Volunteers</Link>
-                        </li>
+                        </li> */}
                         <li>
                             <Link to="/our-projects" className={`${active === "projects" ? 'text-blue-600' : 'text-black'}`}>Projects</Link>
                         </li>
@@ -136,8 +136,11 @@ const Header = () => {
                                 <Link to="/about-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">About Us</a>
                                 </Link>
-                                <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                {/* <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Volunteers</a>
+                                </Link> */}
+                                <Link to="/our-projects" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Projects</a>
                                 </Link>
                                 <Link to="/faqs" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">FAQs</a>

@@ -69,7 +69,7 @@ const Faqs = () => {
                         <div className="bg-orange-500 px-4 py-2 rounded-l">
                             <Search size={21} className="text-white" />
                         </div>
-                        <input type="text" className="bg-whiteplaceholder:text-xs px-4 py-2 rounded-r border border-gray-200 text-sm w-full" placeholder="Search for something.." />
+                        <input type="text" className="bg-white placeholder:text-xs px-4 py-2 rounded-r border border-gray-200 text-sm w-full" placeholder="Search for something.." />
                     </div>
                     <p className='text-sm font-semibold'>Still have question? <span className='text-orange-500'>Contact Us</span></p>
                 </div>

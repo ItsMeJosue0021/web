@@ -25,13 +25,53 @@ const _get = (url, config = {}) => {
     return api.get(url, config);
 }
 
+// const _post = (url, data = {}, config = {}) => {
+//     return api.post(url, data, config);
+// }
+
+// const _put = (url, data = {}, config = {}) => {
+//     return api.put(url, data, config);
+// }
+
 const _post = (url, data = {}, config = {}) => {
-    return api.post(url, data, config);
-}
+    
+    let finalConfig = { ...config };
+
+    // If payload is FormData, remove JSON header and let Axios set it
+    if (data instanceof FormData) {
+        finalConfig.headers = {
+            ...(config.headers || {}),
+            "Content-Type": "multipart/form-data",
+        };
+    } else {
+        // Default: JSON
+        finalConfig.headers = {
+            ...(config.headers || {}),
+            "Content-Type": "application/json",
+        };
+    }
+
+    return api.post(url, data, finalConfig);
+};
 
 const _put = (url, data = {}, config = {}) => {
-    return api.put(url, data, config);
-}
+
+    let finalConfig = { ...config };
+
+    if (data instanceof FormData) {
+        finalConfig.headers = {
+            ...(config.headers || {}),
+            "Content-Type": "multipart/form-data",
+        };
+    } else {
+        finalConfig.headers = {
+            ...(config.headers || {}),
+            "Content-Type": "application/json",
+        };
+    }
+
+    return api.put(url, data, finalConfig);
+};
 
 const _delete = (url, config = {}) => {
     return api.delete(url, config);

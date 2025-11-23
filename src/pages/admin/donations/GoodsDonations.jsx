@@ -276,7 +276,7 @@ const GoodsDonationsAdmin = () => {
                                                 <button
                                                     onClick={() => openItemizerModal(donation)} 
                                                     className={`rounded text-xs px-3 py-1 cursor-pointer ${donation.items_count > 0 ? 'bg-gray-200 text-gray-700' : 'bg-blue-600 text-white'}`}>
-                                                    {donation.items_count > 0 ? 'View Items' : 'Itemize' }
+                                                    {donation.items_count > 0 ? 'Items' : 'Itemize' }
                                                 </button>
                                                 
                                             </div>

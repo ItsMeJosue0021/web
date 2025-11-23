@@ -172,16 +172,16 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                 />
             )}
             <div className="w-full max-w-[800px]">
-                <div className="flex flex-col gap-1 mb-5">
+                <div className="flex flex-col gap-1 mb-5 p-4 rounded-lg border">
                     <p className="text-xl text-orange-600">Itemize your goods donations for easier monitoring.</p>
-                    <p  className="text-xs">
-                        <strong>Donor</strong>: {donation.name || 'Anonymous'}
+                    <p  className="text-sm">
+                        <span className="font-medium">Donor</span>: {donation.name || 'Anonymous'}
                     </p>
-                    <p className="text-xs">
-                        <strong>Email:</strong> {donation.email || "N/A"}
+                    <p className="text-sm">
+                        <span className="font-medium">Email:</span> {donation.email || "N/A"}
                     </p>
-                    <p className="text-xs">
-                        <strong>Description:</strong>: {donation.description || "N/A"}
+                    <p className="text-sm">
+                        <span className="font-medium">Description:</span> {donation.description || "N/A"}
                     </p>
                 </div>
 
@@ -215,10 +215,10 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                                 <p className="flex flex-col font-semibold">Category: <span className="font-normal">{getCategoryName(item.category)}</span></p>
                                                 <p className="flex flex-col font-semibold">Subcaregory: <span className="font-normal">{getSubcategoryName(item.sub_category)}</span></p>
                                                 <p className="flex flex-col font-semibold">Quantity: <span className="font-normal bg-orange-100 text-orange-600 w-fit px-2 rounded text-center">{item.quantity}</span></p>
-                                                <p className="flex flex-col font-semibold">Unit: <span className="font-normal">{item.unit}</span></p>
+                                                <p className="flex flex-col font-semibold">Unit: <span className="font-normal">{item.unit || '...'}</span></p>
                                             </div>
 
-                                            <p className="text-xs text-gray-500"><span className="font-semibold">Notes</span>: Sample notes here...</p>
+                                            <p className="text-xs text-gray-500"><span className="font-semibold">Notes</span>: {item.notes || '...'}</p>
                                         </div>
                                     </div>
                                     <div className="h-full w-20 min-w-20 flex items-center justify-center">
@@ -295,7 +295,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                 </div>
 
                                 {/* QUANTITY + UNIT */}
-                                <div className="flex items-start gap-4">
+                                <div className="flex flex-col mf:flex-row items-start gap-4">
                                     <div className="w-full flex flex-col">
                                         <label className="text-xs font-medium">Quantity</label>
                                         <input

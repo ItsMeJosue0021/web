@@ -1,8 +1,8 @@
-import React, { act } from "react";
+import React, { useEffect } from "react";
 import Guest from '../../layouts/Guest'
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { _post } from "../../api";
+import { _post, _get } from "../../api";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
 import { Check } from "lucide-react";
@@ -23,6 +23,8 @@ const Goods = () => {
     const [activeStep, setActiveStep] = useState(1);
     const [isAnonymous, setIsAnonymous] = useState(false);
 
+    const [donationCategories, setDonationCategories] = useState([]);
+
     const [map, setMap] = useState({
         main: false,    
         satellite: false
@@ -38,6 +40,22 @@ const Goods = () => {
     const mapSrc = selectedAddress
         ? `https://www.google.com/maps?q=${encodeURIComponent(selectedAddress)}&output=embed`
         : null;
+
+    useEffect(() => {
+        fetchCategories();
+    }, []);
+    
+    const fetchCategories = async () => {
+        try {
+            const response = await _get(`/goods-donation-categories`);
+            setDonationCategories(response.data.categories || []);
+            if (!response.ok) {
+                console.log(response);
+            }
+        } catch (error) {
+            console.error(error);
+        }
+    }
 
 
     // Handle checkbox change for categories
@@ -162,20 +180,20 @@ const Goods = () => {
                                             <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
                                                 <label className="w-full md:w-[40%] text-xs font-medium">Type of Donation <span className="text-sm text-red-500">*</span></label>
                                                 <div className="w-full md:w-[60%] flex items-start justify-start md:justify-end gap-2">
-                                                    {['food', 'clothes', 'supplies'].map((item) => (
+                                                    {donationCategories.length > 0 && donationCategories.map((item) => (
                                                     <label
                                                         key={item}
                                                         className={`cursor-pointer px-4 py-1.5 rounded-md border transition flex items-center hover:bg-orange-100 hover:border-orange-500
-                                                        ${categories.includes(item) ? "bg-orange-100 border-orange-500" : "bg-white border-gray-300"}`}
+                                                        ${categories.includes(item.name) ? "bg-orange-100 border-orange-500" : "bg-white border-gray-300"}`}
                                                     >
                                                         <input
-                                                        type="checkbox"
-                                                        value={item}
-                                                        checked={categories.includes(item)}
-                                                        onChange={handleCategoryChange}
-                                                        className="hidden"
+                                                            type="checkbox"
+                                                            value={item.name}
+                                                            checked={categories.includes(item.name)}
+                                                            onChange={handleCategoryChange}
+                                                            className="hidden"
                                                         />
-                                                        <span className={`text-xs capitalize ${categories.includes(item) ? "text-orange-500" : ""}`}>{item}</span>
+                                                        <span className={`text-xs capitalize ${categories.includes(item.name) ? "text-orange-500" : ""}`}>{item.name}</span>
                                                     </label>
                                                     ))}
                                                 </div>

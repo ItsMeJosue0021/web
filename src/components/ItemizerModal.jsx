@@ -172,7 +172,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                 />
             )}
             <div className="w-full max-w-[800px] pb-8 md:pb-0">
-                <div className="flex flex-col gap-1 mb-5 md:p-4 rounded-lg border">
+                <div className="flex flex-col gap-1 mb-5 md:p-4 rounded-lg md:border">
                     <p className="text-xl text-orange-600">Itemize your goods donations for easier monitoring.</p>
                     <p  className="text-sm">
                         <span className="font-medium">Donor</span>: {donation.name || 'Anonymous'}

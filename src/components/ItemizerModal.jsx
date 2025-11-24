@@ -160,7 +160,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
     };
 
     return (
-        <div className="w-full flex flex-col items-center gap-4 p-4 mx-auto bg-white">
+        <div className="w-full h-full flex flex-col items-center gap-4 md:p-4 mx-auto bg-white">
             {deleteItemId && (
                 <ConfirmationAlert 
                     title="Delete Item"
@@ -171,8 +171,8 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                     onClose={() => setDeleteItemId(null)}
                 />
             )}
-            <div className="w-full max-w-[800px]">
-                <div className="flex flex-col gap-1 mb-5 p-4 rounded-lg border">
+            <div className="w-full max-w-[800px] pb-8 md:pb-0">
+                <div className="flex flex-col gap-1 mb-5 md:p-4 rounded-lg border">
                     <p className="text-xl text-orange-600">Itemize your goods donations for easier monitoring.</p>
                     <p  className="text-sm">
                         <span className="font-medium">Donor</span>: {donation.name || 'Anonymous'}
@@ -195,33 +195,33 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                         </button>
                     </div>
 
-                    <div className="w-full min-h-80 flex flex-col gap-4 p-2 divide-y">
+                    <div className="w-full h-auto min-h-80 flex flex-col gap-4 p-2 divide-y">
                         {loading ? (
                             <div className="min-h-48 w-full flex flex-col items-center justify-center gap-4">
                                 <p className="text-xs text-center text-gray-500">Loading items...</p>
                             </div>
                         ) : (
                             items.length > 0 && items.map((item, index) => (
-                                <div key={item.id} className="flex items-center pt-4">
-                                    <div className="w-full flex items-center gap-4">
+                                <div key={item.id} className="relative h-auto overfloe-y-auto flex items-center pt-4">
+                                    <div className="w-full h-auto flex flex-col md:flex-row items-start md:items-center gap-4">
                                         <img 
                                             src={`${baseURL}${item.image}`} 
                                             alt="image" 
-                                            className="rounded-xl w-24 h-24 min-w-24 min-h-24" 
+                                            className="rounded-xl w-full md:w-24 h-52 md:h-24 min-w-24 min-h-24 object-center object-cover" 
                                         />
-                                        <div className="flex flex-col gap-1 text-xs text-gray-500">
+                                        <div className="w-full flex flex-col gap-1 text-xs text-gray-500">
                                             <strong className="text-sm text-orange-600">{item.name}</strong>
-                                            <div className="flex items-center gap-6">
-                                                <p className="flex flex-col font-semibold">Category: <span className="font-normal">{getCategoryName(item.category)}</span></p>
-                                                <p className="flex flex-col font-semibold">Subcaregory: <span className="font-normal">{getSubcategoryName(item.sub_category)}</span></p>
-                                                <p className="flex flex-col font-semibold">Quantity: <span className="font-normal bg-orange-100 text-orange-600 w-fit px-2 rounded text-center">{item.quantity}</span></p>
-                                                <p className="flex flex-col font-semibold">Unit: <span className="font-normal">{item.unit || '...'}</span></p>
+                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-6">
+                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Category: <span className="font-normal">{getCategoryName(item.category)}</span></p>
+                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Subcaregory: <span className="font-normal">{getSubcategoryName(item.sub_category)}</span></p>
+                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Quantity: <span className="font-normal bg-orange-100 text-orange-600 w-fit px-2 rounded text-center">{item.quantity}</span></p>
+                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Unit: <span className="font-normal">{item.unit || '...'}</span></p>
                                             </div>
 
                                             <p className="text-xs text-gray-500"><span className="font-semibold">Notes</span>: {item.notes || '...'}</p>
                                         </div>
                                     </div>
-                                    <div className="h-full w-20 min-w-20 flex items-center justify-center">
+                                    <div className="absolute top-8 md:top-0 right-4 md:right-0 h-fit md:h-full w-fit md:w-20 md:min-w-20 md:flex items-center justify-center">
                                         <X 
                                             onClick={() => setDeleteItemId(item.id)}
                                             className="min-w-5 w-5 min-h-5 h-5 text-gray-400 cursor-pointer hover:text-red-500" />
@@ -257,7 +257,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                         value={form.name}
                                         onChange={(e) => setForm({ ...form, name: e.target.value })}
                                         placeholder="Name of the item.."
-                                        className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                     {errors.name && <p className="text-red-500 text-xs">{errors.name}</p>}
                                 </div>
@@ -268,7 +268,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <select
                                         value={form.category_id}
                                         onChange={handleCategoryChange}
-                                        className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     >
                                         <option value="">Select category...</option>
                                         {categories.map(cat => (
@@ -284,7 +284,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <select
                                         value={form.subcategory_id}
                                         onChange={(e) => setForm({ ...form, subcategory_id: e.target.value })}
-                                        className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     >
                                         <option value="">Select subcategory...</option>
                                         {filteredSubcategories.map(sub => (
@@ -302,7 +302,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                             type="text"
                                             value={form.quantity}
                                             onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                                            className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                            className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                         />
                                         {errors.quantity && <p className="text-red-500 text-xs">{errors.quantity}</p>}
                                     </div>
@@ -313,7 +313,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                             type="text"
                                             value={form.unit}
                                             onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                                            className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                            className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                         />
                                     </div>
                                 </div>
@@ -324,7 +324,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <textarea
                                         value={form.notes}
                                         onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                                        className="text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs resize-none h-20"
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs resize-none h-20"
                                     />
                                 </div>
 
@@ -334,7 +334,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <input
                                         type="file"
                                         onChange={(e) => setForm({ ...form, image: e.target.files[0] })}
-                                        className="text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                 </div>
                             </div>

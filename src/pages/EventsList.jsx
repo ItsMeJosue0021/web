@@ -19,7 +19,7 @@ const EventsList = () => {
 
     const fetchEvents = async () => {
         try {
-            const response = await _get("/projects");
+            const response = await _get("/upcoming-projects");
             setEvents(response.data);
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -75,7 +75,7 @@ const EventsList = () => {
                     {!loading && events.map((event) => (
                         <div
                             key={event.id}
-                            className="bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
+                            className="h-fit bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-200"
                         >
                             {/* IMAGE */}
                             {event.image && (

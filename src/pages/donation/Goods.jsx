@@ -165,7 +165,7 @@ const Goods = () => {
                                         </div>
                                     
                                         <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
-                                            <label className="w-full md:w-[40%] text-xs font-medium">email <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                            <label className="w-full md:w-[40%] text-xs font-medium">email <span className="text-[9px] text-gray-500"></span></label>
                                             <input
                                                 type="text"
                                                 name="email"

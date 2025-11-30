@@ -313,7 +313,7 @@ const Members = () => {
                                 })}</td>
                                 <td className="p-3 flex justify-end gap-2">
                                     <button className="bg-blue-50 text-blue-600 px-1 py-1 rounded" onClick={() => openEditModal(member)}><Edit size={16} /></button>
-                                    <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button>
+                                    {/* <button className="bg-red-50 text-red-600 px-1 py-1 rounded" onClick={() => handleDeleteAction(member.id)}><Trash2 size={16} /></button> */}
                                     <button onClick={() => handleViewMember(member)}><Eye size={16}/></button>
                                 </td>
                                 </tr>

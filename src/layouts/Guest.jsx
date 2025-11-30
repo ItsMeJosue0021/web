@@ -1,4 +1,3 @@
-import React from 'react';
 import Header from '../components/headers/Header';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';

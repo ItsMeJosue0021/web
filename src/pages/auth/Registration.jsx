@@ -111,55 +111,53 @@ const Registration = () => {
             )}
 
             <div className="w-full min-h-screen h-auto flex items-center justify-center md:p-5">
-                <div className="w-fit md:w-4/6 min-h-[400px] h-auto shadow-sm rounded-xl flex items-start bg-transparent md:bg-white">
+                <div className="w-fit md:w-4/6 min-h-[565px] h-full shadow-sm rounded-xl flex items-start bg-transparent md:bg-white">
                     <div className="hidden lg:block w-[50%] h-full rounded-l-xl">
-                        <div className="w-full h-full rounded-l-xl">
-                            <div className="relative w-full h-[565px] md:h-auto overflow-hidden rounded-l-xl ">
-                                {/* Image and Text */}
-                                <div className="relative">
-                                    <img
-                                        src={images[currentIndex].src}
-                                        alt={`Slide ${currentIndex + 1}`}
-                                        className="w-[1200px] h-[565px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
-                                    />
-                                    <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-l-xl"></div>
-                                    <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-xl font-bold text-center px-5">
-                                        <p className="poppins-regular">{images[currentIndex].text}</p>
-                                    </div>
+                        <div className="relative w-full h-full min-h-[565px] md:h-full overflow-hidden rounded-l-xl ">
+                            {/* Image and Text */}
+                            <div className="relative">
+                                <img
+                                    src={images[currentIndex].src}
+                                    alt={`Slide ${currentIndex + 1}`}
+                                    className="w-[1200px] h-full min-h-[565px] rounded-l-xl object-cover transition-transform duration-500 ease-in-out"
+                                />
+                                <div className="absolute top-0 left-0 w-full h-full bg-black bg-opacity-50 rounded-l-xl"></div>
+                                <div className="absolute top-0 left-0 w-full h-full flex justify-center items-center text-white text-xl font-bold text-center px-5">
+                                    <p className="poppins-regular">{images[currentIndex].text}</p>
                                 </div>
+                            </div>
 
-                                {/* Navigation Buttons */}
-                                <button
-                                    onClick={prevSlide}
-                                    className="absolute left-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
-                                >
-                                    ❮
-                                </button>
-                                <button
-                                    onClick={nextSlide}
-                                    className="absolute right-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
-                                >
-                                    ❯
-                                </button>
+                            {/* Navigation Buttons */}
+                            <button
+                                onClick={prevSlide}
+                                className="absolute left-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                            >
+                                ❮
+                            </button>
+                            <button
+                                onClick={nextSlide}
+                                className="absolute right-5 top-1/2 transform -translate-y-1/2 bg-gray-800 bg-opacity-50 text-white p-3 rounded-full hover:bg-opacity-75"
+                            >
+                                ❯
+                            </button>
 
-                                {/* Dots Navigation */}
-                                <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
-                                    {images.map((_, index) => (
-                                        <div
-                                            key={index}
-                                            onClick={() => setCurrentIndex(index)}
-                                            className={`w-3 h-2 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
-                                        ></div>
-                                    ))}
-                                </div>
+                            {/* Dots Navigation */}
+                            <div className="absolute bottom-5 left-1/2 transform -translate-x-1/2 flex gap-2">
+                                {images.map((_, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => setCurrentIndex(index)}
+                                        className={`w-3 h-2 rounded-full transition-all ${index === currentIndex ? "bg-white" : "bg-gray-400"}`}
+                                    ></div>
+                                ))}
                             </div>
                         </div>
                     </div>
-                    <div className="w-full lg:w-[50%] md:bg-white p-5 md:p-10 rounded-xl">
+                    <div className="w-full lg:w-[50%] md:bg-white p-5 md:px-5  rounded-xl">
                         <div className="mb-4">
                             <Logo />
                         </div>
-                        <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4 max-h-[400px] overflow-x-auto">
                             {step === 1 && (
                                 <div className="flex flex-col gap-5">
                                     <div className="border-l-4 border-orange-500 pl-2">
@@ -167,6 +165,7 @@ const Registration = () => {
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
                                     <div>
+                                        <label className="text-xs">First name</label>
                                         <TextInput 
                                         value={credentials.firstName}
                                         label="First Name" type="text" 
@@ -177,15 +176,20 @@ const Registration = () => {
                                         {errors.firstName && <p className="text-red-500 text-[10px]">{errors.firstName}</p>}
                                     </div>
 
-                                    <TextInput 
-                                    value={credentials.middleName}
-                                    label="Middle Name" 
-                                    type="text" 
-                                    placeholder="Middle Name" 
-                                    name="middleName" 
-                                    onChange={handleChange} />
+                                    <div>
+                                        <label className="text-xs">Middle name</label>
+                                        <TextInput 
+                                        value={credentials.middleName}
+                                        label="Middle Name" 
+                                        type="text" 
+                                        placeholder="Middle Name" 
+                                        name="middleName" 
+                                        onChange={handleChange} />
+                                    </div>
+                                    
 
                                     <div>
+                                        <label className="text-xs">Last name</label>
                                         <TextInput 
                                         value={credentials.lastName}
                                         label="Last Name" 
@@ -197,6 +201,7 @@ const Registration = () => {
                                         {errors.lastName && <p className="text-red-500 text-[11px]">{errors.lastName}</p>}
                                     </div>
                                     <div>
+                                        <label className="text-xs">Email</label>
                                         <TextInput 
                                         value={credentials.email}
                                         label="Email Address" 
@@ -208,6 +213,7 @@ const Registration = () => {
                                         {errors.email && <p className="text-red-500 text-[11px]">{errors.email}</p>}
                                     </div>
                                     <div>
+                                        <label className="text-xs">Mobile No.</label>
                                         <TextInput 
                                         value={credentials.contactNumber}
                                         label="Contact Number" 
@@ -233,73 +239,101 @@ const Registration = () => {
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
                                     <div className="flex items-start gap-3">
-                                        <TextInput 
-                                        value={credentials.block}
-                                        label="Block" 
-                                        type="text" 
-                                        placeholder="Block" 
-                                        name="block" 
-                                        onChange={handleChange} />
+                                        <div className="w-full">
+                                            <label className="text-xs">Mobile No.</label>
+                                            <TextInput 
+                                            value={credentials.block}
+                                            label="Block" 
+                                            type="text" 
+                                            placeholder="Block" 
+                                            name="block" 
+                                            onChange={handleChange} />
+                                        </div>
 
-                                        <TextInput 
-                                        value={credentials.lot}
-                                        label="Lot" 
-                                        type="text" 
-                                        placeholder="Lot" 
-                                        name="lot" 
-                                        onChange={handleChange} />
+                                        <div className="w-full">
+                                            <label className="text-xs">Lot</label>
+                                            <TextInput 
+                                            value={credentials.lot}
+                                            label="Lot" 
+                                            type="text" 
+                                            placeholder="Lot" 
+                                            name="lot" 
+                                            onChange={handleChange} />
+                                        </div>
                                     </div>
 
-                                    <TextInput 
-                                    value={credentials.street}
-                                    label="Street" 
-                                    type="text" 
-                                    placeholder="Street" 
-                                    name="street" 
-                                    onChange={handleChange} />
+
+                                    <div>
+                                        <label className="text-xs">Street</label>
+                                        <TextInput 
+                                        value={credentials.street}
+                                        label="Street" 
+                                        type="text" 
+                                        placeholder="Street" 
+                                        name="street" 
+                                        onChange={handleChange} />
+                                    </div>
+                                    
                                     
                                     <div className="flex items-start gap-3">
-                                        <TextInput 
-                                        value={credentials.subdivision}
-                                        label="Subdivision" 
-                                        type="text" 
-                                        placeholder="Subdivision" 
-                                        name="subdivision" 
-                                        onChange={handleChange} />
+                                        <div className="w-full">
+                                            <label className="text-xs">Subdivision</label>
+                                            <TextInput 
+                                            value={credentials.subdivision}
+                                            label="Subdivision" 
+                                            type="text" 
+                                            placeholder="Subdivision" 
+                                            name="subdivision" 
+                                            onChange={handleChange} />
+                                        </div>
 
-                                        <TextInput 
-                                        value={credentials.barangay}
-                                        label="Barangay" 
-                                        type="text" 
-                                        placeholder="Barangay" 
-                                        name="barangay" 
-                                        onChange={handleChange} required/>
+                                        <div className="w-full">
+                                            <label className="text-xs">Barangay</label>
+                                            <TextInput 
+                                            value={credentials.barangay}
+                                            label="Barangay" 
+                                            type="text" 
+                                            placeholder="Barangay" 
+                                            name="barangay" 
+                                            onChange={handleChange} required/>
+                                        </div>
                                     </div>
 
-                                    <TextInput 
-                                    value={credentials.city}
-                                    label="City/Municipality" 
-                                    type="text" 
-                                    placeholder="City/Municipality" 
-                                    name="city" 
-                                    onChange={handleChange} required/>
+                                    <div>
+                                        <label className="text-xs">City/Municipality</label>
+                                        <TextInput 
+                                        value={credentials.city}
+                                        label="City/Municipality" 
+                                        type="text" 
+                                        placeholder="City/Municipality" 
+                                        name="city" 
+                                        onChange={handleChange} required/>
+                                    </div>
+                                    
 
                                     <div className="flex items-start gap-3">
-                                        <TextInput 
-                                        value={credentials.province}
-                                        label="Province" 
-                                        type="text" 
-                                        placeholder="Province" 
-                                        name="province" 
-                                        onChange={handleChange} required/>
-
-                                        <TextInput 
-                                        value={credentials.code}
-                                        label="Postal Code" 
-                                        type="number" 
-                                        placeholder="Postal Code" 
-                                        name="code" 
-                                        onChange={handleChange} required/>
+                                        <div className="w-full">
+                                            <label className="text-xs">Province</label>
+                                            <TextInput 
+                                            value={credentials.province}
+                                            label="Province" 
+                                            type="text" 
+                                            placeholder="Province" 
+                                            name="province" 
+                                            onChange={handleChange} required/>
+                                        </div>
+                                        
+                                        <div className="w-full">
+                                            <label className="text-xs">Postal Code</label>
+                                            <TextInput 
+                                            value={credentials.code}
+                                            label="Postal Code" 
+                                            type="number" 
+                                            placeholder="Postal Code" 
+                                            name="code" 
+                                            onChange={handleChange} required/>
+                                        </div>
+                                        
                                     </div>
 
                                     <div className="flex gap-2">
@@ -322,6 +356,7 @@ const Registration = () => {
                                         <p className="text-xs">Welcome! Please fill in the details below to create your account.</p>
                                     </div>
                                     <div>
+                                        <label className="text-xs">Username</label>
                                         <TextInput 
                                         value={credentials.username}
                                         label="Username" 
@@ -333,6 +368,7 @@ const Registration = () => {
                                         {errors.username && <p className="text-red-500 text-[11px]">{errors.username}</p>}
                                     </div>
                                     <div>
+                                        <label className="text-xs">Password</label>
                                         <TextInput 
                                         value={credentials.password}
                                         label="Password" 
@@ -344,6 +380,7 @@ const Registration = () => {
                                         {errors.password && <p className="text-red-500 text-[11px]">{errors.password}</p>}
                                     </div>
                                     <div>
+                                        <label className="text-xs">Confirm Password</label>
                                         <TextInput 
                                         value={credentials.confirmPassword}
                                         label="Confirm Password" 

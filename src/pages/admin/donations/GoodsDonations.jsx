@@ -24,8 +24,19 @@ const GoodsDonationsAdmin = () => {
     // reports
     const [isReportView, setIsReportView] = useState(false);
     const [cashDonations, setCashDonations] = useState([]);
-    const [dateFrom, setDateFrom] = useState('');
-    const [dateTo, setDateTo] = useState('');
+
+    // Default dates for the report: Jan 1 of current year → today
+    const today = new Date();
+
+    // Start of the current month (current year is automatic)
+    const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
+
+    // Convert to YYYY-MM-DD for your <input type="date">
+    const defaultFrom = monthStart.toISOString().split("T")[0];
+    const defaultTo = today.toISOString().split("T")[0];
+
+    const [dateFrom, setDateFrom] = useState(defaultFrom);
+    const [dateTo, setDateTo] = useState(defaultTo);
     const [totalCount, setTotalCount] = useState(0);
 
     // donation items
@@ -40,18 +51,45 @@ const GoodsDonationsAdmin = () => {
     const containerRef = useRef();
     const printBtnRef = useRef();
 
-    const fetchGoodsDonations = async (dateFrom = "", dateTo = "") => {
+    useEffect(() => {
+        if (isReportView) {
+            fetchGoodsDonations();
+        }
+    }, [isReportView]);
+
+    // const fetchGoodsDonations = async (dateFrom = "", dateTo = "") => {
+    //     try {
+    //         const params = {};
+    //         if (dateFrom) params.dateFrom = dateFrom;
+    //         if (dateTo) params.dateTo = dateTo;
+
+    //         const response = await _get("/goods-donations/v2/print", { params });
+    //         setCashDonations(response.data.donations);
+    //         return response.data;
+
+    //     } catch (error) {
+    //         console.error("Error fetching goods donations:", error);
+    //     }
+    // };
+
+    const fetchGoodsDonations = async (
+        dateFromParam = dateFrom,
+        dateToParam = dateTo
+    ) => {
         try {
-            const params = {};
-            if (dateFrom) params.dateFrom = dateFrom;
-            if (dateTo) params.dateTo = dateTo;
+            const params = {
+                dateFrom: dateFromParam,
+                dateTo: dateToParam
+            };
 
             const response = await _get("/goods-donations/v2/print", { params });
-            setCashDonations(response.data.donations);
-            return response.data;
 
+            setCashDonations(response.data.donations);
+            setTotalCount(response.data.totalCount || 0);
+
+            return response.data;
         } catch (error) {
-            console.error("Error fetching goods donations:", error);
+            console.error("Error fetching cash donations:", error);
         }
     };
 
@@ -88,7 +126,7 @@ const GoodsDonationsAdmin = () => {
 
             const response = await _get("/goods-donations/v2/filter", { params });
             setDonations(response.data);
-            setCashDonations(response.data);
+            // setCashDonations(response.data);
 
         } catch (error) {
             console.error("Error fetching donations:", error);
@@ -350,6 +388,7 @@ const GoodsDonationsAdmin = () => {
                                             <label className="text-xs">From</label>
                                             <input 
                                                 type="date"
+                                                value={dateFrom}
                                                 onChange={(e) => setDateFrom(e.target.value)}
                                                 className="bg-white text-xs px-3 py-1.5 border border-gray-200 rounded"
                                             />
@@ -359,6 +398,7 @@ const GoodsDonationsAdmin = () => {
                                             <label className="text-xs">To</label>
                                             <input 
                                                 type="date"
+                                                value={dateTo}
                                                 onChange={(e) => setDateTo(e.target.value)}
                                                 className="bg-white text-xs px-3 py-1.5 border border-gray-200 rounded"
                                             />
@@ -377,7 +417,7 @@ const GoodsDonationsAdmin = () => {
                                 <button
                                     onClick={handlePrint}
                                     ref={printBtnRef}
-                                    className="text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded whitespace-nowrap"
+                                    className="h-fit text-xs bg-gray-100 hover:bg-gray-200 px-3 py-1.5 rounded whitespace-nowrap"
                                 >
                                     Print
                                 </button>

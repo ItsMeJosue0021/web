@@ -54,9 +54,10 @@ const Members = () => {
         try {
             const response = await _get("/members");
             setMembers(response.data);
-        isLoading(false);
         } catch (error) {
             console.error("Error fetching members:", error);
+            
+        } finally {
             isLoading(false);
         }
     };
@@ -325,7 +326,7 @@ const Members = () => {
             
             {loading && (
                  <div className="w-full h-40 flex items-center justify-center">
-                    <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
+                    <CircularLoading customClass='text-blue-500 w-6 h-6' />
                 </div>
             )}
 

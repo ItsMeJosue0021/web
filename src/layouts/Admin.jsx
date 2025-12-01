@@ -26,6 +26,7 @@ import NavItem from '../components/NavItem';
 import Dropdown from '../components/Dropdown';
 import UserProfile from '../components/UserProfile';
 import { AuthContext } from '../AuthProvider';
+import { GrMoney } from "react-icons/gr";
 
 
 
@@ -137,8 +138,8 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             onClick={toggleModal} 
                                         />
                                         <NavItem 
-                                            to="/inquiries" 
-                                            label="Inquiries"
+                                            to="/enquiries" 
+                                            label="Enquiries"
                                             icon={MessageSquareMore}
                                             onClick={toggleModal} 
                                         />
@@ -156,12 +157,11 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             isOpen={isSettingsOpen}
                                             toggle={() => setIsSettingsOpen(!isSettingsOpen)}
                                             items={[
-                                                { to: "/knowledgebase", label: "Chatbot" },
+                                                { to: "/settings/chatbot", label: "Chatbot" },
                                                 { to: "/settings/users", label: "Users" }
                                             ]}
                                             onItemClick={toggleModal}
                                         />
-
                                     </div>
                                     </motion.div>
                                 </AnimatePresence>
@@ -217,17 +217,17 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Members</p>
                                     </Link>
-                                    <Link to="/knowledgebase" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/knowledgebase" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    <Link to="/expenses" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/expenses" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
-                                        <Lightbulb className="w-5 h-5 text-gray-700" />
+                                        <GrMoney className="w-5 h-5 text-gray-700" />
                                         </div>
-                                        <p className="text-xs font-medium text-black">Chatbot Settings</p>
+                                        <p className="text-xs font-medium text-black">Expenses</p>
                                     </Link>
-                                    <Link to="/inquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/inquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    <Link to="/enquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/enquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <MessageSquareMore className="w-5 h-5 text-gray-700" />
                                         </div>
-                                        <p className="text-xs font-medium text-black">Inquiries</p>
+                                        <p className="text-xs font-medium text-black">Enquiries</p>
                                     </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
@@ -258,10 +258,10 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         {isOpen && (
                                             <div className="pl-4 pt-1">
+                                                <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Chatbot</p>
+                                                </Link>
                                                 <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    {/* <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div> */}
                                                     <p className="text-xs text-black font-medium">Users</p>
                                                 </Link>
 

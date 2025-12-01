@@ -683,9 +683,10 @@ const Projects = () => {
 
                 <button
                     onClick={() => setShowAddProjectModal(true)}
-                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded w-full sm:w-auto"
+                    className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded w-full sm:w-auto flex items-center gap-2 justify-center"
                 >
-                    + New
+                    <span>+</span>
+                    <span>New</span>
                 </button>
             </div>
 

@@ -284,7 +284,7 @@ const Users = () => {
                     
                     {/* SEARCH */}
                     <div className="w-full sm:max-w-[450px] flex items-center gap-3">
-                        <p className="text-xs sm:text-sm">Search</p>
+                        <p className="text-xs">Search</p>
                         <input 
                             type="text" 
                             className="w-full bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" 

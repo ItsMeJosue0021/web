@@ -47,6 +47,7 @@ import CashDonation from './pages/donation/CashDonation';
 import CashDonationsAdmin from './pages/admin/donations/CashDonations';
 import GCashDonationsAdmin from './pages/admin/donations/GCashDonations';
 import GoodsDonationsAdmin from './pages/admin/donations/GoodsDonations';
+import Expenses from './pages/admin/Expenses';
 
 const App = () => {
     useEffect(() => {
@@ -71,6 +72,14 @@ const App = () => {
                     }
                 />
                 <Route
+                    path="/expenses"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Expenses />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
                     path="/roles"
                     element={
                         <ProtectedRoute role="admin">
@@ -79,7 +88,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/inquiries"
+                    path="/enquiries"
                     element={
                         <ProtectedRoute role="admin">
                             <Inquiries />
@@ -87,7 +96,7 @@ const App = () => {
                     }
                 />
                 <Route
-                    path="/knowledgebase"
+                    path="/settings/chatbot"
                     element={
                         <ProtectedRoute role="admin">
                             <Knowledgebase />

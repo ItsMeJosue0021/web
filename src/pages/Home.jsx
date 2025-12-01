@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import { _get } from "../api";
 
 import Header from "../components/headers/Header";
 import Footer from "../components/Footer";
@@ -9,8 +10,7 @@ import banner from "../assets/img/banner.png";
 import activity1 from "../assets/img/activity1.png";
 import activity2 from "../assets/img/activity2.png";
 import donateNowImg from "../assets/img/donateNow.png";
-
-import projects from "../data/projects.json";
+import getInvolvedImg from "../assets/img/involved.png";
 
 const images = [
   { src: banner, text: "Think of giving not as a duty, but as a privilege." },
@@ -19,6 +19,9 @@ const images = [
 ];
 
 const Home = () => {
+
+  const baseURL = "https://api.kalingangkababaihan.com/storage/";
+
   const [currentIndex, setCurrentIndex] = useState(0);
 
   useEffect(() => {
@@ -34,6 +37,21 @@ const Home = () => {
 
   const nextSlide = () => {
     setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+  };
+
+  const [recentProjects, setRecentProjects] = useState([]);
+
+  useEffect(() => {
+      fetchPastProjects();
+  }, []);
+
+  const fetchPastProjects = async () => {
+      try {
+          const response = await _get("/past-projects");
+          setRecentProjects(response.data);
+      } catch (error) {
+          console.error('Error fetching events:', error);
+      }
   };
 
   return (
@@ -125,15 +143,15 @@ const Home = () => {
           </div>
 
           <div className="w-full flex items-center justify-center flex-wrap gap-4">
-            {projects.slice(0, 2).map((project, index) => (
+            {recentProjects.map((project, index) => (
               <div
                 key={index}
                 data-aos="fade-down"
                 className="relative w-full md:w-[500px] h-80 rounded-lg overflow-hidden group"
               >
                 <img
-                  src={activity1}
-                  alt="activity1"
+                  src={project.image ? `${baseURL}${project.image}` : activity1}
+                  alt="image"
                   className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
                 />
                 <div className="absolute inset-0 bg-black bg-opacity-50 rounded-lg"></div>
@@ -147,7 +165,7 @@ const Home = () => {
                   </p>
                   <div className="mt-3">
                     <Link
-                      to={`/projects/${project.id}`}
+                      to={`/our-projects/${project.id}`}
                       className="px-3 text-gray-200 hover:text-white py-1 text-xs border border-gray-200 hover:border-white rounded"
                     >
                       Read More
@@ -164,7 +182,7 @@ const Home = () => {
       <section className="w-full bg-white py-20">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-8">
-            <img src={donateNowImg} alt="img" className="w-full h-auto md:w-[500px]" />
+            <img src={getInvolvedImg} alt="img" className="w-full h-auto md:w-[500px] rounded-3xl" />
             <div className="flex flex-col items-center md:items-start gap-5">
               <p className="text-4xl text-gray-800 font-bold chewy text-center md:text-left">
                 Give food and bring Hope.

@@ -144,7 +144,7 @@ const Inquiries = () => {
             <div className="w-full mx-auto flex flex-col gap-4 mt-4 md:mt-0">
                 <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
                     <div className="w-full md:in-w-80 md:max-w-[500px] flex items-center gap-4 ">
-                        <p className="hidden md:block text-sm">Search</p>
+                        <p className="hidden md:block text-xs">Search</p>
                         <input onChange={(e) => handleSearch(e.target.value)} type="text" className="bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" placeholder="Search for enquiries.." />
                     </div>
                 </div>
@@ -186,7 +186,9 @@ const Inquiries = () => {
 
                 {loading && (
                     <div className="w-full h-40 flex items-center justify-center">
-                        <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
+                        <CircularLoading customClass='text-blue-500 w-6 h-6'
+                        
+                        />
                     </div>
                 )}
             </div>

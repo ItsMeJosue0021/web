@@ -3,7 +3,7 @@ import Admin from "../../layouts/Admin";
 import { useEffect, useState } from "react";
 import { _delete, _get, _post, _put } from "../../api";
 import CircularLoading from "../../components/CircularLoading";
-import { Edit, HandCoins, Mail, Trash2 } from "lucide-react";
+import { Edit, HandCoins, Mail, Trash2, X } from "lucide-react";
 import ConfirmationAlert from '../../components/alerts/ConfirmationAlert';
 import ModalContainer from '../../components/ModalContainer';
 
@@ -193,6 +193,7 @@ const Expenses = () => {
         setEditItems(
             (expense.items || []).map((it) => ({
             // keep existing items; no new file unless user picks one
+                id: it.id || "",
                 name: it.name || "",
                 description: it.description || "",
                 quantity: it.quantity ?? 1,
@@ -222,11 +223,14 @@ const Expenses = () => {
             if (editForm.attachment) data.append("attachment", editForm.attachment);
 
             editItems.forEach((item, idx) => {
+                if (item.id) data.append(`items[${idx}][id]`, item.id); // keep existing
                 data.append(`items[${idx}][name]`, item.name);
                 data.append(`items[${idx}][description]`, item.description || "");
                 data.append(`items[${idx}][quantity]`, item.quantity);
                 data.append(`items[${idx}][unit_price]`, item.unit_price);
-                if (item.image) data.append(`items[${idx}][image]`, item.image);
+                if (item.image) {
+                    data.append(`items[${idx}][image]`, item.image); // only when changed
+                }
             });
 
             const res = await _post(`/expenditures/${editId}`, data, {
@@ -234,20 +238,21 @@ const Expenses = () => {
             });
 
             if (res.status === 200) {
-            fetchExpenses();
-            setOpenEditModal(false);
-            setEditId(null);
-            setEditForm({ 
-                name: "", 
-                description: "", 
-                amount: "", 
-                date_incurred: "", 
-                payment_method: "", 
-                notes: "", 
-                attachment: null 
-            });
-            setEditAttachmentPreview(null);
-            setEditItems([]);
+                fetchExpenses();
+                setOpenEditModal(false);
+                setEditId(null);
+                setEditForm({ 
+                    name: "", 
+                    description: "", 
+                    amount: "", 
+                    date_incurred: "", 
+                    payment_method: "", 
+                    notes: "", 
+                    attachment: null 
+                });
+                setEditAttachmentPreview(null);
+                setEditItems([]);
+                setEditItemPreview(null);
             }
         } catch (error) {
             if (error.response?.data?.errors) setEditValidationErrors(error.response.data.errors);
@@ -273,11 +278,26 @@ const Expenses = () => {
     };
 
 
-    const removeEditItem = (idx) => {
+    const removeEditItem = (idx, item_id) => {
         setEditItems(editItems.filter((_, i) => i !== idx));
+        deleteItem(item_id);
     };
 
+    const deleteItem = async (item_id) => {
+        try {
+            _delete(`/expenditure-items/${item_id}`);
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
+    const canAddItem =
+    editItemForm.name.trim() &&
+    editItemForm.unit_price &&
+    editItemForm.image;
+
+    const [viewItemsOpen, setViewItemsOpen] = useState(false);
+    const [viewItems, setViewItems] = useState([]);
 
 
 
@@ -353,6 +373,15 @@ const Expenses = () => {
                                             <td className="p-3 text-xs ">{row.date_incurred}</td>
                                             <td className="p-3 text-xs ">{row.payment_method}</td>
                                             <td className="p-3 text-xs flex justify-start gap-2">
+                                                <button
+                                                    onClick={() => {
+                                                        setViewItems(row.items || []);
+                                                        setViewItemsOpen(true);
+                                                    }}
+                                                    className="bg-gray-100 text-gray-700 text-[10px] px-2 py-1 rounded hover:bg-gray-200"
+                                                    >
+                                                    See Items
+                                                </button>
                                                 <button
                                                     className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
                                                     onClick={() => openEdit(row)}
@@ -568,7 +597,7 @@ const Expenses = () => {
 
                             {/* Name */}
                             <div className="flex flex-col gap-1">
-                            <label className="text-xs">Name *</label>
+                            <label className="text-xs">Name <span className='text-red-600'>*</span></label>
                             <input
                                 value={editForm.name}
                                 onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
@@ -582,7 +611,7 @@ const Expenses = () => {
 
                             {/* Description */}
                             <div className="flex flex-col gap-1">
-                            <label className="text-xs">Description *</label>
+                            <label className="text-xs">Description <span className='text-red-600'>*</span></label>
                             <textarea
                                 value={editForm.description}
                                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
@@ -596,7 +625,7 @@ const Expenses = () => {
 
                             {/* Amount */}
                             <div className="flex flex-col gap-1">
-                            <label className="text-xs">Amount *</label>
+                            <label className="text-xs">Amount <span className='text-red-600'>*</span></label>
                             <input
                                 type="number"
                                 step="0.01"
@@ -612,7 +641,7 @@ const Expenses = () => {
 
                             {/* Date Incurred */}
                             <div className="flex flex-col gap-1">
-                            <label className="text-xs">Date Incurred *</label>
+                            <label className="text-xs">Date Incurred <span className='text-red-600'>*</span></label>
                             <input
                                 type="date"
                                 value={editForm.date_incurred}
@@ -626,7 +655,7 @@ const Expenses = () => {
 
                             {/* Payment Method */}
                             <div className="flex flex-col gap-1">
-                            <label className="text-xs">Payment Method *</label>
+                            <label className="text-xs">Payment Method <span className='text-red-600'>*</span></label>
                             <input
                                 value={editForm.payment_method}
                                 onChange={(e) => setEditForm({ ...editForm, payment_method: e.target.value })}
@@ -654,7 +683,7 @@ const Expenses = () => {
 
                             {/* Attachment */}
                             <div className="flex flex-col gap-1">
-                                <label className="text-xs">Attachment *</label>
+                                <label className="text-xs">Attachment <span className='text-red-600'>*</span></label>
                                 <input
                                     type="file"
                                     accept=".jpg,.jpeg,.png,.pdf"
@@ -692,7 +721,7 @@ const Expenses = () => {
 
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Item Name *</label>
+                                    <label className="text-xs">Item Name <span className='text-red-600'>*</span></label>
                                     <input
                                         value={editItemForm.name}
                                         onChange={(e) => setEditItemForm({ ...editItemForm, name: e.target.value })}
@@ -702,7 +731,7 @@ const Expenses = () => {
                                     </div>
 
                                     <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Quantity *</label>
+                                    <label className="text-xs">Quantity <span className='text-red-600'>*</span></label>
                                     <input
                                         type="number"
                                         min="1"
@@ -713,7 +742,7 @@ const Expenses = () => {
                                     </div>
 
                                     <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Unit Price *</label>
+                                    <label className="text-xs">Unit Price <span className='text-red-600'>*</span></label>
                                     <input
                                         type="number"
                                         step="0.01"
@@ -736,11 +765,10 @@ const Expenses = () => {
                                     </div>
 
                                     <div className="flex flex-col gap-1 sm:col-span-2">
-                                    <label className="text-xs">Item Image (optional)</label>
+                                    <label className="text-xs">Item Image <span className='text-red-600'>*</span></label>
                                     <input
                                         type="file"
                                         accept=".jpg,.jpeg,.png,.pdf"
-                                        required
                                         onChange={(e) => {
                                             const file = e.target.files[0];
                                             setEditItemForm({ ...editItemForm, image: file });
@@ -750,7 +778,7 @@ const Expenses = () => {
                                                 setEditItemPreview(null);
                                             }
                                         }}
-                                        className="text-sm"
+                                        className="text-xs"
                                     />
                                     {editItemPreview ? (
                                         <div className="mt-2">
@@ -767,14 +795,20 @@ const Expenses = () => {
                                     <button
                                         type="button"
                                         onClick={addEditItem}
-                                        className="px-3 py-2 text-xs rounded bg-blue-500 hover:bg-blue-600 text-white"
-                                    >
+                                        disabled={!canAddItem}
+                                        className={`px-3 py-1.5 text-xs rounded text-white ${
+                                            canAddItem
+                                            ? "bg-blue-500 hover:bg-blue-600"
+                                            : "bg-gray-300 cursor-not-allowed"
+                                        }`}
+                                        >
                                         Add Item
                                     </button>
                                 </div>
 
                                 {editItems.length > 0 && (
                                     <div className="mt-3 space-y-2">
+                                        <p className="text-sm text-orange-600 font-semibold">Current Items</p>
                                         {editItems.map((it, idx) => (
                                             <div key={idx} className="border rounded p-2 flex justify-between gap-2 text-xs">
                                                 <div className="flex items-start gap-2 space-y-1">
@@ -794,7 +828,7 @@ const Expenses = () => {
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={() => removeEditItem(idx)}
+                                                    onClick={() => removeEditItem(idx, it.id)}
                                                     className="text-red-500 h-fit border-0 hover:outline-none hover:underline"
                                                     >
                                                     Remove
@@ -825,6 +859,44 @@ const Expenses = () => {
                         </div>
                     </ModalContainer>
                 )}
+
+                {viewItemsOpen && (
+                    <ModalContainer isFull={false} close={() => setViewItemsOpen(false)}>
+                        <div className="bg-white p-6 rounded-xl w-full max-w-xl">
+                        <div className="flex justify-between items-center mb-3">
+                            <p className="text-sm text-orange-500 font-semibold">Items</p>
+                            <X 
+                                onClick={() => setViewItemsOpen(false)}
+                                className="text-xs text-gray-600 cursor-pointer"
+                            />
+                        </div>
+
+                        {viewItems.length === 0 ? (
+                            <p className="text-xs text-gray-600">No items for this expense.</p>
+                        ) : (
+                            <div className="space-y-3 max-h-[60vh] overflow-auto">
+                            {viewItems.map((it, idx) => (
+                                <div key={idx} className="border rounded p-2 text-xs flex gap-3">
+                                {it.image && (
+                                    <img
+                                    src={`${baseURL}${it.image}`} // use your existing baseURL
+                                    alt="item"
+                                    className="w-16 h-16 object-cover rounded"
+                                    />
+                                )}
+                                <div className="space-y-1">
+                                    <p className="font-semibold">{it.name}</p>
+                                    <p>Qty: {it.quantity} | Unit: {it.unit_price}</p>
+                                    {it.description && <p className="text-gray-600">{it.description}</p>}
+                                </div>
+                                </div>
+                            ))}
+                            </div>
+                        )}
+                        </div>
+                    </ModalContainer>
+                )}
+
             </div>
         </Admin>
     )

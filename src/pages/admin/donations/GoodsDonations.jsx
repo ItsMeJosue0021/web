@@ -253,6 +253,7 @@ const GoodsDonationsAdmin = () => {
                                     <th className="py-2 px-3 text-left">Description</th>
                                     <th className="py-2 px-3 text-left">Email</th>
                                     <th className="py-2 px-3 text-left">Type</th>
+                                    <th className="py-2 px-3 text-left">Quantity</th>
                                     <th className="py-2 px-3 text-left">Address</th>
                                     <th className="py-2 px-3 text-left">Status</th>
                                     <th className="py-2 px-3 text-left">Action</th>
@@ -291,6 +292,7 @@ const GoodsDonationsAdmin = () => {
                                             ))}
                                         </td>
 
+                                        <td className="p-2">{donation.quantity || ""}</td>
                                         <td className="p-2">{donation.address || ""}</td>
 
                                         <td className="p-2 capitalize">

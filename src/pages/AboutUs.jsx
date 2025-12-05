@@ -102,11 +102,43 @@ const AboutUs = () => {
         <section className="bg-gray-50 py-20 w-full">
           <div className="max-w-[1200px] mx-auto px-6 text-center">
             <h1 className="text-4xl md:text-5xl chewy mb-12">Our Core Values</h1>
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6 text-xl font-semibold">
-              <div>Leadership</div>
-              <div>Collaboration</div>
-              <div>Fairness</div>
-              <div>Usefulness</div>
+            <div className="flex flex-col md:flex-row items-start justify-center gap-5">
+              <div className="min-w-72 w-full md:w-72 h-56 bg-white shadow-md p-8 rounded-xl border-l-4 border-orange-500 flex flex-col items-center justify-center">
+                <img src="/image1.png" alt="img" className="w-16 h-16 mb-2" />
+                <h2 className="text-base font-bold text-orange-600 mb-2">
+                  Leadership
+                </h2>
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  Empowering women to lead with integrity and inspire change.
+                </p>
+              </div>
+              <div className="min-w-72 w-full md:w-72 h-56 bg-white shadow-md p-8 rounded-xl border-l-4 border-orange-500 flex flex-col items-center justify-center">
+                <img src="/image2.png" alt="img" className="w-16 h-16 mb-2" />
+                <h2 className="text-base font-bold text-orange-600 mb-2">
+                  Collaboration
+                </h2>
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  Working together to create lasting impact and unity.
+                </p>
+              </div>
+              <div className="min-w-72 w-full md:w-72 h-56 bg-white shadow-md p-8 rounded-xl border-l-4 border-orange-500 flex flex-col items-center justify-center">
+                <img src="/image3.png" alt="img" className="w-16 h-16 mb-2" />
+                <h2 className="text-base font-bold text-orange-600 mb-2">
+                  Fairness
+                </h2>
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  Promoting equality, justice, and opportunity for everyone in the community.
+                </p>
+              </div>
+              <div className="min-w-72 w-full md:w-72 h-56 bg-white shadow-md p-8 rounded-xl border-l-4 border-orange-500 flex flex-col items-center justify-center">
+                <img src="/image4.png" alt="img" className="w-16 h-16 mb-2" />
+                <h2 className="text-base font-bold text-orange-600 mb-2">
+                  Usefulness
+                </h2>
+                <p className="text-xs text-gray-700 leading-relaxed">
+                  Providing practical resources to help women thrive.
+                </p>
+              </div>
             </div>
           </div>
         </section>

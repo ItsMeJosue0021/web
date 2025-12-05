@@ -69,11 +69,10 @@ const GCashDonation = () => {
                             </div>
 
                             <div className="w-full md:w-[95%] flex flex-col items-start justify-start gap-4">
-                                <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-4">
-                                    <label className="md:hidden w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                    <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-7">
+                                    <label className="w-full md:w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                    <div className="w-full md:w-[60%] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                         <div className="w-full flex items-center justify-between">
-                                            <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                             <input
                                                 type="text"
                                                 name="name"
@@ -90,15 +89,15 @@ const GCashDonation = () => {
                                             value={isAnonymous}
                                             checked={isAnonymous}
                                             onChange={() => setIsAnonymous(!isAnonymous)}
-                                            className="bg-white"
+                                            className="bg-white accent-gray-500 cursor-pointer"
                                             />
-                                            <span className="text-[13px] capitalize">Anonymous</span>
+                                            <span className="text-xs capitalize">Anonymous</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-1 md:gap-4">
-                                    <label className="w-full md:w-[40%] text-xs font-medium">Email <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                    <label className="w-full md:w-[40%] text-xs font-medium">Email <span className="text-xs text-red-500">*</span></label>
                                     <input 
                                         type="email" 
                                         name="email" 

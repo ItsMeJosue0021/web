@@ -138,7 +138,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             onClick={toggleModal} 
                                         />
                                         <NavItem 
-                                            to="/enquiries" 
+                                            to="/inquiries" 
                                             label="Enquiries"
                                             icon={MessageSquareMore}
                                             onClick={toggleModal} 
@@ -223,11 +223,11 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Expenses</p>
                                     </Link>
-                                    <Link to="/enquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/enquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    <Link to="/inquiries" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/inquiries" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <MessageSquareMore className="w-5 h-5 text-gray-700" />
                                         </div>
-                                        <p className="text-xs font-medium text-black">Enquiries</p>
+                                        <p className="text-xs font-medium text-black">Inquiries</p>
                                     </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">

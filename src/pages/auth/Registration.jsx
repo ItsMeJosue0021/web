@@ -48,8 +48,15 @@ const Registration = () => {
 
 
     const handleChange = (e) => {
-        setCredentials({ ...credentials, [e.target.name]: e.target.value });
-        setErrors({ ...errors, [e.target.name]: "" });
+        const { name, value } = e.target;
+        if (name === "contactNumber") {
+            const sanitizedValue = value.replace(/\D/g, "").slice(0, 11);
+            setCredentials({ ...credentials, [name]: sanitizedValue });
+            setErrors({ ...errors, [name]: "" });
+            return;
+        }
+        setCredentials({ ...credentials, [name]: value });
+        setErrors({ ...errors, [name]: "" });
     };
 
     const handleSubmit = async (e) => {
@@ -217,11 +224,15 @@ const Registration = () => {
                                         <TextInput 
                                         value={credentials.contactNumber}
                                         label="Contact Number" 
-                                        type="number" 
-                                        placeholder="0000-000-0000" 
+                                        type="tel" 
+                                        placeholder="09123456789" 
                                         name="contactNumber" 
                                         hasError={Boolean(errors.contactNumber)} 
-                                        onChange={handleChange} required/>
+                                        onChange={handleChange}
+                                        maxLength={11}
+                                        inputMode="numeric"
+                                        pattern="[0-9]{11}"
+                                        required/>
                                         {errors.contactNumber && <p className="text-red-500 text-[11px]">{errors.contactNumber}</p>}
                                     </div>
                                     <div>
@@ -410,4 +421,3 @@ const Registration = () => {
 };
 
 export default Registration;
-

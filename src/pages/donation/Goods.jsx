@@ -17,6 +17,7 @@ const Goods = () => {
     const [categories, setCategories] = useState([]);
     const [email, setEmail] = useState('');
     const [address, setAddress] = useState('Main Address');
+    const [quantity, setQuantity] = useState(0);
     const [errors, setErrors] = useState({});
     const [loading, setLoading] = useState(false);
 
@@ -76,6 +77,7 @@ const Goods = () => {
             description,
             type: categories,
             email,
+            quantity,
             address
         };
 
@@ -85,6 +87,7 @@ const Goods = () => {
             toast.success('Donation submitted successfully!');
             setName('');
             setDescription('');
+            setQuantity(0);
             setAddress('Main Address');
             setCategories([]);
             setLoading(false);
@@ -136,11 +139,10 @@ const Goods = () => {
                                 <div className="w-full flex items-center justify-center p-1">
                                     <div className="w-full flex flex-col items-start justify-start gap-3">
                                         {/* Name */}
-                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-3">
-                                            <label className="md:hidden text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
-                                            <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-7">
+                                            <label className="w-full md:w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                            <div className="w-full md:w-[60%] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                                 <div className="w-full flex item-center justify-between">
-                                                    <label className="hidden md:block w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                                     <input
                                                         type="text"
                                                         name="name"
@@ -157,15 +159,15 @@ const Goods = () => {
                                                     value={isAnonymous}
                                                     checked={isAnonymous}
                                                     onChange={() => setIsAnonymous(!isAnonymous)}
-                                                    className="bg-white"
+                                                    className="bg-white accent-gray-500 cursor-pointer"
                                                     />
-                                                    <span className="text-[13px] capitalize">Anonymous</span>
+                                                    <span className="text-xs capitalize">Anonymous</span>
                                                 </label>
                                             </div>
                                         </div>
                                     
                                         <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
-                                            <label className="w-full md:w-[40%] text-xs font-medium">email <span className="text-[9px] text-gray-500"></span></label>
+                                            <label className="w-full md:w-[40%] text-xs font-medium">Email <span className="text-[9px] text-gray-500"></span></label>
                                             <input
                                                 type="text"
                                                 name="email"
@@ -177,28 +179,39 @@ const Goods = () => {
 
                                         {/* Categories */}
                                         <div className="w-full">
-                                            <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
+                                            <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-7">
                                                 <label className="w-full md:w-[40%] text-xs font-medium">Type of Donation <span className="text-sm text-red-500">*</span></label>
-                                                <div className="w-full md:w-[60%] flex items-start justify-start md:justify-end gap-2">
+                                                <div className="w-full md:w-[60%] flex flex-wrap items-start justify-start gap-2">
                                                     {donationCategories.length > 0 && donationCategories.map((item) => (
-                                                    <label
-                                                        key={item}
-                                                        className={`cursor-pointer px-4 py-1.5 rounded-md border transition flex items-center hover:bg-orange-100 hover:border-orange-500
-                                                        ${categories.includes(item.name) ? "bg-orange-100 border-orange-500" : "bg-white border-gray-300"}`}
-                                                    >
-                                                        <input
-                                                            type="checkbox"
-                                                            value={item.name}
-                                                            checked={categories.includes(item.name)}
-                                                            onChange={handleCategoryChange}
-                                                            className="hidden"
-                                                        />
-                                                        <span className={`text-xs capitalize ${categories.includes(item.name) ? "text-orange-500" : ""}`}>{item.name}</span>
-                                                    </label>
+                                                        <label
+                                                            key={item.name || item}
+                                                            className={`cursor-pointer px-3 py-1.5 rounded-md border transition flex items-center gap-2 hover:bg-gray-100 `}
+                                                        >
+                                                            <input
+                                                                type="checkbox"
+                                                                value={item.name}
+                                                                checked={categories.includes(item.name)}
+                                                                onChange={handleCategoryChange}
+                                                                className="h-4 w-4 accent-gray-500 cursor-pointer"
+                                                            />
+                                                            <span className={`text-xs capitalize`}>{item.name}</span>
+                                                        </label>
                                                     ))}
                                                 </div>
                                             </div>
                                             {errors.type && <p className="text-[10px] text-red-500">{errors.type[0]}</p>}
+                                        </div>
+
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
+                                            <label className="w-full md:w-[40%] text-xs font-medium">Quantity <span className="text-[9px] text-gray-500"></span></label>
+                                            <input
+                                                type="number"
+                                                name="quantity"
+                                                value={quantity}
+                                                min={0}
+                                                onChange={(e) => setQuantity(e.target.value)}
+                                                className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 bg-gray-50 text-xs"
+                                            />
                                         </div>
                                         
 

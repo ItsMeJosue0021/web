@@ -11,6 +11,7 @@ import { X } from "lucide-react";
 import html2pdf from 'html2pdf.js';
 import ModalContainer from "../../../components/ModalContainer";
 import ItemizerModal from "../../../components/ItemizerModal";
+import WarningAlert from "../../../components/alerts/WarningAlert";
 
 const GoodsDonationsAdmin = () => {
     const [donations, setDonations] = useState([]);
@@ -307,7 +308,7 @@ const GoodsDonationsAdmin = () => {
                                             <div className="flex items-center gap-2">
                                                 {donation.status !== "approved" && (
                                                     <button
-                                                        onClick={() => setToBeApproved(donation.id)}
+                                                        onClick={() => setToBeApproved(donation)}
                                                         className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
                                                     >
                                                         Confirm
@@ -339,14 +340,22 @@ const GoodsDonationsAdmin = () => {
                 </ModalContainer>
             )}
 
-            {/* CONFIRMATION MODAL */}
+            {/* CONFIRMATION / WARNING MODALS */}
             {toBeApproved && (
-                <ConfirmationAlert
-                    onClose={() => setToBeApproved(null)}
-                    onConfirm={() => approveDonation(toBeApproved)}
-                    title="Approve Donation"
-                    message="Are you sure you want to approve this donation?"
-                />
+                toBeApproved.items_count > 0 ? (
+                    <ConfirmationAlert
+                        onClose={() => setToBeApproved(null)}
+                        onConfirm={() => approveDonation(toBeApproved.id)}
+                        title="Approve Donation"
+                        message="Are you sure you want to approve this donation?"
+                    />
+                ) : (
+                    <WarningAlert
+                        title="Action Required"
+                        message="Please itemize the donation first before confirming it."
+                        onClose={() => setToBeApproved(null)}
+                    />
+                )
             )}
 
             {/* SUCCESS MESSAGE */}

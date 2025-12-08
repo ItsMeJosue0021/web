@@ -27,6 +27,7 @@ import Dropdown from '../components/Dropdown';
 import UserProfile from '../components/UserProfile';
 import { AuthContext } from '../AuthProvider';
 import { GrMoney } from "react-icons/gr";
+import { MdOutlineInventory } from "react-icons/md";
 
 
 
@@ -132,6 +133,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         />
 
                                         <NavItem 
+                                            to="/inventory" 
+                                            label="Inventory"
+                                            icon={MessageSquareMore}
+                                            onClick={toggleModal} 
+                                        />
+                                        <NavItem 
                                             to="/members" 
                                             label="Members" 
                                             icon={Users}
@@ -139,7 +146,13 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         />
                                         <NavItem 
                                             to="/inquiries" 
-                                            label="Enquiries"
+                                            label="Inquiries"
+                                            icon={MessageSquareMore}
+                                            onClick={toggleModal} 
+                                        />
+                                        <NavItem 
+                                            to="/expenses" 
+                                            label="Expenses"
                                             icon={MessageSquareMore}
                                             onClick={toggleModal} 
                                         />
@@ -210,12 +223,11 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     )}
 
 
-
-                                    <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                    <Link to="/inventory" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/inventory" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
-                                        <Users className="w-5 h-5 text-gray-700" />
+                                        <MdOutlineInventory  className="w-5 h-5 text-gray-700" />
                                         </div>
-                                        <p className="text-xs font-medium text-black">Members</p>
+                                        <p className="text-xs font-medium text-black">Inventory</p>
                                     </Link>
                                     <Link to="/expenses" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/expenses" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
@@ -228,6 +240,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         <MessageSquareMore className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Inquiries</p>
+                                    </Link>
+                                    <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                        <div className="flex justify-center w-10">
+                                        <Users className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <p className="text-xs font-medium text-black">Members</p>
                                     </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">

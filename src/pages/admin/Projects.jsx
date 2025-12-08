@@ -496,12 +496,13 @@
 import Admin from "../../layouts/Admin";
 import { useEffect, useState, useCallback } from "react";
 import { X, Edit, Trash2 } from "lucide-react";
-import { _get, _post, _put, _delete } from "../../api";
+import { _get, _post, _delete } from "../../api";
 import { toast } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
 import debounce from "lodash.debounce";
 import CircularLoading from "../../components/CircularLoading";
+import ModalContainer from "../../components/ModalContainer";
 
 const Projects = () => {
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
@@ -529,10 +530,30 @@ const Projects = () => {
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
+    // Liquidation
+    const [isLiquidateOpen, setIsLiquidateOpen] = useState(false);
+    const [liquidateProject, setLiquidateProject] = useState(null);
+    const [inventoryItems, setInventoryItems] = useState([]);
+    const [inventoryLoading, setInventoryLoading] = useState(false);
+    const [itemSearch, setItemSearch] = useState("");
+    const [itemCategory, setItemCategory] = useState("");
+    const [itemSubCategory, setItemSubCategory] = useState("");
+    const [categories, setCategories] = useState([]);
+    const [selectedItems, setSelectedItems] = useState([]);
+    const [savingLiquidation, setSavingLiquidation] = useState(false);
+    const [existingResourcesLoading, setExistingResourcesLoading] = useState(false);
+
     // FETCH PROJECTS
     useEffect(() => {
         fetchProjects();
+        fetchCategories();
     }, []);
+
+    useEffect(() => {
+        if (isLiquidateOpen) {
+            fetchInventoryItems({ search: "", categoryId: "", subCategoryId: "" });
+        }
+    }, [isLiquidateOpen]);
 
     const fetchProjects = async () => {
         try {
@@ -667,6 +688,156 @@ const Projects = () => {
         }
     };
 
+    const fetchCategories = async () => {
+        try {
+            const response = await _get(`/goods-donation-categories`);
+            setCategories(response.data.categories || []);
+        } catch (error) {
+            console.error("Error fetching categories:", error);
+        }
+    };
+
+    const fetchInventoryItems = async ({
+        search = itemSearch,
+        categoryId = itemCategory,
+        subCategoryId = itemSubCategory,
+    } = {}) => {
+        setInventoryLoading(true);
+        try {
+            const params = {};
+            if (search) params.search = search;
+            if (categoryId) params.category = categoryId;
+            if (subCategoryId) params.sub_category = subCategoryId;
+
+            const response = await _get("/items", { params });
+            if (response.data && response.status === 200) {
+                const fetched = response.data.items || [];
+                const filtered = fetched.filter(
+                    (item) => Number(item.quantity) > 0 && item.status === "available"
+                );
+                setInventoryItems(filtered);
+            }
+        } catch (error) {
+            console.error("Error fetching items:", error);
+        } finally {
+            setInventoryLoading(false);
+        }
+    };
+
+    const fetchProjectResources = async (projectId) => {
+        setExistingResourcesLoading(true);
+        try {
+            const response = await _get(`/projects/${projectId}/resources`);
+            const resources = response.data?.items || response.data?.resources || response.data || [];
+            const mapped = resources
+                .map((res) => {
+                    const itemData = res.item || {};
+                    const id = res.item_id || res.id || itemData.id;
+                    if (!id) return null;
+                    return {
+                        id,
+                        name: res.name || res.item_name || itemData.name || "",
+                        category_name: res.category_name || itemData.category_name || res.category?.name || "",
+                        sub_category_name: res.sub_category_name || itemData.sub_category_name || res.subcategory?.name || "",
+                        quantity: res.available_quantity ?? itemData.quantity ?? res.quantity ?? 0,
+                        unit: res.unit || itemData.unit || "",
+                        notes: res.notes || itemData.notes || "",
+                        status: res.status || itemData.status || "available",
+                        usedQuantity: res.quantity_used || res.used_quantity || res.quantity || 1,
+                        isExisting: true,
+                    };
+                })
+                .filter(Boolean);
+            setSelectedItems(mapped);
+        } catch (error) {
+            console.error("Error fetching project resources:", error);
+            setSelectedItems([]);
+        } finally {
+            setExistingResourcesLoading(false);
+        }
+    };
+
+    const openLiquidateModal = async (project) => {
+        setLiquidateProject(project);
+        setIsLiquidateOpen(true);
+        setItemSearch("");
+        setItemCategory("");
+        setItemSubCategory("");
+        await fetchProjectResources(project.id);
+        fetchInventoryItems({ search: "", categoryId: "", subCategoryId: "" });
+    };
+
+    const closeLiquidateModal = () => {
+        setIsLiquidateOpen(false);
+        setLiquidateProject(null);
+        setSelectedItems([]);
+    };
+
+    const handleItemSearchChange = (value) => {
+        setItemSearch(value);
+        fetchInventoryItems({ search: value, categoryId: itemCategory, subCategoryId: itemSubCategory });
+    };
+
+    const handleItemCategoryChange = (value) => {
+        setItemCategory(value);
+        const resetSub = "";
+        setItemSubCategory(resetSub);
+        fetchInventoryItems({ search: itemSearch, categoryId: value, subCategoryId: resetSub });
+    };
+
+    const handleItemSubCategoryChange = (value) => {
+        setItemSubCategory(value);
+        fetchInventoryItems({ search: itemSearch, categoryId: itemCategory, subCategoryId: value });
+    };
+
+    const handleSelectItem = (item) => {
+        if (selectedItems.some((i) => i.id === item.id)) return;
+        setSelectedItems((prev) => [...prev, { ...item, usedQuantity: 1 }]);
+    };
+
+    const handleQuantityChange = (itemId, value) => {
+        setSelectedItems((prev) =>
+            prev.map((i) => (i.id === itemId ? { ...i, usedQuantity: value } : i))
+        );
+    };
+
+    const handleRemoveSelectedItem = (itemId) => {
+        setSelectedItems((prev) => prev.filter((i) => i.id !== itemId));
+    };
+
+    const submitLiquidation = async () => {
+        if (!liquidateProject) return;
+        if (selectedItems.length === 0) {
+            toast.warn("Select at least one item to liquidate.");
+            return;
+        }
+
+        const payload = {
+            items: selectedItems
+                .filter((item) => !item.isExisting)
+                .map((item) => ({
+                    item_id: item.id,
+                    quantity: Number(item.usedQuantity) > 0 ? Number(item.usedQuantity) : 1,
+                })),
+        };
+
+        setSavingLiquidation(true);
+        try {
+            await _post(`/projects/${liquidateProject.id}/liquidate`, payload);
+            toast.success("Liquidation saved.");
+            closeLiquidateModal();
+            fetchProjects();
+        } catch (error) {
+            toast.error("Error saving liquidation.");
+        } finally {
+            setSavingLiquidation(false);
+        }
+    };
+
+    const subCategoryOptions = itemCategory
+        ? categories.find((cat) => `${cat.id}` === `${itemCategory}`)?.subcategories || []
+        : categories.flatMap((cat) => cat.subcategories || []);
+
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
             {/* SEARCH + NEW BUTTON */}
@@ -740,6 +911,12 @@ const Projects = () => {
                                         >
                                             <Trash2 size={16} />
                                         </button>
+                                        <button
+                                            onClick={() => openLiquidateModal(project)}
+                                            className="bg-green-500 text-white px-2 text-xs py-1 rounded"
+                                        >
+                                            Liquidate
+                                        </button>
                                     </td>
                                 </tr>
                             ))}
@@ -753,6 +930,176 @@ const Projects = () => {
                     </div>
                 )}
             </div>
+
+            {/* LIQUIDATE MODAL */}
+            {isLiquidateOpen && (
+                <ModalContainer isFull={true} close={closeLiquidateModal}>
+                    <div className="w-full flex flex-col gap-4">
+                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full">
+                            <div>
+                                <p className="text-lg font-semibold text-orange-600">Liquidate Items</p>
+                                <p className="text-xs text-gray-500">
+                                    {liquidateProject?.title ? `For project: ${liquidateProject.title}` : "Select the items used for this project."}
+                                </p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button
+                                    onClick={closeLiquidateModal}
+                                    className="text-xs px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                                >
+                                    Cancel
+                                </button>
+                                <button
+                                    onClick={submitLiquidation}
+                                    disabled={savingLiquidation || selectedItems.length === 0}
+                                    className={`text-xs px-4 py-2 rounded text-white ${savingLiquidation || selectedItems.length === 0 ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
+                                >
+                                    {savingLiquidation ? "Saving..." : "Save"}
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="grid md:grid-cols-2 gap-4 h-[70vh]">
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden">
+                                <div className="flex flex-wrap gap-2">
+                                    <input
+                                        value={itemSearch}
+                                        onChange={(e) => handleItemSearchChange(e.target.value)}
+                                        type="text"
+                                        className="w-full md:flex-1 bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm"
+                                        placeholder="Search items..."
+                                    />
+                                    <select
+                                        value={itemCategory}
+                                        onChange={(e) => handleItemCategoryChange(e.target.value)}
+                                        className="bg-white text-xs px-3 py-2 rounded border border-gray-200"
+                                    >
+                                        <option value="">All categories</option>
+                                        {categories.map((cat) => (
+                                            <option key={cat.id} value={cat.id}>
+                                                {cat.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <select
+                                        value={itemSubCategory}
+                                        onChange={(e) => handleItemSubCategoryChange(e.target.value)}
+                                        className="bg-white text-xs px-3 py-2 rounded border border-gray-200"
+                                    >
+                                        <option value="">All subcategories</option>
+                                        {subCategoryOptions.map((sub) => (
+                                            <option key={sub.id} value={sub.id}>
+                                                {sub.name}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                    {inventoryLoading || existingResourcesLoading ? (
+                                        <div className="w-full h-full flex items-center justify-center py-8">
+                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                                        </div>
+                                    ) : inventoryItems.length === 0 ? (
+                                        <p className="text-xs text-center text-gray-500 py-6">No items found.</p>
+                                    ) : (
+                                        <div className="flex flex-col gap-2">
+                                            {inventoryItems.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    className="flex items-start justify-between gap-3 bg-white border rounded p-2"
+                                                >
+                                                    <div className="flex-1 flex flex-col gap-1">
+                                                        <p className="text-sm font-medium">{item.name}</p>
+                                                        <p className="text-[11px] text-gray-600">
+                                                            {item.category_name} {item.sub_category_name ? `• ${item.sub_category_name}` : ""}
+                                                        </p>
+                                                        <p className="text-[11px] text-gray-500">
+                                                            Available: {item.quantity} {item.unit || ""}
+                                                        </p>
+                                                        {item.notes && (
+                                                            <p className="text-[11px] text-gray-500">Notes: {item.notes}</p>
+                                                        )}
+                                                    </div>
+                                                    <button
+                                                        onClick={() => handleSelectItem(item)}
+                                                        disabled={selectedItems.some((i) => i.id === item.id)}
+                                                        className={`text-xs px-3 py-1 rounded ${selectedItems.some((i) => i.id === item.id) ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-orange-500 text-white hover:bg-orange-600"}`}
+                                                    >
+                                                        {selectedItems.some((i) => i.id === item.id) ? "Added" : "Add"}
+                                                    </button>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden">
+                                <div className="flex items-center justify-between">
+                                    <p className="text-sm font-semibold">Selected Items</p>
+                                    <p className="text-[11px] text-gray-500">{selectedItems.length} item(s)</p>
+                                </div>
+
+                                <div className="flex-1 overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                    {selectedItems.length === 0 ? (
+                                        <p className="text-xs text-center text-gray-500 py-6">
+                                            No items selected yet.
+                                        </p>
+                                    ) : (
+                                        <div className="flex flex-col gap-2">
+                                            {selectedItems.map((item) => (
+                                                <div
+                                                    key={item.id}
+                                                    className="flex flex-col gap-2 bg-white border rounded p-2"
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div>
+                                                            <p className="text-sm font-medium">{item.name}</p>
+                                                            <p className="text-[11px] text-gray-600">
+                                                                {item.category_name} {item.sub_category_name ? `• ${item.sub_category_name}` : ""}
+                                                            </p>
+                                                            <p className="text-[11px] text-gray-500">
+                                                                Available: {item.quantity} {item.unit || ""}
+                                                            </p>
+                                                            {item.isExisting && (
+                                                                <span className="inline-block text-[10px] text-green-600 bg-green-50 px-2 py-1 rounded mt-1">
+                                                                    Already itemized
+                                                                </span>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleRemoveSelectedItem(item.id)}
+                                                            className="text-[11px] text-red-500 hover:text-red-600"
+                                                        >
+                                                            Remove
+                                                        </button>
+                                                    </div>
+
+                                                    <div className="flex items-center gap-2">
+                                                        <label className="text-[11px] text-gray-600">Quantity used</label>
+                                                        <input
+                                                            type="number"
+                                                            min="1"
+                                                            value={item.usedQuantity}
+                                                            onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                            className={`w-24 bg-white border px-2 py-1 rounded text-xs ${item.isExisting ? "opacity-60 cursor-not-allowed" : ""}`}
+                                                            disabled={item.isExisting}
+                                                        />
+                                                        {item.unit && (
+                                                            <span className="text-[11px] text-gray-500">{item.unit}</span>
+                                                        )}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </ModalContainer>
+            )}
 
             {/* ADD PROJECT MODAL */}
             {showAddProjectModal && (

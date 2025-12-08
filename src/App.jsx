@@ -48,6 +48,7 @@ import CashDonationsAdmin from './pages/admin/donations/CashDonations';
 import GCashDonationsAdmin from './pages/admin/donations/GCashDonations';
 import GoodsDonationsAdmin from './pages/admin/donations/GoodsDonations';
 import Expenses from './pages/admin/Expenses';
+import Inventory from './pages/admin/Inventory';
 
 const App = () => {
     useEffect(() => {
@@ -63,6 +64,14 @@ const App = () => {
             <Routes>
 
                 {/* Admin */}
+                <Route
+                    path="/inventory"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <Inventory />
+                        </ProtectedRoute>
+                    }
+                />
                 <Route
                     path="/members"
                     element={

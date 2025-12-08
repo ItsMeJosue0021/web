@@ -300,8 +300,6 @@ const Expenses = () => {
     const [viewItems, setViewItems] = useState([]);
 
 
-
-
     const header = {
         title: "Expenses Management",
         subTitle: "Track, add, and update expenses to keep spending organized and transparent."

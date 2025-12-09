@@ -251,7 +251,7 @@ const Registration = () => {
                                     </div>
                                     <div className="flex items-start gap-3">
                                         <div className="w-full">
-                                            <label className="text-xs">Mobile No.</label>
+                                            <label className="text-xs">Block</label>
                                             <TextInput 
                                             value={credentials.block}
                                             label="Block" 

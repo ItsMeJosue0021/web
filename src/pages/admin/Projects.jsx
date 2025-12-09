@@ -543,6 +543,30 @@ const Projects = () => {
     const [savingLiquidation, setSavingLiquidation] = useState(false);
     const [existingResourcesLoading, setExistingResourcesLoading] = useState(false);
 
+    const generateUid = () => `uid-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+
+    const formatAddedOn = (value) => {
+        if (!value) return "";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return value;
+        return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    };
+
+    const totalUsedForItem = (itemId, excludeUid = null, items = selectedItems, includeExisting = false) =>
+        items.reduce((sum, item) => {
+            if (item.id !== itemId) return sum;
+            if (excludeUid && item.uid === excludeUid) return sum;
+            if (!includeExisting && item.isExisting) return sum;
+            return sum + Number(item.usedQuantity || 0);
+        }, 0);
+
+    const getRemainingQuantity = (item) => {
+        const available = Number(item.quantity) || 0;
+        const used = totalUsedForItem(item.id);
+        const remaining = available - used;
+        return remaining > 0 ? remaining : 0;
+    };
+
     // FETCH PROJECTS
     useEffect(() => {
         fetchProjects();
@@ -736,6 +760,7 @@ const Projects = () => {
                     if (!id) return null;
                     return {
                         id,
+                        uid: generateUid(),
                         name: res.name || res.item_name || itemData.name || "",
                         category_name: res.category_name || itemData.category_name || res.category?.name || "",
                         sub_category_name: res.sub_category_name || itemData.sub_category_name || res.subcategory?.name || "",
@@ -743,8 +768,9 @@ const Projects = () => {
                         unit: res.unit || itemData.unit || "",
                         notes: res.notes || itemData.notes || "",
                         status: res.status || itemData.status || "available",
-                        usedQuantity: res.quantity_used || res.used_quantity || res.quantity || 1,
+                        usedQuantity: Number(res.quantity_used || res.used_quantity || res.quantity || 1) || 1,
                         isExisting: true,
+                        addedOn: res.created_at || res.added_at || itemData.created_at || "",
                     };
                 })
                 .filter(Boolean);
@@ -791,18 +817,58 @@ const Projects = () => {
     };
 
     const handleSelectItem = (item) => {
-        if (selectedItems.some((i) => i.id === item.id)) return;
-        setSelectedItems((prev) => [...prev, { ...item, usedQuantity: 1 }]);
+        const remaining = getRemainingQuantity(item);
+        if (remaining <= 0) {
+            toast.warn("No remaining quantity for this item.");
+            return;
+        }
+
+        const defaultQty = remaining < 1 ? remaining : 1;
+        setSelectedItems((prev) => [
+            ...prev,
+            {
+                ...item,
+                uid: generateUid(),
+                usedQuantity: defaultQty,
+                isExisting: false,
+                addedOn: new Date().toISOString(),
+            },
+        ]);
     };
 
-    const handleQuantityChange = (itemId, value) => {
+    const handleQuantityChange = (itemUid, value) => {
+        if (value === "") {
+            setSelectedItems((prev) =>
+                prev.map((i) => (i.uid === itemUid ? { ...i, usedQuantity: "" } : i))
+            );
+            return;
+        }
+
+        const numericValue = Number(value);
+        if (Number.isNaN(numericValue)) return;
+
         setSelectedItems((prev) =>
-            prev.map((i) => (i.id === itemId ? { ...i, usedQuantity: value } : i))
+            prev.map((i) => {
+                if (i.uid !== itemUid) return i;
+
+                const available = Number(i.quantity) || 0;
+                const usedByOthers = prev.reduce((sum, current) => {
+                    if (current.id === i.id && current.uid !== itemUid && !current.isExisting) {
+                        return sum + Number(current.usedQuantity || 0);
+                    }
+                    return sum;
+                }, 0);
+
+                const allowed = Math.max(available - usedByOthers, 0);
+                const safeValue = allowed === 0 ? 0 : Math.max(1, Math.min(allowed, numericValue));
+
+                return { ...i, usedQuantity: safeValue };
+            })
         );
     };
 
-    const handleRemoveSelectedItem = (itemId) => {
-        setSelectedItems((prev) => prev.filter((i) => i.id !== itemId));
+    const handleRemoveSelectedItem = (itemUid) => {
+        setSelectedItems((prev) => prev.filter((i) => i.uid !== itemUid));
     };
 
     const submitLiquidation = async () => {
@@ -1004,32 +1070,43 @@ const Projects = () => {
                                         <p className="text-xs text-center text-gray-500 py-6">No items found.</p>
                                     ) : (
                                         <div className="flex flex-col gap-2">
-                                            {inventoryItems.map((item) => (
-                                                <div
-                                                    key={item.id}
-                                                    className="flex items-start justify-between gap-3 bg-white border rounded p-2"
-                                                >
-                                                    <div className="flex-1 flex flex-col gap-1">
-                                                        <p className="text-sm font-medium">{item.name}</p>
-                                                        <p className="text-[11px] text-gray-600">
-                                                            {item.category_name} {item.sub_category_name ? `• ${item.sub_category_name}` : ""}
-                                                        </p>
-                                                        <p className="text-[11px] text-gray-500">
-                                                            Available: {item.quantity} {item.unit || ""}
-                                                        </p>
-                                                        {item.notes && (
-                                                            <p className="text-[11px] text-gray-500">Notes: {item.notes}</p>
-                                                        )}
-                                                    </div>
-                                                    <button
-                                                        onClick={() => handleSelectItem(item)}
-                                                        disabled={selectedItems.some((i) => i.id === item.id)}
-                                                        className={`text-xs px-3 py-1 rounded ${selectedItems.some((i) => i.id === item.id) ? "bg-gray-200 text-gray-500 cursor-not-allowed" : "bg-orange-500 text-white hover:bg-orange-600"}`}
+                                            {inventoryItems.map((item) => {
+                                                const remaining = getRemainingQuantity(item);
+                                                const isMaxedOut = remaining <= 0;
+                                                return (
+                                                    <div
+                                                        key={item.id}
+                                                        className="flex items-start justify-between gap-3 bg-white border rounded p-2"
                                                     >
-                                                        {selectedItems.some((i) => i.id === item.id) ? "Added" : "Add"}
-                                                    </button>
-                                                </div>
-                                            ))}
+                                                        <div className="flex-1 flex flex-col gap-1">
+                                                            <p className="text-sm font-medium">{item.name}</p>
+                                                            <p className="text-[11px] text-gray-600">
+                                                                {item.category_name} {item.sub_category_name ? `• ${item.sub_category_name}` : ""}
+                                                            </p>
+                                                            <p className="text-[11px] text-gray-500">
+                                                                Available: {item.quantity} {item.unit || ""}
+                                                            </p>
+                                                            <p className="text-[11px] text-gray-500">
+                                                                Remaining after selection: {remaining} {item.unit || ""}
+                                                            </p>
+                                                            {item.notes && (
+                                                                <p className="text-[11px] text-gray-500">Notes: {item.notes}</p>
+                                                            )}
+                                                        </div>
+                                                        <button
+                                                            onClick={() => handleSelectItem(item)}
+                                                            disabled={isMaxedOut}
+                                                            className={`text-xs px-3 py-1 rounded ${
+                                                                isMaxedOut
+                                                                    ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                                                                    : "bg-orange-500 text-white hover:bg-orange-600"
+                                                            }`}
+                                                        >
+                                                            {isMaxedOut ? "Maxed" : "Add"}
+                                                        </button>
+                                                    </div>
+                                                );
+                                            })}
                                         </div>
                                     )}
                                 </div>
@@ -1050,7 +1127,7 @@ const Projects = () => {
                                         <div className="flex flex-col gap-2">
                                             {selectedItems.map((item) => (
                                                 <div
-                                                    key={item.id}
+                                                    key={item.uid || item.id}
                                                     className="flex flex-col gap-2 bg-white border rounded p-2"
                                                 >
                                                     <div className="flex items-start justify-between gap-2">
@@ -1062,6 +1139,11 @@ const Projects = () => {
                                                             <p className="text-[11px] text-gray-500">
                                                                 Available: {item.quantity} {item.unit || ""}
                                                             </p>
+                                                            {item.addedOn && (
+                                                                <p className="text-[11px] text-gray-500">
+                                                                    Added on: {formatAddedOn(item.addedOn)}
+                                                                </p>
+                                                            )}
                                                             {item.isExisting && (
                                                                 <span className="inline-block text-[10px] text-green-600 bg-green-50 px-2 py-1 rounded mt-1">
                                                                     Already itemized
@@ -1069,7 +1151,7 @@ const Projects = () => {
                                                             )}
                                                         </div>
                                                         <button
-                                                            onClick={() => handleRemoveSelectedItem(item.id)}
+                                                            onClick={() => handleRemoveSelectedItem(item.uid)}
                                                             className="text-[11px] text-red-500 hover:text-red-600"
                                                         >
                                                             Remove
@@ -1082,7 +1164,7 @@ const Projects = () => {
                                                             type="number"
                                                             min="1"
                                                             value={item.usedQuantity}
-                                                            onChange={(e) => handleQuantityChange(item.id, e.target.value)}
+                                                            onChange={(e) => handleQuantityChange(item.uid, e.target.value)}
                                                             className={`w-24 bg-white border px-2 py-1 rounded text-xs ${item.isExisting ? "opacity-60 cursor-not-allowed" : ""}`}
                                                             disabled={item.isExisting}
                                                         />

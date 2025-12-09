@@ -31,6 +31,45 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         image: null,
     });
 
+    const unitOptions = [
+        { unit: "kg", description: "Kilogram (weight)" },
+        { unit: "g", description: "Gram (weight)" },
+        { unit: "mg", description: "Milligram (weight)" },
+        { unit: "lb", description: "Pound (weight)" },
+        { unit: "oz", description: "Ounce (weight)" },
+
+        { unit: "L", description: "Liter (liquid volume)" },
+        { unit: "mL", description: "Milliliter (liquid volume)" },
+        { unit: "gal", description: "Gallon (liquid volume)" },
+
+        { unit: "pc", description: "Piece (single item)" },
+        { unit: "pcs", description: "Pieces (multiple items)" },
+        { unit: "pack", description: "Pack (group of items in one package)" },
+        { unit: "box", description: "Box (items grouped inside a box)" },
+        { unit: "bundle", description: "Bundle (multiple items tied or grouped together)" },
+        { unit: "set", description: "Set (complete group of related items)" },
+        { unit: "dozen", description: "Dozen (12 items)" },
+        { unit: "pair", description: "Pair (2 related or wearable items)" },
+
+        { unit: "sachet", description: "Sachet (small sealed packet)" },
+        { unit: "can", description: "Can (canned item)" },
+        { unit: "bottle", description: "Bottle (liquid in a bottle)" },
+        { unit: "jar", description: "Jar (items stored in a glass or plastic jar)" },
+        { unit: "tray", description: "Tray (tray-packed items, such as eggs)" },
+        { unit: "cup", description: "Cup (small food or beverage cup)" },
+        { unit: "bag", description: "Bag (bagged goods like rice or snacks)" },
+        { unit: "pouch", description: "Pouch (soft packaging pouch)" },
+        { unit: "bar", description: "Bar (soap bar, chocolate bar)" },
+        { unit: "roll", description: "Roll (rolled items like tissue paper)" },
+
+        { unit: "container", description: "Container (general storage container)" },
+        { unit: "carton", description: "Carton (boxed liquid/food like milk)" },
+
+        { unit: "kit", description: "Kit (grouped items for a purpose, e.g., hygiene kit)" },
+        { unit: "family pack", description: "Family Pack (combined goods intended for one family)" },
+        { unit: "relief pack", description: "Relief Pack (standardized pack for disaster response)" },
+    ];
+
     // Errors
     const [errors, setErrors] = useState({});
 
@@ -309,12 +348,18 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
 
                                     <div className="w-full flex flex-col">
                                         <label className="text-xs font-medium">Unit</label>
-                                        <input
-                                            type="text"
+                                        <select
                                             value={form.unit}
                                             onChange={(e) => setForm({ ...form, unit: e.target.value })}
                                             className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
-                                        />
+                                        >
+                                            <option value="">Select unit...</option>
+                                            {unitOptions.map((option) => (
+                                                <option key={option.unit} value={option.unit}>
+                                                    {option.description}
+                                                </option>
+                                            ))}
+                                        </select>
                                     </div>
                                 </div>
 

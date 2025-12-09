@@ -4,7 +4,6 @@ import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Link } from "react-router-dom";
 import { GoHome } from "react-icons/go";
-import { FaRegUser } from "react-icons/fa";
 import { BiLogOut } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AuthContext } from "../AuthProvider";
@@ -12,6 +11,7 @@ import LoggingOut from "../components/LoggingOut";
 import logopng from "../assets/img/logo.png";
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { IoSettingsOutline } from "react-icons/io5";
 
 export const PortalContext = createContext();
 
@@ -114,13 +114,13 @@ const User = ({ children }) => {
                     onClick={() => setActiveTab('profile')} 
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'profile' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
-                        <FaRegUser 
+                        <IoSettingsOutline
                           size={18} 
                           strokeWidth={0.5} 
                           className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                         />
                       </div>
-                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Profile</span>)}
+                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Settings</span>)}
                   </div>
 
                   <div 

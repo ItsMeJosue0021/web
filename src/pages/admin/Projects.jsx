@@ -503,6 +503,7 @@ import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
 import debounce from "lodash.debounce";
 import CircularLoading from "../../components/CircularLoading";
 import ModalContainer from "../../components/ModalContainer";
+import VolunteerListPerProject from "../../components/VolunteerListPerProject";
 
 const Projects = () => {
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
@@ -904,6 +905,14 @@ const Projects = () => {
         ? categories.find((cat) => `${cat.id}` === `${itemCategory}`)?.subcategories || []
         : categories.flatMap((cat) => cat.subcategories || []);
 
+    const [openVolunteerList, setOpenVolunteerList] = useState(false);
+    const [projectId, setProjectId] = useState(null);
+
+    const handleOpenVolunteerList = (projectId) => {
+        setOpenVolunteerList(true);
+        setProjectId(projectId);
+    }
+
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
             {/* SEARCH + NEW BUTTON */}
@@ -937,6 +946,7 @@ const Projects = () => {
                             <th className="p-3">Location</th>
                             <th className="p-3">Image</th>
                             <th className="p-3">Date</th>
+                            <th className="p-3">Volunteers</th>
                             <th className="p-3 text-end">Actions</th>
                         </tr>
                     </thead>
@@ -964,6 +974,14 @@ const Projects = () => {
                                         </button>
                                     </td>
                                     <td className="p-3">{project.date}</td>
+                                    <td className="p-3">
+                                        <button
+                                            onClick={() => handleOpenVolunteerList(project.id)}
+                                            className="text-[10px] px-2 py-1 bg-gray-200 rounded"
+                                        >
+                                            View
+                                        </button>
+                                    </td>
                                     <td className="p-3 flex items-center justify-end gap-2">
                                         <button
                                             onClick={() => handleOpenEditModal(project)}
@@ -1202,18 +1220,20 @@ const Projects = () => {
                                 className="absolute top-4 right-4 cursor-pointer"
                             />
 
-                            <p className="text-xs mb-4">Add New Project</p>
+                            <p className="text-lg mb-4 text-orange-500">Add New Project</p>
 
                             <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                                <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="isEvent"
-                                        checked={isEvent}
-                                        onChange={(e) => setIsEvent(e.target.checked)}
-                                        className="bg-white border-gray-300 rounded"
-                                    />
-                                    <label className="text-xs">Is this an event?</label>
+                                <div className="flex items-center justify-start gap-2">
+                                    <div>
+                                        <input
+                                            type="checkbox"
+                                            id="isEvent"
+                                            checked={isEvent}
+                                            onChange={(e) => setIsEvent(e.target.checked)}
+                                            className=""
+                                        />
+                                    </div>
+                                    <p className="text-xs">Is this an event?</p>
                                 </div>
 
                                 <div className="flex flex-col gap-1">
@@ -1332,13 +1352,15 @@ const Projects = () => {
 
                             <form className="flex flex-col gap-4" onSubmit={handleEditSubmit}>
                                 <div className="flex items-center gap-2">
-                                    <input
-                                        type="checkbox"
-                                        id="isEvent"
-                                        checked={isEvent}
-                                        onChange={(e) => setIsEvent(e.target.checked)}
-                                        className="bg-white border-gray-300 rounded"
-                                    />
+                                    <div>
+                                        <input
+                                            type="checkbox"
+                                            id="isEvent"
+                                            checked={isEvent}
+                                            onChange={(e) => setIsEvent(e.target.checked)}
+                                            className="bg-white border-gray-300 rounded"
+                                        />
+                                    </div>
                                     <label className="text-xs">Is this an event?</label>
                                 </div>
 
@@ -1461,6 +1483,21 @@ const Projects = () => {
                     isDelete={true}
                     isDeleting={isDeleting}
                 />
+            )}
+
+            {openVolunteerList && (
+                <ModalContainer
+                    isFull={false}
+                    close={() => setOpenVolunteerList(false)}
+                >
+                    <div className="w-full md:w-[600px] h-96 max-h-96 overflow-y-auto rounded-xl bg-white p-4">
+                        <div className="mb-4">
+                            <p className="text-orange-600 font-semibold">Volunteers</p>
+                            <p className="text-xs">Here's the list of approved volunteers for this project.</p>
+                        </div>
+                        <VolunteerListPerProject projectId={projectId} />
+                    </div>
+                </ModalContainer>
             )}
         </Admin>
     );

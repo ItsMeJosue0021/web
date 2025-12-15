@@ -28,6 +28,7 @@ import UserProfile from '../components/UserProfile';
 import { AuthContext } from '../AuthProvider';
 import { GrMoney } from "react-icons/gr";
 import { MdOutlineInventory } from "react-icons/md";
+import { RiPassPendingLine } from "react-icons/ri";
 
 
 
@@ -139,6 +140,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             onClick={toggleModal} 
                                         />
                                         <NavItem 
+                                            to="/volunteer-requests" 
+                                            label="Volunteers"
+                                            icon={RiPassPendingLine}
+                                            onClick={toggleModal} 
+                                        />
+                                        <NavItem 
                                             to="/members" 
                                             label="Members" 
                                             icon={Users}
@@ -247,6 +254,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Members</p>
                                     </Link>
+                                    <Link to="/volunteer-requests" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/volunteer-requests" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                        <div className="flex justify-center w-10">
+                                        <RiPassPendingLine className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <p className="text-xs font-medium text-black">Volunteers</p>
+                                    </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <CalendarCog className="w-5 h-5 text-gray-700" />
@@ -353,7 +366,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                                 </div>
                             </div>
-                            <div className='w-full h-full max-h-[530px] overflow-y-auto pb-4'>
+                            <div className='w-full h-full max-h-[530px] overflow-y-auto overflow-x-auto pb-4'>
                                 {children}
                             </div>
                             

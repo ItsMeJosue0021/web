@@ -12,6 +12,8 @@ import logopng from "../assets/img/logo.png";
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoSettingsOutline } from "react-icons/io5";
+import { IoPaperPlaneOutline } from "react-icons/io5";
+import { IoNewspaperOutline } from "react-icons/io5";
 
 export const PortalContext = createContext();
 
@@ -35,8 +37,6 @@ const User = ({ children }) => {
       setLoggingOut(false);
     }
   }
-
-
 
   return (
     <div className="w-screen min-h-screen h-auto overflow-hidden">
@@ -111,6 +111,32 @@ const User = ({ children }) => {
                   </div>
 
                   <div 
+                    onClick={() => setActiveTab('requests')} 
+                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'requests' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
+                      <div>
+                        <IoPaperPlaneOutline 
+                          size={20} 
+                          strokeWidth={0.5} 
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        />
+                      </div>
+                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Requests</span>)}
+                  </div>
+
+                  <div 
+                    onClick={() => setActiveTab('membership')} 
+                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'membership' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
+                      <div>
+                        <IoNewspaperOutline  
+                          size={20} 
+                          strokeWidth={0.5} 
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        />
+                      </div>
+                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Membership</span>)}
+                  </div>
+
+                  <div 
                     onClick={() => setActiveTab('profile')} 
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'profile' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
@@ -144,36 +170,6 @@ const User = ({ children }) => {
         </div>
       </div>
       {loggingOut && <LoggingOut />}
-      {/* {mobileNavOpen && (
-        <div className="fixed top-0 left-0 w-full h-full flex flex-col gap-4 items-center justify-center bg-white">
-            <div>
-              <span onClick={() => setMobileNavOpen(false)} className="border border-gray-200 px-4 py-2 rounded-xl bg-gray-100">Close</span>
-            </div>
-            <div className="flex items-center justify-center flex-col space-y-4">
-              <span>
-                  <Link to="/" className="text-black">Home</Link>
-              </span>
-              <span>
-                  <Link to="/about-us" className='text-black'>About Us</Link>
-              </span>
-              <span>
-                  <Link to="/volunteers" className='text-black'>Volunteers</Link>
-              </span>
-              <span>
-                  <Link to="/faqs" className='text-black'>FAQs</Link>
-              </span>
-              <span onClick={() => {setMobileNavOpen(false); setActiveTab('home')}}>
-                  <p className='text-black font-medium'>Portal</p>
-              </span>
-              <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile')}}>
-                  <p className='text-black font-medium'>Profile</p>
-              </span>
-              <span onClick={() => handleLogout()}>
-                  <p className='text-black font-medium'>Logout</p>
-              </span>
-            </div>
-        </div>
-      )} */}
 
       {mobileNavOpen && (
         <AnimatePresence>

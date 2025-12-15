@@ -15,6 +15,8 @@ import UpdateProfilePicModal from "../components/profile/UpdateProfilePicModal";
 import SuccesAlert from "../components/alerts/SuccesAlert";
 import CircularLoading from "../components/CircularLoading";
 import { MdOutlineCameraAlt } from "react-icons/md";
+import VolunteerButton from "../components/volunteering/VolunteerButton";
+import VolunteerRequestsTable from "../components/volunteering/VolunteerRequestsTable";
 
 const Portal = () => {
 
@@ -26,6 +28,8 @@ const Portal = () => {
     const [events, setEvents] = useState([]);
     const [projects, setProjects] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [requests, setRequests] = useState([]);
+    const [requestsLoading, setRequestsLoading] = useState(false);
 
     const [selectedIamge, setSelectedImage] = useState();
     const [viewImage, setViewImage] = useState(false);
@@ -78,6 +82,24 @@ const Portal = () => {
         fetchProjects();
     }, []);
 
+    const fetchVolunteerRequests = async () => {
+        setRequestsLoading(true);
+        try {
+            const response = await _get(`/volunteering-requests/by-user/${user.id}`);
+            setRequests(response.data.requests || []);
+        } catch (error) {
+            console.log(error);
+        } finally {
+            setRequestsLoading(false);
+        }
+    }
+
+    useEffect(() => {
+        if (activeTab === 'requests') {
+            fetchVolunteerRequests();
+        }
+    }, [activeTab]);
+
 
     const handleImageClick = (url) => {
         setSelectedImage(url);
@@ -127,6 +149,16 @@ const Portal = () => {
         }
     }
 
+    const isProjectUpcoming = (project) => {
+        const dateString = project?.time ? `${project.date} ${project.time}` : project?.date;
+        if (!dateString) return true;
+
+        const parsed = new Date(dateString);
+        if (Number.isNaN(parsed.getTime())) return true;
+
+        return parsed.getTime() >= Date.now();
+    }
+
     return (
         <div className="h-full">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
@@ -172,8 +204,7 @@ const Portal = () => {
                                             </div>
                                             
                                             <div className="flex items-center justify-start gap-2 mt-2">
-                                                {/* <button onClick={() => setShowDetails(true)} className="px-2 py-1 text-[10px] bg-gray-100 hover:bg-gray-200 border border-gray-300 rounded">Details</button> */}
-                                                <button className="px-2 py-1 text-[10px] bg-blue-500 text-white hover:bg-blue-600 rounded">Volunteer</button>
+                                                {isProjectUpcoming(project) && <VolunteerButton project={project} />}
                                             </div>
                                         </div> 
                                     ))}
@@ -181,6 +212,18 @@ const Portal = () => {
                             )}
                             
                             
+                        </div>
+                    )}
+
+                    {activeTab === 'requests' && (
+                        <div className="w-full h-full rounded flex items-start flex-col justify-start gap-2">
+                            <VolunteerRequestsTable requests={requests} loading={requestsLoading} />
+                        </div>
+                    )}
+
+                    {activeTab === 'membership' && (
+                        <div className="w-full h-full rounded flex items-start flex-col justify-start gap-2">
+                            Membeship area
                         </div>
                     )}
                     

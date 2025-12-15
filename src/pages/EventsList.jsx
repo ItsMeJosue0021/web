@@ -4,6 +4,7 @@ import { _get } from "../api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
+import VolunteerButton from "../components/volunteering/VolunteerButton";
 
 const EventsList = () => {
 
@@ -103,12 +104,15 @@ const EventsList = () => {
                                 </p>
 
                                 {/* CTA */}
-                                <Link
-                                    to={`/our-projects/${event.id}`}
-                                    className="mt-2 text-xs px-4 py-1 rounded-md border border-gray-300 text-gray-700 hover:border-orange-600 hover:text-orange-600 transition w-fit"
-                                >
-                                    See More
-                                </Link>
+                                <div className="flex items-center gap-2 mt-2">
+                                    <Link
+                                        to={`/our-projects/${event.id}`}
+                                        className="text-xs px-4 py-1 rounded-md border border-gray-300 text-gray-700 hover:border-orange-600 hover:text-orange-600 transition w-fit"
+                                    >
+                                        See More
+                                    </Link>
+                                    <VolunteerButton project={event} />
+                                </div>
                             </div>
                         </div>
                     ))}

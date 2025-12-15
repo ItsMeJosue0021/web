@@ -101,7 +101,7 @@ const Inventory = () => {
                         <select
                             value={selectedCategory}
                             onChange={(e) => handleCategoryFilter(e.target.value)}
-                            className="bg-white text-xs px-4 py-2 rounded border border-gray-200 text-sm"
+                            className="bg-white text-xs px-4 py-2 rounded border border-gray-200"
                         >
                             <option value="">All categories</option>
                             {categories.map((cat) => (
@@ -115,7 +115,7 @@ const Inventory = () => {
                         <select
                             value={selectedSubCategory}
                             onChange={(e) => handleSubCategoryFilter(e.target.value)}
-                            className="bg-white text-xs px-4 py-2 rounded border border-gray-200 text-sm"
+                            className="bg-white text-xs px-4 py-2 rounded border border-gray-200 "
                         >
                             <option value="">All subcategories</option>
                             {(

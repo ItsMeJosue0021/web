@@ -302,7 +302,7 @@ const Members = () => {
                         <tbody>
                             {members.map((member, index) => (
                                 <tr key={member.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                <td className="p-3">{member.member_id}</td>
+                                <td className="p-3">{member.member_number}</td>
                                 <td className="p-3">{member.first_name}</td>
                                 <td className="p-3">{member.last_name}</td>
                                 <td className="p-3">{member.nick_name}</td>

@@ -11,10 +11,11 @@ import activity1 from "../assets/img/activity1.png";
 import activity2 from "../assets/img/activity2.png";
 import donateNowImg from "../assets/img/donateNow.png";
 import getInvolvedImg from "../assets/img/involved.png";
+import Picture1 from "../assets/img/Picture1.jpg";
 
 const images = [
   { src: banner, text: "Think of giving not as a duty, but as a privilege." },
-  { src: activity1, text: "Lose yourself in the service of others." },
+  { src: Picture1, text: "Lose yourself in the service of others." },
   { src: activity2, text: "No act of kindness, no matter how small, is ever wasted." },
 ];
 

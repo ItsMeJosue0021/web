@@ -201,6 +201,12 @@ const User = ({ children }) => {
                     <span onClick={() => {setMobileNavOpen(false); setActiveTab('home')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Portal</a>
                     </span>
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('membership')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                        <a className="text-black group-hover:text-orange-600">Membership</a>
+                    </span>
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('requests')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                        <a className="text-black group-hover:text-orange-600">Requests</a>
+                    </span>
                     <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Profile</a>
                     </span>

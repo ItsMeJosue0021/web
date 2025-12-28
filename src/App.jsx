@@ -50,6 +50,8 @@ import GoodsDonationsAdmin from './pages/admin/donations/GoodsDonations';
 import Expenses from './pages/admin/Expenses';
 import Inventory from './pages/admin/Inventory';
 import VolunteerRequests from './pages/admin/VolunteerRequests';
+import ArchivedUsers from './pages/admin/ArchivedUsers';
+import MembershipRequests from './pages/admin/MembershipRequests';
 
 const App = () => {
     useEffect(() => {
@@ -86,6 +88,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <Members />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/membership-requests"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <MembershipRequests />
                         </ProtectedRoute>
                     }
                 />
@@ -142,6 +152,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <Users />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings/archived-users"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <ArchivedUsers />
                         </ProtectedRoute>
                     }
                 />

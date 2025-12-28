@@ -42,6 +42,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
     const [isNavOpen, setIsNavOpen] = useState(false);
     const [isDonationOpen, setIsDonationOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isMembershipOpen, setIsMembershipOpen] = useState(false);
 
     useEffect(() => {
         if (location.pathname.includes("/settings")) {
@@ -52,6 +53,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
         }
         if (location.pathname.includes("/donations")) {
             setIsDonOpen(true);
+        }
+        if (location.pathname.includes("/members")) {
+            setIsMembershipOpen(true);
+        }
+        if (location.pathname.includes("/membership-requests")) {
+            setIsMembershipOpen(true);
         }
     }, [location.pathname]);
 
@@ -178,7 +185,8 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             toggle={() => setIsSettingsOpen(!isSettingsOpen)}
                                             items={[
                                                 { to: "/settings/chatbot", label: "Chatbot" },
-                                                { to: "/settings/users", label: "Users" }
+                                                { to: "/settings/users", label: "Users" },
+                                                { to: "/settings/archived-users", label: "Archived Users" }
                                             ]}
                                             onItemClick={toggleModal}
                                         />
@@ -248,12 +256,47 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Inquiries</p>
                                     </Link>
-                                    <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+
+                                    {/* <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <Users className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Members</p>
                                     </Link>
+                                    <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                        <div className="flex justify-center w-10">
+                                        <Users className="w-5 h-5 text-gray-700" />
+                                        </div>
+                                        <p className="text-xs font-medium text-black">Membership Requests</p>
+                                    </Link> */}
+
+                                    <div className="w-full flex flex-col">
+                                        <div onClick={() => setIsMembershipOpen(!isMembershipOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
+                                            <div className="flex justify-center w-10">
+                                                <Settings className="w-5 h-5 text-gray-700" />
+                                            </div>
+                                            <div className="flex items-center justify-between w-full">
+                                                <p className="text-xs text-black font-medium">Membership</p>
+                                                <img
+                                                src={arrowDown}
+                                                alt="icon"
+                                                className={`w-4 h-4 transition-transform ${isMembershipOpen ? "rotate-180" : "rotate-0"}`}
+                                                />
+                                            </div>
+                                        </div>
+                                        
+                                        {isMembershipOpen && (
+                                            <div className="pl-4 pt-1">
+                                                <Link to="/members" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/members" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Members</p>
+                                                </Link>
+                                                <Link to="/membership-requests" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/membership-requests" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Requests</p>
+                                                </Link>
+                                            </div>
+                                        )}
+                                    </div>
+
                                     <Link to="/volunteer-requests" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/volunteer-requests" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">
                                         <RiPassPendingLine className="w-5 h-5 text-gray-700" />
@@ -266,13 +309,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
                                         <p className="text-xs font-medium text-black">Projects</p>
                                     </Link>
-                                    {/* <Link to="/events-management" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/events-management" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                        <div className="flex justify-center w-10">
-                                        <CalendarCog className="w-5 h-5 text-gray-700" />
-                                        </div>
-                                        <p className="text-xs font-medium text-black">Events</p>
-                                    </Link> */}
-                                    
+
                                     <div className="w-full flex flex-col">
                                         <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
                                             <div className="flex justify-center w-10">
@@ -287,6 +324,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 />
                                             </div>
                                         </div>
+
                                         {isOpen && (
                                             <div className="pl-4 pt-1">
                                                 <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
@@ -295,22 +333,12 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Users</p>
                                                 </Link>
-
-                                                {/* <Link to="/settings/banner-images" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/banner-images" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div>
-                                                    <p className="text-xs text-black font-medium">Banner Images</p>
+                                                <Link to="/settings/archived-users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/archived-users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Archived Users</p>
                                                 </Link>
-
-                                                <Link to="/settings/contact-info" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/contact-info" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <div className="flex justify-center w-10">
-                                                        <img src={role} alt="icon" className="w-5 h-5" />
-                                                    </div>
-                                                    <p className="text-xs text-black font-medium">Contact Info</p>
-                                                </Link> */}
                                             </div>
                                         )}
+
                                         <div onClick={() => setIsWebOpen(!isWebOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
                                             <div className="flex justify-center w-10">
                                                 <LayoutPanelLeftIcon className="w-5 h-5 text-gray-700" />
@@ -324,6 +352,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 />
                                             </div>
                                         </div>
+
                                         {isWebOpen && (
                                             <div className="pl-4 pt-1">
                                                 <Link to="/web-content/home" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/home" ? "bg-gray-100" : "hover:bg-gray-100"}`}>

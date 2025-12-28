@@ -154,14 +154,14 @@ const VolunteerRequests = () => {
                                         ))
                                     ) : (
                                         <tr>
-                                            <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
+                                            <td colSpan={10} className="py-8 text-center text-xs text-gray-500">
                                             No records found.
                                             </td>
                                         </tr>
                                     )
                                 ) : (
                                     <tr>
-                                        <td colSpan={7} className="py-10 text-center">
+                                        <td colSpan={10} className="py-10 text-center">
                                             <div className="flex items-center justify-center">
                                                 <CircularLoading customClass="text-blue-500 w-6 h-6" />
                                             </div>

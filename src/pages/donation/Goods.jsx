@@ -1,7 +1,6 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import Guest from '../../layouts/Guest'
 import { Link } from "react-router-dom";
-import { useState } from "react";
 import { _post, _get } from "../../api";
 import { toast } from "react-toastify";
 import { FaArrowLeft } from "react-icons/fa";
@@ -32,9 +31,9 @@ const Goods = () => {
     });
 
     const selectedAddress = map.main
-        ? "B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Piñas City"
+        ? "B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Pinas City"
         : map.satellite
-        ? "Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Piñas City"
+        ? "Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Pinas City"
         : null;
 
     // Generate iframe src if address is chosen
@@ -115,8 +114,8 @@ const Goods = () => {
                     <p className="text-black text-xl">Sending your donation...</p>
                 </div>
             )}  
-            <div className="bg-gray-50 h-screen w-full p-4">
-                <div className="w-full max-w-[1200px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
+            <div className="bg-gray-50 min-h-screen w-full p-4">
+                <div className="w-full max-w-[1100px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
                     {activeStep < 4 && (
                         <Link to="/donate" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
                             <div className="flex items-center gap-2">
@@ -126,20 +125,21 @@ const Goods = () => {
                         </Link>
                     )}
 
-                    <div className="flex items-start gap-12 md:mt-8">
-                        <div className="w-full max-w-[800px] mx-auto">
+                    <div className="flex items-start gap-12 md:mt-4">
+                        <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
                             {activeStep < 4 && (
-                                <div className="w-full flex flex-col items-start justify-start mb-8">
-                                    <p className="text-xl font-medium text-orange-600">We’d love to acknowledge your support <span className="text-[11px] text-gray-500">(Optional)</span></p>
-                                    <p className="text-sm font-light">Please complete this form and send it to us so we can properly track your donation. Thank you!</p>
+                                <div className="w-full flex flex-col items-start justify-start mb-6 gap-1">
+                                    <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Goods Donation</p>
+                                    <p className="text-xl font-semibold text-gray-800">We'd love to acknowledge your support <span className="text-[11px] text-gray-500">(Optional)</span></p>
+                                    <p className="text-sm text-gray-600">Please complete this form so we can properly track your donation. Thank you!</p>
                                 </div>
                             )}
 
                             {activeStep === 1 ? (
                                 <div className="w-full flex items-center justify-center p-1">
-                                    <div className="w-full flex flex-col items-start justify-start gap-3">
+                                    <div className="w-full flex flex-col items-start justify-start gap-4">
                                         {/* Name */}
-                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-7">
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-7">
                                             <label className="w-full md:w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                             <div className="w-full md:w-[60%] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                                 <div className="w-full flex item-center justify-between">
@@ -166,8 +166,8 @@ const Goods = () => {
                                             </div>
                                         </div>
                                     
-                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
-                                            <label className="w-full md:w-[40%] text-xs font-medium">Email <span className="text-[9px] text-gray-500"></span></label>
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
+                                            <label className="w-full md:w-[40%] text-xs font-medium">Email</label>
                                             <input
                                                 type="text"
                                                 name="email"
@@ -202,8 +202,8 @@ const Goods = () => {
                                             {errors.type && <p className="text-[10px] text-red-500">{errors.type[0]}</p>}
                                         </div>
 
-                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-1 md:gap-4">
-                                            <label className="w-full md:w-[40%] text-xs font-medium">Quantity <span className="text-[9px] text-gray-500"></span></label>
+                                        <div className="w-full flex flex-col md:flex-row items-start md:items-center justify-between gap-2 md:gap-4">
+                                            <label className="w-full md:w-[40%] text-xs font-medium">Quantity</label>
                                             <input
                                                 type="number"
                                                 name="quantity"
@@ -218,7 +218,7 @@ const Goods = () => {
                                         {/* Description */}
                                         <div className="w-full">
                                             <div className="w-full flex-col items-center justify-between gap-4">
-                                                <label className="w-full text-xs font-medium">Description <span className="text-sm text-red-500">*</span><span className="text-[10px] text-gray-500">(Add more info about your donation)</span></label>
+                                                <label className="w-full text-xs font-medium">Description <span className="text-sm text-red-500">*</span><span className="text-[10px] text-gray-500"> (Add more info about your donation)</span></label>
                                                 <textarea
                                                     value={description}
                                                     onChange={(e) => setDescription(e.target.value)}
@@ -230,14 +230,16 @@ const Goods = () => {
                                         
                                         {/* Next Button */}
 
-                                        <button
-                                            type="submit"
-                                            className={`w-fit text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0 ${categories.length === 0 || description.trim() === '' ? 'opacity-50 cursor-not-allowed' : ''}`}
-                                            onClick={() => setActiveStep(2)}
-                                            disabled={categories.length === 0 || description.trim() === ''}
-                                        >
-                                            Next
-                                        </button>
+                                        <div className="w-full flex justify-end">
+                                            <button
+                                                type="submit"
+                                                className={`text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0 ${categories.length === 0 || description.trim() === '' ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                onClick={() => setActiveStep(2)}
+                                                disabled={categories.length === 0 || description.trim() === ''}
+                                            >
+                                                Next
+                                            </button>
+                                        </div>
 
                                         
                                     </div>
@@ -251,7 +253,7 @@ const Goods = () => {
                                     <div className="flex flex-col md:flex-row items-center gap-4 w-full pt-4">
                                         <div onClick={() => setAddress("Main Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Main Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
                                             <p className="text-orange-500 text-base font-semibold mb-2">Main Address</p>
-                                            <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Piñas City</p>
+                                            <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Pinas City</p>
                                             {address === 'Main Address' && (
                                                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
                                                     <Check size={23}/>
@@ -267,7 +269,7 @@ const Goods = () => {
 
                                         <div onClick={() => setAddress("Satellite Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Satellite Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
                                             <p className="text-orange-500 text-base  font-semibold mb-2">Satellite Address</p>
-                                            <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Piñas City</p>
+                                            <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Pinas City</p>
                                             {address === 'Satellite Address' && (
                                                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
                                                     <Check size={23}/>
@@ -415,9 +417,7 @@ const Goods = () => {
                     />
                 </div>
             )}
-            
         </Guest>
-        
     )
 }
 

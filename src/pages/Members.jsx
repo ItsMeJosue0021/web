@@ -97,6 +97,7 @@ const Members = () => {
 
     const openEditModal = (member) => {
         setEditingMember(member);
+        const emergency = member?.emergency_contact || {};
         setMemberData({
             first_name: member.first_name,
             middle_name: member.middle_name,
@@ -107,11 +108,11 @@ const Members = () => {
             civil_status: member.civil_status,
             contact_number: member.contact_number,
             fb_messenger_account: member.fb_messenger_account,
-            contact_person: member.emergency_contact.contact_person ? member.emergency_contact.contact_person : '',
-            cp_address: member.emergency_contact.address ?? '',
-            cp_contact_number: member.emergency_contact.contact_number ?? '',
-            cp_fb_messenger_account: member.emergency_contact.fb_messenger_account ?? '',
-            cp_relationship: member.emergency_contact.relationship ?? ''
+            contact_person: emergency.contact_person ?? '',
+            cp_address: emergency.address ?? '',
+            cp_contact_number: emergency.contact_number ?? '',
+            cp_fb_messenger_account: emergency.fb_messenger_account ?? '',
+            cp_relationship: emergency.relationship ?? ''
         });
         setShowEditModal(true);
     };

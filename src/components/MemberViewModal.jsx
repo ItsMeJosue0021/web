@@ -13,6 +13,8 @@ const MemberViewModal = ({ onClose, member }) => {
         setShowPrintPreview(true);
     }
 
+    const emergency = member?.emergency_contact || {};
+
     const printData = {
         title: "Member Details",
         subtitle: "Membership Information",
@@ -61,18 +63,18 @@ const MemberViewModal = ({ onClose, member }) => {
 
                     <div className="mt-6 border-t pt-4 space-y-2 text-xs">
                         <h3 className="text-md font-semibold text-gray-800">Emergency Contact</h3>
-                        <p><span className="font-medium text-gray-700">Name:</span> {member.emergency_contact.contact_person}</p>
-                        <p><span className="font-medium text-gray-700">Address:</span> {member.emergency_contact.address}</p>
-                        <p><span className="font-medium text-gray-700">Contact:</span> {member.emergency_contact.contact_number}</p>
-                        <p><span className="font-medium text-gray-700">Relationship:</span> {member.emergency_contact.relationship}</p>
+                        <p><span className="font-medium text-gray-700">Name:</span> {emergency.contact_person || "N/A"}</p>
+                        <p><span className="font-medium text-gray-700">Address:</span> {emergency.address || "N/A"}</p>
+                        <p><span className="font-medium text-gray-700">Contact:</span> {emergency.contact_number || "N/A"}</p>
+                        <p><span className="font-medium text-gray-700">Relationship:</span> {emergency.relationship || "N/A"}</p>
                         <p><span className="font-medium text-gray-700">Messenger:</span> 
                             <a 
-                                href={`https://m.me/${member.emergency_contact.fb_messenger_account}`} 
+                                href={emergency.fb_messenger_account ? `https://m.me/${emergency.fb_messenger_account}` : "#"} 
                                 target="_blank" 
                                 rel="noopener noreferrer" 
                                 className="text-orange-500 hover:underline ml-1"
                             >
-                                {member.emergency_contact.fb_messenger_account || "N/A"}
+                                {emergency.fb_messenger_account || "N/A"}
                             </a>
                         </p>
                     </div>

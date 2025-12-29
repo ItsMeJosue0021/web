@@ -5,12 +5,16 @@ import { toast } from "react-toastify";
 import debounce from "lodash.debounce";
 import "../../css/loading.css";
 import CircularLoading from "../../components/CircularLoading";
+import { motion, AnimatePresence } from "framer-motion";
 
 const MembershipRequests = () => {
     const [requests, setRequests] = useState([]);
     const [loading, setLoading] = useState(false);
-    const [actionId, setActionId] = useState(null);
+    const [actionState, setActionState] = useState({ id: null, type: null });
     const [searchTerm, setSearchTerm] = useState("");
+    const [viewImage, setViewImage] = useState(false);
+    const [selectedImage, setSelectedImage] = useState(null);
+    const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
     const fetchRequests = async (term = "") => {
         setLoading(true);
@@ -21,7 +25,6 @@ const MembershipRequests = () => {
             setRequests(Array.isArray(data) ? data : []);
         } catch (error) {
             console.error("Error fetching membership requests:", error);
-            toast.error("Unable to load membership requests.");
         } finally {
             setLoading(false);
         }
@@ -51,7 +54,7 @@ const MembershipRequests = () => {
     };
 
     const formatDate = (date) => {
-        if (!date) return "—";
+        if (!date) return "ï¿½";
         const parsed = new Date(date);
         if (Number.isNaN(parsed.getTime())) return date;
         return parsed.toLocaleDateString("en-US", {
@@ -72,7 +75,7 @@ const MembershipRequests = () => {
 
     const handleDecision = async (id, decision) => {
         if (!id) return;
-        setActionId(id);
+        setActionState({ id, type: decision });
         try {
             await _post(`/membership-requests/${id}/${decision}`);
             toast.success(decision === "approve" ? "Request approved." : "Request rejected.");
@@ -81,8 +84,28 @@ const MembershipRequests = () => {
             console.error(`Error trying to ${decision} request:`, error);
             toast.error(`Unable to ${decision} request.`);
         } finally {
-            setActionId(null);
+            setActionState({ id: null, type: null });
         }
+    };
+
+    const buildFileUrl = (filePath) => {
+        if (!filePath) return null;
+        if (filePath.startsWith("http")) return filePath;
+        return `${baseURL}${filePath}`;
+    };
+
+    const normalizeStatus = (status) => (status ?? "").toString().trim().toLowerCase();
+
+    const formatStatusLabel = (status) => {
+        const value = normalizeStatus(status) || "pending";
+        return value.charAt(0).toUpperCase() + value.slice(1);
+    };
+
+    const openImage = (filePath) => {
+        const url = buildFileUrl(filePath);
+        if (!url) return;
+        setSelectedImage(url);
+        setViewImage(true);
     };
 
     const header = {
@@ -119,6 +142,8 @@ const MembershipRequests = () => {
                                 <th className="p-3 text-start">User ID</th>
                                 <th className="p-3 text-start">Date Requested</th>
                                 <th className="p-3 text-start">Status</th>
+                                <th className="p-3 text-start">Proof of Payment</th>
+                                <th className="p-3 text-start">Proof of Identity</th>
                                 <th className="p-3 text-end">Action</th>
                             </tr>
                         </thead>
@@ -130,28 +155,68 @@ const MembershipRequests = () => {
                                             <td className="p-3">{buildName(request)}</td>
                                             <td className="p-3">{request.user_id || "-"}</td>
                                             <td className="p-3">{formatDate(request.created_at || request.date_requested || request.requested_at)}</td>
-                                            <td className="p-3 capitalize">{request.status || "pending"}</td>
+                                            <td className="p-3 capitalize">{formatStatusLabel(request.status)}</td>
+                                            <td className="p-3">
+                                                {request.proof_of_payment ? (
+                                                    <button
+                                                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                        onClick={() => openImage(request.proof_of_payment)}
+                                                    >
+                                                        View
+                                                    </button>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </td>
+                                            <td className="p-3">
+                                                {request.proof_of_identity ? (
+                                                    <button
+                                                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                        onClick={() => openImage(request.proof_of_identity)}
+                                                    >
+                                                        View
+                                                    </button>
+                                                ) : (
+                                                    "-"
+                                                )}
+                                            </td>
                                             <td className="p-3 flex justify-end gap-2">
-                                                <button
-                                                    className="bg-green-50 text-green-600 px-3 py-1 rounded"
-                                                    onClick={() => handleDecision(request.id, "approve")}
-                                                    disabled={actionId === request.id}
-                                                >
-                                                    {actionId === request.id ? "Processing..." : "Approve"}
-                                                </button>
-                                                <button
-                                                    className="bg-red-50 text-red-600 px-3 py-1 rounded"
-                                                    onClick={() => handleDecision(request.id, "reject")}
-                                                    disabled={actionId === request.id}
-                                                >
-                                                    {actionId === request.id ? "Processing..." : "Reject"}
-                                                </button>
+                                                {normalizeStatus(request.status) === "pending" ? (
+                                                    <>
+                                                        <button
+                                                            className="bg-green-50 text-green-600 px-3 py-1 rounded disabled:opacity-70"
+                                                            onClick={() => handleDecision(request.id, "approve")}
+                                                            disabled={actionState.id === request.id}
+                                                        >
+                                                            {actionState.id === request.id && actionState.type === "approve" ? "Processing..." : "Approve"}
+                                                        </button>
+                                                        <button
+                                                            className="bg-red-50 text-red-600 px-3 py-1 rounded disabled:opacity-70"
+                                                            onClick={() => handleDecision(request.id, "reject")}
+                                                            disabled={actionState.id === request.id}
+                                                        >
+                                                            {actionState.id === request.id && actionState.type === "reject" ? "Processing..." : "Reject"}
+                                                        </button>
+                                                    </>
+                                                ) : (
+                                                    <span
+                                                        className={`px-3 py-1 rounded-full border text-[11px] font-semibold ${
+                                                            normalizeStatus(request.status) === "approved"
+                                                                ? "bg-green-50 text-green-700 border-green-100"
+                                                                : normalizeStatus(request.status) === "rejected"
+                                                                    ? "bg-red-50 text-red-700 border-red-100"
+                                                                    : "bg-gray-100 text-gray-700 border-gray-200"
+                                                        }`}
+                                                    >
+                                                        {formatStatusLabel(request.status)}
+                                                    </span>
+                                                )}
                                             </td>
                                         </tr>
                                     ))
                                 ) : (
                                     <tr>
-                                        <td className="p-6 text-center text-gray-500" colSpan={5}>
+                                        <td className="p-6 text-center text-gray-500" colSpan={7}>
                                             No membership requests found.
                                         </td>
                                     </tr>
@@ -165,6 +230,29 @@ const MembershipRequests = () => {
                     <div className="w-full h-40 flex items-center justify-center">
                         <CircularLoading customClass="text-blue-500 w-6 h-6" />
                     </div>
+                )}
+
+                {viewImage && (
+                    <AnimatePresence>
+                        <motion.div
+                            role="alert"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            className="w-screen h-screen flex items-center justify-center bg-black/40 fixed top-0 left-0 z-50 cursor-pointer px-5"
+                            onClick={() => setViewImage(false)}
+                        >
+                            <motion.div
+                                initial={{ scale: 0.95, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                exit={{ scale: 0.95, opacity: 0 }}
+                                transition={{ duration: 0.2 }}
+                                className="bg-white h-auto min-h-80 rounded-lg w-full max-w-[600px] flex flex-col justify-start gap-4"
+                            >
+                                <img src={selectedImage || ""} alt="Proof" className="h-full w-full rounded-lg" />
+                            </motion.div>
+                        </motion.div>
+                    </AnimatePresence>
                 )}
             </div>
         </Admin>

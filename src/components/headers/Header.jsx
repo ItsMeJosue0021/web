@@ -84,7 +84,7 @@ const Header = () => {
                             {!isLoginPage && !isRegisterPage && (
                                 <div>
                                     <Link to="/login">
-                                        <button className='px-4 py-2 rounded bg-gray-50 text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
+                                        <button className='px-4 py-2 rounded bg-transparent text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
                                     </Link>
                                 </div>
                             )} 
@@ -92,7 +92,7 @@ const Header = () => {
                             {!isRegisterPage && !isLoginPage && (
                                 <div>
                                     <Link to="/register">
-                                        <button className='px-4 py-2 rounded text-black bg-gray-200 hover:bg-gray-300  border-0 hover:outline-none active:outline-none'>Register</button>
+                                        <button className='px-4 py-2 rounded text-black bg-gray-200/50 hover:bg-gray-300/50  border-0 hover:outline-none active:outline-none'>Register</button>
                                     </Link>
                                 </div>
                             )} 

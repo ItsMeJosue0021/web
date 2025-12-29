@@ -39,6 +39,8 @@ const Portal = () => {
     const [membershipErrors, setMembershipErrors] = useState({});
     const [membershipSubmitting, setMembershipSubmitting] = useState(false);
     const [membershipSuccess, setMembershipSuccess] = useState(false);
+    const [membershipRequest, setMembershipRequest] = useState(null);
+    const [membershipRequestLoading, setMembershipRequestLoading] = useState(false);
 
     const [selectedIamge, setSelectedImage] = useState();
     const [viewImage, setViewImage] = useState(false);
@@ -168,6 +170,17 @@ const Portal = () => {
         return parsed.getTime() >= Date.now();
     }
 
+    const formatDate = (value) => {
+        if (!value) return "-";
+        const parsed = new Date(value);
+        if (Number.isNaN(parsed.getTime())) return value;
+        return parsed.toLocaleDateString(undefined, {
+            month: "long",
+            day: "numeric",
+            year: "numeric",
+        });
+    };
+
     const handleMembershipTextChange = (e) => {
         const { name, value } = e.target;
         setMembershipData(prev => ({ ...prev, [name]: value }));
@@ -190,6 +203,20 @@ const Portal = () => {
         setMembershipErrors({});
     };
 
+    const fetchMembershipRequest = async () => {
+        setMembershipRequestLoading(true);
+        try {
+            const response = await _get('/membership-requests/me');
+            const data = response.data?.request ?? response.data ?? null;
+            setMembershipRequest(data || null);
+        } catch (error) {
+            setMembershipRequest(null);
+            console.log(error);
+        } finally {
+            setMembershipRequestLoading(false);
+        }
+    };
+
     const submitMembershipRequest = async () => {
         setMembershipSubmitting(true);
         setMembershipErrors({});
@@ -207,6 +234,7 @@ const Portal = () => {
             await _post('/membership-requests', formData);
             resetMembershipForm();
             setMembershipSuccess(true);
+            fetchMembershipRequest();
         } catch (error) {
             if (error.response?.data?.errors) {
                 setMembershipErrors(error.response.data.errors);
@@ -214,6 +242,33 @@ const Portal = () => {
         } finally {
             setMembershipSubmitting(false);
         }
+    };
+
+    useEffect(() => {
+        if (activeTab === 'membership') {
+            fetchMembershipRequest();
+        }
+    }, [activeTab]);
+
+    const getStatusClasses = (status) => {
+        const value = (status || 'pending').toLowerCase();
+        if (value === 'approved') return 'bg-green-50 text-green-600 border border-green-100';
+        if (value === 'rejected') return 'bg-red-50 text-red-600 border border-red-100';
+        return 'bg-gray-100 text-gray-700 border border-gray-200';
+    };
+
+    const normalizeStatus = (status) => (status || 'pending').toLowerCase();
+
+    const buildFileUrl = (filePath) => {
+        if (!filePath) return null;
+        if (filePath.startsWith('http')) return filePath;
+        return `${baseURL}${filePath}`;
+    };
+
+    const openMembershipImage = (filePath) => {
+        const url = buildFileUrl(filePath);
+        if (!url) return;
+        handleImageClick(url);
     };
 
     return (
@@ -299,107 +354,155 @@ const Portal = () => {
 
                     {activeTab === 'membership' && (
                         <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3 overflow-y-auto px-2 md:px-4">
-                            <div className="w-full bg-gradient-to-r from-orange-50 via-white to-orange-50 border border-orange-100 rounded-xl shadow-sm p-5 space-y-4">
-                                <div className="flex flex-col lg:flex-row items-center gap-6">
-                                    <div className="w-fit bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-center">
-                                        <img 
-                                            src="/gcashqrcode.jpg" 
-                                            alt="GCash QR code" 
-                                            className="w-full max-w-[150px] h-auto object-contain"
-                                        />
+                            {membershipRequestLoading ? (
+                                <div className="w-full h-40 flex items-center justify-center">
+                                    <CircularLoading customClass='text-blue-500 w-6 h-6' />
+                                </div>
+                            ) : membershipRequest ? (
+                                <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
+                                    <div className="flex items-start justify-between gap-3">
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-sm font-semibold text-gray-800">Your Membership Request</p>
+                                            <p className="text-xs text-gray-500">Latest submission linked to your account.</p>
+                                        </div>
+                                        <span className={`px-3 py-1 text-[11px] rounded-full font-semibold capitalize ${getStatusClasses(membershipRequest.status)}`}>
+                                            {normalizeStatus(membershipRequest.status)}
+                                        </span>
                                     </div>
-                                    <div className="w-full lg:w-1/2 flex flex-col gap-3 text-center lg:text-left">
-                                        <p className="text-sm font-semibold text-gray-800">Pay via GCash</p>
-                                        <p className="text-xs text-gray-600">
-                                            Send your membership fee to the GCash account below, then upload your proof of payment and a valid ID.
-                                        </p>
-                                        <div className="flex flex-col gap-1 rounded-lg bg-white border border-gray-200 p-3">
-                                            <p className="text-[11px] text-gray-500 uppercase tracking-wide">GCash Number</p>
-                                            <p className="text-lg font-semibold text-orange-600">0917 123 4567</p>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="flex flex-col gap-1 bg-orange-50 border border-orange-100 rounded-lg p-3">
+                                            <p className="text-[11px] text-orange-700 uppercase tracking-wide">Payment Reference Number</p>
+                                            <p className="text-sm font-semibold text-gray-800">{membershipRequest.payment_reference_number || "-"}</p>
+                                        </div>
+                                        <div className="flex flex-col gap-1 bg-gray-50 border border-gray-100 rounded-lg p-3">
+                                            <p className="text-[11px] text-gray-600 uppercase tracking-wide">Submitted</p>
+                                            <p className="text-sm font-semibold text-gray-800">{formatDate(membershipRequest.created_at || membershipRequest.requested_at)}</p>
                                         </div>
                                     </div>
-                                </div>
-                            </div>
-                            <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
-                                <div className="flex flex-col gap-1">
-                                    <p className="text-sm font-semibold text-orange-600">Submit Membership Request</p>
-                                    <p className="text-xs text-gray-500">Upload your proof of payment and proof of identity. Accepted formats: JPG, JPEG, PNG up to 5MB.</p>
-                                </div>
-
-                                <div className="grid grid-cols-1 gap-4">
-                                    {/* <div className="flex flex-col gap-1">
-                                        <label className="text-[11px] text-gray-600">User ID</label>
-                                        <input 
-                                            type="text" 
-                                            value={user?.id ?? ''} 
-                                            readOnly 
-                                            className="text-xs bg-gray-50 border border-gray-200 rounded px-3 py-2" 
-                                        />
-                                    </div> */}
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[11px] text-gray-600">Payment Reference Number</label>
-                                        <input 
-                                            type="text" 
-                                            name="payment_reference_number"
-                                            value={membershipData.payment_reference_number}
-                                            onChange={handleMembershipTextChange}
-                                            placeholder="Enter your payment reference number"
-                                            className="text-xs border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
-                                        />
-                                        {membershipErrors.payment_reference_number && (
-                                            <span className="text-red-500 text-[11px]">{membershipErrors.payment_reference_number[0]}</span>
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        {membershipRequest.proof_of_payment && (
+                                            <button 
+                                                type="button"
+                                                onClick={() => openMembershipImage(membershipRequest.proof_of_payment)}
+                                                className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 w-full text-left"
+                                            >
+                                                <span className="font-medium">View proof of payment</span>
+                                                <span className="text-blue-500 text-[11px]">Open</span>
+                                            </button>
+                                        )}
+                                        {membershipRequest.proof_of_identity && (
+                                            <button 
+                                                type="button"
+                                                onClick={() => openMembershipImage(membershipRequest.proof_of_identity)}
+                                                className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 text-xs text-gray-700 w-full text-left"
+                                            >
+                                                <span className="font-medium">View proof of identity</span>
+                                                <span className="text-blue-500 text-[11px]">Open</span>
+                                            </button>
                                         )}
                                     </div>
-
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[11px] text-gray-600">Proof of Payment (JPG/PNG, max 5MB)</label>
-                                            <label className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer text-xs text-gray-600">
-                                                <span className="truncate">{membershipData.proof_of_payment ? membershipData.proof_of_payment.name : "Upload receipt"}</span>
-                                                <span className="text-blue-500 text-[11px]">Browse</span>
-                                                <input 
-                                                    type="file" 
-                                                    name="proof_of_payment" 
-                                                    accept=".jpg,.jpeg,.png" 
-                                                    className="hidden"
-                                                    onChange={handleMembershipFileChange}
-                                                />
-                                            </label>
-                                            {membershipErrors.proof_of_payment && (
-                                                <span className="text-red-500 text-[11px]">{membershipErrors.proof_of_payment[0]}</span>
-                                            )}
-                                        </div>
-                                        <div className="flex flex-col gap-2">
-                                            <label className="text-[11px] text-gray-600">Proof of Identity (JPG/PNG, max 5MB)</label>
-                                            <label className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer text-xs text-gray-600">
-                                                <span className="truncate">{membershipData.proof_of_identity ? membershipData.proof_of_identity.name : "Upload valid ID"}</span>
-                                                <span className="text-blue-500 text-[11px]">Browse</span>
-                                                <input 
-                                                    type="file" 
-                                                    name="proof_of_identity" 
-                                                    accept=".jpg,.jpeg,.png" 
-                                                    className="hidden"
-                                                    onChange={handleMembershipFileChange}
-                                                />
-                                            </label>
-                                            {membershipErrors.proof_of_identity && (
-                                                <span className="text-red-500 text-[11px]">{membershipErrors.proof_of_identity[0]}</span>
-                                            )}
-                                        </div>
+                                    <div className={`text-[11px] text-gray-600 border ${normalizeStatus(membershipRequest.status) === 'approved' ? 'bg-green-50 border-green-100' : 'bg-orange-50 border-orange-100'}  rounded-lg p-3`}>
+                                        {normalizeStatus(membershipRequest.status) === 'approved' && "Your membership request has been approved. Welcome to the community!"}
+                                        {normalizeStatus(membershipRequest.status) === 'rejected' && "Your request was rejected. Please contact support if you believe this is a mistake."}
+                                        {!['approved', 'rejected'].includes(normalizeStatus(membershipRequest.status)) && "Your request is under review. We'll notify you once it's processed."}
                                     </div>
                                 </div>
+                            ) : (
+                                <>
+                                    <div className="w-full bg-gradient-to-r from-orange-50 via-white to-orange-50 border border-orange-100 rounded-xl shadow-sm p-5 space-y-4">
+                                        <div className="flex flex-col lg:flex-row items-center gap-6">
+                                            <div className="w-fit bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-center">
+                                                <img 
+                                                    src="/gcashqrcode.jpg" 
+                                                    alt="GCash QR code" 
+                                                    className="w-full max-w-[150px] h-auto object-contain"
+                                                />
+                                            </div>
+                                            <div className="w-full lg:w-1/2 flex flex-col gap-3 text-center lg:text-left">
+                                                <p className="text-sm font-semibold text-gray-800">Pay via GCash</p>
+                                                <p className="text-xs text-gray-600">
+                                                    Send your membership fee to the GCash account below, then upload your proof of payment and a valid ID.
+                                                </p>
+                                                <div className="flex flex-col gap-1 rounded-lg bg-white border border-gray-200 p-3">
+                                                    <p className="text-[11px] text-gray-500 uppercase tracking-wide">GCash Number</p>
+                                                    <p className="text-lg font-semibold text-orange-600">0917 123 4567</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
+                                        <div className="flex flex-col gap-1">
+                                            <p className="text-sm font-semibold text-orange-600">Submit Membership Request</p>
+                                            <p className="text-xs text-gray-500">Upload your proof of payment and proof of identity. Accepted formats: JPG, JPEG, PNG up to 5MB.</p>
+                                        </div>
 
-                                <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 text-[11px] text-gray-500">
-                                    <p>Each file must be an image (JPEG or PNG) and no larger than 5MB.</p>
-                                    <button 
-                                        onClick={submitMembershipRequest}
-                                        disabled={membershipSubmitting}
-                                        className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded shadow disabled:opacity-60 disabled:cursor-not-allowed"
-                                    >
-                                        {membershipSubmitting ? "Submitting..." : "Submit Request"}
-                                    </button>
-                                </div>
-                            </div>
+                                        <div className="grid grid-cols-1 gap-4">
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-[11px] text-gray-600">Payment Reference Number</label>
+                                                <input 
+                                                    type="text" 
+                                                    name="payment_reference_number"
+                                                    value={membershipData.payment_reference_number}
+                                                    onChange={handleMembershipTextChange}
+                                                    placeholder="Enter your payment reference number"
+                                                    className="text-xs border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
+                                                />
+                                                {membershipErrors.payment_reference_number && (
+                                                    <span className="text-red-500 text-[11px]">{membershipErrors.payment_reference_number[0]}</span>
+                                                )}
+                                            </div>
+
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-[11px] text-gray-600">Proof of Payment (JPG/PNG, max 5MB)</label>
+                                                    <label className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer text-xs text-gray-600">
+                                                        <span className="truncate">{membershipData.proof_of_payment ? membershipData.proof_of_payment.name : "Upload receipt"}</span>
+                                                        <span className="text-blue-500 text-[11px]">Browse</span>
+                                                        <input 
+                                                            type="file" 
+                                                            name="proof_of_payment" 
+                                                            accept=".jpg,.jpeg,.png" 
+                                                            className="hidden"
+                                                            onChange={handleMembershipFileChange}
+                                                        />
+                                                    </label>
+                                                    {membershipErrors.proof_of_payment && (
+                                                        <span className="text-red-500 text-[11px]">{membershipErrors.proof_of_payment[0]}</span>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col gap-2">
+                                                    <label className="text-[11px] text-gray-600">Proof of Identity (JPG/PNG, max 5MB)</label>
+                                                    <label className="flex items-center justify-between border border-dashed border-gray-300 rounded-lg px-3 py-3 bg-gray-50 hover:bg-gray-100 cursor-pointer text-xs text-gray-600">
+                                                        <span className="truncate">{membershipData.proof_of_identity ? membershipData.proof_of_identity.name : "Upload valid ID"}</span>
+                                                        <span className="text-blue-500 text-[11px]">Browse</span>
+                                                        <input 
+                                                            type="file" 
+                                                            name="proof_of_identity" 
+                                                            accept=".jpg,.jpeg,.png" 
+                                                            className="hidden"
+                                                            onChange={handleMembershipFileChange}
+                                                        />
+                                                    </label>
+                                                    {membershipErrors.proof_of_identity && (
+                                                        <span className="text-red-500 text-[11px]">{membershipErrors.proof_of_identity[0]}</span>
+                                                    )}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <div className="flex flex-col md:flex-row md:items-center justify-between gap-2 text-[11px] text-gray-500">
+                                            <p>Each file must be an image (JPEG or PNG) and no larger than 5MB.</p>
+                                            <button 
+                                                onClick={submitMembershipRequest}
+                                                disabled={membershipSubmitting}
+                                                className="px-4 py-2 bg-orange-500 hover:bg-orange-600 text-white text-xs rounded shadow disabled:opacity-60 disabled:cursor-not-allowed"
+                                            >
+                                                {membershipSubmitting ? "Submitting..." : "Submit Request"}
+                                            </button>
+                                        </div>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     )}
                     

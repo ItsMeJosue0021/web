@@ -1,5 +1,4 @@
-import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+﻿import { useEffect, useState, useRef, useMemo } from "react";
 import { _get, _put } from "../../../api";
 import Admin from "../../../layouts/Admin";
 import Logo from "../../../components/Logo";
@@ -7,7 +6,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import CircularLoading from "../../../components/CircularLoading";
 import ConfirmationAlert from "../../../components/alerts/ConfirmationAlert";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
-import { X } from "lucide-react";
+import { X, Search, Filter, Coins } from "lucide-react";
 import html2pdf from 'html2pdf.js';
 
 const CashDonationsAdmin = () => {
@@ -46,6 +45,11 @@ const CashDonationsAdmin = () => {
         "January","February","March","April","May","June",
         "July","August","September","October","November","December"
     ];
+
+    const formatCurrency = (value) => {
+        const num = Number(value) || 0;
+        return `₱ ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
 
     const containerRef = useRef();
     const printBtnRef = useRef();
@@ -159,9 +163,16 @@ const CashDonationsAdmin = () => {
         fetchDonations();
     }, [year, month]);
 
+    const listSummary = useMemo(() => {
+        const total = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+        const approved = donations.filter((d) => d.status === "approved").length;
+        const pending = donations.filter((d) => d.status !== "approved").length;
+        return { total, approved, pending };
+    }, [donations]);
+
     const header = {
         title: "Cash Donations Management",
-        subTitle: "Easily manage incoming Cash donations — view donor details, or print records with ease."
+        subTitle: "Easily manage incoming cash donations — view donor details, filter records, and print reports."
     };
 
     const breadcrumbs = [
@@ -174,33 +185,50 @@ const CashDonationsAdmin = () => {
             
             <div className="pt-4 bg-gray-50 min-h-screen">
 
-                {/* SEARCH & FILTERS (FULLY RESPONSIVE) */}
-                <div className="bg-white p-3 rounded-md mb-6 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
+                    <SummaryCard label="Total amount" value={formatCurrency(listSummary.total)} sub="Current view" accent="green" />
+                    <SummaryCard label="Approved donations" value={listSummary.approved} sub="Cash only" accent="blue" />
+                    <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" />
+                    <SummaryCard label="Report range" value={`${dateFrom} → ${dateTo}`} sub="Report filters" accent="purple" />
+                </div>
 
-                    {/* SEARCH */}
-                    <div className="flex w-full sm:w-auto gap-2">
-                        <input 
-                            type="text"
-                            placeholder="Search..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="bg-white border border-gray-200 rounded-md px-4 py-2 text-xs w-full sm:w-64"
-                        />
-                        <button 
-                            onClick={handleSearch}
-                            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
-                        >
-                            Search
-                        </button>
+                {/* SEARCH & FILTERS */}
+                <div className="bg-white p-4 rounded-md mb-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                    <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+                        <div className="text-sm text-gray-700 font-semibold flex items-center gap-2">
+                            <Filter size={16} className="text-orange-500" /> Quick filters
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
+                            <div className="relative w-full sm:w-64">
+                                <Search size={16} className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input 
+                                    type="text"
+                                    placeholder="Search donor, tracking #, email"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="bg-white border border-gray-200 rounded-md pl-9 pr-3 py-2 text-xs w-full"
+                                />
+                            </div>
+                            <button 
+                                onClick={handleSearch}
+                                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
+                            >
+                                Search
+                            </button>
+                            <button
+                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear
+                            </button>
+                        </div>
                     </div>
 
-                    {/* FILTERS */}
                     <div className="flex flex-wrap gap-2 items-center">
-
                         <select 
                             value={month}
                             onChange={(e) => setMonth(e.target.value)}
-                            className="bg-white border rounded-md px-3 py-2 text-xs w-full sm:w-auto"
+                            className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
                         >
                             <option value="">All Months</option>
                             {months.map((m) => (
@@ -211,7 +239,7 @@ const CashDonationsAdmin = () => {
                         <select 
                             value={year}
                             onChange={(e) => setYear(e.target.value)}
-                            className="bg-white border rounded-md px-3 py-2 text-xs w-full sm:w-auto"
+                            className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
                         >
                             <option value="">All Years</option>
                             {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
@@ -231,11 +259,21 @@ const CashDonationsAdmin = () => {
 
                 {/* MAIN TABLE */}
                 {loading ? (
-                    <div className="w-full h-40 flex justify-center items-center">
+                    <div className="w-full h-48 flex justify-center items-center">
                         <CircularLoading customClass="text-blue-500 w-6 h-6" />
                     </div>
                 ) : donations.length === 0 ? (
-                    <p className="text-center text-sm text-gray-500 mt-10">No donations found.</p>
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No donations found. Adjust filters or clear search to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
                 ) : (
                     <div className="overflow-x-auto rounded-lg shadow-sm bg-white">
                         <table className="w-full min-w-[900px] text-sm text-left border-collapse">
@@ -429,6 +467,29 @@ const CashDonationsAdmin = () => {
             )}
 
         </Admin>
+    );
+};
+
+const accentClasses = {
+    green: { text: "text-green-600", bg: "bg-green-50" },
+    blue: { text: "text-blue-600", bg: "bg-blue-50" },
+    amber: { text: "text-amber-600", bg: "bg-amber-50" },
+    purple: { text: "text-purple-600", bg: "bg-purple-50" },
+};
+
+const SummaryCard = ({ label, value, sub, accent = "green" }) => {
+    const colors = accentClasses[accent] || accentClasses.green;
+    return (
+        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                <Coins className={`${colors.text}`} size={20} />
+            </div>
+            <div className="flex flex-col">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
+                <p className={`text-xl font-bold ${colors.text}`}>{value}</p>
+                {sub && <p className="text-[11px] text-gray-500">{sub}</p>}
+            </div>
+        </div>
     );
 };
 

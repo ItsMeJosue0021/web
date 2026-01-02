@@ -1,9 +1,9 @@
-import '../../css/loading.css'; 
+﻿import '../../css/loading.css'; 
 import Admin from "../../layouts/Admin";
 import { useEffect, useState } from "react";
 import { _delete, _get, _post, _put } from "../../api";
 import CircularLoading from "../../components/CircularLoading";
-import { Edit, HandCoins, Mail, Trash2, X } from "lucide-react";
+import { Edit, HandCoins, Mail, Trash2, X, Search, Filter, Coins } from "lucide-react";
 import ConfirmationAlert from '../../components/alerts/ConfirmationAlert';
 import ModalContainer from '../../components/ModalContainer';
 
@@ -17,6 +17,7 @@ const Expenses = () => {
         totalMonetaryDonations: 0,
         totalExpenses: 0
     });
+    const [searchQuery, setSearchQuery] = useState("");
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [openAddModal, setOpenAddModal] = useState(false);
@@ -116,6 +117,7 @@ const Expenses = () => {
 
     // add near other hooks
     const handleSearch = async (value) => {
+        setSearchQuery(value);
         if (!value.trim()) {
             fetchExpenses(); 
             return;
@@ -124,7 +126,7 @@ const Expenses = () => {
         setLoading(true);
         try {
             const res = await _get(`/expenditures/search?q=${value}`, {
-            params: { search: value },
+                params: { search: value },
             });
             setExpenses(res.data.expenditures || res.data);
         } catch (err) {
@@ -299,6 +301,11 @@ const Expenses = () => {
     const [viewItemsOpen, setViewItemsOpen] = useState(false);
     const [viewItems, setViewItems] = useState([]);
 
+    const formatCurrency = (value) => {
+        const num = Number(value) || 0;
+                        return `PHP ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
 
     const header = {
         title: "Expenses Management",
@@ -312,42 +319,62 @@ const Expenses = () => {
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
             <div className="w-full mx-auto flex flex-col gap-4 mt-4 md:mt-0">
-                <div className="w-full flex items-center gap-4">
-                    <div className="relative w-full h-24 rounded-xl bg-white p-4 shadow-sm flex flex-col gap-1 items-start justify-center overflow-hidden">
-                        <p className="text-2xl text-green-500 font-bold">&#8369; {totals.totalMonetaryDonations}</p>
-                        <p className="text-xs text-gray-600">Total <span className="text-green-600 font-bold">Monetary</span> Donations</p>
-                        <HandCoins size={60}  className="bg-green-50 rounded-2xl p-3 absolute -bottom-3 -right-3 text-green-300"/>
-                    </div>
-                    <div className="relative w-full h-24 rounded-xl bg-white p-4 shadow-sm flex flex-col gap-1 items-start justify-center overflow-hidden">
-                        <p className="text-2xl text-blue-600 font-bold">&#8369; {totals.totalExpenses} </p>
-                        <p className="text-xs text-gray-600">Total <span className="text-blue-600 font-bold">Expenses</span> on record</p>
-                        <HandCoins size={60}  className="bg-blue-50 rounded-2xl p-3 absolute -bottom-3 -right-3 text-blue-300"/>
-                    </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                    <SummaryCard
+                        label="Monetary donations"
+                        value={formatCurrency(totals.totalMonetaryDonations)}
+                        sub="All approved donations"
+                        accent="green"
+                    />
+                    <SummaryCard
+                        label="Total expenses"
+                        value={formatCurrency(totals.totalExpenses)}
+                        sub="On record"
+                        accent="blue"
+                    />
+                    <SummaryCard
+                        label="Net balance"
+                        value={formatCurrency((totals.totalMonetaryDonations || 0) - (totals.totalExpenses || 0))}
+                        sub="Donations - expenses"
+                        accent="amber"
+                    />
                 </div>
-                <div className="w-full flex items-center justify-between p-3 rounded-lg border border-gray-100 bg-white">
-                    <div className="w-full md:in-w-80 md:max-w-[500px] flex items-center gap-4 ">
-                        <p className="hidden md:block text-xs">Search</p>
-                        <input 
-                            onChange={(e) => handleSearch(e.target.value)} 
-                            type="text" 
-                            className="bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm" 
-                            placeholder="Search for expenses.." 
-                        />
-                    </div>
-                    <div>
-                        <button
-                            onClick={() => setOpenAddModal(true)}
-                            className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded w-full sm:w-auto flex items-center gap-2 justify-center"
-                        >
-                            <span>+</span>
-                            <span>New</span>
-                        </button>
+                <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex flex-col gap-4">
+                    <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                        <div className="text-sm text-gray-700 font-semibold flex items-center gap-2">
+                            <Filter size={16} className="text-orange-500" /> Quick filters
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
+                            <div className="relative w-full sm:w-72">
+                                <Search size={16} className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input 
+                                    onChange={(e) => handleSearch(e.target.value)} 
+                                    value={searchQuery}
+                                    type="text" 
+                                    className="bg-white placeholder:text-xs px-9 py-2 rounded border border-gray-200 text-sm w-full" 
+                                    placeholder="Search for expenses.." 
+                                />
+                            </div>
+                            <button
+                                onClick={() => { setSearchQuery(""); fetchExpenses(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear
+                            </button>
+                            <button
+                                onClick={() => setOpenAddModal(true)}
+                                className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded w-full sm:w-auto flex items-center gap-2 justify-center"
+                            >
+                                <span>+</span>
+                                <span>New</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
                
                <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
-                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm">
-                        <thead className="bg-orange-500 text-white ">
+                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm border-collapse">
+                        <thead className="bg-orange-500 text-white text-xs sticky top-0">
                         <tr className="text-xs">
                             <th className="p-3 text-start">Reference Number</th>
                             <th className="p-3 text-start">Name</th>
@@ -361,13 +388,14 @@ const Expenses = () => {
                         
                             <tbody>
                                 {!loading ? (
-                                    expenses.length > 0 && expenses.map((row, index) => (
+                                    expenses.length > 0 ? (
+                                        expenses.map((row, index) => (
                                         <tr key={row.id}
-                                        className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                            <td className="p-3 text-xs">{row.reference_number}</td>
+                                        className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
+                                            <td className="p-3 text-xs font-semibold text-gray-800">{row.reference_number}</td>
                                             <td className="p-3 text-xs">{row.name}</td>
                                             <td className="p-3 text-xs">{row.description}</td>
-                                            <td className="p-3 text-xs ">{row.amount}</td>
+                                            <td className="p-3 text-xs font-mono">{formatCurrency(row.amount)}</td>
                                             <td className="p-3 text-xs ">{row.date_incurred}</td>
                                             <td className="p-3 text-xs ">{row.payment_method}</td>
                                             <td className="p-3 text-xs flex justify-start gap-2">
@@ -393,7 +421,14 @@ const Expenses = () => {
                                                 </button>
                                             </td>
                                         </tr>
-                                    ))
+                                        ))
+                                    ) : (
+                                        <tr>
+                                            <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
+                                            No records found.
+                                            </td>
+                                        </tr>
+                                    )
                                 ) : (
                                     <tr>
                                         <td colSpan={7} className="py-10 text-center">
@@ -901,3 +936,29 @@ const Expenses = () => {
 }
 
 export default Expenses;
+
+const accentClasses = {
+    green: { text: "text-green-600", bg: "bg-green-50" },
+    blue: { text: "text-blue-600", bg: "bg-blue-50" },
+    amber: { text: "text-amber-600", bg: "bg-amber-50" },
+    purple: { text: "text-purple-600", bg: "bg-purple-50" },
+};
+
+const SummaryCard = ({ label, value, sub, accent = "blue" }) => {
+    const colors = accentClasses[accent] || accentClasses.blue;
+    return (
+        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                <Coins className={`${colors.text}`} size={20} />
+            </div>
+            <div className="flex flex-col">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
+                <p className={`text-xl font-bold ${colors.text}`}>{value}</p>
+                {sub && <p className="text-[11px] text-gray-500">{sub}</p>}
+            </div>
+        </div>
+    );
+};
+
+
+

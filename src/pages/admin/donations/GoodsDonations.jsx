@@ -1,17 +1,16 @@
-import { useEffect, useState, useRef } from "react";
-import axios from "axios";
+import { useEffect, useMemo, useState, useRef } from "react";
 import { _get, _put } from "../../../api";
-import Admin from "../../../layouts/Admin"; 
+import Admin from "../../../layouts/Admin";
 import Logo from "../../../components/Logo";
 import { AnimatePresence, motion } from "framer-motion";
 import CircularLoading from "../../../components/CircularLoading";
 import ConfirmationAlert from "../../../components/alerts/ConfirmationAlert";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
-import { X } from "lucide-react";
-import html2pdf from 'html2pdf.js';
+import WarningAlert from "../../../components/alerts/WarningAlert";
 import ModalContainer from "../../../components/ModalContainer";
 import ItemizerModal from "../../../components/ItemizerModal";
-import WarningAlert from "../../../components/alerts/WarningAlert";
+import { X, Search, Filter, Package } from "lucide-react";
+import html2pdf from "html2pdf.js";
 
 const GoodsDonationsAdmin = () => {
     const [donations, setDonations] = useState([]);
@@ -26,16 +25,11 @@ const GoodsDonationsAdmin = () => {
     const [isReportView, setIsReportView] = useState(false);
     const [cashDonations, setCashDonations] = useState([]);
 
-    // Default dates for the report: Jan 1 of current year → today
+    // Default dates for the report: Jan 1 of current year to today
     const today = new Date();
-
-    // Start of the current month (current year is automatic)
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
-
-    // Convert to YYYY-MM-DD for your <input type="date">
     const defaultFrom = monthStart.toISOString().split("T")[0];
     const defaultTo = today.toISOString().split("T")[0];
-
     const [dateFrom, setDateFrom] = useState(defaultFrom);
     const [dateTo, setDateTo] = useState(defaultTo);
     const [totalCount, setTotalCount] = useState(0);
@@ -52,26 +46,26 @@ const GoodsDonationsAdmin = () => {
     const containerRef = useRef();
     const printBtnRef = useRef();
 
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const m = [
+            "January","February","March","April","May","June",
+            "July","August","September","October","November","December"
+        ];
+        return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+
+    const formatTypeBadge = (type) => {
+        if (type === "food") return "text-green-600 bg-green-50 border border-green-100";
+        if (type === "clothes") return "text-blue-600 bg-blue-50 border border-blue-100";
+        return "text-pink-600 bg-pink-50 border border-pink-100";
+    };
+
     useEffect(() => {
         if (isReportView) {
             fetchGoodsDonations();
         }
     }, [isReportView]);
-
-    // const fetchGoodsDonations = async (dateFrom = "", dateTo = "") => {
-    //     try {
-    //         const params = {};
-    //         if (dateFrom) params.dateFrom = dateFrom;
-    //         if (dateTo) params.dateTo = dateTo;
-
-    //         const response = await _get("/goods-donations/v2/print", { params });
-    //         setCashDonations(response.data.donations);
-    //         return response.data;
-
-    //     } catch (error) {
-    //         console.error("Error fetching goods donations:", error);
-    //     }
-    // };
 
     const fetchGoodsDonations = async (
         dateFromParam = dateFrom,
@@ -84,13 +78,12 @@ const GoodsDonationsAdmin = () => {
             };
 
             const response = await _get("/goods-donations/v2/print", { params });
-
             setCashDonations(response.data.donations);
             setTotalCount(response.data.totalCount || 0);
 
             return response.data;
         } catch (error) {
-            console.error("Error fetching cash donations:", error);
+            console.error("Error fetching goods donations:", error);
         }
     };
 
@@ -101,21 +94,12 @@ const GoodsDonationsAdmin = () => {
     const handlePrint = () => {
         const opt = {
             margin: 0,
-            filename: 'Goods_Donations_Report.pdf',
+            filename: "Goods_Donations_Report.pdf",
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' },
+            jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
         };
 
         html2pdf().set(opt).from(containerRef.current).save();
-    };
-
-    const formatDate = (dateString) => {
-        const date = new Date(dateString);
-        const m = [
-            "January","February","March","April","May","June",
-            "July","August","September","October","November","December"
-        ];
-        return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     };
 
     const fetchDonations = async () => {
@@ -127,8 +111,6 @@ const GoodsDonationsAdmin = () => {
 
             const response = await _get("/goods-donations/v2/filter", { params });
             setDonations(response.data);
-            // setCashDonations(response.data);
-
         } catch (error) {
             console.error("Error fetching donations:", error);
         } finally {
@@ -164,15 +146,22 @@ const GoodsDonationsAdmin = () => {
     const openItemizerModal = (donation) => {
         setSelectedDonation(donation);
         setIsItemizerOpen(true);
-    }
+    };
 
     useEffect(() => {
         fetchDonations();
     }, [year, month]);
 
+    const listSummary = useMemo(() => {
+        const count = donations.length;
+        const approved = donations.filter((d) => d.status === "approved").length;
+        const pending = donations.filter((d) => d.status !== "approved").length;
+        return { count, approved, pending };
+    }, [donations]);
+
     const header = { 
         title: "Goods Donations Management",
-        subTitle: "Easily manage incoming Goods donations — view donor details, or print records with ease."
+        subTitle: "Easily manage incoming goods donations — view donor details, filter records, and print reports."
     };
 
     const breadcrumbs = [
@@ -185,23 +174,43 @@ const GoodsDonationsAdmin = () => {
 
             <div className="pt-4 bg-gray-50 min-h-screen">
 
-                {/* 🔍 SEARCH + FILTERS — Fully Responsive */}
-                <div className="bg-white p-3 rounded-md mb-6 flex flex-col sm:flex-row flex-wrap items-start sm:items-center justify-between gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
+                    <SummaryCard label="Total donations" value={listSummary.count} sub="Current view" accent="blue" />
+                    <SummaryCard label="Approved donations" value={listSummary.approved} sub="Goods only" accent="green" />
+                    <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" />
+                    <SummaryCard label="Report range" value={`${dateFrom} → ${dateTo}`} sub="Report filters" accent="purple" />
+                </div>
 
-                    <div className="flex w-full sm:w-auto gap-2">
-                        <input
-                            type="text"
-                            value={search}
-                            placeholder="Search..."
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="bg-white border border-gray-200 rounded-md px-4 py-2 text-xs w-full sm:w-64"
-                        />
-                        <button 
-                            onClick={handleSearch}
-                            className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
-                        >
-                            Search
-                        </button>
+                {/* Filters */}
+                <div className="bg-white p-4 rounded-md mb-6 border border-gray-100 shadow-sm flex flex-col gap-4">
+                    <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
+                        <div className="text-sm text-gray-700 font-semibold flex items-center gap-2">
+                            <Filter size={16} className="text-orange-500" /> Quick filters
+                        </div>
+                        <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
+                            <div className="relative w-full sm:w-64">
+                                <Search size={16} className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    placeholder="Search donor, tracking #, email"
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    className="bg-white border border-gray-200 rounded-md pl-9 pr-3 py-2 text-xs w-full"
+                                />
+                            </div>
+                            <button 
+                                onClick={handleSearch}
+                                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
+                            >
+                                Search
+                            </button>
+                            <button
+                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear
+                            </button>
+                        </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2 items-center">
@@ -209,7 +218,7 @@ const GoodsDonationsAdmin = () => {
                         <select
                             value={month}
                             onChange={(e) => setMonth(e.target.value)}
-                            className="bg-white border rounded-md px-3 py-2 text-xs w-full sm:w-auto"
+                            className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
                         >
                             <option value="">All Months</option>
                             {months.map((m) => (
@@ -220,7 +229,7 @@ const GoodsDonationsAdmin = () => {
                         <select
                             value={year}
                             onChange={(e) => setYear(e.target.value)}
-                            className="bg-white border rounded-md px-3 py-2 text-xs w-full sm:w-auto"
+                            className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
                         >
                             <option value="">All Years</option>
                             {Array.from({ length: 10 }, (_, i) => new Date().getFullYear() - i).map((y) => (
@@ -237,17 +246,27 @@ const GoodsDonationsAdmin = () => {
                     </div>
                 </div>
 
-                {/* 🧾 TABLE */}
+                {/* TABLE */}
                 {loading ? (
-                    <div className="w-full h-40 flex justify-center items-center">
+                    <div className="w-full h-48 flex justify-center items-center">
                         <CircularLoading customClass="w-6 h-6 text-blue-500" />
                     </div>
                 ) : donations.length === 0 ? (
-                    <p className="text-center text-sm text-gray-500">No donations found.</p>
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No donations found. Adjust filters or clear search to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
                 ) : (
-                    <div className="overflow-x-auto bg-white rounded-lg shadow-sm">
+                    <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-100">
                         <table className="w-full min-w-[900px] text-sm border-collapse">
-                            <thead className="bg-orange-500 text-white text-xs">
+                            <thead className="bg-orange-500 text-white text-xs sticky top-0">
                                 <tr>
                                     <th className="py-2 px-3 text-left">Date</th>
                                     <th className="py-2 px-3 text-left">Name</th>
@@ -263,7 +282,7 @@ const GoodsDonationsAdmin = () => {
 
                             <tbody>
                                 {donations.map((donation, index) => (
-                                    <tr key={donation.id} className="border-b border-gray-100 hover:bg-gray-50 text-xs">
+                                    <tr key={donation.id} className={`border-b border-gray-100 hover:bg-gray-50 text-xs ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
 
                                         <td className="p-2">
                                             {donation.created_at
@@ -286,7 +305,7 @@ const GoodsDonationsAdmin = () => {
                                             {donation.type?.map((type, idx) => (
                                                 <span
                                                     key={idx}
-                                                    className={`inline-block px-2 py-1 rounded text-[11px] mr-1 text-blue-600 bg-blue-50`}
+                                                    className={`inline-block px-2 py-1 rounded text-[11px] mr-1 ${formatTypeBadge(type)}`}
                                                 >
                                                     {type}
                                                 </span>
@@ -298,14 +317,14 @@ const GoodsDonationsAdmin = () => {
 
                                         <td className="p-2 capitalize">
                                             {donation.status === "approved" ? (
-                                                <span className="text-green-600 font-medium">Received</span>
+                                                <span className="px-2 py-1 rounded-full text-[11px] bg-green-50 text-green-700 border border-green-200">Received</span>
                                             ) : (
-                                                <span className="text-yellow-600 font-medium">Pending</span>
+                                                <span className="px-2 py-1 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
                                             )}
                                         </td>
 
                                         <td className="p-2 text-center">
-                                            <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-2 justify-end">
                                                 {donation.status !== "approved" && (
                                                     <button
                                                         onClick={() => setToBeApproved(donation)}
@@ -366,7 +385,7 @@ const GoodsDonationsAdmin = () => {
                 />
             )}
 
-            {/* 📊 REPORT MODAL */}
+            {/* REPORT MODAL */}
             {isReportView && (
                 <AnimatePresence>
 
@@ -493,13 +512,7 @@ const GoodsDonationsAdmin = () => {
                                                             {donation.type?.map((type, i) => (
                                                                 <span
                                                                     key={i}
-                                                                    className={`inline-block px-2 py-1 rounded text-[11px] mr-1 ${
-                                                                        type === "food"
-                                                                            ? "text-green-600 bg-green-50"
-                                                                            : type === "clothes"
-                                                                            ? "text-blue-600 bg-blue-50"
-                                                                            : "text-pink-600 bg-pink-50"
-                                                                    }`}
+                                                                    className={`inline-block px-2 py-1 rounded text-[11px] mr-1 ${formatTypeBadge(type)}`}
                                                                 >
                                                                     {type}
                                                                 </span>
@@ -528,5 +541,27 @@ const GoodsDonationsAdmin = () => {
     );
 };
 
-export default GoodsDonationsAdmin;
+const accentClasses = {
+    green: { text: "text-green-600", bg: "bg-green-50" },
+    blue: { text: "text-blue-600", bg: "bg-blue-50" },
+    amber: { text: "text-amber-600", bg: "bg-amber-50" },
+    purple: { text: "text-purple-600", bg: "bg-purple-50" },
+};
 
+const SummaryCard = ({ label, value, sub, accent = "blue" }) => {
+    const colors = accentClasses[accent] || accentClasses.blue;
+    return (
+        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-3">
+            <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
+                <Package className={`${colors.text}`} size={20} />
+            </div>
+            <div className="flex flex-col">
+                <p className="text-[11px] uppercase tracking-wide text-gray-500">{label}</p>
+                <p className={`text-xl font-bold ${colors.text}`}>{value}</p>
+                {sub && <p className="text-[11px] text-gray-500">{sub}</p>}
+            </div>
+        </div>
+    );
+};
+
+export default GoodsDonationsAdmin;

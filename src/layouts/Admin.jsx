@@ -77,7 +77,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                             <img src={logo} alt="logo" className='w-16 h-16 rounded-full p-0.5 bg-white'/>
                             <div className='hidden md:flex flex-col text-sm font-bold'>
                                 <p className='text-base chewy'>Kalinga ng Kababaihan</p>
-                                <p className='text-xs poppins-regular text-gray-50'>Women's League Las Piñas</p>
+                                <p className='text-xs poppins-regular text-gray-50'>Women&apos;s League Las Piñas</p>
                             </div>
                         </div>
                         <div className='hidden md:block'>
@@ -356,28 +356,20 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         {isWebOpen && (
                                             <div className="pl-4 pt-1">
                                                 <Link to="/web-content/home" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/home" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Home</p>
+                                                    <p className="text-xs text-black font-medium">Homepage Info</p>
+                                                </Link>
+
+                                                <Link to="/web-content/contact-us"className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/contact-us" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Contact Info</p>
                                                 </Link>
 
                                                 <Link to="/web-content/about-us" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/about-us" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">About Us</p>
+                                                    <p className="text-xs text-black font-medium">Officers</p>
                                                 </Link>
 
                                                 <Link to="/web-content/faqs" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/faqs" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Faqs</p>
-                                                </Link>
-
-                                                {/* <Link to="/web-content/volunteers" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/volunteers" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Volunteers</p>
-                                                </Link> */}
-
-                                                <Link  to="/web-content/events" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/events" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Events</p>
-                                                </Link>
-
-                                                <Link to="/web-content/contact-us"className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/web-content/contact-us" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Contact Us</p>
-                                                </Link>
+                                                </Link>   
                                             </div>
                                         )}
                                     </div>

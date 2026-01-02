@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
 import { MapPin, Phone, Send } from "lucide-react";
 import Guest from "../layouts/Guest";
 import aboutImage from "../assets/img/about.png";
 import { toast } from "react-toastify";
-import { _post } from "../api";
+import { _post, _get } from "../api";
 import Footer from "../components/Footer";
 
 const ContactUs = () => {
@@ -12,9 +12,23 @@ const ContactUs = () => {
         email: "",
         message: "",
     });
+    const [contactInfo, setContactInfo] = useState(null);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
+
+    useEffect(() => {
+        fetchContactInfo();
+    }, []);
+
+    const fetchContactInfo = async () => {
+        try {
+            const response = await _get("/contact-info");
+            setContactInfo(response.data || {});
+        } catch (error) {
+            console.error("Error fetching contact info:", error);
+        }
     };
 
     const handleSubmit = async (e) => {
@@ -24,6 +38,7 @@ const ContactUs = () => {
             toast.success("Your message has been sent!");
             setFormData({ name: "", email: "", message: "" });
         } catch (error) {
+            console.error("Error sending message:", error);
             toast.error("Something went wrong, please try again!");
         }
     };
@@ -34,7 +49,7 @@ const ContactUs = () => {
             <div className="w-full max-w-[1200px] mx-auto px-4 py-16 pt-32">
                 <div className="flex flex-col items-center text-center space-y-4">
                     <p className="text-xs uppercase tracking-[0.25em] text-orange-500 font-semibold">Contact</p>
-                    <h1 className="text-4xl font-semibold text-gray-800 chewy">We'd love to hear from you</h1>
+                    <h1 className="text-4xl font-semibold text-gray-800 chewy">We&apos;d love to hear from you</h1>
                     <p className="text-gray-600 max-w-2xl">
                         Reach out with questions, partnerships, or ways we can collaborate to uplift women and communities.
                     </p>
@@ -49,7 +64,11 @@ const ContactUs = () => {
                         </div>
                         <p className="text-sm font-semibold text-gray-800">Address</p>
                         <p className="text-sm text-gray-600">
-                            B4 LOT6-6 Fantacy Road 3<br/>Teresa Park Subd., Pilar, Las Piñas City
+                            {contactInfo?.physical_address ? contactInfo.physical_address : (
+                                <>
+                                    ...
+                                </>
+                            )}
                         </p>
                     </div>
 
@@ -59,7 +78,10 @@ const ContactUs = () => {
                             <Phone className="w-5 h-5 text-orange-600" />
                         </div>
                         <p className="text-sm font-semibold text-gray-800">Phone</p>
-                        <p className="text-sm text-gray-600">TL#: 0283742811<br/>CP: 09209859508</p>
+                        <p className="text-sm text-gray-600">
+                            TL#: {contactInfo?.telephone_number || "..."}<br />
+                            CP: {contactInfo?.phone_number || "..."}
+                        </p>
                     </div>
 
                     {/* EMAIL */}
@@ -68,7 +90,7 @@ const ContactUs = () => {
                             <Send className="w-5 h-5 text-orange-600" />
                         </div>
                         <p className="text-sm font-semibold text-gray-800">Email</p>
-                        <p className="text-sm text-gray-600 break-all">kalingangkababaihan.wllpc@gmail.com</p>
+                        <p className="text-sm text-gray-600 break-all">{contactInfo?.email_address || "..."}</p>
                     </div>
                 </div>
             </div>
@@ -81,7 +103,7 @@ const ContactUs = () => {
                     <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
                         <div className="flex flex-col gap-2">
                             <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Send us a message</p>
-                            <h1 className="text-3xl font-bold text-gray-800 chewy">Let's talk</h1>
+                            <h1 className="text-3xl font-bold text-gray-800 chewy">Let&apos;s talk</h1>
                             <p className="text-sm text-gray-600 max-w-xl">
                                 Tell us how we can help. We aim to respond within 1-2 business days.
                             </p>

@@ -690,6 +690,7 @@ const Projects = () => {
             setShowEditProjectModal(false);
             toast.success("Project updated successfully!");
         } catch (error) {
+            console.error("Error updating project:", error);
             toast.error("Error updating project.");
         }
     };
@@ -706,6 +707,7 @@ const Projects = () => {
             toast.success("Project deleted successfully!");
             setProjects(projects.filter((p) => p.id !== deleteId));
         } catch (error) {
+            console.error("Error deleting project:", error);
             toast.error("Error deleting project.");
         } finally {
             setIsDeleteOpen(false);
@@ -895,6 +897,7 @@ const Projects = () => {
             closeLiquidateModal();
             fetchProjects();
         } catch (error) {
+            console.error("Error saving liquidation:", error);
             toast.error("Error saving liquidation.");
         } finally {
             setSavingLiquidation(false);
@@ -1493,7 +1496,7 @@ const Projects = () => {
                     <div className="w-full md:w-[600px] h-96 max-h-96 overflow-y-auto rounded-xl bg-white p-4">
                         <div className="mb-4">
                             <p className="text-orange-600 font-semibold">Volunteers</p>
-                            <p className="text-xs">Here's the list of approved volunteers for this project.</p>
+                            <p className="text-xs">Here&apos;s the list of approved volunteers for this project.</p>
                         </div>
                         <VolunteerListPerProject projectId={projectId} />
                     </div>

@@ -12,7 +12,7 @@ const SuccesAlert = ({ message, onClose }) => {
           exit={{ opacity: 0 }}
         >
             <motion.div
-              className="max-w-96 bg-white rounded-3xl p-10 flex flex-col justify-start gap-4"
+              className="min-w-80 max-w-96 bg-white rounded-3xl p-10 flex flex-col justify-start gap-4"
               initial={{ y: 50, scale: 0.8, opacity: 0 }}
               animate={{ y: 0, scale: 1, opacity: 1 }}
               exit={{ y: 50, scale: 0.8, opacity: 0 }}

@@ -1,14 +1,53 @@
-import React, { useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { ChevronDown, ChevronUp, Search } from 'lucide-react';
 import Guest from "../layouts/Guest";
 import { Link } from 'react-router-dom';
 import Footer from '../components/Footer';
+import { _get } from '../api';
+import CircularLoading from "../components/CircularLoading";
 
 const Faqs = () => {
 
     // Fix: separate states for each FAQ section
     const [openCommunity, setOpenCommunity] = useState(null);
     const [openDonation, setOpenDonation] = useState(null);
+    const [generalFaqs, setGeneralFaqs] = useState([]);
+    const [donationFaqs, setDonationFaqs] = useState([]);
+    const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(false);
+
+    const fetchFaqs = useCallback(async (query = '') => {
+        setLoading(true);
+        try {
+            const searchQuery = query ? `?search=${encodeURIComponent(query)}` : '';
+            const response = await _get(`/faqs${searchQuery}`);
+
+            const faqs = response.data || [];
+            const general = faqs.filter((faq) => faq.category?.toLowerCase() === 'general');
+            const donation = faqs.filter((faq) => faq.category?.toLowerCase() === 'donation');
+
+            setGeneralFaqs(general);
+            setDonationFaqs(donation);
+            setOpenCommunity(null);
+            setOpenDonation(null);
+        } catch (error) {
+            console.log('Error fetching FAQs:', error);
+        } finally {
+            setLoading(false);
+        }
+    }, []);
+
+    useEffect(() => {
+        fetchFaqs();
+    }, [fetchFaqs]);
+
+    useEffect(() => {
+        const handler = setTimeout(() => {
+            fetchFaqs(searchTerm);
+        }, 400);
+
+        return () => clearTimeout(handler);
+    }, [searchTerm, fetchFaqs]);
 
     const toggleCommunity = (i) => {
         setOpenCommunity(prev => prev === i ? null : i);
@@ -17,52 +56,6 @@ const Faqs = () => {
     const toggleDonation = (i) => {
         setOpenDonation(prev => prev === i ? null : i);
     };
-
-    const faqs1 = [
-        {
-            question: "Who is in charge of Kalinga ng Kababaihan Women’s League?",
-            answer: "The community is led by President Beavin Soriano and Vice President Juliet Eronico."
-        },
-        {
-            question: "What would I gain from becoming a member?",
-            answer: "Kalinga ng Kababaihan Women’s League Las Piñas is a group that helps people who need it the most..."
-        },
-        {
-            question: "What is the Kalinga ng Kababaihan Women’s League community like?",
-            answer: "Kalinga ng Kababaihan Women’s League Las Piñas is a global community of individuals..."
-        },
-        {
-            question: "How do I join Kalinga ng Kababaihan Women’s League?",
-            answer: "To become a member, you may volunteer or follow us on Facebook."
-        },
-        {
-            question: "What are the services you provide and how often?",
-            answer: "We offer food distribution, feeding programs, and a youth basketball league."
-        },
-        {
-            question: "How many of each area do you support?",
-            answer: "We support the entire area of Las Piñas, reaching all barangays."
-        },
-        {
-            question: "Do you collect volunteer information?",
-            answer: "Yes. We gather basic info such as name, contact, skills, and availability."
-        }
-    ];
-
-    const faqs2 = [
-        {
-            question: "What is your donation process?",
-            answer: "You can support us by giving cash contributions that help sustain our charity programs."
-        },
-        {
-            question: "Do you accept donations online?",
-            answer: "Not yet. We are securing the required permits to accept online donations."
-        },
-        {
-            question: "Do donors need to share personal info?",
-            answer: "We respect donor privacy. Anonymous donations are allowed and appreciated."
-        }
-    ];
 
     return (
         <Guest>
@@ -85,6 +78,8 @@ const Faqs = () => {
                             type="text" 
                             className="bg-white px-4 py-3 text-sm w-full outline-none"
                             placeholder="Type a keyword (e.g., donations, membership, volunteer)..."
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
                         />
                     </div>
 
@@ -105,9 +100,15 @@ const Faqs = () => {
                             <h2 className="text-xl font-bold text-gray-800">Our Community</h2>
                         </div>
 
-                        <div className="space-y-3">
-                            {faqs1.map((faq, i) => (
-                                <div key={i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="space-y-3 min-h-[120px]">
+                            {loading && (
+                                <CircularLoading customClass="text-orange-500 w-6 h-6" />
+                            )}
+                            {!loading && generalFaqs.length === 0 && (
+                                <p className="text-sm text-gray-600 px-2">No general questions found.</p>
+                            )}
+                            {!loading && generalFaqs.map((faq, i) => (
+                                <div key={faq.id ?? i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                                     <button
                                         className="w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
@@ -145,9 +146,15 @@ const Faqs = () => {
                             <h2 className="text-xl font-bold text-gray-800">Donation Platform</h2>
                         </div>
 
-                        <div className="space-y-3">
-                            {faqs2.map((faq, i) => (
-                                <div key={i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
+                        <div className="space-y-3 min-h-[120px]">
+                            {loading && (
+                                <CircularLoading customClass="text-orange-500 w-6 h-6" />
+                            )}
+                            {!loading && donationFaqs.length === 0 && (
+                                <p className="text-sm text-gray-600 px-2">No donation questions found.</p>
+                            )}
+                            {!loading && donationFaqs.map((faq, i) => (
+                                <div key={faq.id ?? i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                                     <button
                                         className="w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
@@ -182,7 +189,7 @@ const Faqs = () => {
                 {/* CONTACT CTA */}
                 <div className="flex flex-col items-center justify-center mt-16 bg-white border border-orange-100 rounded-xl p-8 max-w-[900px] mx-auto shadow-sm">
                     <p className="text-lg font-semibold text-gray-800">Still have questions?</p>
-                    <p className="text-sm text-gray-600">We'd love to help you find the answers you need.</p>
+                    <p className="text-sm text-gray-600">We&apos;d love to help you find the answers you need.</p>
                     <Link
                         to="/contact-us" 
                         className="mt-3 px-6 py-2 border border-orange-600 text-orange-600 rounded-md hover:bg-orange-50 transition text-sm font-semibold"
@@ -191,11 +198,10 @@ const Faqs = () => {
                     </Link>
                 </div>
 
-                <Footer />
             </div>
+            <Footer />
         </Guest>
     );
 };
 
 export default Faqs;
-

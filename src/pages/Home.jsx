@@ -10,7 +10,6 @@ import ChatButton from "../components/chatbot/ChatButton";
 import banner from "../assets/img/banner.png";
 import activity1 from "../assets/img/activity1.png";
 import activity2 from "../assets/img/activity2.png";
-import donateNowImg from "../assets/img/donateNow.png";
 import getInvolvedImg from "../assets/img/involved.png";
 import Picture1 from "../assets/img/Picture1.jpg";
 
@@ -25,6 +24,7 @@ const Home = () => {
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [recentProjects, setRecentProjects] = useState([]);
+  const [homepageInfo, setHomepageInfo] = useState(null);
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -43,6 +43,7 @@ const Home = () => {
 
   useEffect(() => {
     fetchPastProjects();
+    fetchHomepageInfo();
   }, []);
 
   const fetchPastProjects = async () => {
@@ -51,6 +52,15 @@ const Home = () => {
       setRecentProjects(response.data);
     } catch (error) {
       console.error("Error fetching events:", error);
+    }
+  };
+
+  const fetchHomepageInfo = async () => {
+    try {
+      const response = await _get("/homepage-info");
+      setHomepageInfo(response.data);
+    } catch (error) {
+      console.error("Error fetching homepage info:", error);
     }
   };
 
@@ -65,10 +75,10 @@ const Home = () => {
             <div className="flex flex-col space-y-3">
               <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Together, we uplift</p>
               <h1 className="text-4xl md:text-5xl text-gray-800 font-bold leading-tight chewy">
-                Building hope for women, families, and communities
+                {homepageInfo?.welcome_message || "Welcome to Kalinga ng Kababaihan"}
               </h1>
               <p className="text-gray-600 text-base md:text-lg poppins-regular">
-                Kalinga ng Kababaihan champions dignity through relief, livelihood, and safe spaces. Your support makes every story of resilience possible.
+                {homepageInfo?.intro_text || "Kalinga ng Kababaihan is dedicated to empowering women and families through comprehensive support programs, community building, and advocacy."}
               </p>
             </div>
 
@@ -86,10 +96,10 @@ const Home = () => {
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Women supported", value: "1,200+" },
-                { label: "Meals served", value: "50,000+" },
-                { label: "Communities reached", value: "25+" },
-                { label: "Volunteers strong", value: "800+" },
+                { label: "Women supported", value: homepageInfo?.women_supported || "..." },
+                { label: "Meals served", value: homepageInfo?.meals_served || "..." },
+                { label: "Communities reached", value: homepageInfo?.communities_reached || "..." },
+                { label: "Volunteers strong", value: homepageInfo?.number_of_volunteers || "..." },
               ].map((item, idx) => (
                 <div key={idx} className="bg-white border border-orange-100 rounded-lg p-3 shadow-sm">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">{item.label}</p>
@@ -310,7 +320,7 @@ const Home = () => {
                 data-aos-delay={`${(index + 1) * 100}`}
                 className="text-white w-full md:w-80 h-fit p-5 rounded-lg bg-white/15 backdrop-blur-md shadow-lg"
               >
-                <p className="text-base italic chewy">"{quote.text}"</p>
+                <p className="text-base italic chewy">&quot;{quote.text}&quot;</p>
                 <p className="pt-4 text-right text-xl chewy">- {quote.author}</p>
               </div>
             ))}

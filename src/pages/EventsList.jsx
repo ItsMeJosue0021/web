@@ -117,9 +117,8 @@ const EventsList = () => {
                         </div>
                     ))}
                 </div>
-
-                <Footer />
             </div>
+            <Footer />
         </Guest>
     );
 };

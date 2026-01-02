@@ -1,17 +1,59 @@
+import { useEffect, useState } from "react";
 import Guest from "../layouts/Guest";
 import Footer from "../components/Footer";
 import { FaUserAlt } from "react-icons/fa";
-import { Sparkles, HeartHandshake, Users, MapPin } from "lucide-react";
-
-const officers = [
-  { name: "Beavin Soriano", role: "President" },
-  { name: "Juliet Eronico", role: "Vice President" },
-  { name: "Cherry Balili", role: "Secretary" },
-  { name: "Gina Losare", role: "Treasurer" },
-  { name: "Marieatha Lim", role: "Auditor" },
-];
+import { Sparkles, HeartHandshake, MapPin } from "lucide-react";
+import { _get } from "../api";
 
 const AboutUs = () => {
+  const [homepageInfo, setHomepageInfo] = useState(null);
+  const [officers, setOfficers] = useState([]);
+  const [loadingOfficers, setLoadingOfficers] = useState(true);
+  const storageBase = "https://api.kalingangkababaihan.com/storage/";
+
+  useEffect(() => {
+    const fetchHomepageInfo = async () => {
+      try {
+        const response = await _get("/homepage-info");
+        setHomepageInfo(response.data || {});
+      } catch (error) {
+        console.error("Error fetching homepage info:", error);
+      }
+    };
+    fetchHomepageInfo();
+    fetchOfficers();
+  }, []);
+
+  const fetchOfficers = async () => {
+    setLoadingOfficers(true);
+    try {
+      const response = await _get("/officers");
+      const data = response.data || [];
+
+      const priority = ["president", "vice president", "secretary", "treasurer", "auditor"];
+      const sorted = [...data].sort((a, b) => {
+        const aIdx = priority.indexOf((a.position || "").toLowerCase());
+        const bIdx = priority.indexOf((b.position || "").toLowerCase());
+        const aRank = aIdx === -1 ? priority.length + 1 : aIdx;
+        const bRank = bIdx === -1 ? priority.length + 1 : bIdx;
+        return aRank - bRank;
+      });
+
+      setOfficers(sorted);
+    } catch (error) {
+      console.error("Error fetching officers:", error);
+    } finally {
+      setLoadingOfficers(false);
+    }
+  };
+
+  const stats = [
+    { label: "Women supported", value: homepageInfo?.women_supported || "..." },
+    { label: "Meals served", value: homepageInfo?.meals_served || "..." },
+    { label: "Communities reached", value: homepageInfo?.communities_reached || "..." },
+    { label: "Volunteers strong", value: homepageInfo?.number_of_volunteers || "..." },
+  ];
+
   return (
     <Guest>
       <div className="min-h-screen w-full flex flex-col bg-gray-50">
@@ -27,18 +69,10 @@ const AboutUs = () => {
               Empowering women. Strengthening communities.
             </h1>
             <p className="text-base md:text-lg text-gray-700 max-w-3xl">
-              We are a community-centered organization uplifting women through relief, health support, livelihood, mentorship, and advocacy�building spaces where women thrive, lead, and create lasting impact.
+              We are a community-centered organization uplifting women through relief, health support, livelihood, mentorship, and advocacy‹¨«building spaces where women thrive, lead, and create lasting impact.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
-              {[{
-                label: "Years of service", value: "10+"
-              }, {
-                label: "Women reached", value: "1,200+"
-              }, {
-                label: "Communities", value: "25+"
-              }, {
-                label: "Volunteers", value: "800+"
-              }].map((item, idx) => (
+              {stats.map((item, idx) => (
                 <div key={idx} className="bg-white/80 backdrop-blur border border-orange-100 rounded-lg p-3 shadow-sm">
                   <p className="text-[11px] uppercase tracking-wide text-gray-500">{item.label}</p>
                   <p className="text-xl font-bold text-orange-600">{item.value}</p>
@@ -53,7 +87,7 @@ const AboutUs = () => {
           <div className="max-w-[1100px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             {[{
               title: "Mission",
-              text: "To empower the marginalized�especially women and mothers�through education, support, and opportunities that enable dignity, confidence, and independence.",
+              text: "To empower the marginalized‹¨«especially women and mothers‹¨«through education, support, and opportunities that enable dignity, confidence, and independence.",
               icon: <HeartHandshake className="w-8 h-8 text-orange-500" />,
             }, {
               title: "Vision",
@@ -81,24 +115,67 @@ const AboutUs = () => {
               <p className="text-sm text-gray-600">Meet the leaders guiding our programs and partnerships.</p>
             </div>
 
-            <div className="flex flex-col items-center gap-3">
-              <FaUserAlt className="w-24 h-24 bg-white text-gray-400 p-6 rounded-full shadow-md border border-gray-200" />
-              <p className="text-xl font-bold">{officers[0].name}</p>
-              <p className="text-sm text-gray-600">{officers[0].role}</p>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 place-items-center">
-              {officers.slice(1).map((officer, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center text-center bg-white rounded-xl p-4 shadow-sm border border-gray-100 w-full max-w-[220px]"
-                >
-                  <FaUserAlt className="w-16 h-16 bg-gray-50 text-gray-400 p-4 rounded-full shadow-sm" />
-                  <p className="text-lg font-semibold mt-3">{officer.name}</p>
-                  <p className="text-sm text-gray-600">{officer.role}</p>
+            {loadingOfficers ? (
+              <div className="py-8 text-center text-sm text-gray-500">Loading officers...</div>
+            ) : officers.length === 0 ? (
+              <div className="py-8 text-center text-sm text-gray-500">Officers will be announced soon.</div>
+            ) : (
+              <>
+                <div className="flex flex-col items-center gap-3">
+                  {(() => {
+                    const leader = officers[0];
+                    const leaderImage = leader?.image
+                      ? leader.image.startsWith("http")
+                        ? leader.image
+                        : `${storageBase}${leader.image}`
+                      : null;
+                    return (
+                      <>
+                        {leaderImage ? (
+                          <img
+                            src={leaderImage}
+                            alt={leader.name}
+                            className="w-24 h-24 rounded-full object-cover shadow-md border border-gray-200"
+                          />
+                        ) : (
+                          <FaUserAlt className="w-24 h-24 bg-white text-gray-400 p-6 rounded-full shadow-md border border-gray-200" />
+                        )}
+                        <p className="text-xl font-bold">{leader.name}</p>
+                        <p className="text-sm text-gray-600">{leader.position}</p>
+                      </>
+                    );
+                  })()}
                 </div>
-              ))}
-            </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 place-items-center">
+                  {officers.slice(1).map((officer) => {
+                    const imageSrc = officer.image
+                      ? officer.image.startsWith("http")
+                        ? officer.image
+                        : `${storageBase}${officer.image}`
+                      : null;
+                    return (
+                      <div
+                        key={officer.id || officer.name}
+                        className="flex flex-col items-center text-center bg-white rounded-xl p-4 shadow-sm border border-gray-100 w-full max-w-[220px]"
+                      >
+                        {imageSrc ? (
+                          <img
+                            src={imageSrc}
+                            alt={officer.name}
+                            className="w-16 h-16 rounded-full object-cover shadow-sm"
+                          />
+                        ) : (
+                          <FaUserAlt className="w-16 h-16 bg-gray-50 text-gray-400 p-4 rounded-full shadow-sm" />
+                        )}
+                        <p className="text-lg font-semibold mt-3">{officer.name}</p>
+                        <p className="text-sm text-gray-600">{officer.position}</p>
+                      </div>
+                    );
+                  })}
+                </div>
+              </>
+            )}
           </div>
         </section>
 
@@ -129,7 +206,7 @@ const AboutUs = () => {
             <div className="flex flex-col gap-2 text-center">
               <p className="text-3xl md:text-4xl font-bold chewy">Find Us Here</p>
               <p className="text-sm text-orange-600 flex items-center justify-center gap-2">
-                <MapPin className="w-4 h-4" /> B4 Lot 6-6 Fantacy Road 3, Teresa Park Subdivision, Las Pi�as City
+                <MapPin className="w-4 h-4" /> B4 Lot 6-6 Fantacy Road 3, Teresa Park Subdivision, Las Pi‹¨«as City
               </p>
             </div>
             <div className="rounded-xl overflow-hidden shadow-md border border-gray-200">

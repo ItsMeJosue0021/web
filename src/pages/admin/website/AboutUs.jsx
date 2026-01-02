@@ -76,7 +76,7 @@ const WebAboutUs = () => {
             position: officer.position || "",
             image: null,
             preview: "",
-            existingImage: officer.image || "",
+            existingImage: officer.photo_url || "",
         });
         setShowModal(true);
     };

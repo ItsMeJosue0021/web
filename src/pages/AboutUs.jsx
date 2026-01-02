@@ -124,10 +124,10 @@ const AboutUs = () => {
                 <div className="flex flex-col items-center gap-3">
                   {(() => {
                     const leader = officers[0];
-                    const leaderImage = leader?.image
-                      ? leader.image.startsWith("http")
-                        ? leader.image
-                        : `${storageBase}${leader.image}`
+                    const leaderImage = leader?.photo_url
+                      ? leader.photo_url.startsWith("http")
+                        ? leader.photo_url
+                        : `${storageBase}${leader.photo_url}`
                       : null;
                     return (
                       <>
@@ -149,10 +149,10 @@ const AboutUs = () => {
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8 place-items-center">
                   {officers.slice(1).map((officer) => {
-                    const imageSrc = officer.image
-                      ? officer.image.startsWith("http")
-                        ? officer.image
-                        : `${storageBase}${officer.image}`
+                    const imageSrc = officer.photo_url
+                      ? officer.photo_url.startsWith("http")
+                        ? officer.photo_url
+                        : `${storageBase}${officer.photo_url}`
                       : null;
                     return (
                       <div

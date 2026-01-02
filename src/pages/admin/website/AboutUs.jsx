@@ -16,6 +16,7 @@ const emptyForm = {
 };
 
 const WebAboutUs = () => {
+    const storageBase = "https://api.kalingangkababaihan.com/storage/";
     const [officers, setOfficers] = useState([]);
     const [loading, setLoading] = useState(true);
     const [saving, setSaving] = useState(false);
@@ -76,7 +77,11 @@ const WebAboutUs = () => {
             position: officer.position || "",
             image: null,
             preview: "",
-            existingImage: officer.photo_url || "",
+            existingImage: officer.photo_url
+                ? officer.photo_url.startsWith("http")
+                    ? officer.photo_url
+                    : `${storageBase}${officer.photo_url}`
+                : "",
         });
         setShowModal(true);
     };
@@ -197,7 +202,11 @@ const WebAboutUs = () => {
                     ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
                             {officers.map((officer) => {
-                                const imageSrc = officer.photo_url || "";
+                                const imageSrc = officer.photo_url
+                                    ? officer.photo_url.startsWith("http")
+                                        ? officer.photo_url
+                                        : `${storageBase}${officer.photo_url}`
+                                    : "";
                                 return (
                                     <div key={officer.id} className="border border-gray-200 rounded-lg p-4 flex flex-col gap-3 shadow-sm">
                                         <div className="flex items-center gap-3">

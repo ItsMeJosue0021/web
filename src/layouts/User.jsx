@@ -162,7 +162,7 @@ const User = ({ children }) => {
                   </div>
               </div>
           </div>
-          <div className="w-full min-screen h-screen pt-20 md:pt-24 ">
+          <div className="w-full min-screen h-screen pt-20 bg-white">
             <PortalContext.Provider value={{ activeTab, setActiveTab }}>
               {children}
             </PortalContext.Provider>

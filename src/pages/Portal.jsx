@@ -272,7 +272,7 @@ const Portal = () => {
     };
 
     return (
-        <div className="h-full">
+        <div className="h-full bg-white">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
             <div className="bg-white w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-hidden">
                 <div className="bg-white w-full max-w-[600px] h-full mx-auto flex items-start justify-between gap-4" >
@@ -692,8 +692,12 @@ const Portal = () => {
                                 animate={{ scale: 1, opacity: 1 }}
                                 exit={{ scale: 0.95, opacity: 0 }}
                                 transition={{ duration: 0.2 }}
-                                className="bg-white h-auto min-h-80 rounded-lg w-full max-w-[600px] flex flex-col justify-start gap-4">
-                                    <img src={`${baseURL}${selectedIamge}`} alt="image" className="h-full w-full rounded-lg" />
+                                className="bg-white rounded-lg w-full max-w-[800px] p-2 flex items-center justify-center">
+                                    <img 
+                                        src={`${baseURL}${selectedIamge}`} 
+                                        alt="image" 
+                                        className="w-full h-auto max-h-[90vh] rounded-md object-contain" 
+                                    />
                                 </motion.div>
                             </motion.div>
                         </AnimatePresence>

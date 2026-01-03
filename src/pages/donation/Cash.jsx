@@ -140,6 +140,8 @@ const Cash = () => {
                                                 value={isAnonymous}
                                                 checked={isAnonymous}
                                                 onChange={() => setIsAnonymous(!isAnonymous)}
+                                                className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                                style={{ accentColor: '#fff' }}
                                                 />
                                                 <span className="text-[13px] capitalize">Anonymous</span>
                                             </label>

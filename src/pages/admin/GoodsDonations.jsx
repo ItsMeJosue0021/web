@@ -393,6 +393,8 @@ const GoodsDonations = () => {
                                             value={item}
                                             checked={categories.includes(item)}
                                             onChange={handleCategoryChange}
+                                            className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                            style={{ accentColor: '#fff' }}
                                             />
                                             <span className="text-[13px] capitalize">{item}</span>
                                         </label>

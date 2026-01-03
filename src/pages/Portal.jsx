@@ -274,19 +274,19 @@ const Portal = () => {
     return (
         <div className="h-full">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
-            <div className="w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-hidden">
-                <div className="w-full max-w-[600px] h-full mx-auto flex items-start justify-between gap-4" >
+            <div className="bg-white w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-hidden">
+                <div className="bg-white w-full max-w-[600px] h-full mx-auto flex items-start justify-between gap-4" >
 
                     {activeTab === 'home' && (
                         <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3">
-                            <div className="w-full sticky top-2 z-10">
+                            <div className="w-full sticky top-2 mb-3">
                                 <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow hover:bg-blue-50 border border-gray-100 hover:border-blue-200 group transition-colors duration-300 ease-in-out">
                                     <Search className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ease-in-out" />
                                     <input  
                                         onChange={handleSearchProjects}   
                                         type="text" 
                                         placeholder="Search projects..." 
-                                        className="w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400 transition-colors duration-300 ease-in-out"/>
+                                        className="text-gray-700 w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400 transition-colors duration-300 ease-in-out"/>
                                 </div>
                             </div>
                             {loading ? (

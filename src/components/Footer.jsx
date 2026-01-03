@@ -11,7 +11,7 @@ const Footer = () => {
                             <img src={logo} alt="logo" className="w-14 h-14 rounded-full border border-orange-200 bg-white"/>
                             <div>
                                 <p className="text-sm font-semibold text-white">Kalinga ng Kababaihan</p>
-                                <p className="text-[11px] text-gray-400">Women's League Las Piñas</p>
+                                <p className="text-[11px] text-gray-400">Women's League Las PiÃ±as</p>
                             </div>
                         </div>
                         <p className="text-xs text-gray-400 max-w-xs">
@@ -63,7 +63,7 @@ const Footer = () => {
 
                     <div className="flex flex-col gap-3 text-sm">
                         <p className="text-white font-semibold">Contact</p>
-                        <p className="text-gray-300">Las Piñas, Philippines</p>
+                        <p className="text-gray-300">Las PiÃ±as, Philippines</p>
                         <p className="text-gray-300">kalingangkababaihan@gmail.com</p>
                         <p className="text-gray-300">+63 917 123 4567</p>
                         <Link to="/contact-us" className="mt-1 inline-flex items-center gap-2 text-orange-300 hover:text-orange-200 text-xs font-semibold">
@@ -73,7 +73,7 @@ const Footer = () => {
                 </div>
 
                 <div className="pt-8 border-t border-gray-800 mt-8 text-center text-[11px] text-gray-400">
-                    <p>© 2021 Kalinga ng Kababaihan. All rights reserved.</p>
+                    <p>@2021 Kalinga ng Kababaihan. All rights reserved.</p>
                 </div>
             </div>
         </footer>

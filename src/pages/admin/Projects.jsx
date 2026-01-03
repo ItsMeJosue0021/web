@@ -1233,7 +1233,8 @@ const Projects = () => {
                                             id="isEvent"
                                             checked={isEvent}
                                             onChange={(e) => setIsEvent(e.target.checked)}
-                                            className=""
+                                            className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                            style={{ accentColor: '#fff' }}
                                         />
                                     </div>
                                     <p className="text-xs">Is this an event?</p>
@@ -1361,7 +1362,8 @@ const Projects = () => {
                                             id="isEvent"
                                             checked={isEvent}
                                             onChange={(e) => setIsEvent(e.target.checked)}
-                                            className="bg-white border-gray-300 rounded"
+                                            className="h-4 w-4 bg-white border border-gray-300 rounded cursor-pointer accent-white"
+                                            style={{ accentColor: '#fff' }}
                                         />
                                     </div>
                                     <label className="text-xs">Is this an event?</label>

@@ -1,5 +1,5 @@
 import Guest from "../layouts/Guest";
-import { Search } from 'lucide-react';
+import { Search, CalendarX2 } from 'lucide-react';
 import { _get } from "../api";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
@@ -13,14 +13,27 @@ const EventsList = () => {
 
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [searchTerm, setSearchTerm] = useState("");
 
     useEffect(() => {
-        fetchEvents();
-    }, []);
+        const handler = setTimeout(() => {
+            fetchEvents(searchTerm);
+        }, 350); // light debounce to avoid hammering the API while typing
 
-    const fetchEvents = async () => {
+        return () => clearTimeout(handler);
+    }, [searchTerm]);
+
+    const fetchEvents = async (query = "") => {
+        const isSearch = query.trim() !== "";
+
+        setLoading(true);
+
         try {
-            const response = await _get("/upcoming-projects");
+            const endpoint = isSearch
+                ? `/upcoming-projects?search=${encodeURIComponent(query)}`
+                : "/upcoming-projects";
+
+            const response = await _get(endpoint);
             setEvents(response.data);
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -43,13 +56,15 @@ const EventsList = () => {
                     </p>
 
                     {/* SEARCH BAR */}
-                    <div className="w-full max-w-[500px] flex items-center mt-4 shadow-sm">
-                        <div className="bg-orange-500 p-3 rounded-l-md flex items-center justify-center">
+                    <div className="w-full max-w-[650px] flex items-center mt-4 shadow-sm bg-white border border-gray-200 rounded-md overflow-hidden">
+                        <div className="bg-orange-500 p-3 flex items-center justify-center">
                             <Search size={20} className="text-white" />
                         </div>
                         <input 
                             type="text" 
-                            className="bg-white px-4 py-3 rounded-r-md border border-gray-200 text-sm w-full outline-none placeholder:text-xs"
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="bg-white px-4 py-3 text-sm w-full outline-none placeholder:text-xs"
                             placeholder="Search for projects..."
                         />
                     </div>
@@ -67,8 +82,32 @@ const EventsList = () => {
 
                     {/* Empty State */}
                     {!loading && events.length === 0 && (
-                        <div className="col-span-full flex justify-center py-10">
-                            <p className="text-sm font-semibold text-gray-600">No events available at the moment.</p>
+                        <div className="col-span-full">
+                            <div className="max-w-xl mx-auto bg-white border border-orange-100 shadow-sm rounded-2xl p-8 text-center flex flex-col items-center gap-4">
+                                <div className="w-14 h-14 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
+                                    <CalendarX2 size={28} />
+                                </div>
+                                <div className="space-y-2">
+                                    <h3 className="text-lg font-semibold text-gray-800">No upcoming projects just yet</h3>
+                                    <p className="text-sm text-gray-600">
+                                        We are preparing our next set of community initiatives. Check back soon or learn more about what we do.
+                                    </p>
+                                </div>
+                                <div className="flex flex-wrap items-center justify-center gap-3">
+                                    <Link
+                                        to="/about-us"
+                                        className="text-xs px-4 py-2 rounded-md border border-orange-200 text-orange-600 bg-orange-50 hover:bg-orange-100 transition"
+                                    >
+                                        About our mission
+                                    </Link>
+                                    <Link
+                                        to="/"
+                                        className="text-xs px-4 py-2 rounded-md border border-gray-200 text-gray-700 hover:border-orange-600 hover:text-orange-600 transition"
+                                    >
+                                        Back to home
+                                    </Link>
+                                </div>
+                            </div>
                         </div>
                     )}
 
@@ -95,7 +134,7 @@ const EventsList = () => {
 
                                 <div className="flex items-center gap-2 text-xs text-gray-500">
                                     <p>{event.date}</p>
-                                    <span>•</span>
+                                    <span className="text-gray-300">|</span>
                                     <p>{event.location}</p>
                                 </div>
 

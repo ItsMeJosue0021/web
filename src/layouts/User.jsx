@@ -78,7 +78,7 @@ const User = ({ children }) => {
               <GiHamburgerMenu  
                 size={20} 
                 strokeWidth={0.5} 
-                className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
+                className="group-hover:text-blue-500 transition-all duration-300 ease-in-out text-gray-700"
               />
             </div>
           </div>

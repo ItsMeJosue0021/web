@@ -159,7 +159,8 @@ const Goods = () => {
                                                     value={isAnonymous}
                                                     checked={isAnonymous}
                                                     onChange={() => setIsAnonymous(!isAnonymous)}
-                                                    className="bg-white accent-gray-500 cursor-pointer"
+                                                    className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                                    style={{ accentColor: '#fff' }}
                                                     />
                                                     <span className="text-xs capitalize">Anonymous</span>
                                                 </label>
@@ -192,7 +193,8 @@ const Goods = () => {
                                                                 value={item.name}
                                                                 checked={categories.includes(item.name)}
                                                                 onChange={handleCategoryChange}
-                                                                className="h-4 w-4 accent-gray-500 cursor-pointer"
+                                                                className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                                                style={{ accentColor: '#fff' }}
                                                             />
                                                             <span className={`text-xs capitalize`}>{item.name}</span>
                                                         </label>

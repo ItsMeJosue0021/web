@@ -111,7 +111,7 @@ const Faqs = () => {
                                 <div key={faq.id ?? i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                                     <button
-                                        className="w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
+                                        className="bg-white w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
                                         onClick={() => toggleCommunity(i)}
                                     >
                                         <p className="text-sm md:text-base font-medium text-gray-800 text-left">
@@ -157,7 +157,7 @@ const Faqs = () => {
                                 <div key={faq.id ?? i} className="bg-white rounded-lg border border-gray-200 shadow-sm overflow-hidden">
 
                                     <button
-                                        className="w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
+                                        className="bg-white w-full flex justify-between items-center p-4 hover:bg-orange-50 transition"
                                         onClick={() => toggleDonation(i)}
                                     >
                                         <p className="text-sm md:text-base font-medium text-gray-800 text-left">

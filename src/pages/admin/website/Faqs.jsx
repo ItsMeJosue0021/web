@@ -292,6 +292,8 @@ const WebFaqs = () => {
                                             value="general"
                                             checked={formData.category === "general"}
                                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                            style={{ accentColor: '#fff' }}
                                         />
                                         General question
                                     </label>
@@ -302,6 +304,8 @@ const WebFaqs = () => {
                                             value="donation"
                                             checked={formData.category === "donation"}
                                             onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                                            className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                            style={{ accentColor: '#fff' }}
                                         />
                                         Donation related
                                     </label>

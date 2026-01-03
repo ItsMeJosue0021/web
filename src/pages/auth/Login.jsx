@@ -1,4 +1,4 @@
-import {React, useContext, useState} from 'react'
+import { useContext, useState} from 'react'
 import { useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../AuthProvider'
 import Guest from '../../layouts/Guest'
@@ -83,7 +83,8 @@ const Login = () => {
                                             <input 
                                                 id="remember" 
                                                 type="checkbox" 
-                                                className="appearance-none w-3 h-3 bg-white border border-gray-300 rounded checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-300 cursor-pointer"
+                                                className="appearance-none w-3 h-3 bg-white border border-gray-300 rounded checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-300 cursor-pointer accent-white"
+                                                style={{ accentColor: '#fff' }}
                                                 required="" 
                                             />
                                         </div>

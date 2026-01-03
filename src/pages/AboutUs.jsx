@@ -69,7 +69,7 @@ const AboutUs = () => {
               Empowering women. Strengthening communities.
             </h1>
             <p className="text-base md:text-lg text-gray-700 max-w-3xl">
-              We are a community-centered organization uplifting women through relief, health support, livelihood, mentorship, and advocacy‹¨«building spaces where women thrive, lead, and create lasting impact.
+              We are a community-centered organization uplifting women through relief, health support, livelihood, mentorship, and advocacy; building spaces where women thrive, lead, and create lasting impact.
             </p>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 max-w-3xl">
               {stats.map((item, idx) => (
@@ -87,7 +87,7 @@ const AboutUs = () => {
           <div className="max-w-[1100px] mx-auto px-6 grid grid-cols-1 md:grid-cols-2 gap-8">
             {[{
               title: "Mission",
-              text: "To empower the marginalized‹¨«especially women and mothers‹¨«through education, support, and opportunities that enable dignity, confidence, and independence.",
+              text: "To empower the marginalized especially women and mothers through education, support, and opportunities that enable dignity, confidence, and independence.",
               icon: <HeartHandshake className="w-8 h-8 text-orange-500" />,
             }, {
               title: "Vision",
@@ -206,7 +206,7 @@ const AboutUs = () => {
             <div className="flex flex-col gap-2 text-center">
               <p className="text-3xl md:text-4xl font-bold chewy">Find Us Here</p>
               <p className="text-sm text-orange-600 flex items-center justify-center gap-2">
-                <MapPin className="w-4 h-4" /> B4 Lot 6-6 Fantacy Road 3, Teresa Park Subdivision, Las Pi‹¨«as City
+                <MapPin className="w-4 h-4" /> B4 Lot 6-6 Fantacy Road 3, Teresa Park Subdivision, Las Piñas City
               </p>
             </div>
             <div className="rounded-xl overflow-hidden shadow-md border border-gray-200">

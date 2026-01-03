@@ -274,7 +274,7 @@ const Portal = () => {
     return (
         <div className="h-full bg-white">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
-            <div className="bg-white w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-hidden">
+            <div className="bg-white w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-y-auto overflow-x-hidden">
                 <div className="bg-white w-full max-w-[600px] h-full mx-auto flex items-start justify-between gap-4" >
 
                     {activeTab === 'home' && (
@@ -445,7 +445,7 @@ const Portal = () => {
                                                     value={membershipData.payment_reference_number}
                                                     onChange={handleMembershipTextChange}
                                                     placeholder="Enter your payment reference number"
-                                                    className="text-xs border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
+                                                    className="text-xs bg-white border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
                                                 />
                                                 {membershipErrors.payment_reference_number && (
                                                     <span className="text-red-500 text-[11px]">{membershipErrors.payment_reference_number[0]}</span>
@@ -509,8 +509,8 @@ const Portal = () => {
                     {activeTab === 'profile' && (
                         <div className="w-full flex h-fit flex-col gap-4">
                             <div className="w-full rounded-xl bg-gradient-to-r from-orange-50 via-white to-orange-50 border border-orange-100 shadow-sm p-5 flex flex-col gap-4">
-                                <div className="flex items-start gap-4">
-                                    <div className="flex items-center justify-center min-w-32 w-32 min-h-32 h-32 rounded-full bg-white border border-orange-100 shadow-sm">
+                                <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                                    <div className="flex items-center justify-center min-w-28 w-28 min-h-28 h-28 sm:min-w-32 sm:w-32 sm:min-h-32 sm:h-32 rounded-full bg-white border border-orange-100 shadow-sm">
                                         {user?.image ? (
                                             <img 
                                                 src={`${baseURL}${user.image}`} 
@@ -528,13 +528,13 @@ const Portal = () => {
                                         )}
                                     </div>
                                     <div className="w-full flex flex-col gap-2">
-                                        <div className="flex items-start justify-between gap-2">
-                                            <div className="flex flex-col">
-                                                <span className="font-semibold text-gray-900 text-lg">{user.fullName}</span>
-                                                <span className="text-xs text-blue-500">@{user.username}</span>
+                                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                            <div className="flex flex-col text-center sm:text-left">
+                                                <span className="font-semibold text-gray-900 text-lg break-words">{user.fullName}</span>
+                                                <span className="text-xs text-blue-500 break-all">@{user.username}</span>
                                             </div>
                                             <button
-                                                className="flex items-center gap-2 px-3 py-2 rounded-lg border border-orange-200 bg-white text-[11px] hover:bg-orange-50 transition-all"
+                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-orange-200 bg-white text-[11px] hover:bg-orange-50 transition-all w-full sm:w-auto"
                                                 onClick={() => setModal(prev => ({...prev, updateProfileInfo: true}))}
                                             >
                                                 <PencilLine size={12} strokeWidth={2.5}/>
@@ -569,9 +569,9 @@ const Portal = () => {
                             </div>
 
                             <div className="flex flex-col items-start gap-3 p-6 bg-white rounded-xl border border-gray-200 shadow-sm">
-                                <div className="w-full flex items-center justify-between">
-                                    <p className="text-sm font-semibold">Security</p>
-                                    <span className="text-[11px] text-gray-500">Keep your account safe by updating your password regularly.</span>
+                                <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                                    <p className="text-sm text-gray-700 font-semibold">Security</p>
+                                    <span className="text-[11px] text-gray-500 sm:text-right">Keep your account safe by updating your password regularly.</span>
                                 </div>
                                 <div className='w-full flex flex-col gap-3'>
                                     <div className='w-full md:flex items-center justify-between gap-4'>
@@ -579,7 +579,7 @@ const Portal = () => {
                                         <div className='flex flex-col w-full md:w-80'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
+                                                className='bg-white text-gray-700 text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
                                                 placeholder='Old Password'
                                                 value={password.oldPassword}
                                                 name='oldPassword'
@@ -595,7 +595,7 @@ const Portal = () => {
                                         <div className='flex flex-col w-full md:w-80'>
                                             <input 
                                                 type="password" 
-                                                className='text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
+                                                className='bg-white text-gray-700 text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
                                                 placeholder='New Password'
                                                 value={password.newPassword}
                                                 name='newPassword'
@@ -612,7 +612,7 @@ const Portal = () => {
                                             <input 
                                                 type="password" 
                                                 value={password.newPassword_confirmation}
-                                                className='text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
+                                                className='bg-white text-gray-700 text-[11px] w-full rounded-md px-4 py-2 border border-gray-200 focus:outline-none focus:border-orange-400 placeholder:text-gray-300' 
                                                 placeholder='Confirm Password'
                                                 name='newPassword_confirmation'
                                                 onChange={handleInputChange}

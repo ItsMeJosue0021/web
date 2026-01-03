@@ -154,7 +154,7 @@ const Header = () => {
                                     </Link>  
                                 )}
                                 {user && (
-                                <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                                <Link to="/portal" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                                     <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Portal</a>
                                 </Link>
                                 )}

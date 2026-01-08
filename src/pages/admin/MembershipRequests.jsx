@@ -188,14 +188,14 @@ const MembershipRequests = () => {
                                                             onClick={() => handleDecision(request.id, "approve")}
                                                             disabled={actionState.id === request.id}
                                                         >
-                                                            {actionState.id === request.id && actionState.type === "approve" ? "Processing..." : "Approve"}
+                                                            {actionState.id === request.id && actionState.type === "approve" ? "Approving.." : "Approve"}
                                                         </button>
                                                         <button
                                                             className="bg-red-50 text-red-600 px-3 py-1 rounded disabled:opacity-70"
                                                             onClick={() => handleDecision(request.id, "reject")}
                                                             disabled={actionState.id === request.id}
                                                         >
-                                                            {actionState.id === request.id && actionState.type === "reject" ? "Processing..." : "Reject"}
+                                                            {actionState.id === request.id && actionState.type === "reject" ? "Rejecting.." : "Reject"}
                                                         </button>
                                                     </>
                                                 ) : (

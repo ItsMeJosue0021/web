@@ -68,7 +68,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
     };
 
     return (
-        <div className="w-screen max-w-screen min-h-screen h-auto bg-gray-50 overflow-hidden text-gray-700"> 
+        <div className="w-full min-h-screen h-auto bg-gray-50 text-gray-700"> 
             <ToastContainer />
             <div className="w-full flex flex-col"> 
                 <div className="w-full h-36 md:h-40 bg-orange-500 ">
@@ -199,7 +199,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                 </div>
 
                 <div className="relative w-full">
-                    <div className="w-full absolute left-0 -top-16 flex items-start">
+                    <div className="w-full absolute left-0 -top-16 flex items-start min-w-0">
                         {/* SIDE BAR */}
                         <div className="hidden md:block min-w-56 w-56 h-auto p-4 pt-2 pr-2 pl-0">
                             <div className='bg-white layout-sidebar h-[600px] max-h-[600px] overflow-y-auto pl-2 p-8 pr-5 shadow-sm scrollbar-hide'>
@@ -377,7 +377,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                             </div>
                         </div>
 
-                        <div className="w-full h-full min-h-96 p-4 pt-2">
+                        <div className="flex-1 min-w-0 h-full min-h-96 p-4 pt-2">
                             <div className="w-full layout-head bg-white h-16 md:h-20 p-4 pl-8 md:mb-4 shadow-sm flex items-center justify-between">
                                 <div className='pl-2 border-l-4 border-orange-600'>
                                     <h1 className="text-sm md:text-lg font-semibold">{header.title}</h1>
@@ -387,7 +387,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     <Breadcrumbs breadcrumbs={breadcrumbs} />
                                 </div>
                             </div>
-                            <div className='w-full h-full max-h-[530px] overflow-y-auto overflow-x-auto pb-4'>
+                            <div className='w-full h-full max-h-[530px] overflow-y-auto overflow-x-auto pb-4 hide-scrollbar'>
                                 {children}
                             </div>
                             

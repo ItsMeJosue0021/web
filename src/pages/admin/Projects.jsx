@@ -530,6 +530,8 @@ const Projects = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isSavingProject, setIsSavingProject] = useState(false);
+    const [isUpdatingProject, setIsUpdatingProject] = useState(false);
 
     // Liquidation
     const [isLiquidateOpen, setIsLiquidateOpen] = useState(false);
@@ -645,6 +647,7 @@ const Projects = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSavingProject(true);
 
         const formData = new FormData();
         formData.append("title", title);
@@ -668,11 +671,14 @@ const Projects = () => {
             } else {
                 toast.error("Error adding project.");
             }
+        } finally {
+            setIsSavingProject(false);
         }
     };
 
     const handleEditSubmit = async (e) => {
         e.preventDefault();
+        setIsUpdatingProject(true);
         const formData = new FormData();
 
         formData.append("title", title);
@@ -692,6 +698,8 @@ const Projects = () => {
         } catch (error) {
             console.error("Error updating project:", error);
             toast.error("Error updating project.");
+        } finally {
+            setIsUpdatingProject(false);
         }
     };
 
@@ -1213,119 +1221,123 @@ const Projects = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <div className="bg-white w-full max-w-[95%] sm:max-w-[600px] md:max-w-[800px] p-6 rounded-lg shadow relative">
+                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden">
                             <X
                                 onClick={() => {
                                     clearForm();
                                     setShowAddProjectModal(false);
                                     setValidationErrors({});
                                 }}
-                                className="absolute top-4 right-4 cursor-pointer"
+                                className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-gray-700"
                             />
 
-                            <p className="text-lg mb-4 text-orange-500">Add New Project</p>
+                            <div className="bg-orange-50/70 border-b border-orange-100 px-6 py-5">
+                                <p className="text-lg font-semibold text-orange-600">Add New Project</p>
+                                <p className="text-xs text-gray-600">
+                                    Provide the key details so this project is easy to track and manage.
+                                </p>
+                            </div>
 
-                            <form className="flex flex-col gap-4" onSubmit={handleSubmit}>
-                                <div className="flex items-center justify-start gap-2">
-                                    <div>
+                            <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleSubmit}>
+                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isEvent"
+                                        checked={isEvent}
+                                        onChange={(e) => setIsEvent(e.target.checked)}
+                                        className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                        style={{ accentColor: '#fff' }}
+                                    />
+                                    <label htmlFor="isEvent" className="text-xs text-gray-700">
+                                        Mark this project as an event
+                                    </label>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Title *</label>
                                         <input
-                                            type="checkbox"
-                                            id="isEvent"
-                                            checked={isEvent}
-                                            onChange={(e) => setIsEvent(e.target.checked)}
-                                            className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
-                                            style={{ accentColor: '#fff' }}
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Project Title"
                                         />
+                                        {validationErrors.title && (
+                                            <p className="text-xs text-red-500">{validationErrors.title[0]}</p>
+                                        )}
                                     </div>
-                                    <p className="text-xs">Is this an event?</p>
-                                </div>
 
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Title *</label>
-                                    <input
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Title"
-                                    />
-                                    {validationErrors.title && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.title[0]}
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Description *</label>
+                                        <textarea
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg min-h-[96px] focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Short summary of the project"
+                                        />
+                                        {validationErrors.description && (
+                                            <p className="text-xs text-red-500">{validationErrors.description[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Location *</label>
+                                        <input
+                                            value={location}
+                                            onChange={(e) => setLocation(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Project Location"
+                                        />
+                                        {validationErrors.location && (
+                                            <p className="text-xs text-red-500">{validationErrors.location[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Date *</label>
+                                        <input
+                                            type="date"
+                                            value={date}
+                                            onChange={(e) => setDate(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                        />
+                                        {validationErrors.date && (
+                                            <p className="text-xs text-red-500">{validationErrors.date[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Image</label>
+                                        <input
+                                            type="file"
+                                            onChange={(e) => setImage(e.target.files[0])}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                        />
+                                        <p className="text-[11px] text-gray-500">
+                                            Optional. Upload a clear project photo (JPG or PNG).
                                         </p>
-                                    )}
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Description *</label>
-                                    <textarea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Description"
-                                    />
-                                    {validationErrors.description && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.description[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Location *</label>
-                                    <input
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Location"
-                                    />
-                                    {validationErrors.location && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.location[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Date *</label>
-                                    <input
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                    />
-                                    {validationErrors.date && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.date[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Image</label>
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setImage(e.target.files[0])}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                    />
-                                </div>
-
-                                <div className="flex justify-end gap-2 mt-3">
+                                <div className="flex items-center justify-end gap-2 pt-2">
                                     <button
-                                        type="submit"
-                                        className="bg-orange-500 text-white px-4 py-2 text-xs rounded"
-                                    >
-                                        Save
-                                    </button>
-                                    <div
+                                        type="button"
                                         onClick={() => {
                                             clearForm();
                                             setShowAddProjectModal(false);
                                             setValidationErrors({});
                                         }}
-                                        className="bg-gray-200 px-4 py-2 text-xs rounded cursor-pointer"
+                                        className="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-xs rounded-lg"
                                     >
                                         Cancel
-                                    </div>
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isSavingProject}
+                                        className={`bg-orange-500 text-white px-5 py-2 text-xs rounded-lg ${isSavingProject ? "opacity-60 cursor-not-allowed" : "hover:bg-orange-600"}`}
+                                    >
+                                        {isSavingProject ? "Saving.." : "Save Project"}
+                                    </button>
                                 </div>
                             </form>
                         </div>
@@ -1342,119 +1354,123 @@ const Projects = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <div className="bg-white w-full max-w-[95%] sm:max-w-[600px] md:max-w-[800px] p-6 rounded-lg shadow relative">
+                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden">
                             <X
                                 onClick={() => {
                                     clearForm();
                                     setShowEditProjectModal(false);
                                     setValidationErrors({});
                                 }}
-                                className="absolute top-4 right-4 cursor-pointer"
+                                className="absolute top-4 right-4 cursor-pointer text-gray-500 hover:text-gray-700"
                             />
 
-                            <p className="text-xs mb-4">Edit Project</p>
+                            <div className="bg-orange-50/70 border-b border-orange-100 px-6 py-5">
+                                <p className="text-lg font-semibold text-orange-600">Edit Project</p>
+                                <p className="text-xs text-gray-600">
+                                    Update the project details to keep records accurate.
+                                </p>
+                            </div>
 
-                            <form className="flex flex-col gap-4" onSubmit={handleEditSubmit}>
-                                <div className="flex items-center gap-2">
-                                    <div>
+                            <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleEditSubmit}>
+                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isEvent"
+                                        checked={isEvent}
+                                        onChange={(e) => setIsEvent(e.target.checked)}
+                                        className="h-4 w-4 bg-white border border-gray-300 rounded cursor-pointer accent-white"
+                                        style={{ accentColor: '#fff' }}
+                                    />
+                                    <label htmlFor="isEvent" className="text-xs text-gray-700">
+                                        Mark this project as an event
+                                    </label>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Title *</label>
                                         <input
-                                            type="checkbox"
-                                            id="isEvent"
-                                            checked={isEvent}
-                                            onChange={(e) => setIsEvent(e.target.checked)}
-                                            className="h-4 w-4 bg-white border border-gray-300 rounded cursor-pointer accent-white"
-                                            style={{ accentColor: '#fff' }}
+                                            value={title}
+                                            onChange={(e) => setTitle(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Project Title"
                                         />
+                                        {validationErrors.title && (
+                                            <p className="text-xs text-red-500">{validationErrors.title[0]}</p>
+                                        )}
                                     </div>
-                                    <label className="text-xs">Is this an event?</label>
-                                </div>
 
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Title *</label>
-                                    <input
-                                        value={title}
-                                        onChange={(e) => setTitle(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Title"
-                                    />
-                                    {validationErrors.title && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.title[0]}
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Description *</label>
+                                        <textarea
+                                            value={description}
+                                            onChange={(e) => setDescription(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg min-h-[96px] focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Short summary of the project"
+                                        />
+                                        {validationErrors.description && (
+                                            <p className="text-xs text-red-500">{validationErrors.description[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Location *</label>
+                                        <input
+                                            value={location}
+                                            onChange={(e) => setLocation(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="Project Location"
+                                        />
+                                        {validationErrors.location && (
+                                            <p className="text-xs text-red-500">{validationErrors.location[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Date *</label>
+                                        <input
+                                            type="date"
+                                            value={date}
+                                            onChange={(e) => setDate(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                        />
+                                        {validationErrors.date && (
+                                            <p className="text-xs text-red-500">{validationErrors.date[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs font-medium text-gray-700">Image</label>
+                                        <input
+                                            type="file"
+                                            onChange={(e) => setImage(e.target.files[0])}
+                                            className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                        />
+                                        <p className="text-[11px] text-gray-500">
+                                            Optional. Upload a clear project photo (JPG or PNG).
                                         </p>
-                                    )}
+                                    </div>
                                 </div>
 
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Description *</label>
-                                    <textarea
-                                        value={description}
-                                        onChange={(e) => setDescription(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Description"
-                                    />
-                                    {validationErrors.description && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.description[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Location *</label>
-                                    <input
-                                        value={location}
-                                        onChange={(e) => setLocation(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                        placeholder="Project Location"
-                                    />
-                                    {validationErrors.location && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.location[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Date *</label>
-                                    <input
-                                        type="date"
-                                        value={date}
-                                        onChange={(e) => setDate(e.target.value)}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                    />
-                                    {validationErrors.date && (
-                                        <p className="text-xs text-red-500">
-                                            {validationErrors.date[0]}
-                                        </p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Image</label>
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setImage(e.target.files[0])}
-                                        className="bg-white border px-3 py-2 text-xs rounded"
-                                    />
-                                </div>
-
-                                <div className="flex justify-end gap-2 mt-3">
+                                <div className="flex items-center justify-end gap-2 pt-2">
                                     <button
-                                        type="submit"
-                                        className="bg-orange-500 text-white px-4 py-2 text-xs rounded"
-                                    >
-                                        Save
-                                    </button>
-                                    <div
+                                        type="button"
                                         onClick={() => {
                                             clearForm();
                                             setShowEditProjectModal(false);
                                             setValidationErrors({});
                                         }}
-                                        className="bg-gray-200 px-4 py-2 text-xs rounded cursor-pointer"
+                                        className="bg-gray-100 hover:bg-gray-200 px-4 py-2 text-xs rounded-lg"
                                     >
                                         Cancel
-                                    </div>
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={isUpdatingProject}
+                                        className={`bg-orange-500 text-white px-5 py-2 text-xs rounded-lg ${isUpdatingProject ? "opacity-60 cursor-not-allowed" : "hover:bg-orange-600"}`}
+                                    >
+                                        {isUpdatingProject ? "Saving.." : "Save Changes"}
+                                    </button>
                                 </div>
                             </form>
                         </div>

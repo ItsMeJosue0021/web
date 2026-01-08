@@ -3,6 +3,7 @@ import Guest from "../../layouts/Guest";
 import { Link } from "react-router-dom";
 import { FaArrowLeft } from "react-icons/fa";
 import { _post } from "../../api";
+import CircularLoading from "../../components/CircularLoading";
 
 const GCashDonation = () => {
 
@@ -36,9 +37,17 @@ const GCashDonation = () => {
     return (
         <Guest>
             {loading && (
-                <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
-                    <img src="/gcashpng.png" alt="img" className="w-14 h-14" />
-                    <p className="text-blue-700 text-xl">Connecting to GCash...</p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden">
+                            <img src="/gcashpng.png" alt="GCash" className="w-7 h-7 object-contain" />
+                        </div>
+                        <CircularLoading customClass="w-6 h-6 text-blue-600" />
+                        <p className="text-lg font-semibold text-gray-800">Connecting to GCash</p>
+                        <p className="text-xs text-gray-500">
+                            Please keep this window open while we redirect you to payment.
+                        </p>
+                    </div>
                 </div>
             )}
             <div className="bg-gray-50 min-h-screen w-full p-4 ">

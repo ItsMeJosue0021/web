@@ -6,6 +6,7 @@ import { _post } from "../../api";
 import { Check } from "lucide-react";
 import { IoMdClose } from "react-icons/io";
 import { motion } from "framer-motion";
+import CircularLoading from "../../components/CircularLoading";
 
 const CashDonation = () => {
   const [data, setData] = useState({
@@ -48,8 +49,16 @@ const CashDonation = () => {
   return (
     <Guest>
       {loading && (
-        <div className="fixed top-0 left-0 w-full h-full bg-white/80 z-50 flex flex-col items-center justify-center">
-          <p className="text-black text-xl">Sending your donation...</p>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+          <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+            <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
+              <CircularLoading customClass="w-7 h-7 text-orange-600" />
+            </div>
+            <p className="text-lg font-semibold text-gray-800">Sending your donation</p>
+            <p className="text-xs text-gray-500">
+              Please keep this window open while we submit your donation.
+            </p>
+          </div>
         </div>
       )}
 

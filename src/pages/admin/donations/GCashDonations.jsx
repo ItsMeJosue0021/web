@@ -17,6 +17,7 @@ const GCashDonationsAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [toBeApproved, setToBeApproved] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [approvingId, setApprovingId] = useState(null);
 
     // Reports
     const [isReportView, setIsReportView] = useState(false);
@@ -121,6 +122,7 @@ const GCashDonationsAdmin = () => {
     };
 
     const approveDonation = async (id) => {
+        setApprovingId(id);
         try {
             const response = await _put(`/gcash-donations/${id}/approve`);
             fetchDonations();
@@ -128,6 +130,8 @@ const GCashDonationsAdmin = () => {
             if (response.status === 200) setSuccess(true);
         } catch (error) {
             console.error("Error approving donation:", error);
+        } finally {
+            setApprovingId(null);
         }
     };
 
@@ -284,6 +288,9 @@ const GCashDonationsAdmin = () => {
                     message="Are you sure you want to approve this donation?"
                     isDelete={false}
                     isDeleting={false}
+                    isConfirming={approvingId === toBeApproved}
+                    confirmLabel="Confirm"
+                    confirmLoadingLabel="Confirming.."
                 />
             )}
 

@@ -62,6 +62,7 @@ const Expenses = () => {
         image: null,
     });
     const [editItemPreview, setEditItemPreview] = useState(null);
+    const [deletingItemId, setDeletingItemId] = useState(null);
 
 
     useEffect(() => {
@@ -282,14 +283,19 @@ const Expenses = () => {
 
     const removeEditItem = (idx, item_id) => {
         setEditItems(editItems.filter((_, i) => i !== idx));
-        deleteItem(item_id);
+        if (item_id) {
+            deleteItem(item_id);
+        }
     };
 
     const deleteItem = async (item_id) => {
+        setDeletingItemId(item_id);
         try {
-            _delete(`/expenditure-items/${item_id}`);
+            await _delete(`/expenditure-items/${item_id}`);
         } catch (error) {
             console.log(error);
+        } finally {
+            setDeletingItemId(null);
         }
     }
 
@@ -862,9 +868,10 @@ const Expenses = () => {
                                                 <button
                                                     type="button"
                                                     onClick={() => removeEditItem(idx, it.id)}
-                                                    className="text-red-500 h-fit border-0 hover:outline-none hover:underline"
+                                                    disabled={deletingItemId === it.id}
+                                                    className={`text-red-500 h-fit border-0 hover:outline-none ${deletingItemId === it.id ? "opacity-60 cursor-not-allowed" : "hover:underline"}`}
                                                     >
-                                                    Remove
+                                                    {deletingItemId === it.id ? "Removing.." : "Remove"}
                                                 </button>
                                             </div>
                                         ))}

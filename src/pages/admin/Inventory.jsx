@@ -28,7 +28,7 @@ const Inventory = () => {
             if (categoryId) params.category = categoryId;
             if (subCategoryId) params.sub_category = subCategoryId;
 
-            const response = await _get('/items', { params });
+            const response = await _get('/items/confirmed', { params });
             if (response.data && response.status == 200) {
                 setItems(response.data.items || []);
             }

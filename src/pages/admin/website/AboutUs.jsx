@@ -4,7 +4,7 @@ import { _get, _post, _delete } from "../../../api";
 import CircularLoading from "../../../components/CircularLoading";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
 import ConfirmationAlert from "../../../components/alerts/ConfirmationAlert";
-import { Edit, Trash2, Plus } from "lucide-react";
+import { Edit, Trash2, Plus, X } from "lucide-react";
 import { toast } from "react-toastify";
 
 const emptyForm = {
@@ -265,9 +265,9 @@ const WebAboutUs = () => {
                                     setShowModal(false);
                                     resetForm();
                                 }}
-                                className="text-gray-500 hover:text-gray-700 text-sm"
+                                className="w-6 h-6 rounded-full flex items-center justify-center text-gray-500 hover:text-gray-700 text-sm"
                             >
-                                x
+                                <X size={16} />
                             </button>
                         </div>
 

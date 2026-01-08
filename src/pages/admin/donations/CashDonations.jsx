@@ -18,6 +18,7 @@ const CashDonationsAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [toBeApproved, setToBeApproved] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [approvingId, setApprovingId] = useState(null);
 
     // report
     const [isReportView, setIsReportView] = useState(false);
@@ -147,6 +148,7 @@ const CashDonationsAdmin = () => {
     };
 
     const approveDonation = async (id) => {
+        setApprovingId(id);
         try {
             const response = await _put(`/cash-donations/v2/${id}/approve`);
             fetchDonations();
@@ -156,6 +158,8 @@ const CashDonationsAdmin = () => {
             }
         } catch (error) {
             console.error("Error approving donation:", error);
+        } finally {
+            setApprovingId(null);
         }
     };
 
@@ -333,6 +337,9 @@ const CashDonationsAdmin = () => {
                     message="Are you sure you want to approve this donation?"
                     isDelete={false}
                     isDeleting={false}
+                    isConfirming={approvingId === toBeApproved}
+                    confirmLabel="Confirm"
+                    confirmLoadingLabel="Confirming.."
                 />
             )}
 

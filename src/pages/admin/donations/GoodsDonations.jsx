@@ -22,6 +22,7 @@ const GoodsDonationsAdmin = () => {
     const [success, setSuccess] = useState(false);
     const [editingCell, setEditingCell] = useState({ id: null, field: null });
     const [updatingCell, setUpdatingCell] = useState({ id: null, field: null });
+    const [approvingId, setApprovingId] = useState(null);
 
     // reports
     const [isReportView, setIsReportView] = useState(false);
@@ -135,6 +136,7 @@ const GoodsDonationsAdmin = () => {
     };
 
     const approveDonation = async (id) => {
+        setApprovingId(id);
         try {
             const response = await _put(`/goods-donations/v2/${id}/approve`);
             fetchDonations();
@@ -142,6 +144,8 @@ const GoodsDonationsAdmin = () => {
             if (response.status === 200) setSuccess(true);
         } catch (error) {
             console.error("Error approving donation:", error);
+        } finally {
+            setApprovingId(null);
         }
     };
 
@@ -308,7 +312,7 @@ const GoodsDonationsAdmin = () => {
                                 <tr>
                                     <th className="py-2 px-3 text-left">Date</th>
                                     <th className="py-2 px-3 text-left">Name</th>
-                                    <th className="py-2 px-3 text-left">Description</th>
+                                    {/* <th className="py-2 px-3 text-left">Description</th> */}
                                     <th className="py-2 px-3 text-left">Email</th>
                                     <th className="py-2 px-3 text-left">Type</th>
                                     <th className="py-2 px-3 text-left">Quantity</th>
@@ -363,7 +367,7 @@ const GoodsDonationsAdmin = () => {
                                             )}
                                         </td>
 
-                                        <td className="p-2">
+                                        {/* <td className="p-2">
                                             {isEditing(donation.id, "description") ? (
                                                 <input
                                                     type="text"
@@ -390,7 +394,8 @@ const GoodsDonationsAdmin = () => {
                                                     {donation.description || ""}
                                                 </button>
                                             )}
-                                        </td>
+                                        </td> */}
+                                        
                                         <td className="p-2">{donation.email || ""}</td>
 
                                         <td className="p-2">
@@ -459,6 +464,9 @@ const GoodsDonationsAdmin = () => {
                         onConfirm={() => approveDonation(toBeApproved.id)}
                         title="Approve Donation"
                         message="Are you sure you want to approve this donation?"
+                        isConfirming={approvingId === toBeApproved.id}
+                        confirmLabel="Confirm"
+                        confirmLoadingLabel="Confirming.."
                     />
                 ) : (
                     <WarningAlert

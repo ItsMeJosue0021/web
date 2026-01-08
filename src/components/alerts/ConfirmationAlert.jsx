@@ -1,6 +1,16 @@
 import { motion, AnimatePresence } from 'framer-motion';
 
-const ConfirmationAlert = ({ onClose, onConfirm, title, message, isDelete, isDeleting }) => {
+const ConfirmationAlert = ({
+  onClose,
+  onConfirm,
+  title,
+  message,
+  isDelete,
+  isDeleting,
+  isConfirming,
+  confirmLabel = "Proceed",
+  confirmLoadingLabel = "Confirming.."
+}) => {
   return (
     <AnimatePresence>
       <motion.div
@@ -21,12 +31,20 @@ const ConfirmationAlert = ({ onClose, onConfirm, title, message, isDelete, isDel
           <p className="text-sm">{message}</p>
           <div className="flex items-center justify-end gap-2">
             {isDelete ? (
-              <button onClick={onConfirm} className="text-xs px-4 py-2 rounded bg-red-500 text-white hover:bg-red-600 border-0">
+              <button
+                onClick={onConfirm}
+                disabled={isDeleting}
+                className={`text-xs px-4 py-2 rounded bg-red-500 text-white border-0 ${isDeleting ? "opacity-60 cursor-not-allowed" : "hover:bg-red-600"}`}
+              >
                 {isDeleting ? 'Deleting..' : 'Delete'}
               </button>
             ) : (
-              <button onClick={onConfirm} className="text-xs px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 border-0">
-                Proceed
+              <button
+                onClick={onConfirm}
+                disabled={isConfirming}
+                className={`text-xs px-4 py-2 rounded bg-green-500 text-white border-0 ${isConfirming ? "opacity-60 cursor-not-allowed" : "hover:bg-green-600"}`}
+              >
+                {isConfirming ? confirmLoadingLabel : confirmLabel}
               </button>
             )}
             <button onClick={onClose} className="text-xs px-4 py-2 rounded bg-gray-200 hover:bg-gray-300 border-0">

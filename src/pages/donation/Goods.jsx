@@ -8,6 +8,7 @@ import { Check } from "lucide-react";
 import { FaMapMarkedAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import ModalContainer from "../../components/ModalContainer";
+import CircularLoading from "../../components/CircularLoading";
 
 const Goods = () => {
 
@@ -224,8 +225,16 @@ const Goods = () => {
     return (
         <Guest>   
             {loading && (
-                <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-80 z-50 flex flex-col items-center justify-center">
-                    <p className="text-black text-xl">Sending your donation...</p>
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
+                    <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+                        <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
+                            <CircularLoading customClass="w-7 h-7 text-orange-600" />
+                        </div>
+                        <p className="text-lg font-semibold text-gray-800">Sending your donation</p>
+                        <p className="text-xs text-gray-500">
+                            Please keep this window open while we submit your items.
+                        </p>
+                    </div>
                 </div>
             )}  
             <div className="bg-gray-50 min-h-screen w-full p-4">
@@ -330,7 +339,7 @@ const Goods = () => {
                                                     <table className="w-full min-w-[700px] text-xs">
                                                         <thead className="bg-gray-100 text-gray-700">
                                                             <tr>
-                                                                <th className="p-2 text-left">Name</th>
+                                                                <th className="p-2 text-left">Item Name</th>
                                                                 <th className="p-2 text-left">Category</th>
                                                                 <th className="p-2 text-left">Subcategory</th>
                                                                 <th className="p-2 text-left">Quantity</th>
@@ -390,7 +399,7 @@ const Goods = () => {
 
                                     </div>
                                 </div>
-) : activeStep === 2 ? (
+                                ) : activeStep === 2 ? (
                                 <div className="w-full flex flex-col justify-center items-center gap-4 pb-4">
                                     <div className="w-full h-fit flex flex-col items-start justify-start">
                                         <p className="text-base font-medium">Select location to hand in you donations</p>
@@ -462,7 +471,7 @@ const Goods = () => {
                                                 <table className="w-full min-w-[700px] text-xs">
                                                     <thead className="bg-gray-100 text-gray-700">
                                                         <tr>
-                                                            <th className="p-2 text-left">Name</th>
+                                                            <th className="p-2 text-left">Item Name</th>
                                                             <th className="p-2 text-left">Category</th>
                                                             <th className="p-2 text-left">Subcategory</th>
                                                             <th className="p-2 text-left">Quantity</th>
@@ -589,7 +598,7 @@ const Goods = () => {
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Name</label>
+                                    <label className="text-xs font-medium">Item Name</label>
                                     <input
                                         type="text"
                                         value={itemForm.name}

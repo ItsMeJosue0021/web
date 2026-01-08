@@ -28,6 +28,8 @@ const Events = () => {
 
     const [validationErrors, setValidationErrors] = useState({});
     const [toBeEditedEvent, setToBeEditedEvent] = useState(null);
+    const [isSavingAdd, setIsSavingAdd] = useState(false);
+    const [isSavingEdit, setIsSavingEdit] = useState(false);
 
     const [openImage, setOpenImage] = useState(false);
     const [viewImageURL, setViewImageURL] = useState("");
@@ -64,6 +66,7 @@ const Events = () => {
 
     const handleAddEvent = async (e) => {
         event.preventDefault();
+        setIsSavingAdd(true);
 
         const formData = new FormData();
         formData.append('title', title);
@@ -92,11 +95,14 @@ const Events = () => {
                  toast.error("Error adding project. Please try again.");
                 console.error('Error adding project:', error);
             }
+        } finally {
+            setIsSavingAdd(false);
         }
     }
 
         const handleEditEventSubmit = async (e) => {
         event.preventDefault();
+        setIsSavingEdit(true);
 
         const formData = new FormData();
         formData.append('title', title);
@@ -125,6 +131,8 @@ const Events = () => {
                  toast.error("Error adding project. Please try again.");
                 console.error('Error adding project:', error);
             }
+        } finally {
+            setIsSavingEdit(false);
         }
     }
     
@@ -285,7 +293,13 @@ const Events = () => {
 
                             </div>
                             <div className="flex items-center justify-end gap-2 mt-4">
-                                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
+                                <button
+                                    type="submit"
+                                    disabled={isSavingAdd}
+                                    className={`bg-orange-500 text-white text-xs px-4 py-2 rounded ${isSavingAdd ? "opacity-60 cursor-not-allowed" : "hover:bg-orange-600"}`}
+                                >
+                                    {isSavingAdd ? "Saving.." : "Save"}
+                                </button>
                                 <div onClick={() => {
                                     resetForm();
                                     setOpenAddModal(false)
@@ -354,7 +368,13 @@ const Events = () => {
 
                             </div>
                             <div className="flex items-center justify-end gap-2 mt-4">
-                                <button type="submit" className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">Save</button>
+                                <button
+                                    type="submit"
+                                    disabled={isSavingEdit}
+                                    className={`bg-orange-500 text-white text-xs px-4 py-2 rounded ${isSavingEdit ? "opacity-60 cursor-not-allowed" : "hover:bg-orange-600"}`}
+                                >
+                                    {isSavingEdit ? "Saving.." : "Save"}
+                                </button>
                                 <div onClick={() => {
                                     resetForm();
                                     setOpenEditModal(false)

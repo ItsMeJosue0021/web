@@ -345,7 +345,7 @@ const GoodsDonations = () => {
                                 ))}
                             </tbody>
                     </table>
-                )
+                )}
 
             </div>
             {isDeleteOpen && (

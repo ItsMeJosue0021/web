@@ -172,68 +172,68 @@ const WebFaqs = () => {
                 </div>
 
                 {/* TABLE */}
-                <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                    <table className="w-full text-sm min-w-[900px]">
-                        <thead className="bg-orange-500 text-white">
-                            <tr>
-                                <th className="p-3 text-left">Question</th>
-                                <th className="p-3 text-left">Answer</th>
-                                <th className="p-3 text-left">Category</th>
-                                <th className="p-3 text-left">Updated</th>
-                                <th className="p-3 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {!loading ? (
-                                faqs.length > 0 ? (
-                                    faqs.map((row, index) => (
-                                        <tr
-                                            key={row.id ?? index}
-                                            className={`text-xs ${index % 2 === 0 ? "bg-orange-50" : ""}`}
-                                        >
-                                            <td className="p-3 text-gray-700">{row.question}</td>
-                                            <td className="p-3 text-gray-700">{row.answer}</td>
-                                            <td className="p-3 capitalize">{row.category || "Uncategorized"}</td>
-                                            <td className="p-3 text-gray-500">{row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}</td>
-                                            <td className="p-3 flex items-center justify-end gap-2">
-                                                <button
-                                                    onClick={() => openEditModal(row)}
-                                                    className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
-                                                >
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button
-                                                    onClick={() => {
-                                                        setFaqToDelete(row);
-                                                        setShowDeleteModal(true);
-                                                    }}
-                                                    className="bg-red-50 text-red-600 px-1 py-1 rounded disabled:opacity-60"
-                                                    disabled={deletingId === row.id}
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={5} className="py-8 text-center text-xs text-gray-500">
-                                            No FAQs found.
+                {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : faqs.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No FAQs found. Adjust search or add a new FAQ to get started.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchTerm(""); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                        <table className="w-full text-sm min-w-[900px]">
+                            <thead className="bg-orange-500 text-white">
+                                <tr>
+                                    <th className="p-3 text-left">Question</th>
+                                    <th className="p-3 text-left">Answer</th>
+                                    <th className="p-3 text-left">Category</th>
+                                    <th className="p-3 text-left">Updated</th>
+                                    <th className="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {faqs.map((row, index) => (
+                                    <tr
+                                        key={row.id ?? index}
+                                        className={`text-xs ${index % 2 === 0 ? "bg-orange-50" : ""}`}
+                                    >
+                                        <td className="p-3 text-gray-700">{row.question}</td>
+                                        <td className="p-3 text-gray-700">{row.answer}</td>
+                                        <td className="p-3 capitalize">{row.category || "Uncategorized"}</td>
+                                        <td className="p-3 text-gray-500">{row.updated_at ? new Date(row.updated_at).toLocaleDateString() : "-"}</td>
+                                        <td className="p-3 flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => openEditModal(row)}
+                                                className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
+                                            >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button
+                                                onClick={() => {
+                                                    setFaqToDelete(row);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                                className="bg-red-50 text-red-600 px-1 py-1 rounded disabled:opacity-60"
+                                                disabled={deletingId === row.id}
+                                            >
+                                                <Trash2 size={16} />
+                                            </button>
                                         </td>
                                     </tr>
-                                )
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="py-10 text-center">
-                                        <div className="flex items-center justify-center">
-                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
             </div>
 

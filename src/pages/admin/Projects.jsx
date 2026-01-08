@@ -948,21 +948,37 @@ const Projects = () => {
             </div>
 
             {/* TABLE */}
-            <div className="w-full overflow-x-auto rounded-lg shadow bg-white mt-4">
-                <table className="min-w-[900px] w-full text-xs">
-                    <thead className="bg-orange-500 text-white">
-                        <tr>
-                            <th className="p-3">Title</th>
-                            <th className="p-3">Description</th>
-                            <th className="p-3">Location</th>
-                            <th className="p-3">Image</th>
-                            <th className="p-3">Date</th>
-                            <th className="p-3">Volunteers</th>
-                            <th className="p-3 text-end">Actions</th>
-                        </tr>
-                    </thead>
+            {loading ? (
+                <div className="w-full h-40 flex items-center justify-center">
+                    <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                </div>
+            ) : projects.length === 0 ? (
+                <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500 mt-4">
+                    No projects found. Create a new project to get started.
+                    <div className="mt-3">
+                        <button
+                            onClick={() => setShowAddProjectModal(true)}
+                            className="text-xs px-3 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                        >
+                            Add project
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <div className="w-full overflow-x-auto rounded-lg shadow bg-white mt-4">
+                    <table className="min-w-[900px] w-full text-xs">
+                        <thead className="bg-orange-500 text-white">
+                            <tr>
+                                <th className="p-3">Title</th>
+                                <th className="p-3">Description</th>
+                                <th className="p-3">Location</th>
+                                <th className="p-3">Image</th>
+                                <th className="p-3">Date</th>
+                                <th className="p-3">Volunteers</th>
+                                <th className="p-3 text-end">Actions</th>
+                            </tr>
+                        </thead>
 
-                    {!loading && (
                         <tbody>
                             {projects.map((project, index) => (
                                 <tr
@@ -1016,15 +1032,9 @@ const Projects = () => {
                                 </tr>
                             ))}
                         </tbody>
-                    )}
-                </table>
-
-                {loading && (
-                    <div className="w-full h-40 flex items-center justify-center">
-                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                    </div>
-                )}
-            </div>
+                    </table>
+                </div>
+            )}
 
             {/* LIQUIDATE MODAL */}
             {isLiquidateOpen && (

@@ -70,107 +70,107 @@ const VolunteerRequests = () => {
                         />
                     </div>
                 </div>
-                <div className="w-full min-w-[700px] rounded-lg overflow-x-auto">
-                    <table className="w-full border rounded-lg shadow bg-white text-sm">
-                        <thead className="bg-orange-500 text-white ">
-                        <tr className="text-xs">
-                            <th className="p-3 text-start">Project Name</th>
-                            <th className="p-3 text-start">Date</th>
-                            <th className="p-3 text-start">Volunteer's Name</th>
-                            <th className="p-3 text-start">Email</th>
-                            <th className="p-3 text-start">Contact Number</th>
-                            <th className="p-3 text-start">Date Requested</th>
-                            <th className="p-3 text-start">Is_Member?</th>
-                            <th className="p-3 text-start">Is_User?</th>
-                            <th className="p-3 text-start">Status</th>
-                            <th className="p-3 text-start">Action</th>
-                        </tr>
-                        </thead>
-                        
-                            <tbody>
-                                {!loading ? (
-                                    requests.length > 0 ? (
-                                        requests.map((row, index) => (
-                                        <tr key={row.id}
-                                        className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                            <td className="p-3 text-xs">{row.project.title}</td>
-                                            <td className="p-3 text-xs">{row.project.date}</td>
-                                            <td className="p-3 text-xs">{row.first_name} {row.middle_name} {row.last_name}</td>
-                                            <td className={`p-3 text-xs `}>{row.email}</td>
-                                            <td className="p-3 text-xs ">{row.contact_number}</td>
-                                            <td className="p-3 text-xs ">{row.created_at}</td>
-                                            <td className="p-3 text-xs ">
-                                                {row.is_member ? (
-                                                    <p className="text-xs text-green-500 font-medium">Yes</p>
-                                                ) : (
-                                                    <p className="text-xs text-red-500 font-medium">No</p>
-                                                )}
-                                            </td>
-                                             <td className="p-3 text-xs ">
-                                                {row.is_user ? (
-                                                    <p className="text-xs text-green-500 font-medium">Yes</p>
-                                                ) : (
-                                                    <p className="text-xs text-red-500 font-medium">No</p>
-                                                )}
-                                            </td>
-                                            <td>
-                                                {row.status === 'pending' ? (
-                                                    <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600">
-                                                        {row.status}
-                                                    </span>
-                                                ) : row.status === 'rejected' || row.status === 'expired' ? (
-                                                    <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
-                                                        {row.status}
-                                                    </span>
-                                                ) : (
-                                                    <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
-                                                        {row.status}
-                                                    </span>
-                                                )}
-                                            </td>
-                                            <td>
-                                                {row.status === 'pending' && (
-                                                    <div className="flex flex-col gap-1 p-2">
-                                                        <button
-                                                            onClick={() => handleAction(row.id, 'approve')}
-                                                            disabled={actionLoading.id === row.id}
-                                                            className="text-[10px] px-3 py-0 text-white bg-green-500 rounded disabled:opacity-60"
-                                                        >
-                                                            {actionLoading.id === row.id && actionLoading.action === 'approve' ? "Processing.." : "Approve"}
-                                                        </button>
-                                                    
-                                                        <button
-                                                            onClick={() => handleAction(row.id, 'reject')}
-                                                            disabled={actionLoading.id === row.id}
-                                                            className="text-[10px] px-3 py-0 text-white bg-red-500 rounded disabled:opacity-60"
-                                                        >
-                                                            {actionLoading.id === row.id && actionLoading.action === 'reject' ? "Processing.." : "Reject"}
-                                                        </button>
-                                                    </div>
-                                                )}
-                                            </td>
-                                        </tr>
-                                        
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={10} className="py-8 text-center text-xs text-gray-500">
-                                            No records found.
-                                            </td>
-                                        </tr>
-                                    )
-                                ) : (
-                                    <tr>
-                                        <td colSpan={10} className="py-10 text-center">
-                                            <div className="flex items-center justify-center">
-                                                <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                                            </div>
+                {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : requests.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No volunteer requests found. Adjust search or clear filters to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => fetchRequests()}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full min-w-[700px] rounded-lg overflow-x-auto">
+                        <table className="w-full border rounded-lg shadow bg-white text-sm">
+                            <thead className="bg-orange-500 text-white ">
+                            <tr className="text-xs">
+                                <th className="p-3 text-start">Project Name</th>
+                                <th className="p-3 text-start">Date</th>
+                                <th className="p-3 text-start">Volunteer's Name</th>
+                                <th className="p-3 text-start">Email</th>
+                                <th className="p-3 text-start">Contact Number</th>
+                                <th className="p-3 text-start">Date Requested</th>
+                                <th className="p-3 text-start">Is_Member?</th>
+                                <th className="p-3 text-start">Is_User?</th>
+                                <th className="p-3 text-start">Status</th>
+                                <th className="p-3 text-start">Action</th>
+                            </tr>
+                            </thead>
+                            
+                                <tbody>
+                                    {requests.map((row, index) => (
+                                    <tr key={row.id}
+                                    className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                        <td className="p-3 text-xs">{row.project.title}</td>
+                                        <td className="p-3 text-xs">{row.project.date}</td>
+                                        <td className="p-3 text-xs">{row.first_name} {row.middle_name} {row.last_name}</td>
+                                        <td className={`p-3 text-xs `}>{row.email}</td>
+                                        <td className="p-3 text-xs ">{row.contact_number}</td>
+                                        <td className="p-3 text-xs ">{row.created_at}</td>
+                                        <td className="p-3 text-xs ">
+                                            {row.is_member ? (
+                                                <p className="text-xs text-green-500 font-medium">Yes</p>
+                                            ) : (
+                                                <p className="text-xs text-red-500 font-medium">No</p>
+                                            )}
+                                        </td>
+                                         <td className="p-3 text-xs ">
+                                            {row.is_user ? (
+                                                <p className="text-xs text-green-500 font-medium">Yes</p>
+                                            ) : (
+                                                <p className="text-xs text-red-500 font-medium">No</p>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {row.status === 'pending' ? (
+                                                <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-gray-100 text-gray-600">
+                                                    {row.status}
+                                                </span>
+                                            ) : row.status === 'rejected' || row.status === 'expired' ? (
+                                                <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-red-50 text-red-600">
+                                                    {row.status}
+                                                </span>
+                                            ) : (
+                                                <span className="px-2 py-1 rounded-full text-[11px] font-semibold bg-blue-50 text-blue-600">
+                                                    {row.status}
+                                                </span>
+                                            )}
+                                        </td>
+                                        <td>
+                                            {row.status === 'pending' && (
+                                                <div className="flex flex-col gap-1 p-2">
+                                                    <button
+                                                        onClick={() => handleAction(row.id, 'approve')}
+                                                        disabled={actionLoading.id === row.id}
+                                                        className="text-[10px] px-3 py-0 text-white bg-green-500 rounded disabled:opacity-60"
+                                                    >
+                                                        {actionLoading.id === row.id && actionLoading.action === 'approve' ? "Processing.." : "Approve"}
+                                                    </button>
+                                                
+                                                    <button
+                                                        onClick={() => handleAction(row.id, 'reject')}
+                                                        disabled={actionLoading.id === row.id}
+                                                        className="text-[10px] px-3 py-0 text-white bg-red-500 rounded disabled:opacity-60"
+                                                    >
+                                                        {actionLoading.id === row.id && actionLoading.action === 'reject' ? "Processing.." : "Reject"}
+                                                    </button>
+                                                </div>
+                                            )}
                                         </td>
                                     </tr>
-                                )}
-                            </tbody>
-                    </table>
-                </div>
+                                    
+                                    ))}
+                                </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
 
             {successModal.open && (

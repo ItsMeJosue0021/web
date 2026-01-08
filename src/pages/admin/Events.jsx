@@ -190,51 +190,64 @@ const Events = () => {
                     <button onClick={() => setOpenAddModal(true)} className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded">+ New</button>
                 </div>
             </div>
-            <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
-                <thead className="bg-orange-500 text-white">
-                <tr>
-                    <th className="p-3 text-start">Title</th>
-                    <th className="p-3 text-start">Description</th>
-                    <th className="p-3 text-start">Location</th>
-                    <th className="p-3 text-start">Date</th>
-                    <th className="p-3 text-start">Image</th>
-                    <th className="p-3 text-end">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                {events.map((event, index) => (
-                    <tr key={event.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                        <td className="p-3">{event.title || ''}</td>
-                        <td className="p-3">
-                        {(event.description || '').length > 100
-                            ? event.description.substring(0, 100) + '...'
-                            : event.description || ''}
-                        </td>
-                        <td className="p-3">{event.location || ''}</td>
-                        <td className="p-3">{event.date || ''}</td>
-                         <td className="p-3">
-                            <button onClick={() => handleViewImage(event.image)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
-                        </td>
-                        <td className="p-3 h-full flex items-center justify-end gap-2">
-                            <button onClick={() => handleEditEvent(event)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                            <button onClick={() => handleConfirmDelete(event.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                        </td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            {loading && (
-                    <div className="w-full h-36 flex items-center text-xs justify-center">
-                        <div className="self-start h-full px-3 py-2 text-sm">
-                            <div className="h-full flex items-center space-x-1">
-                                <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
-                                <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
-                            </div>
+            {loading ? (
+                <div className="w-full h-36 flex items-center text-xs justify-center">
+                    <div className="self-start h-full px-3 py-2 text-sm">
+                        <div className="h-full flex items-center space-x-1">
+                            <div className="dot dot-1 w-1 h-1 bg-orange-700 rounded-full"></div>
+                            <div className="dot dot-2 w-1 h-1 bg-orange-700 rounded-full"></div>
+                            <div className="dot dot-3 w-1 h-1 bg-orange-700 rounded-full"></div>
+                            <div className="dot dot-4 w-1 h-1 bg-orange-700 rounded-full"></div>
                         </div>
                     </div>
-                )}
+                </div>
+            ) : events.length === 0 ? (
+                <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                    No events found. Create a new event to get started.
+                    <div className="mt-3">
+                        <button
+                            onClick={() => setOpenAddModal(true)}
+                            className="text-xs px-3 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                        >
+                            Add event
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
+                    <thead className="bg-orange-500 text-white">
+                    <tr>
+                        <th className="p-3 text-start">Title</th>
+                        <th className="p-3 text-start">Description</th>
+                        <th className="p-3 text-start">Location</th>
+                        <th className="p-3 text-start">Date</th>
+                        <th className="p-3 text-start">Image</th>
+                        <th className="p-3 text-end">Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    {events.map((event, index) => (
+                        <tr key={event.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                            <td className="p-3">{event.title || ''}</td>
+                            <td className="p-3">
+                            {(event.description || '').length > 100
+                                ? event.description.substring(0, 100) + '...'
+                                : event.description || ''}
+                            </td>
+                            <td className="p-3">{event.location || ''}</td>
+                            <td className="p-3">{event.date || ''}</td>
+                             <td className="p-3">
+                                <button onClick={() => handleViewImage(event.image)} className="text-[10px] px-2 py-1 bg-gray-200 rounded">View</button>
+                            </td>
+                            <td className="p-3 h-full flex items-center justify-end gap-2">
+                                <button onClick={() => handleEditEvent(event)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
+                                <button onClick={() => handleConfirmDelete(event.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
+                            </td>
+                        </tr>
+                    ))}
+                    </tbody>
+                </table>
+            )}
         </div>
 
         {openAddModal && (

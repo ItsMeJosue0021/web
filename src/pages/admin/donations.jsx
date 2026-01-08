@@ -360,27 +360,36 @@ const Donations = () => {
                     </a>
                 </div>
                 
-                <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
-                    <thead className="bg-orange-500 text-white">
-                    <tr>
-                        <th className="p-3 text-start">Date of Donation</th>
-                        <th className="p-3 text-start">Donor</th>
-                        <th className="p-3 text-start">Amount</th>
-                        <th className="p-3 text-start">Reference No.</th>
-                        <th className="p-3 text-start">Email</th>
-                        {tab === "gcash" && <th className="p-3 text-start">Proof</th>}
-                        {/* <th className="p-3 text-end">Actions</th> */}
-                    </tr>
-                    </thead>
-                    {!loading && (
+                {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
+                    </div>
+                ) : filteredDonations.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No donations found. Adjust filters or clear search to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchTerm(""); setSelectedMonth(""); setSelectedYear(""); fetchDonations({}); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
+                        <thead className="bg-orange-500 text-white">
+                        <tr>
+                            <th className="p-3 text-start">Date of Donation</th>
+                            <th className="p-3 text-start">Donor</th>
+                            <th className="p-3 text-start">Amount</th>
+                            <th className="p-3 text-start">Reference No.</th>
+                            <th className="p-3 text-start">Email</th>
+                            {tab === "gcash" && <th className="p-3 text-start">Proof</th>}
+                            {/* <th className="p-3 text-end">Actions</th> */}
+                        </tr>
+                        </thead>
                         <tbody>
-                            {filteredDonations.length <= 0 && (
-                                <tr className="p-3">
-                                    <td colSpan={7} className="p-3 text-center">
-                                        No Records Found
-                                    </td>
-                                </tr>
-                            )}
                             {filteredDonations.map((donation, index) => (
                                 <tr key={donation.id} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
                                     <td className="p-3">
@@ -396,7 +405,7 @@ const Donations = () => {
                                     <td className="p-3">
                                         {donation.name || <span className="p-1 px-2 rounded bg-blue-100 text-blue-600 text-[10px]">Anonymous</span>}
                                     </td>
-                                    <td className="p-3">₱{donation.amount || '0.00'}</td>
+                                    <td className="p-3">?,?{donation.amount || '0.00'}</td>
                                     <td className="p-3">{donation.reference || ''}</td>
                                     <td className="p-3">{donation.email || ''}</td>
                                     {tab === "gcash" && 
@@ -409,10 +418,9 @@ const Donations = () => {
                                 </tr>
                             ))}
                         </tbody>
-                    )}
-                    
-                </table>
-                {loading && (
+                    </table>
+                )
+
                     <div className="w-full h-40 flex items-center justify-center">
                         <CircularLoading customClass='w-full text-blue-500 w-6 h-6' />
                     </div>

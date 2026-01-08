@@ -74,60 +74,59 @@ const ArchivedUsers = () => {
                     </div>
                 </div>
 
-                {/* TABLE WRAPPER */}
-                <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                    <table className="w-full text-sm min-w-[700px]">
-                        <thead className="bg-orange-500 text-white">
-                            <tr>
-                                <th className="p-3 text-left">Name</th>
-                                <th className="p-3 text-left">Email</th>
-                                <th className="p-3 text-left">Username</th>
-                                <th className="p-3 text-left">Contact No.</th>
-                                <th className="p-3 text-right">Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {!loading ? (
-                                users.length > 0 ? (
-                                    users.map((row, index) => (
-                                        <tr 
-                                            key={row.id}
-                                            className={`text-xs ${index % 2 === 0 ? "bg-orange-50" : ""}`}
-                                        >
-                                            <td className="p-3">{row.first_name} {row.middle_name} {row.last_name}</td>
-                                            <td className="p-3">{row.email}</td>
-                                            <td className="p-3">{row.username}</td>
-                                            <td className="p-3">{row.contact_number}</td>
-                                            <td className="p-3 flex justify-end gap-3">
-                                                <button 
-                                                    onClick={() => handleRestore(row.id)} 
-                                                    className="bg-green-50 text-green-600 px-3 py-1 rounded text-xs"
-                                                    disabled={restoringId === row.id}
-                                                >
-                                                    {restoringId === row.id ? "Restoring..." : "Restore"}
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan={5} className="py-8 text-center text-xs text-gray-500">
-                                        No records found.
+                {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : users.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No archived users found. Adjust search or clear filters to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchTerm(""); fetchUsers(""); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full overflow-x-auto rounded-lg border border-gray-200 bg-white">
+                        <table className="w-full text-sm min-w-[700px]">
+                            <thead className="bg-orange-500 text-white">
+                                <tr>
+                                    <th className="p-3 text-left">Name</th>
+                                    <th className="p-3 text-left">Email</th>
+                                    <th className="p-3 text-left">Username</th>
+                                    <th className="p-3 text-left">Contact No.</th>
+                                    <th className="p-3 text-right">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {users.map((row, index) => (
+                                    <tr 
+                                        key={row.id}
+                                        className={`text-xs ${index % 2 === 0 ? "bg-orange-50" : ""}`}
+                                    >
+                                        <td className="p-3">{row.first_name} {row.middle_name} {row.last_name}</td>
+                                        <td className="p-3">{row.email}</td>
+                                        <td className="p-3">{row.username}</td>
+                                        <td className="p-3">{row.contact_number}</td>
+                                        <td className="p-3 flex justify-end gap-3">
+                                            <button 
+                                                onClick={() => handleRestore(row.id)} 
+                                                className="bg-green-50 text-green-600 px-3 py-1 rounded text-xs"
+                                                disabled={restoringId === row.id}
+                                            >
+                                                {restoringId === row.id ? "Restoring..." : "Restore"}
+                                            </button>
                                         </td>
                                     </tr>
-                                )
-                            ) : (
-                                <tr>
-                                    <td colSpan={5} className="py-10 text-center">
-                                        <div className="flex items-center justify-center">
-                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                                        </div>
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                )}
 
             </div>
         </Admin>

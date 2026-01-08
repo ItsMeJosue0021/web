@@ -378,76 +378,75 @@ const Expenses = () => {
                     </div>
                 </div>
                
-               <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
-                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm border-collapse">
-                        <thead className="bg-orange-500 text-white text-xs sticky top-0">
-                        <tr className="text-xs">
-                            <th className="p-3 text-start">Reference Number</th>
-                            <th className="p-3 text-start">Name</th>
-                            <th className="p-3 text-start">Description</th>
-                            <th className="p-3 text-start">Amount</th>
-                            <th className="p-3 text-start">Date Incurred</th>
-                            <th className="p-3 text-start">Payment Method</th>
-                            <th className="p-3 text-start">Actions</th>
-                        </tr>
-                        </thead>
-                        
-                            <tbody>
-                                {!loading ? (
-                                    expenses.length > 0 ? (
-                                        expenses.map((row, index) => (
-                                        <tr key={row.id}
-                                        className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
-                                            <td className="p-3 text-xs font-semibold text-gray-800">{row.reference_number}</td>
-                                            <td className="p-3 text-xs">{row.name}</td>
-                                            <td className="p-3 text-xs">{row.description}</td>
-                                            <td className="p-3 text-xs font-mono">{formatCurrency(row.amount)}</td>
-                                            <td className="p-3 text-xs ">{row.date_incurred}</td>
-                                            <td className="p-3 text-xs ">{row.payment_method}</td>
-                                            <td className="p-3 text-xs flex justify-start gap-2">
-                                                <button
-                                                    onClick={() => {
-                                                        setViewItems(row.items || []);
-                                                        setViewItemsOpen(true);
-                                                    }}
-                                                    className="bg-gray-100 text-gray-700 text-[10px] px-2 py-1 rounded hover:bg-gray-200"
-                                                    >
-                                                    See Items
-                                                </button>
-                                                <button
-                                                    className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
-                                                    onClick={() => openEdit(row)}
-                                                    >
-                                                    <Edit size={16} />
-                                                </button>
-                                                <button 
-                                                    onClick={() => setDeleteId(row.id)} 
-                                                    className="bg-red-50 text-red-600 px-1 py-1 rounded">
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </td>
-                                        </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
-                                            No records found.
-                                            </td>
-                                        </tr>
-                                    )
-                                ) : (
-                                    <tr>
-                                        <td colSpan={7} className="py-10 text-center">
-                                            <div className="flex items-center justify-center">
-                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                                            </div>
+               {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : expenses.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No expenses found. Adjust filters or clear search to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchQuery(""); fetchExpenses(); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
+                        <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm border-collapse">
+                            <thead className="bg-orange-500 text-white text-xs sticky top-0">
+                            <tr className="text-xs">
+                                <th className="p-3 text-start">Reference Number</th>
+                                <th className="p-3 text-start">Name</th>
+                                <th className="p-3 text-start">Description</th>
+                                <th className="p-3 text-start">Amount</th>
+                                <th className="p-3 text-start">Date Incurred</th>
+                                <th className="p-3 text-start">Payment Method</th>
+                                <th className="p-3 text-start">Actions</th>
+                            </tr>
+                            </thead>
+                            
+                                <tbody>
+                                    {expenses.map((row, index) => (
+                                    <tr key={row.id}
+                                    className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
+                                        <td className="p-3 text-xs font-semibold text-gray-800">{row.reference_number}</td>
+                                        <td className="p-3 text-xs">{row.name}</td>
+                                        <td className="p-3 text-xs">{row.description}</td>
+                                        <td className="p-3 text-xs font-mono">{formatCurrency(row.amount)}</td>
+                                        <td className="p-3 text-xs ">{row.date_incurred}</td>
+                                        <td className="p-3 text-xs ">{row.payment_method}</td>
+                                        <td className="p-3 text-xs flex justify-start gap-2">
+                                            <button
+                                                onClick={() => {
+                                                    setViewItems(row.items || []);
+                                                    setViewItemsOpen(true);
+                                                }}
+                                                className="bg-gray-100 text-gray-700 text-[10px] px-2 py-1 rounded hover:bg-gray-200"
+                                                >
+                                                See Items
+                                            </button>
+                                            <button
+                                                className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
+                                                onClick={() => openEdit(row)}
+                                                >
+                                                <Edit size={16} />
+                                            </button>
+                                            <button 
+                                                onClick={() => setDeleteId(row.id)} 
+                                                className="bg-red-50 text-red-600 px-1 py-1 rounded">
+                                                <Trash2 size={16} />
+                                            </button>
                                         </td>
                                     </tr>
-
-                                )}
-                            </tbody>
-                    </table>
-               </div>
+                                    ))}
+                                </tbody>
+                        </table>
+                   </div>
+                )}
 
                 {/* delete modal */}
                 {deleteId && (
@@ -467,9 +466,9 @@ const Expenses = () => {
                         isFull={true} 
                         close={() => setOpenAddModal(false)}
                     >
-                        <div className='p-5 w-full max-w-xl h-auto'>
+                        <div className='p-5 w-full max-w-3xl h-auto'>
                             <form 
-                                className="flex flex-col gap-3" 
+                                className="flex flex-col gap-4" 
                                 onSubmit={handleAddExpense} 
                                 encType="multipart/form-data"
                             >
@@ -479,127 +478,119 @@ const Expenses = () => {
                                     Add a new expenses record to keep spending organized and transparent.
                                     </p>
                                 </div>
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Name *</label>
-                                    <input
-                                        value={form.name}
-                                        onChange={(e) => setForm({ ...form, name: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                        placeholder="Name"
-                                    />
-                                    {validationErrors.name && (
-                                        <p className="text-xs text-red-500">{validationErrors.name[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Description *</label>
-                                    <textarea
-                                        value={form.description}
-                                        onChange={(e) => setForm({ ...form, description: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                        placeholder="Description"
-                                    />
-                                    {validationErrors.description && (
-                                        <p className="text-xs text-red-500">{validationErrors.description[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Amount *</label>
-                                    <input
-                                        type="number"
-                                        step="0.01"
-                                        value={form.amount}
-                                        onChange={(e) => setForm({ ...form, amount: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                        placeholder="0.00"
-                                    />
-                                    {validationErrors.amount && (
-                                        <p className="text-xs text-red-500">{validationErrors.amount[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Date Incurred *</label>
-                                    <input
-                                        type="date"
-                                        value={form.date_incurred}
-                                        onChange={(e) => setForm({ ...form, date_incurred: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                    />
-                                    {validationErrors.date_incurred && (
-                                        <p className="text-xs text-red-500">{validationErrors.date_incurred[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Payment Method *</label>
-                                    <input
-                                        value={form.payment_method}
-                                        onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                        placeholder="e.g. Cash, Bank Transfer, GCash"
-                                    />
-                                    {validationErrors.payment_method && (
-                                        <p className="text-xs text-red-500">{validationErrors.payment_method[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-xs">Notes (optional)</label>
-                                    <textarea
-                                        value={form.notes}
-                                        onChange={(e) => setForm({ ...form, notes: e.target.value })}
-                                        className="border rounded px-3 py-2 text-sm"
-                                        placeholder="Additional details"
-                                    />
-                                    {validationErrors.notes && (
-                                        <p className="text-xs text-red-500">{validationErrors.notes[0]}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                <label className="text-xs">Attachment *</label>
-                                {/* <input
-                                    type="file"
-                                    accept=".jpg,.jpeg,.png,.pdf"
-                                    onChange={(e) => setForm({ ...form, attachment: e.target.files[0] })}
-                                    className="text-sm"
-                                />
-                                {validationErrors.attachment && (
-                                    <p className="text-xs text-red-500">{validationErrors.attachment[0]}</p>
-                                )} */}
-                                <input
-                                    type="file"
-                                    accept=".jpg,.jpeg,.png,.pdf"
-                                    onChange={(e) => {
-                                        const file = e.target.files[0];
-                                        setForm({ ...form, attachment: file });
-
-                                        if (file && file.type.startsWith("image/")) {
-                                        setAttachmentPreview(URL.createObjectURL(file));
-                                        } else {
-                                        setAttachmentPreview(null);
-                                        }
-                                    }}
-                                    className="text-sm"
-                                    />
-                                    {attachmentPreview ? (
-                                    <div className="mt-2">
-                                        <img
-                                        src={attachmentPreview}
-                                        alt="Attachment preview"
-                                        className="w-full max-w-xs rounded border"
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs">Name *</label>
+                                        <input
+                                            value={form.name}
+                                            onChange={(e) => setForm({ ...form, name: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm"
+                                            placeholder="Name"
                                         />
+                                        {validationErrors.name && (
+                                            <p className="text-xs text-red-500">{validationErrors.name[0]}</p>
+                                        )}
                                     </div>
-                                    ) : form.attachment ? (
-                                    <p className="mt-2 text-xs text-gray-600">{form.attachment.name}</p>
-                                    ) : null}
-                                    {validationErrors.attachment && (
-                                    <p className="text-xs text-red-500">{validationErrors.attachment[0]}</p>
-                                    )}
 
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs">Description *</label>
+                                        <textarea
+                                            value={form.description}
+                                            onChange={(e) => setForm({ ...form, description: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm min-h-20"
+                                            placeholder="Description"
+                                        />
+                                        {validationErrors.description && (
+                                            <p className="text-xs text-red-500">{validationErrors.description[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs">Amount *</label>
+                                        <input
+                                            type="number"
+                                            step="0.01"
+                                            value={form.amount}
+                                            onChange={(e) => setForm({ ...form, amount: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm"
+                                            placeholder="0.00"
+                                        />
+                                        {validationErrors.amount && (
+                                            <p className="text-xs text-red-500">{validationErrors.amount[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs">Date Incurred *</label>
+                                        <input
+                                            type="date"
+                                            value={form.date_incurred}
+                                            onChange={(e) => setForm({ ...form, date_incurred: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm"
+                                        />
+                                        {validationErrors.date_incurred && (
+                                            <p className="text-xs text-red-500">{validationErrors.date_incurred[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs">Payment Method *</label>
+                                        <input
+                                            value={form.payment_method}
+                                            onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm max-h-10"
+                                            placeholder="e.g. Cash, Bank Transfer, GCash"
+                                        />
+                                        {validationErrors.payment_method && (
+                                            <p className="text-xs text-red-500">{validationErrors.payment_method[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs">Notes (optional)</label>
+                                        <textarea
+                                            value={form.notes}
+                                            onChange={(e) => setForm({ ...form, notes: e.target.value })}
+                                            className="border rounded px-3 py-2 text-sm min-h-20"
+                                            placeholder="Additional details"
+                                        />
+                                        {validationErrors.notes && (
+                                            <p className="text-xs text-red-500">{validationErrors.notes[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                        <label className="text-xs">Attachment *</label>
+                                        <input
+                                            type="file"
+                                            accept=".jpg,.jpeg,.png,.pdf"
+                                            onChange={(e) => {
+                                                const file = e.target.files[0];
+                                                setForm({ ...form, attachment: file });
+
+                                                if (file && file.type.startsWith("image/")) {
+                                                setAttachmentPreview(URL.createObjectURL(file));
+                                                } else {
+                                                setAttachmentPreview(null);
+                                                }
+                                            }}
+                                            className="text-sm"
+                                        />
+                                        {attachmentPreview ? (
+                                            <div className="mt-2">
+                                                <img
+                                                src={attachmentPreview}
+                                                alt="Attachment preview"
+                                                className="w-full max-w-xs rounded border"
+                                                />
+                                            </div>
+                                        ) : form.attachment ? (
+                                            <p className="mt-2 text-xs text-gray-600">{form.attachment.name}</p>
+                                        ) : null}
+                                        {validationErrors.attachment && (
+                                            <p className="text-xs text-red-500">{validationErrors.attachment[0]}</p>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="flex justify-end gap-2 mt-2">
@@ -625,8 +616,8 @@ const Expenses = () => {
 
                 {openEditModal && (
                     <ModalContainer isFull={true} close={() => setOpenEditModal(false)}>
-                        <div className="p-5 w-full max-w-xl h-auto">
-                        <form className="flex flex-col gap-3" onSubmit={handleUpdateExpense} encType="multipart/form-data">
+                        <div className="p-5 w-full max-w-3xl h-auto">
+                        <form className="flex flex-col gap-4" onSubmit={handleUpdateExpense} encType="multipart/form-data">
                             <div className="text-left mb-2">
                             <p className="text-xl font-semibold text-orange-600">Edit Expense</p>
                             <p className="text-sm text-gray-600">
@@ -634,8 +625,8 @@ const Expenses = () => {
                             </p>
                             </div>
 
-                            {/* Name */}
-                            <div className="flex flex-col gap-1">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="flex flex-col gap-1 md:col-span-2">
                             <label className="text-xs">Name <span className='text-red-600'>*</span></label>
                             <input
                                 value={editForm.name}
@@ -648,13 +639,12 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Description */}
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-1 md:col-span-2">
                             <label className="text-xs">Description <span className='text-red-600'>*</span></label>
                             <textarea
                                 value={editForm.description}
                                 onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                                className="border rounded px-3 py-2 text-sm"
+                                className="border rounded px-3 py-2 text-sm min-h-20"
                                 placeholder="Description"
                             />
                             {editValidationErrors.description && (
@@ -662,7 +652,6 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Amount */}
                             <div className="flex flex-col gap-1">
                             <label className="text-xs">Amount <span className='text-red-600'>*</span></label>
                             <input
@@ -678,7 +667,6 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Date Incurred */}
                             <div className="flex flex-col gap-1">
                             <label className="text-xs">Date Incurred <span className='text-red-600'>*</span></label>
                             <input
@@ -692,13 +680,12 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Payment Method */}
                             <div className="flex flex-col gap-1">
                             <label className="text-xs">Payment Method <span className='text-red-600'>*</span></label>
                             <input
                                 value={editForm.payment_method}
                                 onChange={(e) => setEditForm({ ...editForm, payment_method: e.target.value })}
-                                className="border rounded px-3 py-2 text-sm"
+                                className="border rounded px-3 py-2 text-sm max-h-10"
                                 placeholder="e.g. Cash, Bank Transfer, GCash"
                             />
                             {editValidationErrors.payment_method && (
@@ -706,13 +693,12 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Notes */}
                             <div className="flex flex-col gap-1">
                             <label className="text-xs">Notes (optional)</label>
                             <textarea
                                 value={editForm.notes}
                                 onChange={(e) => setEditForm({ ...editForm, notes: e.target.value })}
-                                className="border rounded px-3 py-2 text-sm"
+                                className="border rounded px-3 py-2 text-sm min-h-20"
                                 placeholder="Additional details"
                             />
                             {editValidationErrors.notes && (
@@ -720,8 +706,7 @@ const Expenses = () => {
                             )}
                             </div>
 
-                            {/* Attachment */}
-                            <div className="flex flex-col gap-1">
+                            <div className="flex flex-col gap-1 md:col-span-2">
                                 <label className="text-xs">Attachment <span className='text-red-600'>*</span></label>
                                 <input
                                     type="file"
@@ -751,6 +736,7 @@ const Expenses = () => {
                                 {editValidationErrors.attachment && (
                                     <p className="text-xs text-red-500">{editValidationErrors.attachment[0]}</p>
                                 )}
+                            </div>
                             </div>
 
                             {/* items */}

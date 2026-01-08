@@ -134,101 +134,103 @@ const MembershipRequests = () => {
                     </div>
                 </div>
 
-                <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
-                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
-                        <thead className="bg-orange-500 text-white">
-                            <tr>
-                                <th className="p-3 text-start">Name</th>
-                                <th className="p-3 text-start">User ID</th>
-                                <th className="p-3 text-start">Date Requested</th>
-                                <th className="p-3 text-start">Status</th>
-                                <th className="p-3 text-start">Proof of Payment</th>
-                                <th className="p-3 text-start">Proof of Identity</th>
-                                <th className="p-3 text-end">Action</th>
-                            </tr>
-                        </thead>
-                        {!loading && (
-                            <tbody>
-                                {requests.length > 0 ? (
-                                    requests.map((request, index) => (
-                                        <tr key={request.id || `${request.user_id}-${index}`} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
-                                            <td className="p-3">{buildName(request)}</td>
-                                            <td className="p-3">{request.user_id || "-"}</td>
-                                            <td className="p-3">{formatDate(request.created_at || request.date_requested || request.requested_at)}</td>
-                                            <td className="p-3 capitalize">{formatStatusLabel(request.status)}</td>
-                                            <td className="p-3">
-                                                {request.proof_of_payment ? (
-                                                    <button
-                                                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                                                        onClick={() => openImage(request.proof_of_payment)}
-                                                    >
-                                                        View
-                                                    </button>
-                                                ) : (
-                                                    "-"
-                                                )}
-                                            </td>
-                                            <td className="p-3">
-                                                {request.proof_of_identity ? (
-                                                    <button
-                                                        className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
-                                                        onClick={() => openImage(request.proof_of_identity)}
-                                                    >
-                                                        View
-                                                    </button>
-                                                ) : (
-                                                    "-"
-                                                )}
-                                            </td>
-                                            <td className="p-3 flex justify-end gap-2">
-                                                {normalizeStatus(request.status) === "pending" ? (
-                                                    <>
-                                                        <button
-                                                            className="bg-green-50 text-green-600 px-3 py-1 rounded disabled:opacity-70"
-                                                            onClick={() => handleDecision(request.id, "approve")}
-                                                            disabled={actionState.id === request.id}
-                                                        >
-                                                            {actionState.id === request.id && actionState.type === "approve" ? "Approving.." : "Approve"}
-                                                        </button>
-                                                        <button
-                                                            className="bg-red-50 text-red-600 px-3 py-1 rounded disabled:opacity-70"
-                                                            onClick={() => handleDecision(request.id, "reject")}
-                                                            disabled={actionState.id === request.id}
-                                                        >
-                                                            {actionState.id === request.id && actionState.type === "reject" ? "Rejecting.." : "Reject"}
-                                                        </button>
-                                                    </>
-                                                ) : (
-                                                    <span
-                                                        className={`px-3 py-1 rounded-full border text-[11px] font-semibold ${
-                                                            normalizeStatus(request.status) === "approved"
-                                                                ? "bg-green-50 text-green-700 border-green-100"
-                                                                : normalizeStatus(request.status) === "rejected"
-                                                                    ? "bg-red-50 text-red-700 border-red-100"
-                                                                    : "bg-gray-100 text-gray-700 border-gray-200"
-                                                        }`}
-                                                    >
-                                                        {formatStatusLabel(request.status)}
-                                                    </span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td className="p-6 text-center text-gray-500" colSpan={7}>
-                                            No membership requests found.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        )}
-                    </table>
-                </div>
-
-                {loading && (
+                {loading ? (
                     <div className="w-full h-40 flex items-center justify-center">
                         <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : requests.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No membership requests found. Adjust search or clear filters to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchTerm(""); fetchRequests(""); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
+                        <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-xs">
+                            <thead className="bg-orange-500 text-white">
+                                <tr>
+                                    <th className="p-3 text-start">Name</th>
+                                    <th className="p-3 text-start">User ID</th>
+                                    <th className="p-3 text-start">Date Requested</th>
+                                    <th className="p-3 text-start">Status</th>
+                                    <th className="p-3 text-start">Proof of Payment</th>
+                                    <th className="p-3 text-start">Proof of Identity</th>
+                                    <th className="p-3 text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {requests.map((request, index) => (
+                                    <tr key={request.id || `${request.user_id}-${index}`} className={`${index % 2 === 0 ? "bg-orange-50" : ""}`}>
+                                        <td className="p-3">{buildName(request)}</td>
+                                        <td className="p-3">{request.user_id || "-"}</td>
+                                        <td className="p-3">{formatDate(request.created_at || request.date_requested || request.requested_at)}</td>
+                                        <td className="p-3 capitalize">{formatStatusLabel(request.status)}</td>
+                                        <td className="p-3">
+                                            {request.proof_of_payment ? (
+                                                <button
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                    onClick={() => openImage(request.proof_of_payment)}
+                                                >
+                                                    View
+                                                </button>
+                                            ) : (
+                                                "-"
+                                            )}
+                                        </td>
+                                        <td className="p-3">
+                                            {request.proof_of_identity ? (
+                                                <button
+                                                    className="inline-flex items-center gap-1 px-3 py-1 rounded-full border border-blue-100 bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors"
+                                                    onClick={() => openImage(request.proof_of_identity)}
+                                                >
+                                                    View
+                                                </button>
+                                            ) : (
+                                                "-"
+                                            )}
+                                        </td>
+                                        <td className="p-3 flex justify-end gap-2">
+                                            {normalizeStatus(request.status) === "pending" ? (
+                                                <>
+                                                    <button
+                                                        className="bg-green-50 text-green-600 px-3 py-1 rounded disabled:opacity-70"
+                                                        onClick={() => handleDecision(request.id, "approve")}
+                                                        disabled={actionState.id === request.id}
+                                                    >
+                                                        {actionState.id === request.id && actionState.type === "approve" ? "Approving.." : "Approve"}
+                                                    </button>
+                                                    <button
+                                                        className="bg-red-50 text-red-600 px-3 py-1 rounded disabled:opacity-70"
+                                                        onClick={() => handleDecision(request.id, "reject")}
+                                                        disabled={actionState.id === request.id}
+                                                    >
+                                                        {actionState.id === request.id && actionState.type === "reject" ? "Rejecting.." : "Reject"}
+                                                    </button>
+                                                </>
+                                            ) : (
+                                                <span
+                                                    className={`px-3 py-1 rounded-full border text-[11px] font-semibold ${
+                                                        normalizeStatus(request.status) === "approved"
+                                                            ? "bg-green-50 text-green-700 border-green-100"
+                                                            : normalizeStatus(request.status) === "rejected"
+                                                                ? "bg-red-50 text-red-700 border-red-100"
+                                                                : "bg-gray-100 text-gray-700 border-gray-200"
+                                                    }`}
+                                                >
+                                                    {formatStatusLabel(request.status)}
+                                                </span>
+                                            )}
+                                        </td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
                 )}
 

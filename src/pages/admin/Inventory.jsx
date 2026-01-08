@@ -160,60 +160,60 @@ const Inventory = () => {
                 </div>
 
                 {/* Table */}
-                <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
-                    <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm border-collapse">
-                        <thead className="bg-orange-500 text-white text-xs sticky top-0">
-                        <tr className="text-xs">
-                            <th className="p-3 text-start">Name</th>
-                            <th className="p-3 text-start">Category</th>
-                            <th className="p-3 text-start">Subcategory</th>
-                            <th className="p-3 text-start">Quantity</th>
-                            <th className="p-3 text-start">Unit</th>
-                            <th className="p-3 text-start">Notes</th>
-                            <th className="p-3 text-start">Status</th>
-                        </tr>
-                        </thead>
-                        
-                            <tbody>
-                                {!loading ? (
-                                    items.length > 0 ? (
-                                        items.map((row, index) => (
-                                        <tr key={row.id}
-                                        className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""} text-xs`}>
-                                            <td className="p-3 text-xs font-semibold text-gray-800">{row.name}</td>
-                                            <td className="p-3 text-xs">{row.category_name}</td>
-                                            <td className="p-3 text-xs">{row.sub_category_name}</td>
-                                            <td className={`p-3 text-xs ${row.quantity === 0 ? 'text-red-500' : ''} `}>{row.quantity}</td>
-                                            <td className="p-3 text-xs ">{row.unit}</td>
-                                            <td className="p-3 text-xs ">{row.notes || "None"}</td>
-                                            <td className="p-3 text-xs ">
-                                                {row.status === "available" ? (
-                                                    <span className="px-2 py-1 rounded-full text-[11px] bg-green-50 text-green-700 border border-green-200">Available</span>
-                                                ) : row.status === "consumed" && (
-                                                    <span className="px-2 py-1 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200">Consumed</span>
-                                                )}
-                                            </td>
-                                        </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                            <td colSpan={7} className="py-8 text-center text-xs text-gray-500">
-                                            No records found.
-                                            </td>
-                                        </tr>
-                                    )
-                                ) : (
-                                    <tr>
-                                        <td colSpan={7} className="py-10 text-center">
-                                            <div className="flex items-center justify-center">
-                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
-                                            </div>
+                {loading ? (
+                    <div className="w-full h-40 flex items-center justify-center">
+                        <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                    </div>
+                ) : items.length === 0 ? (
+                    <div className="bg-white border border-dashed border-gray-200 rounded-lg p-8 text-center text-sm text-gray-500">
+                        No inventory items found. Adjust filters or clear search to see more results.
+                        <div className="mt-3">
+                            <button
+                                onClick={() => { setSearchQuery(""); setSelectedCategory(""); setSelectedSubCategory(""); fetchItems({}); }}
+                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Clear filters
+                            </button>
+                        </div>
+                    </div>
+                ) : (
+                    <div className="w-full max-w-screen-sm md:max-w-none rounded-lg overflow-x-auto">
+                        <table className="w-full border rounded-lg overflow-hidden shadow bg-white text-sm border-collapse">
+                            <thead className="bg-orange-500 text-white text-xs sticky top-0">
+                            <tr className="text-xs">
+                                <th className="p-3 text-start">Name</th>
+                                <th className="p-3 text-start">Category</th>
+                                <th className="p-3 text-start">Subcategory</th>
+                                <th className="p-3 text-start">Quantity</th>
+                                <th className="p-3 text-start">Unit</th>
+                                <th className="p-3 text-start">Notes</th>
+                                <th className="p-3 text-start">Status</th>
+                            </tr>
+                            </thead>
+                            
+                                <tbody>
+                                    {items.map((row, index) => (
+                                    <tr key={row.id}
+                                    className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""} text-xs`}>
+                                        <td className="p-3 text-xs font-semibold text-gray-800">{row.name}</td>
+                                        <td className="p-3 text-xs">{row.category_name}</td>
+                                        <td className="p-3 text-xs">{row.sub_category_name}</td>
+                                        <td className={`p-3 text-xs ${row.quantity === 0 ? 'text-red-500' : ''} `}>{row.quantity}</td>
+                                        <td className="p-3 text-xs ">{row.unit}</td>
+                                        <td className="p-3 text-xs ">{row.notes || "None"}</td>
+                                        <td className="p-3 text-xs ">
+                                            {row.status === "available" ? (
+                                                <span className="px-2 py-1 rounded-full text-[11px] bg-green-50 text-green-700 border border-green-200">Available</span>
+                                            ) : row.status === "consumed" && (
+                                                <span className="px-2 py-1 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200">Consumed</span>
+                                            )}
                                         </td>
                                     </tr>
-                                )}
-                            </tbody>
-                    </table>
-                </div>
+                                    ))}
+                                </tbody>
+                        </table>
+                    </div>
+                )}
             </div>
             
         </Admin>

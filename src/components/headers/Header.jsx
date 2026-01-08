@@ -104,7 +104,7 @@ const Header = () => {
                         </div>
                     ) : (
                         <Link to="/portal">
-                            <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Portal</button>
+                            <button className='px-4 py-2 rounded text-white bg-orange-600  border-0 hover:outline-none active:outline-none'>Profile</button>
                         </Link>
                     )}
                     
@@ -155,7 +155,7 @@ const Header = () => {
                                 )}
                                 {user && (
                                 <Link to="/portal" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Portal</a>
+                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Profile</a>
                                 </Link>
                                 )}
                             </ul>

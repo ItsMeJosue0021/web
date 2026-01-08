@@ -20,6 +20,8 @@ const GoodsDonationsAdmin = () => {
     const [loading, setLoading] = useState(true);
     const [toBeApproved, setToBeApproved] = useState(null);
     const [success, setSuccess] = useState(false);
+    const [editingCell, setEditingCell] = useState({ id: null, field: null });
+    const [updatingCell, setUpdatingCell] = useState({ id: null, field: null });
 
     // reports
     const [isReportView, setIsReportView] = useState(false);
@@ -141,6 +143,42 @@ const GoodsDonationsAdmin = () => {
         } catch (error) {
             console.error("Error approving donation:", error);
         }
+    };
+
+    const updateDonation = async (id, payload) => {
+        try {
+            await _put(`/goods-donations/${id}/name-description`, payload);
+        } catch (error) {
+            console.error("Error updating donation:", error);
+        }
+    };
+
+    const isEditing = (id, field) =>
+        editingCell.id === id && editingCell.field === field;
+
+    const isUpdating = (id, field) =>
+        updatingCell.id === id && updatingCell.field === field;
+
+    const handleEditStart = (id, field) => {
+        setEditingCell({ id, field });
+    };
+
+    const handleEditChange = (id, field, value) => {
+        setDonations((prev) =>
+            prev.map((donation) =>
+                donation.id === id ? { ...donation, [field]: value } : donation
+            )
+        );
+    };
+
+    const handleEditBlur = async (donation, field) => {
+        setEditingCell({ id: null, field: null });
+        setUpdatingCell({ id: donation.id, field });
+        await updateDonation(donation.id, {
+            name: donation.name ?? "",
+            description: donation.description ?? ""
+        });
+        setUpdatingCell({ id: null, field: null });
     };
 
     const openItemizerModal = (donation) => {
@@ -293,12 +331,66 @@ const GoodsDonationsAdmin = () => {
                                         </td>
 
                                         <td className="p-2">
-                                            {donation.name || (
-                                                <span className="px-2 py-1 rounded bg-gray-100 text-gray-600">Anonymous</span>
+                                            {isEditing(donation.id, "name") ? (
+                                                <input
+                                                    type="text"
+                                                    value={donation.name ?? ""}
+                                                    onChange={(e) =>
+                                                        handleEditChange(donation.id, "name", e.target.value)
+                                                    }
+                                                    onBlur={() => handleEditBlur(donation, "name")}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") e.currentTarget.blur();
+                                                    }}
+                                                    className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-xs"
+                                                    autoFocus
+                                                />
+                                            ) : isUpdating(donation.id, "name") ? (
+                                                <span className="text-[11px] text-gray-500">Updating...</span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleEditStart(donation.id, "name")}
+                                                    className="w-full text-left bg-white"
+                                                    title="Click to edit"
+                                                >
+                                                    {donation.name || (
+                                                        <span className="px-2 py-1 rounded bg-gray-100 text-gray-600">
+                                                            Anonymous
+                                                        </span>
+                                                    )}
+                                                </button>
                                             )}
                                         </td>
 
-                                        <td className="p-2">{donation.description || ""}</td>
+                                        <td className="p-2">
+                                            {isEditing(donation.id, "description") ? (
+                                                <input
+                                                    type="text"
+                                                    value={donation.description ?? ""}
+                                                    onChange={(e) =>
+                                                        handleEditChange(donation.id, "description", e.target.value)
+                                                    }
+                                                    onBlur={() => handleEditBlur(donation, "description")}
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === "Enter") e.currentTarget.blur();
+                                                    }}
+                                                    className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-xs"
+                                                    autoFocus
+                                                />
+                                            ) : isUpdating(donation.id, "description") ? (
+                                                <span className="text-[11px] text-gray-500">Updating...</span>
+                                            ) : (
+                                                <button
+                                                    type="button"
+                                                    onClick={() => handleEditStart(donation.id, "description")}
+                                                    className="w-full text-left min-h-[18px] bg-white"
+                                                    title="Click to edit"
+                                                >
+                                                    {donation.description || ""}
+                                                </button>
+                                            )}
+                                        </td>
                                         <td className="p-2">{donation.email || ""}</td>
 
                                         <td className="p-2">

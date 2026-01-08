@@ -65,7 +65,7 @@ const Home = () => {
   };
 
   return (
-    <div className="w-full md:w-screen bg-white min-h-screen overflow-x-hidden">
+    <div className="w-full bg-white min-h-screen overflow-x-hidden">
       <Header />
 
       {/* Hero Section */}

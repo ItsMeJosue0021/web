@@ -534,10 +534,10 @@ const Portal = () => {
                                                 <span className="text-xs text-blue-500 break-all">@{user.username}</span>
                                             </div>
                                             <button
-                                                className="flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-orange-200 bg-white text-[11px] hover:bg-orange-50 transition-all w-full sm:w-auto"
+                                                className="text-gray-700 flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-orange-200 bg-white text-[11px] hover:bg-orange-50 transition-all w-full sm:w-auto"
                                                 onClick={() => setModal(prev => ({...prev, updateProfileInfo: true}))}
                                             >
-                                                <PencilLine size={12} strokeWidth={2.5}/>
+                                                <PencilLine size={12} strokeWidth={2.5} className="text-gray-700"/>
                                                 Edit Profile
                                             </button>
                                         </div>

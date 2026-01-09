@@ -37,6 +37,7 @@ const Goods = () => {
     });
 
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
+    const [editingItemId, setEditingItemId] = useState(null);
 
     const [map, setMap] = useState({
         main: false,    
@@ -159,6 +160,67 @@ const Goods = () => {
 
     const removeItem = (id) => {
         setItems((prev) => prev.filter((item) => item.id !== id));
+    };
+
+    const updateItem = () => {
+        if (!validateItemForm()) return false;
+
+        setItems((prev) =>
+            prev.map((item) =>
+                item.id === editingItemId
+                    ? {
+                        ...item,
+                        name: itemForm.name,
+                        category_id: itemForm.category_id,
+                        subcategory_id: itemForm.subcategory_id,
+                        quantity: itemForm.quantity,
+                        unit: itemForm.unit,
+                        notes: itemForm.notes,
+                        image: itemForm.image
+                    }
+                    : item
+            )
+        );
+
+        resetItemForm();
+        setEditingItemId(null);
+        return true;
+    };
+
+    const openAddItemModal = () => {
+        resetItemForm();
+        setEditingItemId(null);
+        setIsItemModalOpen(true);
+    };
+
+    const openEditItemModal = (item) => {
+        const category = donationCategories.find(cat => cat.id == item.category_id);
+        setFilteredSubcategories(category ? category.subcategories : []);
+        setItemForm({
+            name: item.name,
+            category_id: item.category_id,
+            subcategory_id: item.subcategory_id,
+            quantity: item.quantity,
+            unit: item.unit,
+            notes: item.notes,
+            image: item.image || null
+        });
+        setItemErrors({});
+        setEditingItemId(item.id);
+        setIsItemModalOpen(true);
+    };
+
+    const closeItemModal = () => {
+        setIsItemModalOpen(false);
+        setEditingItemId(null);
+        resetItemForm();
+    };
+
+    const saveItem = () => {
+        if (editingItemId) {
+            return updateItem();
+        }
+        return addItem();
     };
 
     const getCategoryName = (id) => {
@@ -327,7 +389,7 @@ const Goods = () => {
                                                 </div>
                                                 <button
                                                     type="button"
-                                                    onClick={() => setIsItemModalOpen(true)}
+                                                    onClick={openAddItemModal}
                                                     className="text-xs rounded px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none w-fit"
                                                 >
                                                     Add Item
@@ -367,13 +429,22 @@ const Goods = () => {
                                                                         <td className="p-2">{item.notes || "-"}</td>
                                                                         <td className="p-2">{item.image ? item.image.name : "-"}</td>
                                                                         <td className="p-2">
-                                                                            <button
-                                                                                type="button"
-                                                                                onClick={() => removeItem(item.id)}
-                                                                                className="text-red-600 hover:text-red-700"
-                                                                            >
-                                                                                Remove
-                                                                            </button>
+                                                                            <div className="flex items-center gap-3">
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => openEditItemModal(item)}
+                                                                                    className="text-orange-600 hover:text-orange-700"
+                                                                                >
+                                                                                    Edit
+                                                                                </button>
+                                                                                <button
+                                                                                    type="button"
+                                                                                    onClick={() => removeItem(item.id)}
+                                                                                    className="text-red-600 hover:text-red-700"
+                                                                                >
+                                                                                    Delete
+                                                                                </button>
+                                                                            </div>
                                                                         </td>
                                                                     </tr>
                                                                 ))
@@ -588,12 +659,16 @@ const Goods = () => {
                 
             </div>
             {isItemModalOpen && (
-                <ModalContainer isFull={false} close={() => setIsItemModalOpen(false)}>
+                <ModalContainer isFull={false} close={closeItemModal}>
                     <div className="w-full max-w-[760px] bg-white rounded-xl p-5">
                         <div>
                             <div>
-                                <h2 className="text-lg font-semibold text-orange-600">Add New Item</h2>
-                                <p className="text-xs">Add an item to your goods donation.</p>
+                                <h2 className="text-lg font-semibold text-orange-600">
+                                    {editingItemId ? "Edit Item" : "Add New Item"}
+                                </h2>
+                                <p className="text-xs">
+                                    {editingItemId ? "Update the details for this item." : "Add an item to your goods donation."}
+                                </p>
                             </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
@@ -688,15 +763,15 @@ const Goods = () => {
                             <div className="w-full flex justify-end items-center gap-2">
                                 <button
                                     onClick={() => {
-                                        if (addItem()) setIsItemModalOpen(false);
+                                        if (saveItem()) setIsItemModalOpen(false);
                                     }}
                                     className="text-xs rounded px-6 py-2 cursor-pointer text-white bg-orange-600 border-none hover:bg-orange-700"
                                 >
-                                    Save Item
+                                    {editingItemId ? "Update Item" : "Save Item"}
                                 </button>
 
                                 <button
-                                    onClick={() => setIsItemModalOpen(false)}
+                                    onClick={closeItemModal}
                                     className="text-xs rounded px-6 py-2 cursor-pointer hover:bg-gray-300 text-black bg-gray-200 border-none"
                                 >
                                     Cancel

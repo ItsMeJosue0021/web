@@ -211,65 +211,94 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                 />
             )}
             <div className="w-full max-w-[800px] pb-8 md:pb-0">
-                <div className="flex flex-col gap-1 mb-5 md:p-4 rounded-lg md:border">
-                    <p className="text-xl text-orange-600">Itemize your goods donations for easier monitoring.</p>
-                    <p  className="text-sm">
-                        <span className="font-medium">Donor</span>: {donation.name || 'Anonymous'}
-                    </p>
-                    <p className="text-sm">
-                        <span className="font-medium">Email:</span> {donation.email || "N/A"}
-                    </p>
-                    <p className="text-sm">
-                        <span className="font-medium">Description:</span> {donation.description || "N/A"}
-                    </p>
+                <div className="mb-6 rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4 md:p-5 shadow-sm">
+                    <div className="flex flex-col gap-1">
+                        <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">Donation overview</p>
+                        <p className="text-xl font-semibold text-orange-600">
+                            Itemize your goods donations for easier monitoring.
+                        </p>
+                    </div>
+                    <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-gray-700 md:grid-cols-2">
+                        <div className="rounded-xl border border-orange-100 bg-white/80 px-3 py-2">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Donor</p>
+                            <p className="font-medium text-gray-900">{donation.name || "Anonymous"}</p>
+                        </div>
+                        <div className="rounded-xl border border-orange-100 bg-white/80 px-3 py-2">
+                            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Email</p>
+                            <p className="font-medium text-gray-900">{donation.email || "N/A"}</p>
+                        </div>
+                    </div>
                 </div>
 
                 <div className="">
                     <div className="w-full flex items-center justify-between">
-                        <strong>Items</strong>
+                        <div>
+                            <p className="text-sm font-semibold text-gray-900">Items</p>
+                            <p className="text-xs text-gray-500">Track each donated item with details and notes.</p>
+                        </div>
                         <button
                             onClick={() => setAddItemModalOpen(true)}
-                            className="text-xs rounded px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none">
+                            className="text-xs rounded-full px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none shadow-sm">
                             Add Items
                         </button>
                     </div>
 
-                    <div className="w-full h-auto min-h-80 flex flex-col gap-4 p-2 divide-y">
+                    <div className="w-full h-auto min-h-80 mt-3 flex flex-col gap-4">
                         {loading ? (
-                            <div className="min-h-48 w-full flex flex-col items-center justify-center gap-4">
+                            <div className="min-h-48 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
                                 <p className="text-xs text-center text-gray-500">Loading items...</p>
                             </div>
                         ) : (
                             items.length > 0 && items.map((item, index) => (
-                                <div key={item.id} className="relative h-auto overfloe-y-auto flex items-center pt-4">
+                                <div key={item.id} className="relative h-auto overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
                                     <div className="w-full h-auto flex flex-col md:flex-row items-start md:items-center gap-4">
                                         <img 
                                             src={`${baseURL}${item.image}`} 
-                                            alt="image" 
-                                            className="rounded-xl w-full md:w-24 h-52 md:h-24 min-w-24 min-h-24 object-center object-cover" 
+                                            alt="item" 
+                                            className="rounded-xl w-full md:w-28 h-52 md:h-28 min-w-28 min-h-28 object-center object-cover bg-gray-100" 
                                         />
-                                        <div className="w-full flex flex-col gap-1 text-xs text-gray-500">
-                                            <strong className="text-sm text-orange-600">{item.name}</strong>
-                                            <div className="flex flex-col md:flex-row items-start md:items-center gap-1 md:gap-6">
-                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Category: <span className="font-normal">{getCategoryName(item.category)}</span></p>
-                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Subcaregory: <span className="font-normal">{getSubcategoryName(item.sub_category)}</span></p>
-                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Quantity: <span className="font-normal bg-orange-100 text-orange-600 w-fit px-2 rounded text-center">{item.quantity}</span></p>
-                                                <p className="flex gap-2 md:gap-0 md:flex-col font-semibold">Unit: <span className="font-normal">{item.unit || '...'}</span></p>
+                                        <div className="w-full flex flex-col gap-2 text-xs text-gray-600">
+                                            <div className="flex items-start justify-between gap-3 pr-10">
+                                                <div>
+                                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Item</p>
+                                                    <strong className="text-base text-orange-600">{item.name}</strong>
+                                                </div>
+                                                <span className="rounded-full bg-orange-50 px-3 py-1 text-[11px] font-semibold text-orange-700">
+                                                    Qty {item.quantity}
+                                                </span>
                                             </div>
-
-                                            <p className="text-xs text-gray-500"><span className="font-semibold">Notes</span>: {item.notes || '...'}</p>
+                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
+                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Category</p>
+                                                    <p className="text-xs font-medium text-gray-700">{getCategoryName(item.category)}</p>
+                                                </div>
+                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Subcategory</p>
+                                                    <p className="text-xs font-medium text-gray-700">{getSubcategoryName(item.sub_category)}</p>
+                                                </div>
+                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Unit</p>
+                                                    <p className="text-xs font-medium text-gray-700">{item.unit || "..."}</p>
+                                                </div>
+                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Notes</p>
+                                                    <p className="text-xs font-medium text-gray-700">{item.notes || "..."}</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                    <div className="absolute top-8 md:top-0 right-4 md:right-0 h-fit md:h-full w-fit md:w-20 md:min-w-20 md:flex items-center justify-center">
-                                        <X 
-                                            onClick={() => setDeleteItemId(item.id)}
-                                            className="min-w-5 w-5 min-h-5 h-5 text-gray-400 cursor-pointer hover:text-red-500" />
-                                    </div>
+                                    <button
+                                        onClick={() => setDeleteItemId(item.id)}
+                                        className="absolute right-3 top-3 rounded-full border border-gray-200 bg-white p-1 text-gray-400 transition hover:border-red-200 hover:text-red-500"
+                                        aria-label="Delete item"
+                                    >
+                                        <X className="min-w-4 w-4 min-h-4 h-4" />
+                                    </button>
                                 </div>
                             ))
                         )}
                         {items.length === 0 && !loading && (
-                            <div className="min-h-48 w-full flex flex-col items-center justify-center gap-4">
+                            <div className="min-h-48 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
                                 <p className="text-xs text-center text-gray-500">No items found.</p>
                             </div>
                         )}

@@ -120,45 +120,81 @@ const Header = () => {
 
                 {isModalOpen && (
                     <AnimatePresence>
-                        <motion.div 
-                        role="alert"
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        className='fixed top-0 right-0 md:absolute md:right-0 md:top-16 h-full w-full md:h-fit md:w-72 bg-white px-2 py-5 rounded-lg shadow-md'>
-                            <ul className='w-full h-full flex flex-col items-center justify-center gap-4 md:gap-0 poppins-bold text-black cursor-pointer text-lg md:text-sm'>
-                                <div className="md:hidden flex">
-                                    <X className="w-7 h-7 absolute top-4 right-4" onClick={toggleModal} />
+                        <motion.div
+                            role="alert"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            onClick={toggleModal}
+                            className="fixed inset-0 z-50 bg-black/30 backdrop-blur-sm md:absolute md:top-16 md:right-0 md:bg-transparent md:backdrop-blur-0"
+                        >
+                            <div
+                                onClick={(e) => e.stopPropagation()}
+                                className="absolute right-0 top-0 h-full w-full max-w-xs bg-white px-5 py-6 shadow-xl md:static md:h-fit md:w-72 md:rounded-xl md:border md:border-gray-100"
+                            >
+                                <div className="flex items-center justify-between mb-4">
+                                    <p className="text-sm font-semibold text-gray-900">Menu</p>
+                                    <button
+                                        className="bg-white md:hidden p-1 rounded-full border border-gray-200 shadow-sm"
+                                        onClick={toggleModal}
+                                    >
+                                        <X className="w-5 h-5" />
+                                    </button>
                                 </div>
-                                <Link to="/" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600 ">Home</a>
-                                </Link>
-                                <Link to="/about-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">About Us</a>
-                                </Link>
-                                {/* <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Volunteers</a>
-                                </Link> */}
-                                <Link to="/our-projects" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Projects</a>
-                                </Link>
-                                <Link to="/faqs" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">FAQs</a>
-                                </Link>
-                                <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Contact Us</a>
-                                </Link>
-                                {!isLoginPage && (
-                                    <Link to="/login" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                        <a  className="text-black group-hover:text-orange-600" onClick={toggleModal}>Login</a>
-                                    </Link>  
+                                <div className="rounded-xl border border-gray-100 bg-gray-50/70 p-2">
+                                    <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                                        Browse
+                                    </p>
+                                    <Link to="/" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                        Home
+                                    </Link>
+                                    <Link to="/about-us" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                        About Us
+                                    </Link>
+                                    <Link to="/our-projects" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                        Projects
+                                    </Link>
+                                    <Link to="/faqs" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                        FAQs
+                                    </Link>
+                                    <Link to="/contact-us" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                        Contact Us
+                                    </Link>
+                                </div>
+
+                                <div className="mt-4 rounded-xl border border-gray-100 bg-white p-2">
+                                    <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
+                                        Account
+                                    </p>
+                                    {!isLoginPage && !user && (
+                                        <Link to="/login" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                            Login
+                                        </Link>
+                                    )}
+                                    {!isRegisterPage && !user && (
+                                        <Link to="/register" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                            Register
+                                        </Link>
+                                    )}
+                                    {user && (
+                                        <Link to="/portal" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                            Profile
+                                        </Link>
+                                    )}
+                                </div>
+
+                                {!isRegisterPage && !isLoginPage && (
+                                    <div className="mt-5">
+                                        <Link
+                                            to="/donate"
+                                            onClick={toggleModal}
+                                            className="w-full inline-flex items-center justify-center rounded-lg bg-orange-600 px-4 py-2 text-sm font-semibold text-white hover:bg-orange-700"
+                                        >
+                                            Donate Now
+                                        </Link>
+                                    </div>
                                 )}
-                                {user && (
-                                <Link to="/portal" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                                    <a onClick={toggleModal} className="text-black group-hover:text-orange-600">Profile</a>
-                                </Link>
-                                )}
-                            </ul>
+                            </div>
                         </motion.div>
                     </AnimatePresence>
                  )}

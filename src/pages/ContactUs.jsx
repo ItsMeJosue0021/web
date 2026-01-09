@@ -13,6 +13,7 @@ const ContactUs = () => {
         message: "",
     });
     const [contactInfo, setContactInfo] = useState(null);
+    const [isSending, setIsSending] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -33,6 +34,7 @@ const ContactUs = () => {
 
     const handleSubmit = async (e) => {
         e.preventDefault();
+        setIsSending(true);
         try {
             await _post("/enquiries", formData);
             toast.success("Your message has been sent!");
@@ -40,6 +42,8 @@ const ContactUs = () => {
         } catch (error) {
             console.error("Error sending message:", error);
             toast.error("Something went wrong, please try again!");
+        } finally {
+            setIsSending(false);
         }
     };
 
@@ -164,9 +168,10 @@ const ContactUs = () => {
 
                             <button
                                 type="submit"
-                                className="bg-orange-600 hover:bg-orange-700 transition text-white font-semibold px-5 py-2 rounded-md shadow text-sm w-full md:w-auto"
+                                disabled={isSending}
+                                className={`bg-orange-600 hover:bg-orange-700 transition text-white font-semibold px-5 py-2 rounded-md shadow text-sm w-full md:w-auto ${isSending ? "opacity-70 cursor-not-allowed" : ""}`}
                             >
-                                Send Message
+                                {isSending ? "Sending..." : "Send Message"}
                             </button>
                         </div>
                     </form>

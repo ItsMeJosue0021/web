@@ -311,7 +311,7 @@ const Goods = () => {
                     )}
 
                     <div className="flex items-start gap-12 md:mt-4">
-                        <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
+                        <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8">
                             {activeStep < 4 && (
                                 <div className="w-full flex flex-col items-start justify-start mb-6 gap-1">
                                     <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Goods Donation</p>
@@ -332,21 +332,21 @@ const Goods = () => {
                                             </div>
 
                                             <div className="flex flex-col gap-4">
-                                                <div className="w-full flex items-center gap-2">
-                                                    <div className="w-32">
+                                                <div className="w-full flex flex-col md:flex-row md:items-center gap-2 md:gap-2">
+                                                    <div className="w-full md:w-32">
                                                         <label className="text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                                     </div>
                                                     
-                                                    <div className="w-full flex items-center gap-4">
+                                                    <div className="w-full flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
                                                         <input
                                                             type="text"
                                                             name="name"
                                                             value={name}
                                                             onChange={(e) => setName(e.target.value)}
-                                                            className={`px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} border-gray-300 text-xs`}
+                                                            className={`w-full md:w-auto px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} border-gray-300 text-xs`}
                                                             disabled={isAnonymous}
                                                         />
-                                                        <label className="flex items-center gap-2">
+                                                        <label className="w-fit flex items-center gap-2">
                                                             <input
                                                                 type="checkbox"
                                                                 value={isAnonymous}
@@ -361,8 +361,8 @@ const Goods = () => {
                                                     
                                                 </div>
 
-                                                <div className="w-full flex items-center gap-2">
-                                                    <div className="w-32">
+                                                <div className="w-full flex flex-col md:flex-row md:items-center gap-2 md:gap-2">
+                                                    <div className="w-full md:w-32">
                                                         <label className="text-xs font-medium">Email</label>
                                                     </div>
                                                     <div className="w-full">

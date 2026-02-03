@@ -273,7 +273,7 @@ const GCashDonationsAdmin = () => {
                                         <td className="p-3">{donation.name || "N/A"}</td>
                                         <td className="p-3">{donation.email || "N/A"}</td>
                                         <td className="p-3 font-mono">{formatCurrency(donation.amount)}</td>
-                                        <td className="p-3">{donation.month} {donation.year}</td>
+                                        <td className="p-3">{donation.created_at ? formatDate(donation.created_at) : ""}</td>
                                     </tr>
                                 ))}
                             </tbody>

@@ -6,6 +6,7 @@ import CircularLoading from "../../components/CircularLoading";
 import { Edit, HandCoins, Mail, Trash2, X, Search, Filter, Coins } from "lucide-react";
 import ConfirmationAlert from '../../components/alerts/ConfirmationAlert';
 import ModalContainer from '../../components/ModalContainer';
+import { toast } from "react-toastify";
 
 const Expenses = () => {
 
@@ -21,6 +22,12 @@ const Expenses = () => {
     const [deleteId, setDeleteId] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
     const [openAddModal, setOpenAddModal] = useState(false);
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
+    const [isPrintOpen, setIsPrintOpen] = useState(false);
+    const [printUrl, setPrintUrl] = useState("");
+    const [printFilename, setPrintFilename] = useState("");
+    const [printLoading, setPrintLoading] = useState(false);
 
     // add modal states
     const [form, setForm] = useState({
@@ -71,10 +78,13 @@ const Expenses = () => {
     }, []);
 
     // fetch expenses
-    const fetchExpenses = async () => {
+    const fetchExpenses = async ({ start = "", end = "" } = {}) => {
         setLoading(true);
         try {
-            const response = await _get('/expenditures');
+            const params = {};
+            if (start) params.start_date = start;
+            if (end) params.end_date = end;
+            const response = await _get('/expenditures', { params });
             if (response && response.data) {
                 setExpenses(response.data.expenditures);
             }
@@ -120,20 +130,72 @@ const Expenses = () => {
     const handleSearch = async (value) => {
         setSearchQuery(value);
         if (!value.trim()) {
-            fetchExpenses(); 
+            fetchExpenses({ start: startDate, end: endDate });
             return;
         }
 
         setLoading(true);
         try {
             const res = await _get(`/expenditures/search?q=${value}`, {
-                params: { search: value },
+                params: { search: value, start_date: startDate || undefined, end_date: endDate || undefined },
             });
             setExpenses(res.data.expenditures || res.data);
         } catch (err) {
             console.error("Search failed:", err);
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleApplyDateFilter = () => {
+        fetchExpenses({ start: startDate, end: endDate });
+    };
+
+    const handleClearDateFilter = () => {
+        setStartDate("");
+        setEndDate("");
+        fetchExpenses({ start: "", end: "" });
+    };
+
+    const handlePrint = async () => {
+        setPrintLoading(true);
+        try {
+            const params = {};
+            if (startDate) params.start_date = startDate;
+            if (endDate) params.end_date = endDate;
+            const fileResponse = await _get("/expenditures/print", { params, responseType: "blob" });
+            const blobUrl = URL.createObjectURL(fileResponse.data);
+            if (printUrl) {
+                URL.revokeObjectURL(printUrl);
+            }
+            setPrintUrl(blobUrl);
+            setPrintFilename("expenses.pdf");
+            setIsPrintOpen(true);
+        } catch (error) {
+            console.error("Error generating expense report:", error);
+            toast.error("Unable to generate the report.");
+        } finally {
+            setPrintLoading(false);
+        }
+    };
+
+    const handleExpensePrint = async (expenseId) => {
+        if (!expenseId) return;
+        setPrintLoading(true);
+        try {
+            const fileResponse = await _get(`/expenditures/${expenseId}/print`, { responseType: "blob" });
+            const blobUrl = URL.createObjectURL(fileResponse.data);
+            if (printUrl) {
+                URL.revokeObjectURL(printUrl);
+            }
+            setPrintUrl(blobUrl);
+            setPrintFilename(`expense-${expenseId}.pdf`);
+            setIsPrintOpen(true);
+        } catch (error) {
+            console.error("Error generating expense report:", error);
+            toast.error("Unable to generate the report.");
+        } finally {
+            setPrintLoading(false);
         }
     };
 
@@ -362,10 +424,11 @@ const Expenses = () => {
                                 />
                             </div>
                             <button
-                                onClick={() => { setSearchQuery(""); fetchExpenses(); }}
-                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                onClick={handlePrint}
+                                disabled={printLoading}
+                                className={`text-xs px-3 py-2 rounded-md border border-gray-200 ${printLoading ? "opacity-60 cursor-not-allowed" : "text-gray-600 hover:bg-gray-50"}`}
                             >
-                                Clear
+                                {printLoading ? "Generating..." : "Print"}
                             </button>
                             <button
                                 onClick={() => setOpenAddModal(true)}
@@ -375,6 +438,39 @@ const Expenses = () => {
                                 <span>New</span>
                             </button>
                         </div>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2 items-center">
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <label className="text-xs text-gray-600 whitespace-nowrap">From</label>
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(e) => setStartDate(e.target.value)}
+                                className="bg-white placeholder:text-xs px-3 py-2 rounded border border-gray-200 text-xs w-full sm:w-auto"
+                            />
+                        </div>
+                        <div className="flex items-center gap-2 w-full sm:w-auto">
+                            <label className="text-xs text-gray-600 whitespace-nowrap">To</label>
+                            <input
+                                type="date"
+                                value={endDate}
+                                onChange={(e) => setEndDate(e.target.value)}
+                                className="bg-white placeholder:text-xs px-3 py-2 rounded border border-gray-200 text-xs w-full sm:w-auto"
+                            />
+                        </div>
+                        <button
+                            onClick={handleApplyDateFilter}
+                            className="text-xs px-3 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
+                        >
+                            Apply
+                        </button>
+                        <button
+                            onClick={handleClearDateFilter}
+                            className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                        >
+                            Clear
+                        </button>
                     </div>
                 </div>
                
@@ -868,6 +964,14 @@ const Expenses = () => {
                             <div className="flex justify-end gap-2 mt-2">
                                 <button
                                     type="button"
+                                    onClick={() => handleExpensePrint(editId)}
+                                    disabled={printLoading}
+                                    className={`px-4 py-2 text-xs rounded border border-gray-200 ${printLoading ? "opacity-60 cursor-not-allowed" : "text-gray-600 hover:bg-gray-50"}`}
+                                >
+                                    {printLoading ? "Generating..." : "Print"}
+                                </button>
+                                <button
+                                    type="button"
                                     onClick={() => setOpenEditModal(false)}
                                     className="px-4 py-2 text-xs rounded bg-gray-200 hover:bg-gray-300"
                                 >
@@ -919,6 +1023,55 @@ const Expenses = () => {
                             ))}
                             </div>
                         )}
+                        </div>
+                    </ModalContainer>
+                )}
+
+                {isPrintOpen && (
+                    <ModalContainer
+                        isFull={false}
+                        close={() => {
+                            setIsPrintOpen(false);
+                            if (printUrl) {
+                                URL.revokeObjectURL(printUrl);
+                            }
+                            setPrintUrl("");
+                            setPrintFilename("");
+                        }}
+                    >
+                        <div className="w-full md:w-[900px] h-[70vh] rounded-xl bg-white p-4 flex flex-col gap-3">
+                            <div className="flex items-center justify-between">
+                                <div>
+                                    <p className="text-orange-600 font-semibold">Expense Report</p>
+                                    <p className="text-xs text-gray-500">{printFilename}</p>
+                                </div>
+                                <button
+                                    onClick={() => {
+                                        setIsPrintOpen(false);
+                                        if (printUrl) {
+                                            URL.revokeObjectURL(printUrl);
+                                        }
+                                        setPrintUrl("");
+                                        setPrintFilename("");
+                                    }}
+                                    className="text-xs px-3 py-2 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                >
+                                    Close
+                                </button>
+                            </div>
+                            <div className="flex-1 border border-gray-200 rounded-lg overflow-hidden bg-gray-50">
+                                {printUrl ? (
+                                    <iframe
+                                        title="Expenses Report"
+                                        src={printUrl}
+                                        className="w-full h-full"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex items-center justify-center text-xs text-gray-500">
+                                        No preview available.
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </ModalContainer>
                 )}

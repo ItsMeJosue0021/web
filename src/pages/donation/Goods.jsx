@@ -11,6 +11,10 @@ import ModalContainer from "../../components/ModalContainer";
 import CircularLoading from "../../components/CircularLoading";
 
 const Goods = () => {
+    const today = new Date();
+    const minExpiryDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(
+        today.getDate()
+    ).padStart(2, "0")}`;
 
     // Individual states
     const [name, setName] = useState('');
@@ -32,12 +36,16 @@ const Goods = () => {
         subcategory_id: "",
         quantity: "",
         unit: "",
+        expiry_date: "",
         notes: "",
         image: null
     });
 
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [editingItemId, setEditingItemId] = useState(null);
+    const [itemSuggestions, setItemSuggestions] = useState([]);
+    const [suggestionsLoading, setSuggestionsLoading] = useState(false);
+    const [suggestionsError, setSuggestionsError] = useState("");
 
     const [map, setMap] = useState({
         main: false,    
@@ -112,6 +120,24 @@ const Goods = () => {
         setFilteredSubcategories(category ? category.subcategories : []);
     };
 
+    const fetchItemSuggestions = async (seed = "") => {
+        setSuggestionsLoading(true);
+        setSuggestionsError("");
+        try {
+            const params = { count: 10 };
+            if (seed) params.seed = seed;
+            const response = await _get("/goods-donations/v2/suggestions", { params });
+            const suggestions = response.data?.suggestions || response.data || [];
+            setItemSuggestions(Array.isArray(suggestions) ? suggestions : []);
+        } catch (error) {
+            console.error("Error fetching suggestions:", error);
+            setSuggestionsError("Unable to load suggestions.");
+            setItemSuggestions([]);
+        } finally {
+            setSuggestionsLoading(false);
+        }
+    };
+
     const validateItemForm = () => {
         const nextErrors = {};
 
@@ -132,6 +158,7 @@ const Goods = () => {
             subcategory_id: "",
             quantity: "",
             unit: "",
+            expiry_date: "",
             notes: "",
             image: null
         });
@@ -149,6 +176,7 @@ const Goods = () => {
             subcategory_id: itemForm.subcategory_id,
             quantity: itemForm.quantity,
             unit: itemForm.unit,
+            expiry_date: itemForm.expiry_date,
             notes: itemForm.notes,
             image: itemForm.image
         };
@@ -175,6 +203,7 @@ const Goods = () => {
                         subcategory_id: itemForm.subcategory_id,
                         quantity: itemForm.quantity,
                         unit: itemForm.unit,
+                        expiry_date: itemForm.expiry_date,
                         notes: itemForm.notes,
                         image: itemForm.image
                     }
@@ -202,6 +231,7 @@ const Goods = () => {
             subcategory_id: item.subcategory_id,
             quantity: item.quantity,
             unit: item.unit,
+            expiry_date: item.expiry_date || "",
             notes: item.notes,
             image: item.image || null
         });
@@ -215,6 +245,25 @@ const Goods = () => {
         setEditingItemId(null);
         resetItemForm();
     };
+
+    useEffect(() => {
+        if (!isItemModalOpen) return;
+        const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
+        const seed = category?.name ? `${category.name}`.toLowerCase() : "";
+        fetchItemSuggestions(seed);
+    }, [isItemModalOpen, itemForm.category_id, donationCategories]);
+
+    useEffect(() => {
+        if (!isItemModalOpen) return;
+        const trimmed = itemForm.name.trim();
+        if (trimmed.length < 3) return;
+        const lastWord = trimmed.split(/\s+/).slice(-1)[0];
+        if (!lastWord || lastWord.length < 3) return;
+        const timer = setTimeout(() => {
+            fetchItemSuggestions(lastWord.toLowerCase());
+        }, 400);
+        return () => clearTimeout(timer);
+    }, [isItemModalOpen, itemForm.name]);
 
     const saveItem = () => {
         if (editingItemId) {
@@ -258,6 +307,7 @@ const Goods = () => {
             payload.append(`items[${index}][sub_category]`, item.subcategory_id);
             payload.append(`items[${index}][quantity]`, item.quantity);
             payload.append(`items[${index}][unit]`, item.unit || "");
+            payload.append(`items[${index}][expiry_date]`, item.expiry_date || "");
             payload.append(`items[${index}][notes]`, item.notes || "");
             if (item.image) payload.append(`items[${index}][image]`, item.image);
         });
@@ -363,7 +413,9 @@ const Goods = () => {
 
                                                 <div className="w-full flex flex-col md:flex-row md:items-center gap-2 md:gap-2">
                                                     <div className="w-full md:w-32">
-                                                        <label className="text-xs font-medium">Email</label>
+                                                        <label className="text-xs font-medium">
+                                                            Email <span className="text-red-500">*</span>
+                                                        </label>
                                                     </div>
                                                     <div className="w-full">
                                                         <input
@@ -406,6 +458,7 @@ const Goods = () => {
                                                                 <th className="p-2 text-left">Subcategory</th>
                                                                 <th className="p-2 text-left">Quantity</th>
                                                                 <th className="p-2 text-left">Unit</th>
+                                                                <th className="p-2 text-left">Expiry Date</th>
                                                                 <th className="p-2 text-left">Notes</th>
                                                                 <th className="p-2 text-left">Image</th>
                                                                 <th className="p-2 text-left">Action</th>
@@ -414,7 +467,7 @@ const Goods = () => {
                                                         <tbody>
                                                             {items.length === 0 ? (
                                                                 <tr>
-                                                                    <td colSpan={8} className="p-3 text-center text-gray-500">
+                                                                    <td colSpan={9} className="p-3 text-center text-gray-500">
                                                                         No items added yet.
                                                                     </td>
                                                                 </tr>
@@ -426,6 +479,7 @@ const Goods = () => {
                                                                         <td className="p-2">{getSubcategoryName(item.subcategory_id)}</td>
                                                                         <td className="p-2">{item.quantity}</td>
                                                                         <td className="p-2">{item.unit || "-"}</td>
+                                                                        <td className="p-2">{item.expiry_date || "-"}</td>
                                                                         <td className="p-2">{item.notes || "-"}</td>
                                                                         <td className="p-2">{item.image ? item.image.name : "-"}</td>
                                                                         <td className="p-2">
@@ -547,6 +601,7 @@ const Goods = () => {
                                                             <th className="p-2 text-left">Subcategory</th>
                                                             <th className="p-2 text-left">Quantity</th>
                                                             <th className="p-2 text-left">Unit</th>
+                                                            <th className="p-2 text-left">Expiry Date</th>
                                                             <th className="p-2 text-left">Notes</th>
                                                             <th className="p-2 text-left">Image</th>
                                                         </tr>
@@ -554,7 +609,7 @@ const Goods = () => {
                                                     <tbody>
                                                         {items.length === 0 ? (
                                                             <tr>
-                                                                <td colSpan={7} className="p-3 text-center text-gray-500">
+                                                                <td colSpan={8} className="p-3 text-center text-gray-500">
                                                                     No items added.
                                                                 </td>
                                                             </tr>
@@ -566,6 +621,7 @@ const Goods = () => {
                                                                     <td className="p-2">{getSubcategoryName(item.subcategory_id)}</td>
                                                                     <td className="p-2">{item.quantity}</td>
                                                                     <td className="p-2">{item.unit || "-"}</td>
+                                                                    <td className="p-2">{item.expiry_date || "-"}</td>
                                                                     <td className="p-2">{item.notes || "-"}</td>
                                                                     <td className="p-2">{item.image ? item.image.name : "-"}</td>
                                                                 </tr>
@@ -660,7 +716,7 @@ const Goods = () => {
             </div>
             {isItemModalOpen && (
                 <ModalContainer isFull={false} close={closeItemModal}>
-                    <div className="w-full max-w-[760px] bg-white rounded-xl p-5">
+                    <div className="w-full max-w-[960px] bg-white rounded-xl p-5 hide-scrollbar">
                         <div>
                             <div>
                                 <h2 className="text-lg font-semibold text-orange-600">
@@ -672,8 +728,10 @@ const Goods = () => {
                             </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
-                                <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Item Name</label>
+                                <div className="w-full flex flex-col md:col-span-2">
+                                    <label className="text-xs font-medium">
+                                        Item Name <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={itemForm.name}
@@ -682,10 +740,50 @@ const Goods = () => {
                                         className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                     {itemErrors.name && <p className="text-red-500 text-xs">{itemErrors.name}</p>}
+                                    <div className="mt-2">
+                                        <div className="flex items-center justify-between">
+                                            <p className="text-[11px] font-medium text-gray-500">Suggestions</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
+                                                    const seed = category?.name ? `${category.name}`.toLowerCase() : "";
+                                                    fetchItemSuggestions(seed);
+                                                }}
+                                                className="text-[11px] text-orange-600 hover:text-orange-700"
+                                            >
+                                                Refresh
+                                            </button>
+                                        </div>
+                                        {suggestionsLoading ? (
+                                            <p className="text-[11px] text-gray-400 mt-1">Loading suggestions...</p>
+                                        ) : suggestionsError ? (
+                                            <p className="text-[11px] text-red-500 mt-1">{suggestionsError}</p>
+                                        ) : itemSuggestions.length === 0 ? (
+                                            <p className="text-[11px] text-gray-400 mt-1">No suggestions available.</p>
+                                        ) : (
+                                            <div className="mt-2">
+                                                <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-2">
+                                                    {itemSuggestions.map((suggestion, index) => (
+                                                        <button
+                                                            key={`${suggestion}-${index}`}
+                                                            type="button"
+                                                            onClick={() => setItemForm({ ...itemForm, name: suggestion })}
+                                                            className="text-[11px] px-2 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100 hover:bg-orange-100 shrink-0"
+                                                        >
+                                                            {suggestion}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Category</label>
+                                    <label className="text-xs font-medium">
+                                        Category <span className="text-red-500">*</span>
+                                    </label>
                                     <select
                                         value={itemForm.category_id}
                                         onChange={handleItemCategoryChange}
@@ -700,7 +798,9 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Subcategory</label>
+                                    <label className="text-xs font-medium">
+                                        Subcategory <span className="text-red-500">*</span>
+                                    </label>
                                     <select
                                         value={itemForm.subcategory_id}
                                         onChange={(e) => setItemForm({ ...itemForm, subcategory_id: e.target.value })}
@@ -715,7 +815,9 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Quantity</label>
+                                    <label className="text-xs font-medium">
+                                        Quantity <span className="text-red-500">*</span>
+                                    </label>
                                     <input
                                         type="text"
                                         value={itemForm.quantity}
@@ -741,21 +843,34 @@ const Goods = () => {
                                     </select>
                                 </div>
 
+                                <div className="w-full flex flex-col">
+                                    <label className="text-xs font-medium">
+                                        Expiry Date <span className="text-[9px] text-gray-500">(Optional)</span>
+                                    </label>
+                                    <input
+                                        type="date"
+                                        value={itemForm.expiry_date}
+                                        onChange={(e) => setItemForm({ ...itemForm, expiry_date: e.target.value })}
+                                        min={minExpiryDate}
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                    />
+                                </div>
+
+                                <div className="w-full flex flex-col">
+                                    <label className="text-xs font-medium">Item Image</label>
+                                    <input
+                                        type="file"
+                                        onChange={(e) => setItemForm({ ...itemForm, image: e.target.files[0] })}
+                                        className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                    />
+                                </div>
+
                                 <div className="w-full flex flex-col md:col-span-2">
                                     <label className="text-xs font-medium">Notes</label>
                                     <textarea
                                         value={itemForm.notes}
                                         onChange={(e) => setItemForm({ ...itemForm, notes: e.target.value })}
                                         className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs resize-none h-20"
-                                    />
-                                </div>
-
-                                <div className="w-full flex flex-col md:col-span-2">
-                                    <label className="text-xs font-medium">Item Image</label>
-                                    <input
-                                        type="file"
-                                        onChange={(e) => setItemForm({ ...itemForm, image: e.target.files[0] })}
-                                        className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                 </div>
                             </div>

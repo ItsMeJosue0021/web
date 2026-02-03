@@ -1,16 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
 import Admin from "../../../layouts/Admin";
-import { _get, _put } from "../../../api";
+import { _get, _post } from "../../../api";
 import CircularLoading from "../../../components/CircularLoading";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
 import { toast } from "react-toastify";
 
 const WebContactUs = () => {
+    const storageBase = "https://api.kalingangkababaihan.com/storage/";
     const [formData, setFormData] = useState({
         telephone_number: "",
         phone_number: "",
         email_address: "",
         physical_address: "",
+        image_path: "",
     });
     const [originalData, setOriginalData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -18,6 +20,9 @@ const WebContactUs = () => {
     const [validationErrors, setValidationErrors] = useState({});
     const [showSuccessAlert, setShowSuccessAlert] = useState(false);
     const [successMessage, setSuccessMessage] = useState("");
+    const [imageFile, setImageFile] = useState(null);
+    const [imagePreview, setImagePreview] = useState("");
+    const [existingImage, setExistingImage] = useState("");
 
     const fetchContactInfo = async () => {
         setLoading(true);
@@ -29,9 +34,18 @@ const WebContactUs = () => {
                 phone_number: data.phone_number || "",
                 email_address: data.email_address || "",
                 physical_address: data.physical_address || "",
+                image_path: data.image_path || "",
             };
             setFormData(cleaned);
             setOriginalData(cleaned);
+            setImageFile(null);
+            setImagePreview("");
+            const resolvedImage = data.image_path
+                ? (data.image_path.startsWith("http")
+                    ? data.image_path
+                    : `${storageBase}${data.image_path}`)
+                : "";
+            setExistingImage(resolvedImage);
         } catch (error) {
             console.error("Error fetching contact info:", error);
             toast.error("Unable to load contact information.");
@@ -46,8 +60,9 @@ const WebContactUs = () => {
 
     const hasChanges = useMemo(() => {
         if (!originalData) return false;
-        return JSON.stringify(formData) !== JSON.stringify(originalData);
-    }, [formData, originalData]);
+        const hasDataChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+        return hasDataChanges || Boolean(imageFile);
+    }, [formData, imageFile, originalData]);
 
     const handleChange = (field, value) => {
         // Restrict numbers for phone fields and enforce 11 digits for phone_number
@@ -70,10 +85,22 @@ const WebContactUs = () => {
         setSaving(true);
         try {
             setValidationErrors({});
-            await _put("/contact-info", formData);
+            const payload = new FormData();
+            payload.append("telephone_number", formData.telephone_number);
+            payload.append("phone_number", formData.phone_number);
+            payload.append("email_address", formData.email_address);
+            payload.append("physical_address", formData.physical_address);
+            payload.append("image_path", formData.image_path || "");
+            if (imageFile) {
+                payload.append("image", imageFile);
+            }
+            await _post("/contact-info", payload);
             setSuccessMessage("Contact information saved successfully.");
             setShowSuccessAlert(true);
             setOriginalData(formData);
+            setImageFile(null);
+            setImagePreview("");
+            fetchContactInfo();
         } catch (error) {
             console.error("Error saving contact info:", error);
             if (error.response?.status === 422 && error.response?.data?.errors) {
@@ -84,6 +111,24 @@ const WebContactUs = () => {
         } finally {
             setSaving(false);
         }
+    };
+
+    const handleImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImageFile(file);
+        setImagePreview(URL.createObjectURL(file));
+    };
+
+    const handleRemoveSelectedImage = () => {
+        if (imagePreview) {
+            URL.revokeObjectURL(imagePreview);
+        }
+        setImageFile(null);
+        setImagePreview("");
     };
 
     const header = {
@@ -185,6 +230,41 @@ const WebContactUs = () => {
                                 {validationErrors.physical_address && (
                                     <p className="text-xs text-red-500">{validationErrors.physical_address[0]}</p>
                                 )}
+                            </div>
+
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold text-gray-700">Image</label>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <div className="w-full sm:w-40 h-28 bg-gray-50 rounded overflow-hidden flex items-center justify-center text-[11px] text-gray-400">
+                                        {(imagePreview || existingImage) ? (
+                                            <img
+                                                src={imagePreview || existingImage}
+                                                alt="Contact"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            "No image"
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleImageChange}
+                                            className="w-full text-xs"
+                                        />
+                                        <p className="text-[11px] text-gray-500 mt-1">Upload a new image to replace the current one.</p>
+                                        {imagePreview && (
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveSelectedImage}
+                                                className="text-[11px] text-red-600 hover:text-red-700 mt-2"
+                                            >
+                                                Remove selected image
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
                         </form>
                     )}

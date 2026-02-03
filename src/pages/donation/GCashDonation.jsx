@@ -61,7 +61,7 @@ const GCashDonation = () => {
                     <div className="w-full max-w-[700px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
                         <div className="w-full flex flex-col items-start justify-start gap-3 mb-4">
                             <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">GCash Donation</p>
-                            <p className="text-lg text-gray-800 font-semibold">We'd love to say thank you</p>
+                            <p className="text-lg text-gray-800 font-semibold">We&apos;d love to say thank you</p>
                             <p className="text-sm text-gray-600">Share your details so we can properly record your donation and express our gratitude.</p>
                         </div>
 

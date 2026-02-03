@@ -17,6 +17,10 @@ const GoodsDonations = () => {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
     const [deleteId, setDeleteId] = useState(null);
+    const [isRejectOpen, setIsRejectOpen] = useState(false);
+    const [rejectId, setRejectId] = useState(null);
+    const [isRejecting, setIsRejecting] = useState(false);
+    const [rejectReason, setRejectReason] = useState("");
 
     const [toBeEdited, setToBeEdited] = useState(null);
     const [openEdtitModal, setOpenEditModal] = useState(false);
@@ -108,6 +112,12 @@ const GoodsDonations = () => {
         setDeleteId(id);
     }
 
+    const handleConfirmReject = (id) => {
+        setIsRejectOpen(true);
+        setRejectId(id);
+        setRejectReason("");
+    }
+
     const handleDelete = async (id) => {
         setIsDeleting(true);
         try {
@@ -129,6 +139,41 @@ const GoodsDonations = () => {
             });
         }
     }
+
+    const handleReject = async (id) => {
+        setIsRejecting(true);
+        try {
+            const response = await _put(`/goods-donations/v2/${id}/reject`, { reason: rejectReason });
+            if (response.status === 200) {
+                toast.success("Donation rejected successfully.");
+            }
+        } catch (error) {
+            toast.error("Error rejecting donation.");
+            console.log(error);
+        } finally {
+            setIsRejecting(false);
+            setIsRejectOpen(false);
+            setRejectId(null);
+            setRejectReason("");
+            fetchDonations({
+                month: selectedMonth,
+                year: selectedYear,
+                name: searchTerm,
+            });
+        }
+    }
+
+    const getStatusLabel = (donation) => {
+        return donation.status || donation.state || donation.approval_status || "pending";
+    };
+
+    const getStatusClasses = (status) => {
+        const normalized = `${status}`.toLowerCase();
+        if (normalized === "approved") return "text-green-600 bg-green-50";
+        if (normalized === "rejected") return "text-red-600 bg-red-50";
+        if (normalized === "pending") return "text-yellow-600 bg-yellow-50";
+        return "text-gray-600 bg-gray-100";
+    };
 
     const handleCategoryChange = (e) => {
         const { value, checked } = e.target;
@@ -302,8 +347,9 @@ const GoodsDonations = () => {
                             <th className="p-3 text-start">Desciption</th>
                             <th className="p-3 text-start">Email</th>
                             <th className="p-3 text-start">Type of Donation</th>
-                             <th className="p-3 text-start">Address</th>
-                            {/* <th className="p-3 text-end">Actions</th> */}
+                            <th className="p-3 text-start">Address</th>
+                            <th className="p-3 text-start">Status</th>
+                            <th className="p-3 text-end">Actions</th>
                         </tr>
                         </thead>
                         
@@ -337,10 +383,19 @@ const GoodsDonations = () => {
                                             }
                                         </td>
                                         <td className="p-3">{donation.address || ''}</td>
-                                        {/* <td className="p-3 h-full flex items-center justify-end gap-2">
-                                            <button onClick={() => handleEdit(donation)} className="bg-blue-50 text-blue-600 px-1 py-1 rounded"><Edit size={16} /></button>
-                                            <button onClick={() => handleConfirmDelete(donation.id)} className="bg-red-50 text-red-600 px-1 py-1 rounded" ><Trash2 size={16} /></button>
-                                        </td> */}
+                                        <td className="p-3">
+                                            <span className={`inline-block px-2 py-1 rounded text-[10px] capitalize ${getStatusClasses(getStatusLabel(donation))}`}>
+                                                {getStatusLabel(donation)}
+                                            </span>
+                                        </td>
+                                        <td className="p-3 h-full flex items-center justify-end gap-2">
+                                            <button
+                                                onClick={() => handleConfirmReject(donation.id)}
+                                                className="bg-red-50 text-red-600 px-2 py-1 rounded text-[10px]"
+                                            >
+                                                Reject
+                                            </button>
+                                        </td>
                                     </tr>
                                 ))}
                             </tbody>
@@ -357,6 +412,43 @@ const GoodsDonations = () => {
                 isDelete={true}
                 isDeleting={isDeleting}
                 />
+            )}
+            {isRejectOpen && (
+                <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-5">
+                        <div className="mb-3">
+                            <p className="text-sm font-semibold text-gray-800">Reject Goods Donation</p>
+                            <p className="text-xs text-gray-500">Add a reason for rejecting this donation.</p>
+                        </div>
+                        <textarea
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-xs min-h-[90px] focus:ring-2 focus:ring-orange-200 outline-none"
+                            placeholder="Enter the reason for rejection..."
+                        />
+                        <div className="flex items-center justify-end gap-2 mt-4">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setIsRejectOpen(false);
+                                    setRejectId(null);
+                                    setRejectReason("");
+                                }}
+                                className="text-xs px-3 py-2 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={() => handleReject(rejectId)}
+                                disabled={isRejecting || !rejectReason.trim()}
+                                className={`text-xs px-3 py-2 rounded text-white ${isRejecting || !rejectReason.trim() ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"}`}
+                            >
+                                {isRejecting ? "Rejecting..." : "Reject Donation"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
             )}
 
             {openEdtitModal && toBeEdited && (

@@ -84,11 +84,10 @@ const GCashDonationsAdmin = () => {
     };
 
     const formatDate = (dateString) => {
+        if (!dateString) return "";
         const date = new Date(dateString);
-        const m = [
-            "January","February","March","April","May","June",
-            "July","August","September","October","November","December"
-        ];
+        if (Number.isNaN(date.getTime())) return "";
+        const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     };
 
@@ -164,8 +163,13 @@ const GCashDonationsAdmin = () => {
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
                     <SummaryCard label="Total amount" value={formatCurrency(listSummary.total)} sub="Current view" accent="blue" />
                     <SummaryCard label="Paid donations" value={listSummary.paid} sub="GCash only" accent="green" />
-                    <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" />
-                    <SummaryCard label="Report range" value={`${dateFrom} → ${dateTo}`} sub="Report filters" accent="purple" />
+                    {/* <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" /> */}
+                    <SummaryCard
+                        label="Report range"
+                        value={`${dateFrom ? formatDate(dateFrom) : "--"} → ${dateTo ? formatDate(dateTo) : "--"}`}
+                        sub="Report filters"
+                        accent="purple"
+                    />
                 </div>
 
                 {/* Filters */}

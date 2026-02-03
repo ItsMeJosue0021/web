@@ -1,10 +1,10 @@
-import { X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 import { useEffect, useState } from "react";
-import { _get, _post, _delete } from "../api";
+import { _get, _post, _put, _delete } from "../api";
 import { Modal } from "flowbite-react";
 import ModalContainer from "./ModalContainer";
 import ConfirmationAlert from "./alerts/ConfirmationAlert";
-import { set } from "lodash";
+import WarningAlert from "./alerts/WarningAlert";
 
 const ItemizerModal = ({ donation, fetchDonations }) => {
 
@@ -15,6 +15,11 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
     const [loading, setLoading] = useState(false);
     const [addItemModalOpen, setAddItemModalOpen] = useState(false);
     const [saving, setSaving] = useState(false);
+    const [actionModal, setActionModal] = useState(null);
+    const [actionLoading, setActionLoading] = useState(false);
+    const [showItemizeWarning, setShowItemizeWarning] = useState(false);
+    const [donationStatus, setDonationStatus] = useState(donation?.status);
+    const [rejectReason, setRejectReason] = useState("");
 
     // categories
     const [categories, setCategories] = useState([]);
@@ -77,6 +82,10 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         fetchDonationItems();
         fetchCategories();
     }, []);
+    
+    useEffect(() => {
+        setDonationStatus(donation?.status);
+    }, [donation]);
 
     const fetchCategories = async () => {
         try {
@@ -185,6 +194,40 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         }
     };
 
+    const openApproveModal = () => {
+        if (items.length === 0) {
+            setShowItemizeWarning(true);
+            return;
+        }
+        setActionModal("approve");
+    };
+
+    const openRejectModal = () => {
+        setActionModal("reject");
+        setRejectReason("");
+    };
+
+    const handleDonationAction = async () => {
+        if (!actionModal) return;
+
+        setActionLoading(true);
+        try {
+            if (actionModal === "approve") {
+                await _put(`/goods-donations/v2/${donation.id}/approve`);
+            } else {
+                await _put(`/goods-donations/v2/${donation.id}/reject`, { reason: rejectReason });
+            }
+            fetchDonations();
+            setDonationStatus(actionModal === "approve" ? "approved" : "rejected");
+        } catch (error) {
+            console.error("Error updating donation:", error);
+        } finally {
+            setActionLoading(false);
+            setActionModal(null);
+            setRejectReason("");
+        }
+    };
+
     const getCategoryName = (id) => {
         const category = categories.find(cat => cat.id == Number(id));
         return category ? category.name : "Unknown";
@@ -198,8 +241,49 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         return "Unknown";
     };
 
+    const normalizeDatePart = (dateString) => {
+        if (!dateString) return "";
+        return `${dateString}`.split("T")[0];
+    };
+
+    const toLocalDate = (dateString) => {
+        const datePart = normalizeDatePart(dateString);
+        if (!datePart) return null;
+        const [year, month, day] = datePart.split("-").map(Number);
+        if (!year || !month || !day) return null;
+        return new Date(year, month - 1, day);
+    };
+
+    const getDaysUntil = (dateString) => {
+        const date = toLocalDate(dateString);
+        if (!date) return null;
+        const today = new Date();
+        const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+        const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
+        const diffMs = startDate - startToday;
+        return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
+    };
+
+    const getExpiryMeta = (dateString) => {
+        const datePart = normalizeDatePart(dateString);
+        if (!datePart) {
+            return {
+                label: "No Expiry",
+                className: "bg-gray-100 text-gray-600 border border-gray-200"
+            };
+        }
+        const daysRemaining = getDaysUntil(datePart);
+        const isExpiringSoon = daysRemaining !== null && daysRemaining <= 30;
+        return {
+            label: datePart,
+            className: isExpiringSoon
+                ? "bg-red-50 text-red-700 border border-red-200"
+                : "bg-gray-100 text-gray-700 border border-gray-200"
+        };
+    };
+
     return (
-        <div className="w-full h-full flex flex-col items-center gap-4 md:p-4 mx-auto bg-white">
+        <div className="w-full h-full flex flex-col items-center gap-4 md:p-4 mx-auto bg-white hide-scrollbar">
             {deleteItemId && (
                 <ConfirmationAlert 
                     title="Delete Item"
@@ -210,7 +294,61 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                     onClose={() => setDeleteItemId(null)}
                 />
             )}
-            <div className="w-full max-w-[800px] pb-8 md:pb-0">
+            {showItemizeWarning && (
+                <WarningAlert
+                    title="Action Required"
+                    message="Please itemize the donation first before confirming it."
+                    onClose={() => setShowItemizeWarning(false)}
+                />
+            )}
+            {actionModal === "approve" && (
+                <ConfirmationAlert
+                    onClose={() => setActionModal(null)}
+                    onConfirm={handleDonationAction}
+                    title="Approve Donation"
+                    message="Are you sure you want to approve this donation?"
+                    isConfirming={actionLoading}
+                    confirmLabel="Confirm"
+                    confirmLoadingLabel="Confirming.."
+                />
+            )}
+            {actionModal === "reject" && (
+                <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
+                    <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-5">
+                        <div className="mb-3">
+                            <p className="text-sm font-semibold text-gray-800">Reject Donation</p>
+                            <p className="text-xs text-gray-500">Provide a reason for rejection.</p>
+                        </div>
+                        <textarea
+                            value={rejectReason}
+                            onChange={(e) => setRejectReason(e.target.value)}
+                            className="w-full border border-gray-200 rounded px-3 py-2 text-xs min-h-[90px] focus:ring-2 focus:ring-orange-200 outline-none"
+                            placeholder="Enter the reason for rejection..."
+                        />
+                        <div className="flex items-center justify-end gap-2 mt-4">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setActionModal(null);
+                                    setRejectReason("");
+                                }}
+                                className="text-xs px-3 py-2 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                type="button"
+                                onClick={handleDonationAction}
+                                disabled={actionLoading || !rejectReason.trim()}
+                                className={`text-xs px-3 py-2 rounded text-white ${actionLoading || !rejectReason.trim() ? "bg-red-300 cursor-not-allowed" : "bg-red-600 hover:bg-red-700"}`}
+                            >
+                                {actionLoading ? "Rejecting..." : "Reject Donation"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+            <div className="w-full max-w-[800px] pb-8 md:pb-0 ">
                 <div className="mb-6 rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4 md:p-5 shadow-sm">
                     <div className="flex flex-col gap-1">
                         <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">Donation overview</p>
@@ -231,16 +369,45 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                 </div>
 
                 <div className="">
-                    <div className="w-full flex items-center justify-between">
+                    <div className="w-full flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
                         <div>
                             <p className="text-sm font-semibold text-gray-900">Items</p>
                             <p className="text-xs text-gray-500">Track each donated item with details and notes.</p>
                         </div>
-                        <button
-                            onClick={() => setAddItemModalOpen(true)}
-                            className="text-xs rounded-full px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none shadow-sm">
-                            Add Items
-                        </button>
+                        <div className="flex flex-wrap items-center gap-2">
+                            {donationStatus === "approved" ? (
+                                <span className="rounded-full bg-green-50 px-3 py-1 text-[11px] font-semibold text-green-700 border border-green-100">
+                                    Approved
+                                </span>
+                            ) : donationStatus === "rejected" ? (
+                                <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-semibold text-red-700 border border-red-100">
+                                    Rejected
+                                </span>
+                            ) : (
+                                <>
+                                    <button
+                                        type="button"
+                                        onClick={openRejectModal}
+                                        className="text-xs rounded-full px-4 py-2 cursor-pointer bg-red-50 text-red-700 border border-red-100 hover:bg-red-100"
+                                    >
+                                        Reject
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={openApproveModal}
+                                        disabled={loading || items.length === 0}
+                                        className={`text-xs rounded-full px-4 py-2 cursor-pointer border ${loading || items.length === 0 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-green-600 text-white border-green-600 hover:bg-green-700"}`}
+                                    >
+                                        Confirm
+                                    </button>
+                                </>
+                            )}
+                            <button
+                                onClick={() => setAddItemModalOpen(true)}
+                                className="text-xs rounded-full px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none shadow-sm">
+                                Add Items
+                            </button>
+                        </div>
                     </div>
 
                     <div className="w-full h-auto min-h-80 mt-3 flex flex-col gap-4">
@@ -249,7 +416,9 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                 <p className="text-xs text-center text-gray-500">Loading items...</p>
                             </div>
                         ) : (
-                            items.length > 0 && items.map((item, index) => (
+                            items.length > 0 && items.map((item) => {
+                                const expiryMeta = getExpiryMeta(item.expiry_date || item.expiryDate);
+                                return (
                                 <div key={item.id} className="relative h-auto overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
                                     <div className="w-full h-auto flex flex-col md:flex-row items-start md:items-center gap-4">
                                         <img 
@@ -284,18 +453,24 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                                     <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Notes</p>
                                                     <p className="text-xs font-medium text-gray-700">{item.notes || "..."}</p>
                                                 </div>
+                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
+                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Expiry Date</p>
+                                                    <span className={`inline-flex items-center rounded px-2 py-1 text-[11px] font-semibold ${expiryMeta.className}`}>
+                                                        {expiryMeta.label}
+                                                    </span>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>
                                     <button
                                         onClick={() => setDeleteItemId(item.id)}
-                                        className="absolute right-3 top-3 rounded-full border border-gray-200 bg-white p-1 text-gray-400 transition hover:border-red-200 hover:text-red-500"
+                                        className="absolute right-3 top-3 rounded-full bg-white p-1 text-gray-400 transition hover:border-red-200 hover:text-red-500"
                                         aria-label="Delete item"
                                     >
-                                        <X className="min-w-4 w-4 min-h-4 h-4" />
+                                        <Trash2 className="min-w-4 w-4 min-h-4 h-4" />
                                     </button>
                                 </div>
-                            ))
+                            )})
                         )}
                         {items.length === 0 && !loading && (
                             <div className="min-h-48 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
@@ -308,18 +483,18 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
 
             {addItemModalOpen && (
                 <ModalContainer isFull={false} close={() => setAddItemModalOpen(false)}>
-                    <div className="w-full max-w-[600px] bg-white rounded-xl p-5 ">
+                    <div className="w-full max-w-[760px] bg-white rounded-xl p-5">
                         <div>
                             <div>
                                 <h2 className="text-lg font-semibold text-orange-600">Add New Item</h2>
                                 <p className="text-xs">You are about to add an item to an existing donation.</p>
                             </div>
 
-                            <div className="w-full flex flex-col space-y-4 py-4">
+                            <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
 
                                 {/* NAME */}
-                                <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Name</label>
+                                <div className="w-full flex flex-col md:col-span-2">
+                                    <label className="text-xs font-medium">Name <span className="text-red-500">*</span></label>
                                     <input
                                         type="text"
                                         value={form.name}
@@ -332,7 +507,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
 
                                 {/* CATEGORY */}
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Category</label>
+                                    <label className="text-xs font-medium">Category <span className="text-red-500">*</span></label>
                                     <select
                                         value={form.category_id}
                                         onChange={handleCategoryChange}
@@ -348,7 +523,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
 
                                 {/* SUBCATEGORY */}
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Subcategory</label>
+                                    <label className="text-xs font-medium">Subcategory <span className="text-red-500">*</span></label>
                                     <select
                                         value={form.subcategory_id}
                                         onChange={(e) => setForm({ ...form, subcategory_id: e.target.value })}
@@ -363,33 +538,31 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                 </div>
 
                                 {/* QUANTITY + UNIT */}
-                                <div className="flex flex-col mf:flex-row items-start gap-4">
-                                    <div className="w-full flex flex-col">
-                                        <label className="text-xs font-medium">Quantity</label>
-                                        <input
-                                            type="text"
-                                            value={form.quantity}
-                                            onChange={(e) => setForm({ ...form, quantity: e.target.value })}
-                                            className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
-                                        />
-                                        {errors.quantity && <p className="text-red-500 text-xs">{errors.quantity}</p>}
-                                    </div>
+                                <div className="w-full flex flex-col">
+                                    <label className="text-xs font-medium">Quantity <span className="text-red-500">*</span></label>
+                                    <input
+                                        type="text"
+                                        value={form.quantity}
+                                        onChange={(e) => setForm({ ...form, quantity: e.target.value })}
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                    />
+                                    {errors.quantity && <p className="text-red-500 text-xs">{errors.quantity}</p>}
+                                </div>
 
-                                    <div className="w-full flex flex-col">
-                                        <label className="text-xs font-medium">Unit</label>
-                                        <select
-                                            value={form.unit}
-                                            onChange={(e) => setForm({ ...form, unit: e.target.value })}
-                                            className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
-                                        >
-                                            <option value="">Select unit...</option>
-                                            {unitOptions.map((option) => (
-                                                <option key={option.unit} value={option.unit}>
-                                                    {option.description}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    </div>
+                                <div className="w-full flex flex-col">
+                                    <label className="text-xs font-medium">Unit</label>
+                                    <select
+                                        value={form.unit}
+                                        onChange={(e) => setForm({ ...form, unit: e.target.value })}
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                    >
+                                        <option value="">Select unit...</option>
+                                        {unitOptions.map((option) => (
+                                            <option key={option.unit} value={option.unit}>
+                                                {option.description}
+                                            </option>
+                                        ))}
+                                    </select>
                                 </div>
 
                                 {/* NOTES */}
@@ -408,7 +581,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <input
                                         type="file"
                                         onChange={(e) => setForm({ ...form, image: e.target.files[0] })}
-                                        className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="max-h-10 bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                 </div>
                             </div>

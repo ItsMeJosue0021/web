@@ -4,9 +4,6 @@ import Admin from "../../../layouts/Admin";
 import Logo from "../../../components/Logo";
 import { AnimatePresence, motion } from "framer-motion";
 import CircularLoading from "../../../components/CircularLoading";
-import ConfirmationAlert from "../../../components/alerts/ConfirmationAlert";
-import SuccesAlert from "../../../components/alerts/SuccesAlert";
-import WarningAlert from "../../../components/alerts/WarningAlert";
 import ModalContainer from "../../../components/ModalContainer";
 import ItemizerModal from "../../../components/ItemizerModal";
 import { X, Search, Filter, Package } from "lucide-react";
@@ -18,11 +15,8 @@ const GoodsDonationsAdmin = () => {
     const [year, setYear] = useState("");
     const [month, setMonth] = useState("");
     const [loading, setLoading] = useState(true);
-    const [toBeApproved, setToBeApproved] = useState(null);
-    const [success, setSuccess] = useState(false);
     const [editingCell, setEditingCell] = useState({ id: null, field: null });
     const [updatingCell, setUpdatingCell] = useState({ id: null, field: null });
-    const [approvingId, setApprovingId] = useState(null);
 
     // reports
     const [isReportView, setIsReportView] = useState(false);
@@ -50,11 +44,10 @@ const GoodsDonationsAdmin = () => {
     const printBtnRef = useRef();
 
     const formatDate = (dateString) => {
+        if (!dateString) return "";
         const date = new Date(dateString);
-        const m = [
-            "January","February","March","April","May","June",
-            "July","August","September","October","November","December"
-        ];
+        if (Number.isNaN(date.getTime())) return "";
+        const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
         return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     };
 
@@ -135,20 +128,6 @@ const GoodsDonationsAdmin = () => {
         }
     };
 
-    const approveDonation = async (id) => {
-        setApprovingId(id);
-        try {
-            const response = await _put(`/goods-donations/v2/${id}/approve`);
-            fetchDonations();
-            setToBeApproved(null);
-            if (response.status === 200) setSuccess(true);
-        } catch (error) {
-            console.error("Error approving donation:", error);
-        } finally {
-            setApprovingId(null);
-        }
-    };
-
     const updateDonation = async (id, payload) => {
         try {
             await _put(`/goods-donations/${id}/name-description`, payload);
@@ -220,7 +199,12 @@ const GoodsDonationsAdmin = () => {
                     <SummaryCard label="Total donations" value={listSummary.count} sub="Current view" accent="blue" />
                     <SummaryCard label="Approved donations" value={listSummary.approved} sub="Goods only" accent="green" />
                     <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" />
-                    <SummaryCard label="Report range" value={`${dateFrom} → ${dateTo}`} sub="Report filters" accent="purple" />
+                    <SummaryCard
+                        label="Report range"
+                        value={`${dateFrom ? formatDate(dateFrom) : "--"} → ${dateTo ? formatDate(dateTo) : "--"}`}
+                        sub="Report filters"
+                        accent="purple"
+                    />
                 </div>
 
                 {/* Filters */}
@@ -422,18 +406,10 @@ const GoodsDonationsAdmin = () => {
 
                                         <td className="p-2 text-center">
                                             <div className="flex items-center gap-2 justify-end">
-                                                {donation.status !== "approved" && (
-                                                    <button
-                                                        onClick={() => setToBeApproved(donation)}
-                                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
-                                                    >
-                                                        Confirm
-                                                    </button>
-                                                )}
                                                 <button
                                                     onClick={() => openItemizerModal(donation)} 
                                                     className={`rounded text-xs px-3 py-1 cursor-pointer ${donation.items_count > 0 ? 'bg-gray-200 text-gray-700' : 'bg-blue-600 text-white'}`}>
-                                                    {donation.items_count > 0 ? 'Items' : 'Itemize' }
+                                                    {donation.items_count > 0 ? 'View' : 'Itemize' }
                                                 </button>
                                                 
                                             </div>
@@ -454,35 +430,6 @@ const GoodsDonationsAdmin = () => {
                         fetchDonations={() => fetchDonations()}
                     />
                 </ModalContainer>
-            )}
-
-            {/* CONFIRMATION / WARNING MODALS */}
-            {toBeApproved && (
-                toBeApproved.items_count > 0 ? (
-                    <ConfirmationAlert
-                        onClose={() => setToBeApproved(null)}
-                        onConfirm={() => approveDonation(toBeApproved.id)}
-                        title="Approve Donation"
-                        message="Are you sure you want to approve this donation?"
-                        isConfirming={approvingId === toBeApproved.id}
-                        confirmLabel="Confirm"
-                        confirmLoadingLabel="Confirming.."
-                    />
-                ) : (
-                    <WarningAlert
-                        title="Action Required"
-                        message="Please itemize the donation first before confirming it."
-                        onClose={() => setToBeApproved(null)}
-                    />
-                )
-            )}
-
-            {/* SUCCESS MESSAGE */}
-            {success && (
-                <SuccesAlert
-                    message="Donation approved successfully."
-                    onClose={() => setSuccess(false)}
-                />
             )}
 
             {/* REPORT MODAL */}

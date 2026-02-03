@@ -9,8 +9,13 @@ const ConfirmationAlert = ({
   isDeleting,
   isConfirming,
   confirmLabel = "Proceed",
-  confirmLoadingLabel = "Confirming.."
+  confirmLoadingLabel = "Confirming..",
+  confirmButtonClassName,
+  titleClassName
 }) => {
+  const resolvedTitleClassName = titleClassName ?? (isDelete ? 'text-red-600' : 'text-green-600');
+  const confirmButtonClasses = confirmButtonClassName ?? 'bg-green-500 text-white hover:bg-green-600';
+
   return (
     <AnimatePresence>
       <motion.div
@@ -27,7 +32,7 @@ const ConfirmationAlert = ({
           exit={{ scale: 0.95, opacity: 0 }}
           transition={{ duration: 0.2 }}
         >
-          <h1 className={`text-base font-semibold ${isDelete ? 'text-red-600' : 'text-green-600'}`}>{title}</h1>
+          <h1 className={`text-base font-semibold ${resolvedTitleClassName}`}>{title}</h1>
           <p className="text-sm">{message}</p>
           <div className="flex items-center justify-end gap-2">
             {isDelete ? (
@@ -42,7 +47,7 @@ const ConfirmationAlert = ({
               <button
                 onClick={onConfirm}
                 disabled={isConfirming}
-                className={`text-xs px-4 py-2 rounded bg-green-500 text-white border-0 ${isConfirming ? "opacity-60 cursor-not-allowed" : "hover:bg-green-600"}`}
+                className={`text-xs px-4 py-2 rounded border-0 ${confirmButtonClasses} ${isConfirming ? "opacity-60 cursor-not-allowed" : ""}`}
               >
                 {isConfirming ? confirmLoadingLabel : confirmLabel}
               </button>

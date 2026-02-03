@@ -52,6 +52,14 @@ const CashDonationsAdmin = () => {
         return `₱ ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
     };
 
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return "";
+        const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+        return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+
     const containerRef = useRef();
     const printBtnRef = useRef();
 
@@ -193,7 +201,12 @@ const CashDonationsAdmin = () => {
                     <SummaryCard label="Total amount" value={formatCurrency(listSummary.total)} sub="Current view" accent="green" />
                     <SummaryCard label="Approved donations" value={listSummary.approved} sub="Cash only" accent="blue" />
                     <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" />
-                    <SummaryCard label="Report range" value={`${dateFrom} → ${dateTo}`} sub="Report filters" accent="purple" />
+                    <SummaryCard
+                        label="Report range"
+                        value={`${dateFrom ? formatDate(dateFrom) : "--"} → ${dateTo ? formatDate(dateTo) : "--"}`}
+                        sub="Report filters"
+                        accent="purple"
+                    />
                 </div>
 
                 {/* SEARCH & FILTERS */}
@@ -421,11 +434,8 @@ const CashDonationsAdmin = () => {
                                 <div className="text-center mt-5">
                                     <p className="font-bold">Cash Donations Report</p>
                                     <p className="text-xs text-gray-600">
-                                        From <span>{dateFrom || "--date--"}</span> to <span>{dateTo || "--date--"}</span>
+                                        From <span>{dateFrom ? formatDate(dateFrom) : "--date--"}</span> to <span>{dateTo ? formatDate(dateTo) : "--date--"}</span>
                                     </p>
-                                    {/* <p className="text-xs text-gray-600">
-                                        From <span>{dateFrom}</span> to <span>{dateTo}</span>
-                                    </p> */}
                                 </div>
 
                                 <div className="flex items-center gap-5 mt-6 text-xs font-medium">

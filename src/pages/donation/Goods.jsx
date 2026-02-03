@@ -40,6 +40,7 @@ const Goods = () => {
         notes: "",
         image: null
     });
+    const [itemImagePreview, setItemImagePreview] = useState("");
 
     const [isItemModalOpen, setIsItemModalOpen] = useState(false);
     const [editingItemId, setEditingItemId] = useState(null);
@@ -162,6 +163,10 @@ const Goods = () => {
             notes: "",
             image: null
         });
+        if (itemImagePreview) {
+            URL.revokeObjectURL(itemImagePreview);
+        }
+        setItemImagePreview("");
         setFilteredSubcategories([]);
         setItemErrors({});
     };
@@ -235,6 +240,14 @@ const Goods = () => {
             notes: item.notes,
             image: item.image || null
         });
+        if (itemImagePreview) {
+            URL.revokeObjectURL(itemImagePreview);
+        }
+        if (item.image && item.image instanceof File) {
+            setItemImagePreview(URL.createObjectURL(item.image));
+        } else {
+            setItemImagePreview("");
+        }
         setItemErrors({});
         setEditingItemId(item.id);
         setIsItemModalOpen(true);
@@ -464,15 +477,13 @@ const Goods = () => {
                                                                 <th className="p-2 text-left">Quantity</th>
                                                                 <th className="p-2 text-left">Unit</th>
                                                                 <th className="p-2 text-left">Expiry Date</th>
-                                                                <th className="p-2 text-left">Notes</th>
-                                                                <th className="p-2 text-left">Image</th>
                                                                 <th className="p-2 text-left">Action</th>
                                                             </tr>
                                                         </thead>
                                                         <tbody>
                                                             {items.length === 0 ? (
                                                                 <tr>
-                                                                    <td colSpan={9} className="p-3 text-center text-gray-500">
+                                                                    <td colSpan={7} className="p-3 text-center text-gray-500">
                                                                         No items added yet.
                                                                     </td>
                                                                 </tr>
@@ -485,8 +496,6 @@ const Goods = () => {
                                                                         <td className="p-2">{item.quantity}</td>
                                                                         <td className="p-2">{item.unit || "-"}</td>
                                                                         <td className="p-2">{item.expiry_date || "-"}</td>
-                                                                        <td className="p-2">{item.notes || "-"}</td>
-                                                                        <td className="p-2">{item.image ? item.image.name : "-"}</td>
                                                                         <td className="p-2">
                                                                             <div className="flex items-center gap-3">
                                                                                 <button
@@ -494,7 +503,7 @@ const Goods = () => {
                                                                                     onClick={() => openEditItemModal(item)}
                                                                                     className="text-orange-600 hover:text-orange-700"
                                                                                 >
-                                                                                    Edit
+                                                                                    View
                                                                                 </button>
                                                                                 <button
                                                                                     type="button"
@@ -607,14 +616,12 @@ const Goods = () => {
                                                             <th className="p-2 text-left">Quantity</th>
                                                             <th className="p-2 text-left">Unit</th>
                                                             <th className="p-2 text-left">Expiry Date</th>
-                                                            <th className="p-2 text-left">Notes</th>
-                                                            <th className="p-2 text-left">Image</th>
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                         {items.length === 0 ? (
                                                             <tr>
-                                                                <td colSpan={8} className="p-3 text-center text-gray-500">
+                                                                <td colSpan={6} className="p-3 text-center text-gray-500">
                                                                     No items added.
                                                                 </td>
                                                             </tr>
@@ -627,8 +634,6 @@ const Goods = () => {
                                                                     <td className="p-2">{item.quantity}</td>
                                                                     <td className="p-2">{item.unit || "-"}</td>
                                                                     <td className="p-2">{item.expiry_date || "-"}</td>
-                                                                    <td className="p-2">{item.notes || "-"}</td>
-                                                                    <td className="p-2">{item.image ? item.image.name : "-"}</td>
                                                                 </tr>
                                                             ))
                                                         )}
@@ -857,7 +862,7 @@ const Goods = () => {
                                         value={itemForm.expiry_date}
                                         onChange={(e) => setItemForm({ ...itemForm, expiry_date: e.target.value })}
                                         min={minExpiryDate}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs max-h-10"
                                     />
                                 </div>
 
@@ -865,9 +870,25 @@ const Goods = () => {
                                     <label className="text-xs font-medium">Item Image</label>
                                     <input
                                         type="file"
-                                        onChange={(e) => setItemForm({ ...itemForm, image: e.target.files[0] })}
+                                        onChange={(e) => {
+                                            const file = e.target.files[0];
+                                            if (itemImagePreview) {
+                                                URL.revokeObjectURL(itemImagePreview);
+                                            }
+                                            setItemImagePreview(file ? URL.createObjectURL(file) : "");
+                                            setItemForm({ ...itemForm, image: file || null });
+                                        }}
                                         className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
+                                    {itemImagePreview && (
+                                        <div className="mt-2">
+                                            <img
+                                                src={itemImagePreview}
+                                                alt="Item preview"
+                                                className="w-full max-w-[220px] rounded-lg border border-gray-200 object-cover"
+                                            />
+                                        </div>
+                                    )}
                                 </div>
 
                                 <div className="w-full flex flex-col md:col-span-2">

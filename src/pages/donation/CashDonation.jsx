@@ -75,6 +75,11 @@ const CashDonation = () => {
               </div>
             </Link>
           )}
+          {step !== 4 && (
+            <div className="mb-4 w-full max-w-[850px] mx-auto rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+              This site is in development. Donations are not being accepted yet. Please do not submit any donation or payment at this time.
+            </div>
+          )}
 
           <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
             <div className="w-full flex flex-col items-start justify-start gap-2 mb-4">

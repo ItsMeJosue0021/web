@@ -176,7 +176,7 @@ const GoodsDonationsAdmin = () => {
     const listSummary = useMemo(() => {
         const count = donations.length;
         const approved = donations.filter((d) => d.status === "approved").length;
-        const pending = donations.filter((d) => d.status !== "approved").length;
+        const pending = donations.filter((d) => d.status === "pending").length;
         return { count, approved, pending };
     }, [donations]);
 
@@ -399,6 +399,8 @@ const GoodsDonationsAdmin = () => {
                                         <td className="p-2 capitalize">
                                             {donation.status === "approved" ? (
                                                 <span className="px-2 py-1 rounded-full text-[11px] bg-green-50 text-green-700 border border-green-200">Received</span>
+                                            ) : donation.status === "rejected" ? (
+                                                <span className="px-2 py-1 rounded-full text-[11px] bg-red-50 text-red-700 border border-red-200">Rejected</span>
                                             ) : (
                                                 <span className="px-2 py-1 rounded-full text-[11px] bg-amber-50 text-amber-700 border border-amber-200">Pending</span>
                                             )}

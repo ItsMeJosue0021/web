@@ -95,6 +95,9 @@ const Cash = () => {
                     </div>
                     <div className="w-full flex gap-8 items-start justify-center">
                         <div className="w-full flex flex-col gap-8">
+                            <div className="w-[95%] rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                                This site is in development. Donations are not being accepted yet. Please do not submit any donation or payment at this time.
+                            </div>
                             <div className="w-full flex -items-start gap-4 mt-6">
                                 <div onClick={() => handlePaymentSelect('gcash')} className="w-40 h-16 rounded-xl shadow-sm bg-white transform transition-transform duration-300 hover:scale-105 cursor-pointer relative">
                                     <img src="/gecash.jpg" alt="img" className="w-full h-full object-cover object-center rounded-xl" />

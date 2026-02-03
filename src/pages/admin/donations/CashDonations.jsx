@@ -314,7 +314,7 @@ const CashDonationsAdmin = () => {
                                         <td className="p-2 px-3">{donation.name || "N/A"}</td>
                                         <td className="p-2 px-3">{donation.email || "N/A"}</td>
                                         <td className="p-2 px-3">₱{donation.amount}</td>
-                                        <td className="p-2 px-3">{donation.month} {donation.year}</td>
+                                        <td className="p-2 px-3">{donation.created_at ? formatDate(donation.created_at) : ""}</td>
                                         <td className="p-2 px-3">{donation.drop_off_address}</td>
                                         <td className="p-2 px-3 capitalize">
                                             {donation.status === "approved"

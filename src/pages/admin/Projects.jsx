@@ -49,6 +49,20 @@ const Projects = () => {
     const [categories, setCategories] = useState([]);
     const [selectedItems, setSelectedItems] = useState([]);
     const [savingLiquidation, setSavingLiquidation] = useState(false);
+    const [cashLiquidationForm, setCashLiquidationForm] = useState({
+        amount: "",
+        date_used: "",
+        point_person: "",
+        receipt: null,
+    });
+    const [cashLiquidationErrors, setCashLiquidationErrors] = useState({});
+    const [savingCashLiquidation, setSavingCashLiquidation] = useState(false);
+    const [cashLiquidations, setCashLiquidations] = useState([]);
+    const [cashLiquidationsLoading, setCashLiquidationsLoading] = useState(false);
+    const [cashLiquidationsError, setCashLiquidationsError] = useState("");
+    const [deletingCashLiquidationId, setDeletingCashLiquidationId] = useState(null);
+    const [isCashLiquidationDeleteOpen, setIsCashLiquidationDeleteOpen] = useState(false);
+    const [cashLiquidationDeleteId, setCashLiquidationDeleteId] = useState(null);
     const [existingResourcesLoading, setExistingResourcesLoading] = useState(false);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
@@ -64,6 +78,44 @@ const Projects = () => {
         const date = new Date(value);
         if (Number.isNaN(date.getTime())) return value;
         return date.toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
+    };
+
+    const getFieldErrorMessage = (value) => (Array.isArray(value) ? value[0] : value);
+
+    const extractCashLiquidationCollection = (payload) => {
+        if (Array.isArray(payload)) return payload;
+        if (Array.isArray(payload?.cash_liquidations)) return payload.cash_liquidations;
+        if (Array.isArray(payload?.cashLiquidations)) return payload.cashLiquidations;
+        if (Array.isArray(payload?.liquidations)) return payload.liquidations;
+        if (Array.isArray(payload?.data)) return payload.data;
+        return [];
+    };
+
+    const formatCashAmount = (value) => {
+        const numericValue = Number(value);
+        if (!Number.isFinite(numericValue)) return value ? `${value}` : "0.00";
+        return numericValue.toLocaleString(undefined, {
+            style: "currency",
+            currency: "PHP",
+            minimumFractionDigits: 2,
+        });
+    };
+
+    const formatShortDate = (value) => {
+        if (!value) return "-";
+        const date = new Date(value);
+        if (Number.isNaN(date.getTime())) return `${value}`;
+        return date.toLocaleDateString(undefined, {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+        });
+    };
+
+    const resolveReceiptUrl = (value) => {
+        if (!value) return "";
+        if (/^https?:\/\//i.test(value)) return value;
+        return `${baseURL}${`${value}`.replace(/^\/?storage\//, "")}`;
     };
 
     const totalUsedForItem = (itemId, excludeUid = null, items = selectedItems, includeExisting = false) =>
@@ -365,13 +417,48 @@ const Projects = () => {
         }
     };
 
+    const fetchProjectCashLiquidations = async (projectId) => {
+        if (!projectId) {
+            setCashLiquidations([]);
+            setCashLiquidationsError("");
+            return;
+        }
+
+        setCashLiquidationsLoading(true);
+        setCashLiquidationsError("");
+        try {
+            const response = await _get(`/projects/${projectId}/cash-liquidations`);
+            setCashLiquidations(extractCashLiquidationCollection(response.data));
+        } catch (error) {
+            console.error("Error fetching project cash liquidations:", error);
+            setCashLiquidations([]);
+            setCashLiquidationsError("Unable to load cash liquidation records.");
+        } finally {
+            setCashLiquidationsLoading(false);
+        }
+    };
+
+    const resetCashLiquidationForm = () => {
+        setCashLiquidationForm({
+            amount: "",
+            date_used: "",
+            point_person: "",
+            receipt: null,
+        });
+        setCashLiquidationErrors({});
+    };
+
     const openLiquidateModal = async (project) => {
         setLiquidateProject(project);
         setIsLiquidateOpen(true);
         setItemSearch("");
         setItemCategory("");
         setItemSubCategory("");
-        await fetchProjectResources(project.id);
+        resetCashLiquidationForm();
+        await Promise.all([
+            fetchProjectResources(project.id),
+            fetchProjectCashLiquidations(project.id),
+        ]);
         fetchInventoryItems({ search: "", categoryId: "", subCategoryId: "" });
     };
 
@@ -379,6 +466,12 @@ const Projects = () => {
         setIsLiquidateOpen(false);
         setLiquidateProject(null);
         setSelectedItems([]);
+        resetCashLiquidationForm();
+        setCashLiquidations([]);
+        setCashLiquidationsError("");
+        setDeletingCashLiquidationId(null);
+        setIsCashLiquidationDeleteOpen(false);
+        setCashLiquidationDeleteId(null);
     };
 
     const handleItemSearchChange = (value) => {
@@ -455,14 +548,17 @@ const Projects = () => {
 
     const submitLiquidation = async () => {
         if (!liquidateProject) return;
-        if (selectedItems.length === 0) {
+
+        const pendingItems = selectedItems.filter(
+            (item) => !item.isExisting && Number(item.usedQuantity) > 0
+        );
+        if (pendingItems.length === 0) {
             toast.warn("Select at least one item to liquidate.");
             return;
         }
 
         const payload = {
-            items: selectedItems
-                .filter((item) => !item.isExisting)
+            items: pendingItems
                 .map((item) => ({
                     item_id: item.id,
                     quantity: Number(item.usedQuantity) > 0 ? Number(item.usedQuantity) : 1,
@@ -483,9 +579,91 @@ const Projects = () => {
         }
     };
 
+    const submitCashLiquidation = async () => {
+        if (!liquidateProject?.id) return;
+
+        const validation = {};
+        const parsedAmount = Number(cashLiquidationForm.amount);
+        if (!cashLiquidationForm.amount || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
+            validation.amount = "Amount is required and must be greater than 0.";
+        }
+        if (!cashLiquidationForm.date_used) {
+            validation.date_used = "Date used is required.";
+        }
+        if (!cashLiquidationForm.point_person.trim()) {
+            validation.point_person = "Point person is required.";
+        }
+
+        if (Object.keys(validation).length > 0) {
+            setCashLiquidationErrors(validation);
+            return;
+        }
+
+        const buildCashFormData = () => {
+            const formData = new FormData();
+            formData.append("amount", `${parsedAmount}`);
+            formData.append("date_used", cashLiquidationForm.date_used);
+            formData.append("used_at", cashLiquidationForm.date_used);
+            formData.append("date", cashLiquidationForm.date_used);
+            formData.append("point_person", cashLiquidationForm.point_person.trim());
+            formData.append("person_responsible", cashLiquidationForm.point_person.trim());
+            if (cashLiquidationForm.receipt) {
+                formData.append("receipt", cashLiquidationForm.receipt);
+            }
+            return formData;
+        };
+
+        setSavingCashLiquidation(true);
+        setCashLiquidationErrors({});
+
+        try {
+            await _post(`/projects/${liquidateProject.id}/cash-liquidations`, buildCashFormData());
+            toast.success("Cash liquidation saved.");
+            resetCashLiquidationForm();
+            fetchProjects();
+            fetchProjectCashLiquidations(liquidateProject.id);
+        } catch (error) {
+            if (error?.response?.status === 422) {
+                setCashLiquidationErrors(error.response?.data?.errors || {});
+                toast.error(error.response?.data?.message || "Cash liquidation validation failed.");
+            } else {
+                toast.error("Error saving cash liquidation.");
+            }
+            console.error("Error saving cash liquidation:", error);
+        } finally {
+            setSavingCashLiquidation(false);
+        }
+    };
+
+    const handleConfirmCashLiquidationDelete = (cashLiquidationId) => {
+        if (!cashLiquidationId) return;
+        setCashLiquidationDeleteId(cashLiquidationId);
+        setIsCashLiquidationDeleteOpen(true);
+    };
+
+    const deleteCashLiquidation = async () => {
+        if (!cashLiquidationDeleteId) return;
+
+        setDeletingCashLiquidationId(cashLiquidationDeleteId);
+        try {
+            await _delete(`/cash-liquidations/${cashLiquidationDeleteId}`);
+            toast.success("Cash liquidation deleted.");
+            fetchProjectCashLiquidations(liquidateProject?.id);
+            fetchProjects();
+        } catch (error) {
+            console.error("Error deleting cash liquidation:", error);
+            toast.error("Error deleting cash liquidation.");
+        } finally {
+            setDeletingCashLiquidationId(null);
+            setCashLiquidationDeleteId(null);
+            setIsCashLiquidationDeleteOpen(false);
+        }
+    };
+
     const subCategoryOptions = itemCategory
         ? categories.find((cat) => `${cat.id}` === `${itemCategory}`)?.subcategories || []
         : categories.flatMap((cat) => cat.subcategories || []);
+    const pendingGoodsItemsCount = selectedItems.filter((item) => !item.isExisting).length;
 
     const [openVolunteerList, setOpenVolunteerList] = useState(false);
     const [projectId, setProjectId] = useState(null);
@@ -657,53 +835,54 @@ const Projects = () => {
             {/* LIQUIDATE MODAL */}
             {isLiquidateOpen && (
                 <ModalContainer isFull={true} close={closeLiquidateModal}>
-                    <div className="w-full flex flex-col gap-4">
-                        <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 w-full">
+                    <div className="w-full h-full max-w-7xl mx-auto flex flex-col gap-4">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
                             <div>
                                 <p className="text-lg font-semibold text-orange-600">Liquidate Items</p>
                                 <p className="text-xs text-gray-500">
                                     {liquidateProject?.title ? `For project: ${liquidateProject.title}` : "Select the items used for this project."}
                                 </p>
                             </div>
-                            <div className="flex items-center gap-2">
+                            <div className="flex flex-wrap items-center gap-2">
                                 <button
                                     type="button"
                                     onClick={handleLiquidationPrint}
                                     disabled={printLoading}
-                                    className={`text-xs px-4 py-2 rounded border border-gray-200 ${printLoading ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-50"}`}
+                                    className={`w-full sm:w-auto text-xs px-4 py-2 rounded border border-gray-200 ${printLoading ? "opacity-60 cursor-not-allowed" : "hover:bg-gray-50"}`}
                                 >
                                     {printLoading ? "Generating..." : "Print"}
                                 </button>
                                 <button
                                     onClick={closeLiquidateModal}
-                                    className="text-xs px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                                    className="w-full sm:w-auto text-xs px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
                                 >
                                     Cancel
                                 </button>
                                 <button
                                     onClick={submitLiquidation}
-                                    disabled={savingLiquidation || selectedItems.length === 0}
-                                    className={`text-xs px-4 py-2 rounded text-white ${savingLiquidation || selectedItems.length === 0 ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
+                                    disabled={savingLiquidation || pendingGoodsItemsCount === 0}
+                                    className={`w-full sm:w-auto text-xs px-4 py-2 rounded text-white ${savingLiquidation || pendingGoodsItemsCount === 0 ? "bg-green-300 cursor-not-allowed" : "bg-green-600 hover:bg-green-700"}`}
                                 >
-                                    {savingLiquidation ? "Saving..." : "Save"}
+                                    {savingLiquidation ? "Saving..." : "Save Goods Liquidation"}
                                 </button>
                             </div>
                         </div>
 
-                        <div className="grid md:grid-cols-2 gap-4 h-[70vh]">
-                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden">
-                                <div className="flex flex-wrap gap-2">
+                        <div className="flex-1 min-h-0 grid grid-cols-1 2xl:grid-cols-3 gap-4">
+                            <div className="2xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+                                <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[260px]">
+                                <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                                     <input
                                         value={itemSearch}
                                         onChange={(e) => handleItemSearchChange(e.target.value)}
                                         type="text"
-                                        className="w-full md:flex-1 bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm"
+                                        className="w-full sm:flex-1 bg-white placeholder:text-xs px-4 py-2 rounded border border-gray-200 text-sm"
                                         placeholder="Search items..."
                                     />
                                     <select
                                         value={itemCategory}
                                         onChange={(e) => handleItemCategoryChange(e.target.value)}
-                                        className="bg-white text-xs px-3 py-2 rounded border border-gray-200"
+                                        className="w-full sm:w-auto bg-white text-xs px-3 py-2 rounded border border-gray-200"
                                     >
                                         <option value="">All categories</option>
                                         {categories.map((cat) => (
@@ -715,7 +894,7 @@ const Projects = () => {
                                     <select
                                         value={itemSubCategory}
                                         onChange={(e) => handleItemSubCategoryChange(e.target.value)}
-                                        className="bg-white text-xs px-3 py-2 rounded border border-gray-200"
+                                        className="w-full sm:w-auto bg-white text-xs px-3 py-2 rounded border border-gray-200"
                                     >
                                         <option value="">All subcategories</option>
                                         {subCategoryOptions.map((sub) => (
@@ -726,7 +905,7 @@ const Projects = () => {
                                     </select>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                <div className="flex-1 min-h-[220px] overflow-y-auto border rounded p-2 bg-gray-50/50">
                                     {inventoryLoading || existingResourcesLoading ? (
                                         <div className="w-full h-full flex items-center justify-center py-8">
                                             <CircularLoading customClass="text-blue-500 w-6 h-6" />
@@ -777,13 +956,13 @@ const Projects = () => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden">
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[260px]">
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm font-semibold">Selected Items</p>
                                     <p className="text-[11px] text-gray-500">{selectedItems.length} item(s)</p>
                                 </div>
 
-                                <div className="flex-1 overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                <div className="flex-1 min-h-[220px] overflow-y-auto border rounded p-2 bg-gray-50/50">
                                     {selectedItems.length === 0 ? (
                                         <p className="text-xs text-center text-gray-500 py-6">
                                             No items selected yet.
@@ -823,7 +1002,7 @@ const Projects = () => {
                                                         </button>
                                                     </div>
 
-                                                    <div className="flex items-center gap-2">
+                                                    <div className="flex flex-wrap items-center gap-2">
                                                         <label className="text-[11px] text-gray-600">Quantity used</label>
                                                         <input
                                                             type="number"
@@ -841,6 +1020,167 @@ const Projects = () => {
                                             ))}
                                         </div>
                                     )}
+                                </div>
+                            </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 bg-white min-h-[260px]">
+                                <div>
+                                    <p className="text-sm font-semibold">Cash Expense Liquidation</p>
+                                    <p className="text-[11px] text-gray-500">
+                                        Record cash used for this project separately from goods liquidation.
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Amount</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        value={cashLiquidationForm.amount}
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({ ...prev, amount: e.target.value }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        placeholder="Enter amount used"
+                                    />
+                                    {cashLiquidationErrors.amount && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Date Money Was Used</label>
+                                    <input
+                                        type="date"
+                                        value={cashLiquidationForm.date_used}
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                    />
+                                    {cashLiquidationErrors.date_used && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Point Person</label>
+                                    <input
+                                        type="text"
+                                        value={cashLiquidationForm.point_person}
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({ ...prev, point_person: e.target.value }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        placeholder="Enter responsible person"
+                                    />
+                                    {cashLiquidationErrors.point_person && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.point_person)}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Receipt Image (Optional)</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({
+                                                ...prev,
+                                                receipt: e.target.files?.[0] || null,
+                                            }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                    />
+                                    {cashLiquidationForm.receipt && (
+                                        <p className="text-[11px] text-gray-500 truncate">
+                                            Selected: {cashLiquidationForm.receipt.name}
+                                        </p>
+                                    )}
+                                    {cashLiquidationErrors.receipt && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.receipt)}</p>
+                                    )}
+                                </div>
+
+                                <div className="border border-gray-200 rounded p-2 bg-gray-50/50 min-h-[160px] max-h-[240px] overflow-y-auto">
+                                    <div className="flex items-center justify-between gap-2 mb-2">
+                                        <p className="text-[11px] font-semibold text-gray-700">Recorded Cash Entries</p>
+                                        <button
+                                            type="button"
+                                            onClick={() => fetchProjectCashLiquidations(liquidateProject?.id)}
+                                            className="text-[11px] px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-100"
+                                        >
+                                            Refresh
+                                        </button>
+                                    </div>
+
+                                    {cashLiquidationsLoading ? (
+                                        <div className="py-6 flex items-center justify-center">
+                                            <CircularLoading customClass="text-blue-500 w-5 h-5" />
+                                        </div>
+                                    ) : cashLiquidationsError ? (
+                                        <p className="text-[11px] text-red-500">{cashLiquidationsError}</p>
+                                    ) : cashLiquidations.length === 0 ? (
+                                        <p className="text-[11px] text-gray-500">No cash liquidation records yet.</p>
+                                    ) : (
+                                        <div className="flex flex-col gap-2">
+                                            {cashLiquidations.map((entry, index) => (
+                                                <div
+                                                    key={entry.id || `cash-entry-${index}`}
+                                                    className="bg-white border border-gray-200 rounded p-2 text-[11px]"
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-gray-800">
+                                                                {formatCashAmount(entry.amount)}
+                                                            </p>
+                                                            <p className="text-gray-600">
+                                                                Date used: {formatShortDate(entry.date_used || entry.used_at || entry.date)}
+                                                            </p>
+                                                            <p className="text-gray-600">
+                                                                Point person: {entry.point_person || entry.person_responsible || "-"}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleConfirmCashLiquidationDelete(entry.id)}
+                                                            disabled={!entry.id || deletingCashLiquidationId === entry.id}
+                                                            className={`shrink-0 px-2 py-1 rounded border ${
+                                                                !entry.id || deletingCashLiquidationId === entry.id
+                                                                    ? "text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50"
+                                                                    : "text-red-600 border-red-200 hover:bg-red-50"
+                                                            }`}
+                                                        >
+                                                            {deletingCashLiquidationId === entry.id ? "Deleting..." : "Delete"}
+                                                        </button>
+                                                    </div>
+                                                    {entry.receipt && (
+                                                        <a
+                                                            href={resolveReceiptUrl(entry.receipt)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-block text-blue-600 hover:text-blue-700 underline mt-1"
+                                                        >
+                                                            View receipt
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="mt-auto pt-2">
+                                    <button
+                                        type="button"
+                                        onClick={submitCashLiquidation}
+                                        disabled={savingCashLiquidation}
+                                        className={`w-full text-xs px-4 py-2 rounded text-white ${savingCashLiquidation ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+                                    >
+                                        {savingCashLiquidation ? "Saving..." : "Save Cash Liquidation"}
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1139,6 +1479,21 @@ const Projects = () => {
                     message="Are you sure you want to delete this project? This action cannot be undone."
                     isDelete={true}
                     isDeleting={isDeleting}
+                />
+            )}
+
+            {isCashLiquidationDeleteOpen && (
+                <ConfirmationAlert
+                    onClose={() => {
+                        if (deletingCashLiquidationId) return;
+                        setIsCashLiquidationDeleteOpen(false);
+                        setCashLiquidationDeleteId(null);
+                    }}
+                    onConfirm={deleteCashLiquidation}
+                    title="Delete Cash Liquidation"
+                    message="Are you sure you want to delete this cash liquidation record? This action cannot be undone."
+                    isDelete={true}
+                    isDeleting={Boolean(deletingCashLiquidationId)}
                 />
             )}
 

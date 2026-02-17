@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import Guest from '../../layouts/Guest'
 import { Link } from "react-router-dom";
 import { _post, _get } from "../../api";
@@ -9,12 +9,22 @@ import { FaMapMarkedAlt } from "react-icons/fa";
 import { IoMdClose } from "react-icons/io";
 import ModalContainer from "../../components/ModalContainer";
 import CircularLoading from "../../components/CircularLoading";
+import { getExpiryWarningMeta } from "../../utils/expiryWarning";
 
 const Goods = () => {
     const today = new Date();
     const minExpiryDate = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(
         today.getDate()
     ).padStart(2, "0")}`;
+
+    const renderExpiryBadge = (value) => {
+        const expiryMeta = getExpiryWarningMeta(value, { emptyLabel: "No Expiry" });
+        return (
+            <span className={`inline-flex items-center rounded px-2 py-1 text-[11px] font-semibold ${expiryMeta.className}`}>
+                {expiryMeta.label}
+            </span>
+        );
+    };
 
     // Individual states
     const [name, setName] = useState('');
@@ -47,6 +57,8 @@ const Goods = () => {
     const [itemSuggestions, setItemSuggestions] = useState([]);
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const [suggestionsError, setSuggestionsError] = useState("");
+    const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
+    const suggestionContainerRef = useRef(null);
 
     const [map, setMap] = useState({
         main: false,    
@@ -169,6 +181,7 @@ const Goods = () => {
         setItemImagePreview("");
         setFilteredSubcategories([]);
         setItemErrors({});
+        setIsSuggestionOpen(false);
     };
 
     const addItem = () => {
@@ -256,8 +269,23 @@ const Goods = () => {
     const closeItemModal = () => {
         setIsItemModalOpen(false);
         setEditingItemId(null);
+        setIsSuggestionOpen(false);
         resetItemForm();
     };
+
+    useEffect(() => {
+        if (!isSuggestionOpen) return;
+        const handleOutsideClick = (event) => {
+            if (suggestionContainerRef.current && !suggestionContainerRef.current.contains(event.target)) {
+                setIsSuggestionOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, [isSuggestionOpen]);
 
     useEffect(() => {
         if (!isItemModalOpen) return;
@@ -495,7 +523,7 @@ const Goods = () => {
                                                                         <td className="p-2">{getSubcategoryName(item.subcategory_id)}</td>
                                                                         <td className="p-2">{item.quantity}</td>
                                                                         <td className="p-2">{item.unit || "-"}</td>
-                                                                        <td className="p-2">{item.expiry_date || "-"}</td>
+                                                                        <td className="p-2">{renderExpiryBadge(item.expiry_date)}</td>
                                                                         <td className="p-2">
                                                                             <div className="flex items-center gap-3">
                                                                                 <button
@@ -633,7 +661,7 @@ const Goods = () => {
                                                                     <td className="p-2">{getSubcategoryName(item.subcategory_id)}</td>
                                                                     <td className="p-2">{item.quantity}</td>
                                                                     <td className="p-2">{item.unit || "-"}</td>
-                                                                    <td className="p-2">{item.expiry_date || "-"}</td>
+                                                                    <td className="p-2">{renderExpiryBadge(item.expiry_date)}</td>
                                                                 </tr>
                                                             ))
                                                         )}
@@ -742,52 +770,60 @@ const Goods = () => {
                                     <label className="text-xs font-medium">
                                         Item Name <span className="text-red-500">*</span>
                                     </label>
-                                    <input
-                                        type="text"
-                                        value={itemForm.name}
-                                        onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
-                                        placeholder="Name of the item.."
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
-                                    />
-                                    {itemErrors.name && <p className="text-red-500 text-xs">{itemErrors.name}</p>}
-                                    <div className="mt-2">
-                                        <div className="flex items-center justify-between">
-                                            <p className="text-[11px] font-medium text-gray-500">Suggestions</p>
-                                            <button
-                                                type="button"
-                                                onClick={() => {
-                                                    const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
-                                                    const seed = category?.name ? `${category.name}`.toLowerCase() : "";
-                                                    fetchItemSuggestions(seed);
-                                                }}
-                                                className="text-[11px] text-orange-600 hover:text-orange-700"
-                                            >
-                                                Refresh
-                                            </button>
-                                        </div>
-                                        {suggestionsLoading ? (
-                                            <p className="text-[11px] text-gray-400 mt-1">Loading suggestions...</p>
-                                        ) : suggestionsError ? (
-                                            <p className="text-[11px] text-red-500 mt-1">{suggestionsError}</p>
-                                        ) : itemSuggestions.length === 0 ? (
-                                            <p className="text-[11px] text-gray-400 mt-1">No suggestions available.</p>
-                                        ) : (
-                                            <div className="mt-2">
-                                                <div className="flex gap-2 overflow-x-auto whitespace-nowrap pb-2">
-                                                    {itemSuggestions.map((suggestion, index) => (
-                                                        <button
-                                                            key={`${suggestion}-${index}`}
-                                                            type="button"
-                                                            onClick={() => setItemForm({ ...itemForm, name: suggestion })}
-                                                            className="text-[11px] px-2 py-1 rounded-full bg-orange-50 text-orange-700 border border-orange-100 hover:bg-orange-100 shrink-0"
-                                                        >
-                                                            {suggestion}
-                                                        </button>
-                                                    ))}
+                                    <div className="relative mt-1" ref={suggestionContainerRef}>
+                                        <input
+                                            type="text"
+                                            value={itemForm.name}
+                                            onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
+                                            onFocus={() => setIsSuggestionOpen(true)}
+                                            placeholder="Name of the item.."
+                                            className="w-full bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        />
+                                        {isSuggestionOpen && (
+                                            <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg">
+                                                <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                                                    <p className="text-[11px] font-medium text-gray-500">Suggestions</p>
+                                                    <button
+                                                        type="button"
+                                                        onMouseDown={(e) => e.preventDefault()}
+                                                        onClick={() => {
+                                                            const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
+                                                            const seed = category?.name ? `${category.name}`.toLowerCase() : "";
+                                                            fetchItemSuggestions(seed);
+                                                        }}
+                                                        className="text-[11px] text-orange-600 hover:text-orange-700"
+                                                    >
+                                                        Refresh
+                                                    </button>
                                                 </div>
+                                                {suggestionsLoading ? (
+                                                    <p className="px-3 py-2 text-[11px] text-gray-400">Loading suggestions...</p>
+                                                ) : suggestionsError ? (
+                                                    <p className="px-3 py-2 text-[11px] text-red-500">{suggestionsError}</p>
+                                                ) : itemSuggestions.length === 0 ? (
+                                                    <p className="px-3 py-2 text-[11px] text-gray-400">No suggestions available.</p>
+                                                ) : (
+                                                    <div className="max-h-56 overflow-y-auto py-1">
+                                                        {itemSuggestions.map((suggestion, index) => (
+                                                            <button
+                                                                key={`${suggestion}-${index}`}
+                                                                type="button"
+                                                                onMouseDown={(e) => e.preventDefault()}
+                                                                onClick={() => {
+                                                                    setItemForm({ ...itemForm, name: suggestion });
+                                                                    setIsSuggestionOpen(false);
+                                                                }}
+                                                                className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                                                            >
+                                                                {suggestion}
+                                                            </button>
+                                                        ))}
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
+                                    {itemErrors.name && <p className="text-red-500 text-xs">{itemErrors.name}</p>}
                                 </div>
 
                                 <div className="w-full flex flex-col">

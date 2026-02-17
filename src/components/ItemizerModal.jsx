@@ -5,6 +5,7 @@ import { Modal } from "flowbite-react";
 import ModalContainer from "./ModalContainer";
 import ConfirmationAlert from "./alerts/ConfirmationAlert";
 import WarningAlert from "./alerts/WarningAlert";
+import { getExpiryWarningMeta } from "../utils/expiryWarning";
 
 const ItemizerModal = ({ donation, fetchDonations }) => {
 
@@ -241,45 +242,8 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         return "Unknown";
     };
 
-    const normalizeDatePart = (dateString) => {
-        if (!dateString) return "";
-        return `${dateString}`.split("T")[0];
-    };
-
-    const toLocalDate = (dateString) => {
-        const datePart = normalizeDatePart(dateString);
-        if (!datePart) return null;
-        const [year, month, day] = datePart.split("-").map(Number);
-        if (!year || !month || !day) return null;
-        return new Date(year, month - 1, day);
-    };
-
-    const getDaysUntil = (dateString) => {
-        const date = toLocalDate(dateString);
-        if (!date) return null;
-        const today = new Date();
-        const startToday = new Date(today.getFullYear(), today.getMonth(), today.getDate());
-        const startDate = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        const diffMs = startDate - startToday;
-        return Math.ceil(diffMs / (1000 * 60 * 60 * 24));
-    };
-
     const getExpiryMeta = (dateString) => {
-        const datePart = normalizeDatePart(dateString);
-        if (!datePart) {
-            return {
-                label: "No Expiry",
-                className: "bg-gray-100 text-gray-600 border border-gray-200"
-            };
-        }
-        const daysRemaining = getDaysUntil(datePart);
-        const isExpiringSoon = daysRemaining !== null && daysRemaining <= 30;
-        return {
-            label: datePart,
-            className: isExpiringSoon
-                ? "bg-red-50 text-red-700 border border-red-200"
-                : "bg-gray-100 text-gray-700 border border-gray-200"
-        };
+        return getExpiryWarningMeta(dateString, { emptyLabel: "No Expiry" });
     };
 
     return (

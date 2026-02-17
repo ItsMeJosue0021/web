@@ -23,13 +23,13 @@ const formatDateTime = (value) => {
     });
 };
 
-const STORAGE_BASE_URL = "http://127.0.0.1:8000/storage/";
+const STORAGE_BASE_URL = "https://api.kalingangkababaihan.com/storage/";
 
 const resolveImageUrl = (image) => {
     if (!image) return "";
     if (/^https?:\/\//i.test(image)) return image;
-    if (image.startsWith("/")) return image;
-    return `${STORAGE_BASE_URL}${`${image}`.replace(/^storage\//, "")}`;
+    const normalized = `${image}`.replace(/^\/+/, "").replace(/^storage\//, "");
+    return `${STORAGE_BASE_URL}${normalized}`;
 };
 
 const getNormalizedType = (value) => `${value || ""}`.toLowerCase();

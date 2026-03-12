@@ -48,10 +48,10 @@ const AboutUs = () => {
   };
 
   const stats = [
-    { label: "Women supported", value: homepageInfo?.women_supported || "..." },
-    { label: "Meals served", value: homepageInfo?.meals_served || "..." },
-    { label: "Communities reached", value: homepageInfo?.communities_reached || "..." },
-    { label: "Volunteers strong", value: homepageInfo?.number_of_volunteers || "..." },
+    { label: homepageInfo?.women_supported_label || "Women supported", value: homepageInfo?.women_supported || "..." },
+    { label: homepageInfo?.meals_served_label || "Meals served", value: homepageInfo?.meals_served || "..." },
+    { label: homepageInfo?.communities_reached_label || "Communities reached", value: homepageInfo?.communities_reached || "..." },
+    { label: homepageInfo?.number_of_volunteers_label || "Number of volunteers", value: homepageInfo?.number_of_volunteers || "..." },
   ];
 
   return (

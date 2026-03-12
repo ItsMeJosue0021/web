@@ -10,14 +10,22 @@ const WebHome = () => {
     const emptyProgram = { id: null, title: "", description: "" };
     const emptyChecklistItem = { item: "" };
     const emptyQuote = { quote: "", author: "" };
-    const emptyInvolvement = { id: null, title: "", description: "", url: "" };
+    const emptyInvolvement = { id: null, title: "", description: "", action: "", url: "" };
     const [formData, setFormData] = useState({
         welcome_message: "",
         intro_text: "",
+        primary_button_text: "",
+        primary_button_url: "",
+        secondary_button_text: "",
+        secondary_button_url: "",
         women_supported: "",
+        women_supported_label: "",
         meals_served: "",
+        meals_served_label: "",
         communities_reached: "",
+        communities_reached_label: "",
         number_of_volunteers: "",
+        number_of_volunteers_label: "",
     });
     const [originalData, setOriginalData] = useState(null);
     const [loading, setLoading] = useState(true);
@@ -87,10 +95,18 @@ const WebHome = () => {
             const cleaned = {
                 welcome_message: data.welcome_message || "",
                 intro_text: data.intro_text || "",
+                primary_button_text: data.primary_button_text || "Donate Now",
+                primary_button_url: data.primary_button_url || "/donate",
+                secondary_button_text: data.secondary_button_text || "Talk to Us",
+                secondary_button_url: data.secondary_button_url || "/contact-us",
                 women_supported: data.women_supported || "",
+                women_supported_label: data.women_supported_label || "Women supported",
                 meals_served: data.meals_served || "",
+                meals_served_label: data.meals_served_label || "Meals served",
                 communities_reached: data.communities_reached || "",
+                communities_reached_label: data.communities_reached_label || "Communities reached",
                 number_of_volunteers: data.number_of_volunteers || "",
+                number_of_volunteers_label: data.number_of_volunteers_label || "Number of volunteers",
             };
             setFormData(cleaned);
             setOriginalData(cleaned);
@@ -235,6 +251,7 @@ const WebHome = () => {
                     id: entry?.id ?? null,
                     title: entry?.title || "",
                     description: entry?.description || "",
+                    action: entry?.action || "",
                     url: entry?.url || "",
                 }))
                 : [];
@@ -429,7 +446,7 @@ const WebHome = () => {
         if (!involvementInfo.title.trim() || !involvementInfo.description.trim()) return false;
         if (involvementInfo.involvements.length !== 3) return false;
         return involvementInfo.involvements.every(
-            (entry) => entry.title.trim() && entry.description.trim() && entry.url.trim()
+            (entry) => entry.title.trim() && entry.description.trim() && entry.action.trim() && entry.url.trim()
         );
     }, [involvementInfo]);
 
@@ -586,22 +603,30 @@ const WebHome = () => {
 
         setEncouragementSaving(true);
         const payload = buildEncouragementPayload(encouragementInfo);
-        const formData = new FormData();
-        formData.append("id", payload.id ?? "");
-        formData.append("title", payload.title);
-        formData.append("description", payload.description);
-        payload.checklist.forEach((entry, index) => {
-            formData.append(`checklist[${index}][item]`, entry.item);
-        });
-        formData.append("image_path", payload.image_path || "");
-        formData.append("created_at", payload.created_at ?? "");
-        formData.append("updated_at", payload.updated_at ?? "");
-        if (encouragementImageFile) {
-            formData.append("image", encouragementImageFile);
-        }
 
         try {
-            await _put("/encouragement-info", formData);
+            if (encouragementImageFile) {
+                const formData = new FormData();
+                formData.append("id", payload.id ?? "");
+                formData.append("title", payload.title);
+                formData.append("description", payload.description);
+                payload.checklist.forEach((entry, index) => {
+                    formData.append(`checklist[${index}][item]`, entry.item);
+                });
+                formData.append("image_path", payload.image_path || "");
+                formData.append("created_at", payload.created_at ?? "");
+                formData.append("updated_at", payload.updated_at ?? "");
+                formData.append("image", encouragementImageFile);
+                await _post("/encouragement-info", formData);
+            } else {
+                await _put("/encouragement-info", {
+                    ...payload,
+                    image_path: payload.image_path || "",
+                    created_at: payload.created_at ?? "",
+                    updated_at: payload.updated_at ?? "",
+                });
+            }
+
             setSuccessMessage("Encouragement info saved successfully.");
             setShowSuccessAlert(true);
             setOriginalEncouragementInfo(encouragementInfo);
@@ -610,7 +635,12 @@ const WebHome = () => {
             fetchEncouragementInfo();
         } catch (error) {
             console.error("Error saving encouragement info:", error);
-            toast.error("Unable to save encouragement info. Please try again.");
+            if (error.response?.status === 422 && error.response?.data?.errors) {
+                const validationMessages = Object.values(error.response.data.errors).flat().join(" ");
+                toast.error(validationMessages || "Unable to save encouragement info. Please check required fields.");
+            } else {
+                toast.error("Unable to save encouragement info. Please try again.");
+            }
         } finally {
             setEncouragementSaving(false);
         }
@@ -649,6 +679,7 @@ const WebHome = () => {
                 id: entry.id,
                 title: entry.title,
                 description: entry.description,
+                action: entry.action,
                 url: entry.url,
             })),
             created_at: involvementInfo.created_at,
@@ -757,7 +788,70 @@ const WebHome = () => {
 
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-semibold text-gray-700">Women supported</label>
+                                    <label className="text-xs font-semibold text-gray-700">Primary button text</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Donate Now"
+                                        value={formData.primary_button_text}
+                                        onChange={(e) => handleChange("primary_button_text", e.target.value)}
+                                    />
+                                    {validationErrors.primary_button_text && (
+                                        <p className="text-xs text-red-500">{validationErrors.primary_button_text[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Primary button URL</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="/donate"
+                                        value={formData.primary_button_url}
+                                        onChange={(e) => handleChange("primary_button_url", e.target.value)}
+                                    />
+                                    {validationErrors.primary_button_url && (
+                                        <p className="text-xs text-red-500">{validationErrors.primary_button_url[0]}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-semibold text-gray-700">Secondary button text</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Talk to Us"
+                                        value={formData.secondary_button_text}
+                                        onChange={(e) => handleChange("secondary_button_text", e.target.value)}
+                                    />
+                                    {validationErrors.secondary_button_text && (
+                                        <p className="text-xs text-red-500">{validationErrors.secondary_button_text[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Secondary button URL</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="/contact-us"
+                                        value={formData.secondary_button_url}
+                                        onChange={(e) => handleChange("secondary_button_url", e.target.value)}
+                                    />
+                                    {validationErrors.secondary_button_url && (
+                                        <p className="text-xs text-red-500">{validationErrors.secondary_button_url[0]}</p>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-semibold text-gray-700">Card title</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Women supported"
+                                        value={formData.women_supported_label}
+                                        onChange={(e) => handleChange("women_supported_label", e.target.value)}
+                                    />
+                                    {validationErrors.women_supported_label && (
+                                        <p className="text-xs text-red-500">{validationErrors.women_supported_label[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Card value</label>
                                     <input
                                         type="text"
                                         className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
@@ -771,7 +865,18 @@ const WebHome = () => {
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-semibold text-gray-700">Meals served</label>
+                                    <label className="text-xs font-semibold text-gray-700">Card title</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Meals served"
+                                        value={formData.meals_served_label}
+                                        onChange={(e) => handleChange("meals_served_label", e.target.value)}
+                                    />
+                                    {validationErrors.meals_served_label && (
+                                        <p className="text-xs text-red-500">{validationErrors.meals_served_label[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Card value</label>
                                     <input
                                         type="text"
                                         className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
@@ -785,7 +890,18 @@ const WebHome = () => {
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-semibold text-gray-700">Communities reached</label>
+                                    <label className="text-xs font-semibold text-gray-700">Card title</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Communities reached"
+                                        value={formData.communities_reached_label}
+                                        onChange={(e) => handleChange("communities_reached_label", e.target.value)}
+                                    />
+                                    {validationErrors.communities_reached_label && (
+                                        <p className="text-xs text-red-500">{validationErrors.communities_reached_label[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Card value</label>
                                     <input
                                         type="text"
                                         className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
@@ -799,7 +915,18 @@ const WebHome = () => {
                                 </div>
 
                                 <div className="flex flex-col gap-2">
-                                    <label className="text-xs font-semibold text-gray-700">Number of volunteers</label>
+                                    <label className="text-xs font-semibold text-gray-700">Card title</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Number of volunteers"
+                                        value={formData.number_of_volunteers_label}
+                                        onChange={(e) => handleChange("number_of_volunteers_label", e.target.value)}
+                                    />
+                                    {validationErrors.number_of_volunteers_label && (
+                                        <p className="text-xs text-red-500">{validationErrors.number_of_volunteers_label[0]}</p>
+                                    )}
+                                    <label className="text-xs font-semibold text-gray-700">Card value</label>
                                     <input
                                         type="text"
                                         className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
@@ -1315,6 +1442,16 @@ const WebHome = () => {
                                                     placeholder="Enter card description"
                                                     value={entry.description}
                                                     onChange={(e) => handleInvolvementItemChange(index, "description", e.target.value)}
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <label className="text-xs font-semibold text-gray-700">Action text</label>
+                                                <input
+                                                    type="text"
+                                                    className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                                    placeholder="e.g., Join volunteer program"
+                                                    value={entry.action}
+                                                    onChange={(e) => handleInvolvementItemChange(index, "action", e.target.value)}
                                                 />
                                             </div>
                                             <div className="flex flex-col gap-2">

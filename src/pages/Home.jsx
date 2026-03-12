@@ -19,12 +19,117 @@ const images = [
   { src: activity2, text: "No act of kindness, no matter how small, is ever wasted." },
 ];
 
+const defaultProgramCards = [
+  {
+    icon: <HeartHandshake className="w-8 h-8 text-orange-500" />,
+    title: "Relief & Care",
+    desc: "Food packs, hygiene kits, and safe spaces for women and children affected by crisis.",
+  },
+  {
+    icon: <Sparkles className="w-8 h-8 text-orange-500" />,
+    title: "Skills & Livelihood",
+    desc: "Workshops and starter support that help women earn and build confidence.",
+  },
+  {
+    icon: <Globe2 className="w-8 h-8 text-orange-500" />,
+    title: "Community Building",
+    desc: "Partnerships with barangays and volunteers to sustain programs where they are needed most.",
+  },
+];
+
+const defaultEncouragementChecklist = [
+  "Transparent tracking of where your support goes.",
+  "Secure payment options including GCash and bank transfers.",
+  "Direct impact on local communities and shelters.",
+];
+
+const defaultWordOfInspire = {
+  title: "Words That Inspire",
+  description: "Timeless reminders of compassion, purpose, and giving.",
+  quotes: [
+    {
+      quote: "I don't think you ever stop giving. I really don't. I think it's an on-going process...",
+      author: "Oprah Winfrey",
+    },
+    {
+      quote: "At the end of the day it's not about what you have... it's about what you've given back.",
+      author: "Denzel Washington",
+    },
+    {
+      quote: "Volunteers are the only human beings... who reflect this nation's compassion.",
+      author: "Erma Bombeck",
+    },
+  ],
+};
+
+const defaultInvolvementInfo = {
+  title: "Get Involved",
+  description:
+    "Join us as a volunteer, donor, or partner. Every hand extended makes our community stronger.",
+  involvements: [
+    {
+      title: "Volunteer",
+      description: "Be on the ground for events, relief drives, and community sessions.",
+      action: "Volunteer now",
+      url: "/contact-us",
+    },
+    {
+      title: "Donate",
+      description: "Support programs with one-time or recurring gifts through secure channels.",
+      action: "Donate now",
+      url: "/donate",
+    },
+    {
+      title: "Partner",
+      description: "Collaborate as an organization or sponsor to scale our impact.",
+      action: "Partner with us",
+      url: "/contact-us",
+    },
+  ],
+};
+
 const Home = () => {
   const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
   const [currentIndex, setCurrentIndex] = useState(0);
   const [recentProjects, setRecentProjects] = useState([]);
   const [homepageInfo, setHomepageInfo] = useState(null);
+  const [carouselImages, setCarouselImages] = useState([]);
+  const [programsInfo, setProgramsInfo] = useState({
+    title: "",
+    description: "",
+    programs: [],
+  });
+  const [encouragementInfo, setEncouragementInfo] = useState({
+    title: "",
+    description: "",
+    checklist: [],
+    image_path: "",
+  });
+  const [quotesInfo, setQuotesInfo] = useState({
+    title: "",
+    description: "",
+    quotes: [],
+  });
+  const [involvementInfo, setInvolvementInfo] = useState({
+    title: "",
+    description: "",
+    involvements: [],
+  });
+
+  const sliderImages = carouselImages.length
+    ? carouselImages.map((item) => ({
+      src: item?.image_path ? (item.image_path.startsWith("http") ? item.image_path : `${baseURL}${item.image_path}`) : "",
+      text: item?.text || "",
+      key: item?.id ?? item?.image_path,
+    }))
+    : images;
+
+  const hasCarouselImages = sliderImages.length > 0;
+  const activeEncouragementChecklist = Array.isArray(encouragementInfo.checklist) &&
+    encouragementInfo.checklist.some((item) => String(item).trim() !== "")
+      ? encouragementInfo.checklist
+      : defaultEncouragementChecklist;
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -34,16 +139,21 @@ const Home = () => {
   }, [currentIndex]);
 
   const prevSlide = () => {
-    setCurrentIndex((prev) => (prev === 0 ? images.length - 1 : prev - 1));
+    setCurrentIndex((prev) => (prev === 0 ? sliderImages.length - 1 : prev - 1));
   };
 
   const nextSlide = () => {
-    setCurrentIndex((prev) => (prev === images.length - 1 ? 0 : prev + 1));
+    setCurrentIndex((prev) => (prev === sliderImages.length - 1 ? 0 : prev + 1));
   };
 
   useEffect(() => {
     fetchPastProjects();
     fetchHomepageInfo();
+    fetchCarouselImages();
+    fetchProgramsInfo();
+    fetchEncouragementInfo();
+    fetchQuotesInfo();
+    fetchInvolvementInfo();
   }, []);
 
   const fetchPastProjects = async () => {
@@ -55,6 +165,21 @@ const Home = () => {
     }
   };
 
+  const fetchCarouselImages = async () => {
+    try {
+      const response = await _get("/homepage-carousel");
+      const payload = response.data || [];
+      const list = Array.isArray(payload) ? payload : [];
+      setCarouselImages(list);
+      if (list.length) {
+        setCurrentIndex(0);
+      }
+    } catch (error) {
+      console.error("Error fetching homepage carousel:", error);
+      setCarouselImages([]);
+    }
+  };
+
   const fetchHomepageInfo = async () => {
     try {
       const response = await _get("/homepage-info");
@@ -63,6 +188,116 @@ const Home = () => {
       console.error("Error fetching homepage info:", error);
     }
   };
+
+  const fetchProgramsInfo = async () => {
+    try {
+      const response = await _get("/programs-info");
+      const data = response.data || {};
+      const incomingPrograms = Array.isArray(data.programs)
+        ? data.programs.map((program) => ({
+            title: program?.title || "",
+            description: program?.description || "",
+          }))
+        : [];
+
+      setProgramsInfo({
+        title: data.title || "",
+        description: data.description || "",
+        programs: incomingPrograms,
+      });
+    } catch (error) {
+      console.error("Error fetching programs info:", error);
+      setProgramsInfo({
+        title: "",
+        description: "",
+        programs: [],
+      });
+    }
+  };
+
+  const fetchEncouragementInfo = async () => {
+    try {
+      const response = await _get("/encouragement-info");
+      const data = response.data || {};
+      const incomingChecklist = Array.isArray(data.checklist)
+        ? data.checklist.map((entry) => entry?.item || "")
+        : [];
+      setEncouragementInfo({
+        title: data.title || "",
+        description: data.description || "",
+        checklist: incomingChecklist,
+        image_path: data.image_path || "",
+      });
+    } catch (error) {
+      console.error("Error fetching encouragement info:", error);
+      setEncouragementInfo({
+        title: "",
+        description: "",
+        checklist: [],
+        image_path: "",
+      });
+    }
+  };
+
+  const fetchQuotesInfo = async () => {
+    try {
+      const response = await _get("/quotes-info");
+      const data = response.data || {};
+      const incomingQuotes = Array.isArray(data.quotes)
+        ? data.quotes.map((entry) => ({
+            quote: entry?.quote || "",
+            author: entry?.author || "",
+          }))
+        : [];
+
+      setQuotesInfo({
+        title: data.title || "",
+        description: data.description || "",
+        quotes: incomingQuotes,
+      });
+    } catch (error) {
+      console.error("Error fetching quotes info:", error);
+      setQuotesInfo({
+        title: "",
+        description: "",
+        quotes: [],
+      });
+    }
+  };
+
+  const fetchInvolvementInfo = async () => {
+    try {
+      const response = await _get("/involvement-info");
+      const data = response.data || {};
+      const incomingInvolvements = Array.isArray(data.involvements)
+        ? data.involvements.map((entry) => ({
+            title: entry?.title || "",
+            description: entry?.description || "",
+            action: entry?.action || "",
+            url: entry?.url || "",
+          }))
+        : [];
+
+      setInvolvementInfo({
+        title: data.title || "",
+        description: data.description || "",
+        involvements: incomingInvolvements,
+      });
+    } catch (error) {
+      console.error("Error fetching involvement info:", error);
+      setInvolvementInfo({
+        title: "",
+        description: "",
+        involvements: [],
+      });
+    }
+  };
+
+  const involvementCards = (
+    involvementInfo.involvements.length > 0
+      ? involvementInfo.involvements
+      : defaultInvolvementInfo.involvements
+  );
 
   return (
     <div className="w-full bg-white min-h-screen overflow-x-hidden">
@@ -83,23 +318,26 @@ const Home = () => {
             </div>
 
             <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-3">
-              <Link className="px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer shadow" to="/donate">
-                Donate Now
+              <Link
+                className="px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer shadow"
+                to={homepageInfo?.primary_button_url || "/donate"}
+              >
+                {homepageInfo?.primary_button_text || "Donate Now"}
               </Link>
               <Link
-                to="/contact-us"
+                to={homepageInfo?.secondary_button_url || "/contact-us"}
                 className="px-6 py-3 rounded-md text-sm text-orange-600 hover:text-orange-700 border border-orange-200 bg-white hover:bg-orange-50 transform transition-transform duration-300 hover:scale-105 cursor-pointer"
               >
-                Talk to Us
+                {homepageInfo?.secondary_button_text || "Talk to Us"}
               </Link>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               {[
-                { label: "Women supported", value: homepageInfo?.women_supported || "..." },
-                { label: "Meals served", value: homepageInfo?.meals_served || "..." },
-                { label: "Communities reached", value: homepageInfo?.communities_reached || "..." },
-                { label: "Volunteers strong", value: homepageInfo?.number_of_volunteers || "..." },
+                { label: homepageInfo?.women_supported_label || "Women supported", value: homepageInfo?.women_supported || "..." },
+                { label: homepageInfo?.meals_served_label || "Meals served", value: homepageInfo?.meals_served || "..." },
+                { label: homepageInfo?.communities_reached_label || "Communities reached", value: homepageInfo?.communities_reached || "..." },
+                { label: homepageInfo?.number_of_volunteers_label || "Number of volunteers", value: homepageInfo?.number_of_volunteers || "..." },
               ].map((item, idx) => (
                 <div key={idx} className="bg-white border border-orange-100 rounded-lg p-3 shadow-sm">
                   <p className="text-xs text-gray-500 uppercase tracking-wide">{item.label}</p>
@@ -112,15 +350,15 @@ const Home = () => {
           <div className="w-full lg:w-1/2">
             <div className="relative w-full h-[260px] sm:h-[360px] md:h-[420px] overflow-hidden rounded-3xl shadow-xl">
               <div className="relative h-full">
-                <img
-                  src={images[currentIndex].src}
-                  alt={`Slide ${currentIndex + 1}`}
-                  className="w-full h-full rounded-3xl object-cover transition-transform duration-500 ease-in-out"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent rounded-3xl"></div>
-                <div className="absolute inset-0 flex justify-center items-end pb-8 text-white text-2xl md:text-3xl font-bold text-center px-5">
-                  <p className="italic drop-shadow-lg">{images[currentIndex].text}</p>
-                </div>
+              <img
+                src={hasCarouselImages ? sliderImages[currentIndex]?.src : banner}
+                alt={hasCarouselImages ? `Slide ${currentIndex + 1}` : `Slide ${currentIndex + 1}`}
+                className="w-full h-full rounded-3xl object-cover transition-transform duration-500 ease-in-out"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent rounded-3xl"></div>
+              <div className="absolute inset-0 flex justify-center items-end pb-8 text-white text-2xl md:text-3xl font-bold text-center px-5">
+                  <p className="italic drop-shadow-lg">{sliderImages[currentIndex]?.text}</p>
+              </div>
               </div>
 
               <button
@@ -137,7 +375,7 @@ const Home = () => {
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
-                {images.map((_, index) => (
+                {sliderImages.map((_, index) => (
                   <div
                     key={index}
                     onClick={() => setCurrentIndex(index)}
@@ -157,36 +395,31 @@ const Home = () => {
         <div className="max-w-[1200px] mx-auto px-4 flex flex-col gap-8">
           <div className="flex flex-col gap-2 text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">What we do</p>
-            <h2 className="text-3xl md:text-4xl chewy text-gray-800">Programs that create lasting change</h2>
+            <h2 className="text-3xl md:text-4xl chewy text-gray-800">
+              {programsInfo.title || "Programs that create lasting change"}
+            </h2>
             <p className="text-gray-600 max-w-3xl mx-auto text-sm md:text-base">
-              From immediate relief to long-term empowerment, our programs are designed to meet women and families where they are.
+              {programsInfo.description || "From immediate relief to long-term empowerment, our programs are designed to meet women and families where they are."}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {[
-              {
-                icon: <HeartHandshake className="w-8 h-8 text-orange-500" />,
-                title: "Relief & Care",
-                desc: "Food packs, hygiene kits, and safe spaces for women and children affected by crisis.",
-              },
-              {
-                icon: <Sparkles className="w-8 h-8 text-orange-500" />,
-                title: "Skills & Livelihood",
-                desc: "Workshops and starter support that help women earn and build confidence.",
-              },
-              {
-                icon: <Globe2 className="w-8 h-8 text-orange-500" />,
-                title: "Community Building",
-                desc: "Partnerships with barangays and volunteers to sustain programs where they are needed most.",
-              },
-            ].map((item, idx) => (
+            {(programsInfo.programs.length ? programsInfo.programs : defaultProgramCards).map((item, idx) => (
+              (() => {
+                const fallbackProgram = defaultProgramCards[idx % defaultProgramCards.length];
+                return (
               <div key={idx} className="bg-gray-50 border border-orange-100 rounded-xl p-5 flex flex-col gap-3 shadow-sm">
                 <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center border border-orange-100">
-                  {item.icon}
+                  {defaultProgramCards[idx % defaultProgramCards.length].icon}
                 </div>
-                <p className="text-lg font-semibold text-gray-800">{item.title}</p>
-                <p className="text-sm text-gray-600">{item.desc}</p>
+                <p className="text-lg font-semibold text-gray-800">
+                  {item.title || fallbackProgram.title}
+                </p>
+                <p className="text-sm text-gray-600">
+                  {item.description || item.desc || fallbackProgram.desc}
+                </p>
               </div>
+                );
+              })()
             ))}
           </div>
         </div>
@@ -252,20 +485,26 @@ const Home = () => {
       <section className="w-full bg-white py-20">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="flex flex-col md:flex-row items-center justify-center gap-10 p-6 rounded-3xl bg-orange-50 border border-orange-100 shadow-sm">
-            <img src={getInvolvedImg} alt="img" className="w-full h-auto md:w-[460px] rounded-2xl shadow" />
+            <img
+              src={
+                encouragementInfo.image_path
+                  ? (encouragementInfo.image_path.startsWith("http")
+                    ? encouragementInfo.image_path
+                    : `${baseURL}${encouragementInfo.image_path}`)
+                  : getInvolvedImg
+              }
+              alt={encouragementInfo.title || "img"}
+              className="w-full h-auto md:w-[460px] rounded-2xl shadow"
+            />
             <div className="flex flex-col items-center md:items-start gap-5">
               <p className="text-3xl md:text-4xl text-gray-800 font-bold chewy text-center md:text-left leading-tight">
-                Give food. Bring hope. Fuel brighter futures.
+                {encouragementInfo.title || "Give food. Bring hope. Fuel brighter futures."}
               </p>
               <p className="text-base md:text-lg text-gray-700 font-light text-center md:text-left">
-                Your contribution turns into meals, medicine, and safe spaces for women and families who need it most.
+                {encouragementInfo.description || "Your contribution turns into meals, medicine, and safe spaces for women and families who need it most."}
               </p>
               <ul className="text-sm text-gray-700 space-y-2 w-full max-w-lg">
-                {[
-                  "Transparent tracking of where your support goes.",
-                  "Secure payment options including GCash and bank transfers.",
-                  "Direct impact on local communities and shelters.",
-                ].map((item, idx) => (
+                {activeEncouragementChecklist.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] mt-0.5">✓</span>
                     <span>{item}</span>
@@ -274,16 +513,16 @@ const Home = () => {
               </ul>
               <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
                 <Link
-                  to="/donate"
+                  to={homepageInfo?.primary_button_url || "/donate"}
                   className="px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer shadow"
                 >
-                  Donate Now
+                  {homepageInfo?.primary_button_text || "Donate Now"}
                 </Link>
                 <Link
-                  to="/contact-us"
+                  to={homepageInfo?.secondary_button_url || "/contact-us"}
                   className="px-6 py-3 rounded-md text-sm text-orange-600 hover:text-orange-700 border border-orange-200 bg-white hover:bg-orange-50 transform transition-transform duration-300 hover:scale-105 cursor-pointer"
                 >
-                  Talk to Us
+                  {homepageInfo?.secondary_button_text || "Talk to Us"}
                 </Link>
               </div>
             </div>
@@ -295,32 +534,23 @@ const Home = () => {
       <section className="w-full bg-orange-600 py-20">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="pb-8 flex flex-col gap-2 items-center text-white">
-            <h1 className="text-4xl chewy">Words That Inspire</h1>
-            <p className="text-center">Timeless reminders of compassion, purpose, and giving.</p>
+            <h1 className="text-4xl chewy">
+              {quotesInfo.title || defaultWordOfInspire.title}
+            </h1>
+            <p className="text-center">
+              {quotesInfo.description || defaultWordOfInspire.description}
+            </p>
           </div>
 
           <div className="flex flex-wrap justify-center gap-6">
-            {[
-              {
-                text: "I don't think you ever stop giving. I really don't. I think it's an on-going process...",
-                author: "Oprah Winfrey",
-              },
-              {
-                text: "At the end of the day it's not about what you have... it's about what you've given back.",
-                author: "Denzel Washington",
-              },
-              {
-                text: "Volunteers are the only human beings... who reflect this nation's compassion.",
-                author: "Erma Bombeck",
-              },
-            ].map((quote, index) => (
+            {(quotesInfo.quotes.length ? quotesInfo.quotes : defaultWordOfInspire.quotes).map((quote, index) => (
               <div
                 key={index}
                 data-aos="fade-left"
                 data-aos-delay={`${(index + 1) * 100}`}
                 className="text-white w-full md:w-80 h-fit p-5 rounded-lg bg-white/15 backdrop-blur-md shadow-lg"
               >
-                <p className="text-base italic chewy">&quot;{quote.text}&quot;</p>
+                <p className="text-base italic chewy">&quot;{quote.quote}&quot;</p>
                 <p className="pt-4 text-right text-xl chewy">- {quote.author}</p>
               </div>
             ))}
@@ -332,39 +562,41 @@ const Home = () => {
       <section className="w-full py-20 bg-gray-100">
         <div className="max-w-[1200px] mx-auto px-4 flex flex-col gap-8">
           <div className="flex flex-col space-y-3 items-center text-center">
-            <h1 className="text-3xl md:text-4xl chewy text-gray-800">Get Involved</h1>
+            <h1 className="text-3xl md:text-4xl chewy text-gray-800">
+              {involvementInfo.title || defaultInvolvementInfo.title}
+            </h1>
             <p className="text-lg text-gray-700 poppins-regular max-w-2xl">
-              Join us as a volunteer, donor, or partner. Every hand extended makes our community stronger.
+              {involvementInfo.description || defaultInvolvementInfo.description}
             </p>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6">
-            {[
-              {
-                title: "Volunteer",
-                desc: "Be on the ground for events, relief drives, and community sessions.",
-                action: "Sign up",
-                to: "/contact-us",
-              },
-              {
-                title: "Donate",
-                desc: "Support programs with one-time or recurring gifts through secure channels.",
-                action: "Donate now",
-                to: "/donate",
-              },
-              {
-                title: "Partner",
-                desc: "Collaborate as an organization or sponsor to scale our impact.",
-                action: "Partner with us",
-                to: "/contact-us",
-              },
-            ].map((item, idx) => (
+            {involvementCards.map((item, idx) => (
+              (() => {
+                const fallbackItem = defaultInvolvementInfo.involvements[idx];
+                const title = item?.title || fallbackItem?.title || "";
+                const cardDescription = item?.description || fallbackItem?.description || "";
+                const action = (
+                  item?.action?.trim() ||
+                  (title.toLowerCase() === "donate"
+                    ? "Donate now"
+                    : title.toLowerCase() === "partner"
+                    ? "Partner with us"
+                    : "Sign up")
+                );
+
+                return (
               <div key={idx} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col gap-3">
-                <p className="text-lg font-semibold text-gray-800">{item.title}</p>
-                <p className="text-sm text-gray-600 flex-1">{item.desc}</p>
-                <Link to={item.to} className="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700">
-                  {item.action} <ArrowRight size={16} />
+                <p className="text-lg font-semibold text-gray-800">{title}</p>
+                <p className="text-sm text-gray-600 flex-1">{cardDescription}</p>
+                <Link
+                  to={item?.url || (title.toLowerCase() === "donate" ? "/donate" : "/contact-us")}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700"
+                >
+                  {action} <ArrowRight size={16} />
                 </Link>
               </div>
+                );
+              })()
             ))}
           </div>
         </div>

@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
 import Logo from "./Logo";
 
-const Footer = () => {
+const Footer = ({ className = "mt-4" }) => {
     return (
-       <footer className="bg-gray-900 text-gray-200 mt-4">
+       <footer className={`bg-gray-900 text-gray-200 ${className}`}>
             <div className="max-w-[1200px] mx-auto px-4 py-14">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="flex flex-col gap-3">

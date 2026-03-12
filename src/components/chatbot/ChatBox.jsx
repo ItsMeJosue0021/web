@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -7,13 +6,13 @@ import { useWebsiteLogo } from "../../hooks/useWebsiteLogo";
 import "../../css/loading.css";
 
 const ChatBox = ({ toggleChatbot }) => {
-
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
     const { websiteLogo, logoImageSrc } = useWebsiteLogo();
+    const displayName = websiteLogo?.main_text || "Kalinga ng Kababaihan";
+    const hasMessages = messages.length > 0;
 
-    // 🔥 SAMPLE QUESTIONS (restored)
     const sampleQuestions = [
         "What is Kalinga ng Kababaihan WLLPC?",
         "Where is Kalingang Kababaihan WLLPC located?",
@@ -47,7 +46,10 @@ const ChatBox = ({ toggleChatbot }) => {
     };
 
     const handleEnter = (e) => {
-        if (e.key === "Enter") sendMessage();
+        if (e.key === "Enter" && !e.shiftKey) {
+            e.preventDefault();
+            sendMessage();
+        }
     };
 
     return (
@@ -56,92 +58,145 @@ const ChatBox = ({ toggleChatbot }) => {
                 initial={{ opacity: 0, y: 60 }}
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: 60 }}
-                className="fixed bottom-0 md:right-5 md:bottom-28 z-[9999] 
-               w-full md:w-[350px] h-full md:h-[550px] bg-white md:rounded-xl shadow-xl flex flex-col"
+                className="fixed bottom-0 md:bottom-24 right-0 md:right-6 z-[9999] 
+                w-[100vw] sm:w-[360px] h-[calc(100vh-72px)] sm:h-[600px] 
+                sm:rounded-2xl rounded-none bg-white/95 shadow-2xl border border-orange-200/80 
+                flex flex-col overflow-hidden backdrop-blur"
             >
-                {/* HEADER */}
-                <div className="bg-orange-600 text-white p-4 flex justify-between items-center rounded-t-xl">
+                <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white p-4 flex justify-between items-center">
                     <div className="flex items-center gap-2">
-                        <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-8 h-8 rounded-full object-cover" />
-                        <span className="font-semibold text-sm chewy">{websiteLogo.main_text}</span>
+                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/80 bg-white/20 flex items-center justify-center">
+                            {logoImageSrc ? (
+                                <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
+                            ) : (
+                                <span className="text-sm font-semibold text-white">
+                                    {displayName?.charAt(0) || "K"}
+                                </span>
+                            )}
+                        </div>
+                        <div>
+                            <p className="font-semibold text-sm">Support Assistant</p>
+                            <p className="text-xs text-white/80">{displayName}</p>
+                        </div>
                     </div>
-                    <button onClick={toggleChatbot} className='bg-transparent'><X /></button>
+                    <button
+                        onClick={toggleChatbot}
+                        aria-label="Close chat"
+                        className="p-2 rounded-full hover:bg-white/15 transition-colors"
+                    >
+                        <X size={18} />
+                    </button>
                 </div>
 
-                {/* CHAT BODY */}
-                <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-gray-100 relative">
-
-                    {/* 🎯 SAMPLE QUESTIONS (shown when chat is empty) */}
-                    {messages.length === 0 && !isLoading && (
-                        <div className="absolute bottom-4 left-4 w-fit flex flex-wrap gap-2 p-1 animate-fadeIn">
-                            {sampleQuestions.map((q, index) => (
-                                <button
-                                    key={index}
-                                    onClick={() => sendMessage(q)}
-                                    className="p-2 text-[10px] text-left bg-white text-gray-800 
-                                               rounded-xl shadow-sm hover:bg-orange-300 
-                                               transition font-medium"
-                                >
-                                    {q}
-                                </button>
-                            ))}
+                <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 bg-slate-50 relative">
+                    {!hasMessages && !isLoading && (
+                        <div className="absolute inset-0 flex flex-col justify-center px-4">
+                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 mb-3">
+                                Quick start
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {sampleQuestions.map((q, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={() => sendMessage(q)}
+                                        className="px-3 py-2 text-left text-xs bg-white text-slate-700 
+                                                   border border-orange-200 rounded-xl shadow-sm hover:bg-orange-50 
+                                                   transition-all hover:-translate-y-0.5 hover:shadow"
+                                    >
+                                        {q}
+                                    </button>
+                                ))}
+                            </div>
                         </div>
                     )}
 
-                    {/* Messages */}
                     {messages.map((msg, i) => (
-                        <div key={i} className={`flex items-end gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
-
+                        <div
+                            key={i}
+                            className={`flex items-end gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                        >
                             {msg.sender === "bot" && (
-                                <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-7 h-7 rounded-full object-cover" />
+                                <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-white shadow">
+                                    {logoImageSrc ? (
+                                        <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="flex h-full w-full text-[10px] font-semibold text-slate-700 items-center justify-center">
+                                            {displayName?.charAt(0) || "K"}
+                                        </span>
+                                    )}
+                                </div>
                             )}
 
                             <div
-                                className={`
-                                    max-w-[70%] px-4 py-2 rounded-2xl text-sm shadow
-                                    ${msg.sender === "user"
-                                        ? "bg-orange-600 text-white rounded-br-none"
-                                        : "bg-white text-gray-800 rounded-bl-none"}
-                                `}
+                                className={`relative max-w-[78%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${
+                                    msg.sender === "user"
+                                        ? "bg-orange-600 text-white rounded-br-none shadow-sm"
+                                        : "bg-white text-slate-700 rounded-bl-none border border-slate-200/80 shadow-sm"
+                                }`}
                             >
-                                {msg.text}
+                                <span className="block whitespace-pre-wrap break-words">{msg.text}</span>
                             </div>
 
                             {msg.sender === "user" && (
-                                <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-7 h-7 rounded-full object-cover" />
+                                <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-orange-50 shadow">
+                                    {logoImageSrc ? (
+                                        <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
+                                    ) : (
+                                        <span className="flex h-full w-full text-[10px] font-semibold text-orange-700 items-center justify-center">
+                                            {displayName?.charAt(0) || "K"}
+                                        </span>
+                                    )}
+                                </div>
                             )}
                         </div>
                     ))}
 
-                    {/* Typing Indicator */}
                     {isLoading && (
                         <div className="flex items-center gap-2 mt-2">
-                            <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-6 h-6 rounded-full object-cover" />
-                            <div className="typing-indicator">
+                            <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-white shadow">
+                                {logoImageSrc ? (
+                                    <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="flex h-full w-full text-[10px] font-semibold text-slate-700 items-center justify-center">
+                                        {displayName?.charAt(0) || "K"}
+                                    </span>
+                                )}
+                            </div>
+                            <div className="typing-indicator px-3 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
                                 <span></span><span></span><span></span>
                             </div>
                         </div>
                     )}
                 </div>
 
-                {/* INPUT AREA */}
-                <div className="p-3 border-t bg-white flex items-center gap-2 rounded-b-xl">
-                    <input
-                        type="text"
-                        value={input}
-                        onKeyDown={handleEnter}
-                        onChange={(e) => setInput(e.target.value)}
-                        placeholder="Write a message…"
-                        className="flex-1 px-3 py-2 text-sm bg-gray-100 rounded-full outline-none"
-                    />
+                <div className="p-3 border-t border-slate-200 bg-white flex items-center gap-2">
+                    <div className="relative flex-1">
+                        <input
+                            type="text"
+                            value={input}
+                            onKeyDown={handleEnter}
+                            onChange={(e) => setInput(e.target.value)}
+                            placeholder="Write a message…"
+                            className="w-full px-4 py-3 text-sm text-slate-700 bg-slate-100 border border-slate-200
+                                       rounded-full outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                        />
+                    </div>
                     <button
                         onClick={() => sendMessage()}
-                        className="bg-orange-600 text-white p-2 rounded-full shadow hover:bg-orange-700 transition"
+                        aria-label="Send message"
+                        className="h-11 w-11 rounded-full bg-orange-600 text-white flex items-center justify-center shadow
+                                   hover:bg-orange-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                        disabled={isLoading || !input.trim()}
                     >
                         <Send size={18} />
                     </button>
                 </div>
 
+                <div className="bg-slate-100 text-[10px] text-slate-500 px-3 py-2 border-t border-slate-200">
+                    <p className="text-center">
+                        Responses are for assistance only. Please call or message us for urgent matters.
+                    </p>
+                </div>
             </motion.div>
         </AnimatePresence>
     );

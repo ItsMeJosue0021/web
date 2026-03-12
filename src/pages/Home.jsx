@@ -1,7 +1,18 @@
-import { useState, useEffect } from "react";
+﻿import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { _get } from "../api";
-import { HeartHandshake, Sparkles, Globe2, ArrowRight } from "lucide-react";
+import {
+  HeartHandshake,
+  Sparkles,
+  Globe2,
+  ArrowRight,
+  ChevronLeft,
+  ChevronRight,
+  Check,
+  CalendarDays,
+  MapPin,
+  Users
+} from "lucide-react";
 
 import Header from "../components/headers/Header";
 import Footer from "../components/Footer";
@@ -72,18 +83,21 @@ const defaultInvolvementInfo = {
       description: "Be on the ground for events, relief drives, and community sessions.",
       action: "Volunteer now",
       url: "/contact-us",
+      icon: "volunteer",
     },
     {
       title: "Donate",
       description: "Support programs with one-time or recurring gifts through secure channels.",
       action: "Donate now",
       url: "/donate",
+      icon: "donate",
     },
     {
       title: "Partner",
       description: "Collaborate as an organization or sponsor to scale our impact.",
       action: "Partner with us",
       url: "/contact-us",
+      icon: "partner",
     },
   ],
 };
@@ -116,6 +130,7 @@ const Home = () => {
     description: "",
     involvements: [],
   });
+  const [isCarouselPaused, setIsCarouselPaused] = useState(false);
 
   const sliderImages = carouselImages.length
     ? carouselImages.map((item) => ({
@@ -126,17 +141,66 @@ const Home = () => {
     : images;
 
   const hasCarouselImages = sliderImages.length > 0;
+  const heroHeadline = homepageInfo?.welcome_message || "Welcome to Kalinga ng Kababaihan";
+  const heroIntro =
+    homepageInfo?.intro_text ||
+    "Kalinga ng Kababaihan is dedicated to empowering women and families through comprehensive support programs, community building, and advocacy.";
   const activeEncouragementChecklist = Array.isArray(encouragementInfo.checklist) &&
     encouragementInfo.checklist.some((item) => String(item).trim() !== "")
       ? encouragementInfo.checklist
       : defaultEncouragementChecklist;
+  const stats = [
+    {
+      label: homepageInfo?.women_supported_label || "Women supported",
+      value: homepageInfo?.women_supported || "...",
+      icon: <HeartHandshake className="w-5 h-5 text-orange-600" />,
+    },
+    {
+      label: homepageInfo?.meals_served_label || "Meals served",
+      value: homepageInfo?.meals_served || "...",
+      icon: <Sparkles className="w-5 h-5 text-orange-600" />,
+    },
+    {
+      label: homepageInfo?.communities_reached_label || "Communities reached",
+      value: homepageInfo?.communities_reached || "...",
+      icon: <MapPin className="w-5 h-5 text-orange-600" />,
+    },
+    {
+      label: homepageInfo?.number_of_volunteers_label || "Number of volunteers",
+      value: homepageInfo?.number_of_volunteers || "...",
+      icon: <Users className="w-5 h-5 text-orange-600" />,
+    },
+  ];
+  const hasProjects = recentProjects.length > 0;
 
   useEffect(() => {
+    if (isCarouselPaused || sliderImages.length <= 1) {
+      return;
+    }
+
     const interval = setInterval(() => {
       nextSlide();
     }, 5000);
+
     return () => clearInterval(interval);
-  }, [currentIndex]);
+  }, [isCarouselPaused, sliderImages.length]);
+
+  const getInvolvementIcon = (item, idx) => {
+    const iconKey = String(item?.icon || "").toLowerCase();
+    if (iconKey === "volunteer" || idx === 0) {
+      return <Users className="w-5 h-5 text-orange-600" />;
+    }
+
+    if (iconKey === "donate" || idx === 1) {
+      return <HeartHandshake className="w-5 h-5 text-orange-600" />;
+    }
+
+    if (iconKey === "partner" || idx === 2) {
+      return <CalendarDays className="w-5 h-5 text-orange-600" />;
+    }
+
+    return <Globe2 className="w-5 h-5 text-orange-600" />;
+  };
 
   const prevSlide = () => {
     setCurrentIndex((prev) => (prev === 0 ? sliderImages.length - 1 : prev - 1));
@@ -304,85 +368,96 @@ const Home = () => {
       <Header />
 
       {/* Hero Section */}
-      <section className="w-full py-16 bg-gradient-to-r from-orange-50 via-white to-orange-100">
-        <div className="w-full max-w-[1200px] mx-auto pt-16 px-4 flex flex-col lg:flex-row items-center gap-10">
+      <section className="w-full py-16 md:py-20 bg-gradient-to-r from-orange-50 via-white to-orange-100">
+        <div className="w-full max-w-[1200px] mx-auto px-4 pt-8 lg:pt-16 flex flex-col lg:flex-row items-center gap-10">
           <div className="w-full lg:w-1/2 flex flex-col space-y-6 text-left">
-            <div className="flex flex-col space-y-3">
-              <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Together, we uplift</p>
-              <h1 className="text-4xl md:text-5xl text-gray-800 font-bold leading-tight chewy">
-                {homepageInfo?.welcome_message || "Welcome to Kalinga ng Kababaihan"}
+            <div className="flex flex-col gap-3">
+              <p className="text-xs uppercase tracking-[0.18em] text-orange-500 font-semibold">Together, we uplift</p>
+              <h1 className="text-4xl md:text-5xl text-gray-800 font-bold leading-[1.12] chewy max-w-[14ch] sm:max-w-none">
+                {heroHeadline}
               </h1>
-              <p className="text-gray-600 text-base md:text-lg poppins-regular">
-                {homepageInfo?.intro_text || "Kalinga ng Kababaihan is dedicated to empowering women and families through comprehensive support programs, community building, and advocacy."}
+              <p className="text-gray-600 text-base md:text-lg poppins-regular max-w-[560px]">
+                {heroIntro}
               </p>
             </div>
 
             <div className="w-full flex flex-col sm:flex-row items-start sm:items-center gap-3">
               <Link
-                className="px-6 py-3 rounded-md text-sm text-white hover:text-white bg-orange-600 transform transition-transform duration-300 hover:scale-105 cursor-pointer shadow"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-semibold text-white hover:text-white bg-orange-600 hover:bg-orange-700 shadow-sm"
                 to={homepageInfo?.primary_button_url || "/donate"}
               >
                 {homepageInfo?.primary_button_text || "Donate Now"}
               </Link>
               <Link
                 to={homepageInfo?.secondary_button_url || "/contact-us"}
-                className="px-6 py-3 rounded-md text-sm text-orange-600 hover:text-orange-700 border border-orange-200 bg-white hover:bg-orange-50 transform transition-transform duration-300 hover:scale-105 cursor-pointer"
+                className="inline-flex items-center justify-center px-6 py-3 rounded-lg text-sm font-semibold text-orange-600 hover:text-orange-700 border border-orange-200 bg-white hover:border-orange-300 transition-colors"
               >
                 {homepageInfo?.secondary_button_text || "Talk to Us"}
               </Link>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              {[
-                { label: homepageInfo?.women_supported_label || "Women supported", value: homepageInfo?.women_supported || "..." },
-                { label: homepageInfo?.meals_served_label || "Meals served", value: homepageInfo?.meals_served || "..." },
-                { label: homepageInfo?.communities_reached_label || "Communities reached", value: homepageInfo?.communities_reached || "..." },
-                { label: homepageInfo?.number_of_volunteers_label || "Number of volunteers", value: homepageInfo?.number_of_volunteers || "..." },
-              ].map((item, idx) => (
-                <div key={idx} className="bg-white border border-orange-100 rounded-lg p-3 shadow-sm">
-                  <p className="text-xs text-gray-500 uppercase tracking-wide">{item.label}</p>
-                  <p className="text-xl font-bold text-orange-600">{item.value}</p>
+            <div className="grid grid-cols-2 gap-3">
+              {stats.map((item, idx) => (
+                <div key={idx} className="relative bg-white border border-orange-100 rounded-xl p-4 shadow-sm flex flex-col justify-between min-h-[92px]">
+                  <div className="flex items-center justify-between">
+                    <p className="text-xs text-gray-500 uppercase tracking-wide">{item.label}</p>
+                    {item.icon}
+                  </div>
+                  <p className="text-2xl font-bold text-orange-600">{item.value}</p>
                 </div>
               ))}
             </div>
           </div>
 
           <div className="w-full lg:w-1/2">
-            <div className="relative w-full h-[260px] sm:h-[360px] md:h-[420px] overflow-hidden rounded-3xl shadow-xl">
-              <div className="relative h-full">
+            <div
+              className="relative w-full h-[260px] sm:h-[360px] md:h-[420px] overflow-hidden rounded-3xl shadow-xl border border-orange-100/40"
+              onMouseEnter={() => setIsCarouselPaused(true)}
+              onMouseLeave={() => setIsCarouselPaused(false)}
+            >
               <img
                 src={hasCarouselImages ? sliderImages[currentIndex]?.src : banner}
                 alt={hasCarouselImages ? `Slide ${currentIndex + 1}` : `Slide ${currentIndex + 1}`}
-                className="w-full h-full rounded-3xl object-cover transition-transform duration-500 ease-in-out"
+                className="w-full h-full object-cover rounded-3xl transition-transform duration-700 ease-in-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent rounded-3xl"></div>
-              <div className="absolute inset-0 flex justify-center items-end pb-8 text-white text-2xl md:text-3xl font-bold text-center px-5">
-                  <p className="italic drop-shadow-lg">{sliderImages[currentIndex]?.text}</p>
-              </div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-3xl"></div>
+
+              <div className="absolute left-4 right-4 bottom-5">
+                <div className="bg-black/35 backdrop-blur-sm border border-white/20 rounded-xl px-5 py-4 text-white">
+                  <p className="text-[11px] uppercase tracking-[0.2em] text-orange-100 mb-2">Featured Story</p>
+                  <p className="text-lg md:text-2xl font-semibold leading-snug">
+                    {sliderImages[currentIndex]?.text || "Community-first support, delivered with heart."}
+                  </p>
+                </div>
               </div>
 
               <button
                 onClick={prevSlide}
-                className="absolute left-4 top-1/2 -translate-y-1/2 bg-white/70 text-gray-800 p-2 rounded-full hover:bg-white transition"
+                className="absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/85 text-gray-800 p-2 hover:bg-white shadow flex items-center justify-center"
+                aria-label="Previous slide"
               >
-                &lt;
+                <ChevronLeft size={20} />
               </button>
               <button
                 onClick={nextSlide}
-                className="absolute right-4 top-1/2 -translate-y-1/2 bg-white/70 text-gray-800 p-2 rounded-full hover:bg-white transition"
+                className="absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full bg-white/85 text-gray-800 p-2 hover:bg-white shadow flex items-center justify-center"
+                aria-label="Next slide"
               >
-                &gt;
+                <ChevronRight size={20} />
               </button>
 
               <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2">
                 {sliderImages.map((_, index) => (
-                  <div
+                  <button
                     key={index}
                     onClick={() => setCurrentIndex(index)}
-                    className={`w-6 h-1.5 rounded-full transition-all cursor-pointer ${
-                      index === currentIndex ? "bg-white" : "bg-white/50"
+                    className={`transition-all cursor-pointer ${
+                      index === currentIndex
+                        ? "w-8 h-2 rounded-full bg-white"
+                        : "w-2.5 h-2.5 rounded-full bg-white/50"
                     }`}
-                  ></div>
+                    aria-label={`Go to slide ${index + 1}`}
+                  ></button>
                 ))}
               </div>
             </div>
@@ -391,7 +466,7 @@ const Home = () => {
       </section>
 
       {/* How We Help */}
-      <section className="w-full bg-white py-16">
+      <section className="w-full bg-white py-16 md:py-20">
         <div className="max-w-[1200px] mx-auto px-4 flex flex-col gap-8">
           <div className="flex flex-col gap-2 text-center">
             <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">What we do</p>
@@ -407,7 +482,10 @@ const Home = () => {
               (() => {
                 const fallbackProgram = defaultProgramCards[idx % defaultProgramCards.length];
                 return (
-              <div key={idx} className="bg-gray-50 border border-orange-100 rounded-xl p-5 flex flex-col gap-3 shadow-sm">
+              <div
+                key={idx}
+                className="bg-gray-50 border border-orange-100 rounded-2xl p-6 flex flex-col gap-3 shadow-sm hover:-translate-y-1 hover:shadow-md transition-all"
+              >
                 <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center border border-orange-100">
                   {defaultProgramCards[idx % defaultProgramCards.length].icon}
                 </div>
@@ -417,6 +495,7 @@ const Home = () => {
                 <p className="text-sm text-gray-600">
                   {item.description || item.desc || fallbackProgram.desc}
                 </p>
+                <span className="mt-2 w-12 h-0.5 bg-gradient-to-r from-orange-400 to-orange-200 rounded-full" />
               </div>
                 );
               })()
@@ -431,7 +510,9 @@ const Home = () => {
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3">
             <div className="flex flex-col gap-2 text-left">
               <h1 className="text-3xl md:text-4xl text-gray-800 chewy">Recent Projects</h1>
-              <p className="text-gray-700 max-w-2xl text-sm md:text-base">Here are some of our latest initiatives dedicated to supporting women, families, and communities in need.</p>
+              <p className="text-gray-700 max-w-2xl text-sm md:text-base">
+                Here are some of our latest initiatives dedicated to supporting women, families, and communities in need.
+              </p>
             </div>
             <Link
               to="/our-projects"
@@ -442,49 +523,61 @@ const Home = () => {
           </div>
 
           <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-6">
-            {recentProjects.map((project, index) => (
-              <div
-                key={index}
-                data-aos="fade-down"
-                className="relative w-full h-80 rounded-lg overflow-hidden group shadow bg-white"
-              >
-                <img
-                  src={project.image ? `${baseURL}${project.image}` : activity1}
-                  alt="image"
-                  className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-110"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-lg"></div>
+            {hasProjects
+              ? recentProjects.map((project, index) => (
+                <div
+                  key={index}
+                  data-aos="fade-down"
+                  className="relative w-full h-80 rounded-2xl overflow-hidden group shadow-sm bg-white"
+                >
+                  <img
+                    src={project.image ? `${baseURL}${project.image}` : activity1}
+                    alt="image"
+                    className="w-full h-full object-cover object-center transition-transform duration-500 ease-in-out group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent rounded-2xl"></div>
 
-                <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
-                  <div className="flex items-center gap-2 mb-3">
-                    <span className="px-2 py-1 text-[10px] rounded-full bg-white/20 border border-white/30 backdrop-blur-sm">Project</span>
-                    <span className="text-[10px] text-gray-200">{project.date || ""}</span>
-                  </div>
-                  <p className="text-xl font-bold">{project.title}</p>
-                  <p className="text-xs mt-1 line-clamp-3">
-                    {project.description?.length > 180
-                      ? project.description.slice(0, 180) + "..."
-                      : project.description}
-                  </p>
-                  <div className="mt-3 flex items-center gap-3">
-                    <Link
-                      to={`/our-projects/${project.id}`}
-                      className="px-3 text-gray-200 hover:text-white py-1 text-xs border border-gray-200 hover:border-white rounded"
-                    >
-                      Read More
-                    </Link>
+                  <div className="absolute inset-0 p-5 flex flex-col justify-end text-white">
+                    <div className="flex items-center gap-2 mb-3">
+                      <span className="px-2 py-1 text-[10px] rounded-full bg-white/20 border border-white/30 backdrop-blur-sm">
+                        Project
+                      </span>
+                      {project.date && (
+                        <span className="text-[10px] text-gray-200">{project.date}</span>
+                      )}
+                    </div>
+                    <p className="text-xl font-bold">{project.title}</p>
+                    <p className="text-xs mt-1 line-clamp-3">
+                      {project.description?.length > 180
+                        ? project.description.slice(0, 180) + "..."
+                        : project.description}
+                    </p>
+                    <div className="mt-4">
+                      <Link
+                        to={`/our-projects/${project.id}`}
+                        className="inline-flex items-center gap-2 text-xs font-semibold text-gray-200 hover:text-white"
+                      >
+                        Read More <ArrowRight size={15} />
+                      </Link>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))
+              : (
+                <div className="col-span-full rounded-xl border border-orange-100 bg-white p-8">
+                  <p className="text-sm text-gray-600">
+                    Our team is preparing our latest project updates. Please check back soon.
+                  </p>
+                </div>
+              )}
           </div>
         </div>
       </section>
 
       {/* Donate Section */}
-      <section className="w-full bg-white py-20">
+      <section className="w-full bg-white py-20 md:py-24">
         <div className="max-w-[1200px] mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-10 p-6 rounded-3xl bg-orange-50 border border-orange-100 shadow-sm">
+          <div className="flex flex-col md:flex-row items-center justify-center gap-10 p-6 md:p-8 rounded-3xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 shadow-sm">
             <img
               src={
                 encouragementInfo.image_path
@@ -494,9 +587,9 @@ const Home = () => {
                   : getInvolvedImg
               }
               alt={encouragementInfo.title || "img"}
-              className="w-full h-auto md:w-[460px] rounded-2xl shadow"
+              className="w-full h-auto md:w-[460px] rounded-2xl shadow-sm border border-white/80"
             />
-            <div className="flex flex-col items-center md:items-start gap-5">
+            <div className="flex flex-col items-center md:items-start gap-5 max-w-xl">
               <p className="text-3xl md:text-4xl text-gray-800 font-bold chewy text-center md:text-left leading-tight">
                 {encouragementInfo.title || "Give food. Bring hope. Fuel brighter futures."}
               </p>
@@ -506,7 +599,9 @@ const Home = () => {
               <ul className="text-sm text-gray-700 space-y-2 w-full max-w-lg">
                 {activeEncouragementChecklist.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
-                    <span className="w-5 h-5 rounded-full bg-orange-100 text-orange-600 flex items-center justify-center text-[10px] mt-0.5">✓</span>
+                    <span className="mt-0.5">
+                      <Check size={15} className="text-orange-500" />
+                    </span>
                     <span>{item}</span>
                   </li>
                 ))}
@@ -534,10 +629,11 @@ const Home = () => {
       <section className="w-full bg-orange-600 py-20">
         <div className="max-w-[1200px] mx-auto px-4">
           <div className="pb-8 flex flex-col gap-2 items-center text-white">
-            <h1 className="text-4xl chewy">
+            <span className="h-0.5 w-14 bg-white/70 rounded-full" />
+            <h1 className="text-4xl chewy text-center">
               {quotesInfo.title || defaultWordOfInspire.title}
             </h1>
-            <p className="text-center">
+            <p className="text-center max-w-2xl text-white/95">
               {quotesInfo.description || defaultWordOfInspire.description}
             </p>
           </div>
@@ -548,10 +644,10 @@ const Home = () => {
                 key={index}
                 data-aos="fade-left"
                 data-aos-delay={`${(index + 1) * 100}`}
-                className="text-white w-full md:w-80 h-fit p-5 rounded-lg bg-white/15 backdrop-blur-md shadow-lg"
+                className="text-white w-full md:w-80 h-fit p-6 rounded-xl bg-white/15 backdrop-blur-md shadow-lg border border-white/25 flex flex-col"
               >
-                <p className="text-base italic chewy">&quot;{quote.quote}&quot;</p>
-                <p className="pt-4 text-right text-xl chewy">- {quote.author}</p>
+                <p className="text-base italic chewy">&ldquo;{quote.quote}&rdquo;</p>
+                <p className="mt-5 text-right text-sm text-white/90 font-semibold">&mdash; {quote.author}</p>
               </div>
             ))}
           </div>
@@ -575,7 +671,7 @@ const Home = () => {
                 const fallbackItem = defaultInvolvementInfo.involvements[idx];
                 const title = item?.title || fallbackItem?.title || "";
                 const cardDescription = item?.description || fallbackItem?.description || "";
-                const action = (
+                const cardAction = (
                   item?.action?.trim() ||
                   (title.toLowerCase() === "donate"
                     ? "Donate now"
@@ -583,17 +679,22 @@ const Home = () => {
                     ? "Partner with us"
                     : "Sign up")
                 );
+                const cardUrl = item?.url || (title.toLowerCase() === "donate" ? "/donate" : "/contact-us");
 
                 return (
-              <div key={idx} className="bg-white border border-gray-200 rounded-xl p-5 shadow-sm flex flex-col gap-3">
+              <div key={idx} className="bg-white border border-gray-200 rounded-2xl p-5 shadow-sm flex flex-col gap-3 group hover:-translate-y-1 hover:shadow-md transition-all">
+                <div className="w-11 h-11 rounded-xl bg-orange-50 border border-orange-100 flex items-center justify-center">
+                  {getInvolvementIcon(item, idx)}
+                </div>
                 <p className="text-lg font-semibold text-gray-800">{title}</p>
                 <p className="text-sm text-gray-600 flex-1">{cardDescription}</p>
                 <Link
-                  to={item?.url || (title.toLowerCase() === "donate" ? "/donate" : "/contact-us")}
-                  className="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 hover:text-orange-700"
+                  to={cardUrl}
+                  className="inline-flex items-center gap-2 text-sm font-semibold text-orange-600 group-hover:text-orange-700"
                 >
-                  {action} <ArrowRight size={16} />
+                  {cardAction} <ArrowRight size={16} />
                 </Link>
+                <span className="w-14 h-0.5 bg-gradient-to-r from-orange-500 to-orange-200 rounded-full" />
               </div>
                 );
               })()
@@ -602,10 +703,11 @@ const Home = () => {
         </div>
       </section>
 
-      <Footer />
+      <Footer className="mt-0" />
       <ChatButton />
     </div>
   );
 };
 
 export default Home;
+

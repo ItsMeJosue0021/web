@@ -114,7 +114,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     {/* Container */}
                                     <div
                                         onClick={(e) => e.stopPropagation()}
-                                        className="absolute right-0 top-0 h-full w-full max-w-xs bg-white p-5 shadow-xl md:static md:h-fit md:w-72 md:rounded-xl md:border md:border-gray-100"
+                                        className="absolute right-0 top-0 h-full w-full max-w-xs max-h-screen overflow-y-auto bg-white p-5 shadow-xl md:static md:h-fit md:w-72 md:rounded-xl md:border md:border-gray-100"
                                     >
                                     <div className="flex flex-col gap-4 text-black text-base md:text-sm poppins-bold">
 
@@ -133,101 +133,125 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         <X className="w-6 h-6" />
                                         </button>
 
-                                        <div className="rounded-xl border border-gray-100 bg-gray-50/60 p-2">
-                                            <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                                                Main
-                                            </p>
-                                            {/* Main Nav Items */}
-                                            <NavItem 
-                                                to="/dashboard" 
-                                                label="Dashboard" 
-                                                icon={LayoutDashboard}
-                                                onClick={toggleModal} 
-                                            />
+                                        <div className="space-y-3">
+                                            <section className="rounded-xl border border-orange-100 bg-white/80 shadow-sm overflow-hidden">
+                                                <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 bg-orange-50/80 border-b border-orange-100">
+                                                    Main
+                                                </p>
+                                                <div className="py-1">
+                                                    <NavItem
+                                                        to="/dashboard"
+                                                        label="Dashboard"
+                                                        icon={LayoutDashboard}
+                                                        onClick={toggleModal}
+                                                    />
+                                                    <Dropdown
+                                                        label="Donations"
+                                                        icon={HandHeart}
+                                                        isOpen={isDonationOpen}
+                                                        toggle={() => setIsDonationOpen(!isDonationOpen)}
+                                                        items={[
+                                                            { to: "/donations/cash", label: "Cash" },
+                                                            { to: "/donations/gcash", label: "GCash" },
+                                                            { to: "/donations/goods", label: "Goods" },
+                                                        ]}
+                                                        onItemClick={toggleModal}
+                                                    />
+                                                    <NavItem
+                                                        to="/inventory"
+                                                        label="Inventory"
+                                                        icon={MdOutlineInventory}
+                                                        onClick={toggleModal}
+                                                    />
+                                                    <NavItem
+                                                        to="/expenses"
+                                                        label="Expenses"
+                                                        icon={GrMoney}
+                                                        onClick={toggleModal}
+                                                    />
+                                                    <NavItem
+                                                        to="/volunteer-requests"
+                                                        label="Volunteer Requests"
+                                                        icon={RiPassPendingLine}
+                                                        onClick={toggleModal}
+                                                    />
+                                                    <NavItem
+                                                        to="/inquiries"
+                                                        label="Inquiries"
+                                                        icon={MessageSquareMore}
+                                                        onClick={toggleModal}
+                                                    />
+                                                    <NavItem
+                                                        to="/projects"
+                                                        label="Projects"
+                                                        icon={CalendarCog}
+                                                        onClick={toggleModal}
+                                                    />
+                                                </div>
+                                            </section>
 
-                                            {/* Donation Dropdown */}
-                                            <Dropdown
-                                                label="Donation"
-                                                icon={HandHeart}
-                                                isOpen={isDonationOpen}
-                                                toggle={() => setIsDonationOpen(!isDonationOpen)}
-                                                items={[
-                                                    { to: "/donations/cash", label: "Cash" },
-                                                    { to: "/donations/gcash", label: "GCash" },
-                                                    { to: "/donations/goods", label: "Goods" }
-                                                ]}
-                                                onItemClick={toggleModal}
-                                            />
+                                            <section className="rounded-xl border border-orange-100 bg-white/80 shadow-sm overflow-hidden">
+                                                <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 bg-orange-50/80 border-b border-orange-100">
+                                                    Membership
+                                                </p>
+                                                <div className="py-1">
+                                                    <Dropdown
+                                                        label="People"
+                                                        icon={Users}
+                                                        isOpen={isMembershipOpen}
+                                                        toggle={() => setIsMembershipOpen(!isMembershipOpen)}
+                                                        items={[
+                                                            { to: "/members", label: "Members" },
+                                                            { to: "/membership-requests", label: "Membership Requests" },
+                                                        ]}
+                                                        onItemClick={toggleModal}
+                                                    />
+                                                </div>
+                                            </section>
 
-                                            <NavItem 
-                                                to="/inventory" 
-                                                label="Inventory"
-                                                icon={MessageSquareMore}
-                                                onClick={toggleModal} 
-                                            />
-                                            <NavItem 
-                                                to="/volunteer-requests" 
-                                                label="Volunteers"
-                                                icon={RiPassPendingLine}
-                                                onClick={toggleModal} 
-                                            />
-                                            <NavItem 
-                                                to="/members" 
-                                                label="Members" 
-                                                icon={Users}
-                                                onClick={toggleModal} 
-                                            />
-                                            <NavItem 
-                                                to="/inquiries" 
-                                                label="Inquiries"
-                                                icon={MessageSquareMore}
-                                                onClick={toggleModal} 
-                                            />
-                                            <NavItem 
-                                                to="/expenses" 
-                                                label="Expenses"
-                                                icon={MessageSquareMore}
-                                                onClick={toggleModal} 
-                                            />
-                                            <NavItem 
-                                                to="/projects" 
-                                                label="Projects" 
-                                                icon={CalendarCog}
-                                                onClick={toggleModal} 
-                                            />
-                                        </div>
+                                            <section className="rounded-xl border border-orange-100 bg-white/80 shadow-sm overflow-hidden">
+                                                <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 bg-orange-50/80 border-b border-orange-100">
+                                                    Settings
+                                                </p>
+                                                <div className="py-1">
+                                                    <Dropdown
+                                                        label="Core"
+                                                        icon={Settings}
+                                                        isOpen={isSettingsOpen}
+                                                        toggle={() => setIsSettingsOpen(!isSettingsOpen)}
+                                                        items={[
+                                                            { to: "/settings/chatbot", label: "Chatbot" },
+                                                            { to: "/settings/donation-resources", label: "Donation Resources" },
+                                                            { to: "/settings/users", label: "Users" },
+                                                            { to: "/settings/archived-users", label: "Archived Users" },
+                                                        ]}
+                                                        onItemClick={toggleModal}
+                                                    />
+                                                </div>
+                                            </section>
 
-                                        <div className="rounded-xl border border-gray-100 bg-white p-2">
-                                            <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
-                                                Settings
-                                            </p>
-                                            {/* Settings Dropdown */}
-                                            <Dropdown
-                                                label="Settings"
-                                                icon={Settings}
-                                                isOpen={isSettingsOpen}
-                                                toggle={() => setIsSettingsOpen(!isSettingsOpen)}
-                                                items={[
-                                                    { to: "/settings/chatbot", label: "Chatbot" },
-                                                    { to: "/settings/donation-resources", label: "Donation Resources" },
-                                                    { to: "/settings/users", label: "Users" },
-                                                    { to: "/settings/archived-users", label: "Archived Users" }
-                                                ]}
-                                                onItemClick={toggleModal}
-                                            />
-                                            <Dropdown
-                                                label="Web Content"
-                                                icon={LayoutPanelLeftIcon}
-                                                isOpen={isWebOpen}
-                                                toggle={() => setIsWebOpen(!isWebOpen)}
-                                                items={[
-                                                    { to: "/web-content/home", label: "Homepage Info" },
-                                                    { to: "/web-content/contact-us", label: "Contact Info" },
-                                                    { to: "/web-content/about-us", label: "Officers" },
-                                                    { to: "/web-content/faqs", label: "Faqs" }
-                                                ]}
-                                                onItemClick={toggleModal}
-                                            />
+                                            <section className="rounded-xl border border-orange-100 bg-white/80 shadow-sm overflow-hidden">
+                                                <p className="px-3 py-2 text-[11px] font-semibold uppercase tracking-wide text-gray-500 bg-orange-50/80 border-b border-orange-100">
+                                                    Web Content
+                                                </p>
+                                                <div className="py-1">
+                                                    <Dropdown
+                                                        label="Pages"
+                                                        icon={LayoutPanelLeftIcon}
+                                                        isOpen={isWebOpen}
+                                                        toggle={() => setIsWebOpen(!isWebOpen)}
+                                                        items={[
+                                                            { to: "/web-content/home", label: "Homepage Info" },
+                                                            { to: "/web-content/about-us", label: "Officers" },
+                                                            { to: "/web-content/faqs", label: "FAQs" },
+                                                            { to: "/web-content/volunteers", label: "Volunteers" },
+                                                            { to: "/web-content/events", label: "Events" },
+                                                            { to: "/web-content/contact-us", label: "Contact Info" },
+                                                        ]}
+                                                        onItemClick={toggleModal}
+                                                    />
+                                                </div>
+                                            </section>
                                         </div>
 
                                         <div className="pt-2">

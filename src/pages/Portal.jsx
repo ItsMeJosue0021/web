@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+﻿import { useEffect } from "react";
 import { useContext } from "react";
 import { AuthContext } from "../AuthProvider";
 import { PortalContext } from "../layouts/User";
@@ -17,12 +17,14 @@ import CircularLoading from "../components/CircularLoading";
 import { MdOutlineCameraAlt } from "react-icons/md";
 import VolunteerButton from "../components/volunteering/VolunteerButton";
 import VolunteerRequestsTable from "../components/volunteering/VolunteerRequestsTable";
+import { useWebsiteLogo } from "../hooks/useWebsiteLogo";
 
 const Portal = () => {
 
     const {user, refreshUser} = useContext(AuthContext);
     const {activeTab, setActiveTab} = useContext(PortalContext);
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
+    const { websiteLogo, logoImageSrc } = useWebsiteLogo();
 
 
     const [events, setEvents] = useState([]);
@@ -299,10 +301,10 @@ const Portal = () => {
                                         <div key={index} className="w-full h-full flex flex-col gap-2 bg-white rounded-xl shadow-sm p-4 border border-gray-200">
                                             <div className="flex items-center justify-between gap-2">
                                                 <div className="flex items-center gap-2">
-                                                    <img src="logo.png" alt="img" className="w-8 h-8 rounded-full"/>
+                                                    <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-8 h-8 rounded-full object-cover"/>
                                                     <div className="flex flex-col items-start">
-                                                        <p className="text-xs font-medium">Kalinga ng Kababaihan</p>
-                                                        <p className="text-[9px] text-gray-500">{project.date} {project.time ? `• ${project.time}` : ""}</p>
+                                                        <p className="text-xs font-medium">{websiteLogo.main_text}</p>
+                                                        <p className="text-[9px] text-gray-500">{project.date} {project.time ? `â€¢ ${project.time}` : ""}</p>
                                                     </div>
                                                 </div>
                                                 <span className="text-[10px] px-2 py-1 rounded-full bg-green-50 text-green-600 border border-green-100">
@@ -329,7 +331,7 @@ const Portal = () => {
                                             <div className="flex items-center justify-between gap-2 mt-1">
                                                 <p className="text-[11px] text-gray-500 flex items-center gap-1">
                                                     <span className="inline-flex items-center px-2 py-1 rounded-full bg-orange-50 text-orange-600 border border-orange-100">
-                                                        {project.date} {project.time ? `• ${project.time}` : ""}
+                                                        {project.date} {project.time ? `â€¢ ${project.time}` : ""}
                                                     </span>
                                                 </p>
                                                 {isProjectUpcoming(project) && <VolunteerButton project={project} />}
@@ -709,3 +711,5 @@ const Portal = () => {
 }
 
 export default Portal;
+
+

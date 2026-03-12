@@ -1,18 +1,25 @@
 import { Link } from "react-router-dom";
-import logopng from "../assets/img/logo.png";
+import { useWebsiteLogo } from "../hooks/useWebsiteLogo";
 
-const Logo = () => {
+const Logo = ({
+    to = "/",
+    wrapperClassName = "flex items-center space-x-2 text-black hover:text-black",
+    imageClassName = "w-14 md:w-14 h-14 md:h-14 rounded-full",
+    textWrapperClassName = "flex flex-col text-sm font-bold",
+    mainTextClassName = "text-xs md:text-sm chewy",
+    secondaryTextClassName = "text-[10px] poppins-regular",
+}) => {
+    const { websiteLogo, logoImageSrc } = useWebsiteLogo();
+
     return (
-        <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
-            <img src={logopng} alt="logo" className='w-14 md:w-14 h-14 md:h-14 rounded-full'/>
-            <div className='flex flex-col text-sm font-bold'>
-                <p className='text-xs md:text-sm chewy'>Kalinga ng Kababaihan</p>
-                <p className='text-[10px]  poppins-regular'>Women's League Las Piñas</p>
+        <Link to={to} className={wrapperClassName}>
+            <img src={logoImageSrc} alt={websiteLogo.main_text || "logo"} className={imageClassName} />
+            <div className={textWrapperClassName}>
+                <p className={mainTextClassName}>{websiteLogo.main_text}</p>
+                <p className={secondaryTextClassName}>{websiteLogo.secondary_text}</p>
             </div>
         </Link>
-    )
-}
+    );
+};
 
 export default Logo;
-
-

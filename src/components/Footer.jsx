@@ -1,5 +1,5 @@
-import logo from "../assets/img/logo.png";
 import { Link } from "react-router-dom";
+import Logo from "./Logo";
 
 const Footer = () => {
     return (
@@ -7,13 +7,13 @@ const Footer = () => {
             <div className="max-w-[1200px] mx-auto px-4 py-14">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     <div className="flex flex-col gap-3">
-                        <div className="flex items-center gap-3">
-                            <img src={logo} alt="logo" className="w-14 h-14 rounded-full border border-orange-200 bg-white"/>
-                            <div>
-                                <p className="text-sm font-semibold text-white">Kalinga ng Kababaihan</p>
-                                <p className="text-[11px] text-gray-400">Women&apos;s League Las Piñas</p>
-                            </div>
-                        </div>
+                        <Logo
+                            wrapperClassName="flex items-center gap-3 text-white hover:text-white"
+                            imageClassName="w-14 h-14 rounded-full border border-orange-200 bg-white"
+                            textWrapperClassName="flex flex-col"
+                            mainTextClassName="text-sm font-semibold text-white"
+                            secondaryTextClassName="text-[11px] text-gray-400"
+                        />
                         <p className="text-xs text-gray-400 max-w-xs">
                             Uplifting women, families, and communities through relief, livelihood, and safe spaces.
                         </p>
@@ -31,7 +31,6 @@ const Footer = () => {
                         <p className="text-white font-semibold">Explore</p>
                         <Link to="/" className="text-gray-300 hover:text-white">Home</Link>
                         <Link to="/about-us" className="text-gray-300 hover:text-white">About Us</Link>
-                        {/* <Link to="/volunteers" className="text-gray-300 hover:text-white">Volunteers</Link> */}
                         <Link to="/our-projects" className="text-gray-300 hover:text-white">Projects</Link>
                     </div>
 
@@ -45,7 +44,7 @@ const Footer = () => {
 
                     <div className="flex flex-col gap-3 text-sm">
                         <p className="text-white font-semibold">Contact</p>
-                        <p className="text-gray-300">Las Piñas, Philippines</p>
+                        <p className="text-gray-300">Las Pinas, Philippines</p>
                         <p className="text-gray-300">kalingangkababaihan@gmail.com</p>
                         <p className="text-gray-300">+63 917 123 4567</p>
                         <Link to="/contact-us" className="mt-1 inline-flex items-center gap-2 text-orange-300 hover:text-orange-200 text-xs font-semibold">
@@ -59,7 +58,7 @@ const Footer = () => {
                 </div>
             </div>
         </footer>
-    )
-}
+    );
+};
 
 export default Footer;

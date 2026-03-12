@@ -1,4 +1,64 @@
 import { PDFDocument, rgb, StandardFonts } from 'pdf-lib';
+import { _get } from '../../api';
+import fallbackLogoImage from '../../assets/img/logo.png';
+import { resolveWebsiteLogoImage } from '../../hooks/useWebsiteLogo';
+
+const detectImageFormat = (src, contentType = '') => {
+  const normalizedContentType = contentType.toLowerCase();
+  const normalizedSrc = (src || '').split('?')[0].toLowerCase();
+
+  if (normalizedContentType.includes('png') || normalizedSrc.endsWith('.png')) {
+    return 'png';
+  }
+
+  if (
+    normalizedContentType.includes('jpeg')
+    || normalizedContentType.includes('jpg')
+    || normalizedSrc.endsWith('.jpg')
+    || normalizedSrc.endsWith('.jpeg')
+  ) {
+    return 'jpg';
+  }
+
+  return null;
+};
+
+const fetchLogoAsset = async (src) => {
+  const response = await fetch(src);
+  const bytes = await response.arrayBuffer();
+  const format = detectImageFormat(src, response.headers.get('content-type') || '');
+
+  return { bytes, format };
+};
+
+const loadWebsiteLogoAsset = async () => {
+  let logoSrc = fallbackLogoImage;
+
+  try {
+    const response = await _get('/website-logo');
+    logoSrc = resolveWebsiteLogoImage(response.data?.image_path);
+  } catch (error) {
+    logoSrc = fallbackLogoImage;
+  }
+
+  try {
+    const asset = await fetchLogoAsset(logoSrc);
+    if (asset.format) {
+      return asset;
+    }
+  } catch (error) {
+  }
+
+  try {
+    const fallbackAsset = await fetchLogoAsset(fallbackLogoImage);
+    if (fallbackAsset.format) {
+      return fallbackAsset;
+    }
+  } catch (error) {
+  }
+
+  return null;
+};
 
 
 export async function generateMembershipFormPdf(data) {
@@ -8,16 +68,19 @@ export async function generateMembershipFormPdf(data) {
     const { width, height } = page.getSize();
     const font = await pdfDoc.embedFont(StandardFonts.Helvetica);
 
-    const logoUrl = 'logo.png'; 
-    const logoBytes = await fetch(logoUrl).then(res => res.arrayBuffer());
+    const logoAsset = await loadWebsiteLogoAsset();
+    if (logoAsset) {
+      const logoImg = logoAsset.format === 'jpg'
+        ? await pdfDoc.embedJpg(logoAsset.bytes)
+        : await pdfDoc.embedPng(logoAsset.bytes);
 
-    const logoImg = await pdfDoc.embedPng(logoBytes); // assuming PNG
-    page.drawImage(logoImg, {
-        x: 30,
-        y: height - 120,
-        width: 90,
-        height: 90,
-    });
+      page.drawImage(logoImg, {
+          x: 30,
+          y: height - 120,
+          width: 90,
+          height: 90,
+      });
+    }
 
 //   if (pictureBytes) {
 //     const pic = await pdfDoc.embedJpg(pictureBytes);

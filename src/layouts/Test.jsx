@@ -1,5 +1,4 @@
-import '../css/layout-head.css';
-import logo from '../assets/img/logo.png';
+﻿import '../css/layout-head.css';
 import arrowDown from '../assets/icons/down-arrow.png';
 import HeaderProfile from '../components/HeaderProfile';
 import role from '../assets/icons/setting.png';
@@ -7,12 +6,14 @@ import { Link } from 'react-router-dom';
 import { Users, Lightbulb, MessageSquareMore, Settings } from 'lucide-react';
 import Logout from '../components/Logout';
 import { useState } from 'react';
+import { useWebsiteLogo } from '../hooks/useWebsiteLogo';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 const Test = ({children, header}) => {
 
      const [isOpen, setIsOpen] = useState(false);
+     const { websiteLogo, logoImageSrc } = useWebsiteLogo();
 
     return (
         <div className="w-screen min-h-screen h-full bg-gray-50"> 
@@ -21,10 +22,10 @@ const Test = ({children, header}) => {
                 <div className="w-full h-40 bg-orange-600">
                     <div className='flex items-start justify-between h-full p-4'>
                         <div className='flex items-center space-x-2 text-white'>
-                            <img src={logo} alt="logo" className='w-16 h-16 rounded-full p-0.5 bg-white'/>
+                            <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className='w-16 h-16 rounded-full p-0.5 bg-white object-cover'/>
                             <div className='flex flex-col text-sm font-bold'>
-                                <p className='text-base chewy'>Kalinga ng Kababaihan</p>
-                                <p className='text-xs poppins-regular text-gray-200'>Women's League Las Piñas</p>
+                                <p className='text-base chewy'>{websiteLogo.main_text}</p>
+                                <p className='text-xs poppins-regular text-gray-200'>{websiteLogo.secondary_text}</p>
                             </div>
                         </div>
                         <HeaderProfile/>

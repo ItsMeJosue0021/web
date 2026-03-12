@@ -3,9 +3,6 @@ import axios from "axios";
 const api = axios.create({
     // baseURL: "http://127.0.0.1:8000/api",
     baseURL: "https://api.kalingangkababaihan.com/api",
-    headers: {
-        "Content-Type": "application/json",
-    },
     withCredentials: true,
 });
 
@@ -34,17 +31,19 @@ const _get = (url, config = {}) => {
 // }
 
 const _post = (url, data = {}, config = {}) => {
-    
     let finalConfig = { ...config };
 
-    // If payload is FormData, remove JSON header and let Axios set it
     if (data instanceof FormData) {
         finalConfig.headers = {
             ...(config.headers || {}),
-            "Content-Type": "multipart/form-data",
         };
+        if ("Content-Type" in finalConfig.headers) {
+            delete finalConfig.headers["Content-Type"];
+        }
+        if ("content-type" in finalConfig.headers) {
+            delete finalConfig.headers["content-type"];
+        }
     } else {
-        // Default: JSON
         finalConfig.headers = {
             ...(config.headers || {}),
             "Content-Type": "application/json",
@@ -61,8 +60,13 @@ const _put = (url, data = {}, config = {}) => {
     if (data instanceof FormData) {
         finalConfig.headers = {
             ...(config.headers || {}),
-            "Content-Type": "multipart/form-data",
         };
+        if ("Content-Type" in finalConfig.headers) {
+            delete finalConfig.headers["Content-Type"];
+        }
+        if ("content-type" in finalConfig.headers) {
+            delete finalConfig.headers["content-type"];
+        }
     } else {
         finalConfig.headers = {
             ...(config.headers || {}),

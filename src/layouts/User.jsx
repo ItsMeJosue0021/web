@@ -8,7 +8,7 @@ import { BiLogOut } from "react-icons/bi";
 import { GiHamburgerMenu } from "react-icons/gi";
 import { AuthContext } from "../AuthProvider";
 import LoggingOut from "../components/LoggingOut";
-import logopng from "../assets/img/logo.png";
+import Logo from "../components/Logo";
 import { X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { IoSettingsOutline } from "react-icons/io5";
@@ -31,12 +31,12 @@ const User = ({ children }) => {
     setLoggingOut(true);
     try {
       await logout();
-    } catch (error) { 
+    } catch (error) {
       toast.error("Failed to log out");
     } finally {
       setLoggingOut(false);
     }
-  }
+  };
 
   return (
     <div className="w-screen min-h-screen h-auto overflow-hidden">
@@ -44,13 +44,13 @@ const User = ({ children }) => {
       <div className="w-full flex flex-col items-start justify-start ">
         <div className="fixed w-full h-fit flex items-center justify-between bg-white shadow-sm px-4 md:px-8 py-2">
           <div className=" h-fit flex items-center justify-between w-full  ">
-            <Link to="/" className='flex items-center space-x-2 text-black hover:text-black'>
-                <img src={logopng} alt="logo" className='min-w-14 w-14  min-h-14 h-14 rounded-full'/>
-                <div className='hidden md:flex flex-col text-sm font-bold'>
-                    <p className='text-xs md:text-sm chewy'>Kalinga ng Kababaihan</p>
-                    <p className='text-[10px]  poppins-regular'>Women's League Las Piñas</p>
-                </div>
-            </Link>
+            <Logo
+              wrapperClassName="flex items-center space-x-2 text-black hover:text-black"
+              imageClassName="min-w-14 w-14 min-h-14 h-14 rounded-full"
+              textWrapperClassName="hidden md:flex flex-col text-sm font-bold"
+              mainTextClassName="text-xs md:text-sm chewy"
+              secondaryTextClassName="text-[10px] poppins-regular"
+            />
             <div className="hidden md:flex items-center space-x-10">
               <ul className='text-xs flex space-x-10'>
                   <li>
@@ -69,15 +69,14 @@ const User = ({ children }) => {
                       <Link to="/contact-us" className='text-black'>Contact Us</Link>
                   </li>
               </ul>
-              {/* <HeaderProfile /> */}
             </div>
-            <div 
-              onClick={() => setMobileNavOpen(!mobileNavOpen)} 
+            <div
+              onClick={() => setMobileNavOpen(!mobileNavOpen)}
               className="md:hidden flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
             >
-              <GiHamburgerMenu  
-                size={20} 
-                strokeWidth={0.5} 
+              <GiHamburgerMenu
+                size={20}
+                strokeWidth={0.5}
                 className="group-hover:text-blue-500 transition-all duration-300 ease-in-out text-gray-700"
               />
             </div>
@@ -86,76 +85,76 @@ const User = ({ children }) => {
         <div className="w-full h-auto flex items-start px-0 md:px-8 ">
           <div className={`${isOpen ? 'w-56 min-w-56' : 'w-fit'} hidden md:flex pr-8 min-h-screen h-auto pt-28 border-r border-gray-100`}>
               <div className="w-full flex flex-col items-start justify-start gap-1">
-                  <div 
-                    onClick={() => setIsOpen(!isOpen)} 
+                  <div
+                    onClick={() => setIsOpen(!isOpen)}
                     className="flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
                   >
-                    <GiHamburgerMenu  
-                      size={20} 
-                      strokeWidth={0.5} 
+                    <GiHamburgerMenu
+                      size={20}
+                      strokeWidth={0.5}
                       className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                     />
                   </div>
 
-                  <div 
-                    onClick={() => setActiveTab('home')} 
+                  <div
+                    onClick={() => setActiveTab('home')}
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'home' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
-                        <GoHome 
-                          size={20} 
-                          strokeWidth={0.5} 
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        <GoHome
+                          size={20}
+                          strokeWidth={0.5}
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                         />
                       </div>
                       {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Home</span>)}
                   </div>
 
-                  <div 
-                    onClick={() => setActiveTab('requests')} 
+                  <div
+                    onClick={() => setActiveTab('requests')}
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'requests' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
-                        <IoPaperPlaneOutline 
-                          size={20} 
-                          strokeWidth={0.5} 
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        <IoPaperPlaneOutline
+                          size={20}
+                          strokeWidth={0.5}
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                         />
                       </div>
                       {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Requests</span>)}
                   </div>
 
-                  <div 
-                    onClick={() => setActiveTab('membership')} 
+                  <div
+                    onClick={() => setActiveTab('membership')}
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'membership' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
-                        <IoNewspaperOutline  
-                          size={20} 
-                          strokeWidth={0.5} 
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out" 
+                        <IoNewspaperOutline
+                          size={20}
+                          strokeWidth={0.5}
+                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                         />
                       </div>
                       {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Membership</span>)}
                   </div>
 
-                  <div 
-                    onClick={() => setActiveTab('profile')} 
+                  <div
+                    onClick={() => setActiveTab('profile')}
                     className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'profile' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
                       <div>
                         <IoSettingsOutline
-                          size={18} 
-                          strokeWidth={0.5} 
+                          size={18}
+                          strokeWidth={0.5}
                           className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
                         />
                       </div>
                       {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Settings</span>)}
                   </div>
 
-                  <div 
-                    onClick={() => handleLogout()} 
+                  <div
+                    onClick={() => handleLogout()}
                     className={`${isOpen ? 'w-full' : 'w-fit'} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-red-50 hover:border-red-100 group`}>
                       <div>
-                        <BiLogOut 
-                          size={18} 
-                          strokeWidth={0.2} 
+                        <BiLogOut
+                          size={18}
+                          strokeWidth={0.2}
                           className="group-hover:text-red-500 transition-all duration-300 ease-in-out"/>
                       </div>
                       {isOpen && (<span className="text-xs group-hover:text-red-500 transition-all duration-300 ease-in-out">Logout</span>)}
@@ -173,7 +172,7 @@ const User = ({ children }) => {
 
       {mobileNavOpen && (
         <AnimatePresence>
-            <motion.div 
+            <motion.div
             role="alert"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -198,16 +197,16 @@ const User = ({ children }) => {
                     <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Contact Us</a>
                     </Link>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('home')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('home');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Portal</a>
                     </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('membership')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('membership');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Membership</a>
                     </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('requests')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('requests');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Requests</a>
                     </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile')}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
+                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
                         <a className="text-black group-hover:text-orange-600">Profile</a>
                     </span>
                     <span onClick={() => handleLogout()} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
@@ -219,7 +218,6 @@ const User = ({ children }) => {
       )}
     </div>
   );
-}
+};
 
 export default User;
-

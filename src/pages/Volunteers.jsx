@@ -5,7 +5,6 @@ import supermom from "../assets/img/supermom.png";
 import feeding from "../assets/img/feeding.png";
 import volunteers from "../assets/img/volunteers.png";
 import volunteer from "../assets/img/volunteer.png";
-import logo from "../assets/img/logo.png";
 import action from "../assets/img/action.png";
 import { MapPin, Phone, Send } from "lucide-react";
 import { Link } from "react-router-dom";

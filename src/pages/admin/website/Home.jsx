@@ -3,6 +3,7 @@ import Admin from "../../../layouts/Admin";
 import { _delete, _get, _post, _put } from "../../../api";
 import CircularLoading from "../../../components/CircularLoading";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
+import { notifyWebsiteLogoUpdated } from "../../../hooks/useWebsiteLogo";
 import { toast } from "react-toastify";
 
 const WebHome = () => {
@@ -86,6 +87,51 @@ const WebHome = () => {
     const [originalInvolvementInfo, setOriginalInvolvementInfo] = useState(null);
     const [involvementLoading, setInvolvementLoading] = useState(true);
     const [involvementSaving, setInvolvementSaving] = useState(false);
+    const [websiteLogoInfo, setWebsiteLogoInfo] = useState({
+        id: null,
+        main_text: "",
+        secondary_text: "",
+        image_path: "",
+        created_at: null,
+        updated_at: null,
+    });
+    const [originalWebsiteLogoInfo, setOriginalWebsiteLogoInfo] = useState(null);
+    const [websiteLogoLoading, setWebsiteLogoLoading] = useState(true);
+    const [websiteLogoSaving, setWebsiteLogoSaving] = useState(false);
+    const [websiteLogoImageFile, setWebsiteLogoImageFile] = useState(null);
+    const [websiteLogoImagePreview, setWebsiteLogoImagePreview] = useState("");
+    const [websiteLogoExistingImage, setWebsiteLogoExistingImage] = useState("");
+
+    const fetchWebsiteLogoInfo = async () => {
+        setWebsiteLogoLoading(true);
+        try {
+            const response = await _get("/website-logo");
+            const data = response.data || {};
+            const cleaned = {
+                id: data.id ?? null,
+                main_text: data.main_text || "",
+                secondary_text: data.secondary_text || "",
+                image_path: data.image_path || "",
+                created_at: data.created_at ?? null,
+                updated_at: data.updated_at ?? null,
+            };
+            setWebsiteLogoInfo(cleaned);
+            setOriginalWebsiteLogoInfo(cleaned);
+            setWebsiteLogoImageFile(null);
+            setWebsiteLogoImagePreview("");
+            const resolvedImage = data.image_path
+                ? (data.image_path.startsWith("http")
+                    ? data.image_path
+                    : `${storageBase}${data.image_path}`)
+                : "";
+            setWebsiteLogoExistingImage(resolvedImage);
+        } catch (error) {
+            console.error("Error fetching website logo:", error);
+            toast.error("Unable to load website logo.");
+        } finally {
+            setWebsiteLogoLoading(false);
+        }
+    };
 
     const fetchHomepageInfo = async () => {
         setLoading(true);
@@ -278,6 +324,7 @@ const WebHome = () => {
     };
 
     useEffect(() => {
+        fetchWebsiteLogoInfo();
         fetchHomepageInfo();
         fetchCarouselImages();
         fetchProgramsInfo();
@@ -303,6 +350,35 @@ const WebHome = () => {
             (program) => program.title.trim() && program.description.trim()
         );
     }, [programsInfo]);
+
+    const buildWebsiteLogoPayload = (source) => ({
+        id: source.id,
+        main_text: source.main_text?.trim() || "",
+        secondary_text: source.secondary_text?.trim() || "",
+        image_path: source.image_path || "",
+        created_at: source.created_at,
+        updated_at: source.updated_at,
+    });
+
+    const normalizedWebsiteLogo = useMemo(
+        () => buildWebsiteLogoPayload(websiteLogoInfo),
+        [websiteLogoInfo]
+    );
+
+    const hasWebsiteLogoChanges = useMemo(() => {
+        if (!originalWebsiteLogoInfo) return false;
+        const normalizedOriginal = buildWebsiteLogoPayload(originalWebsiteLogoInfo);
+        const hasDataChanges = JSON.stringify(normalizedWebsiteLogo) !== JSON.stringify(normalizedOriginal);
+        return hasDataChanges || Boolean(websiteLogoImageFile);
+    }, [normalizedWebsiteLogo, originalWebsiteLogoInfo, websiteLogoImageFile]);
+
+    const hasWebsiteLogoRequiredFields = useMemo(() => {
+        return Boolean(
+            normalizedWebsiteLogo.main_text
+            && normalizedWebsiteLogo.secondary_text
+            && (websiteLogoImageFile || normalizedWebsiteLogo.image_path)
+        );
+    }, [normalizedWebsiteLogo, websiteLogoImageFile]);
 
     const normalizeChecklist = (checklist = []) => (
         checklist
@@ -353,6 +429,28 @@ const WebHome = () => {
                 programIndex === index ? { ...program, [field]: value } : program
             )),
         }));
+    };
+
+    const handleWebsiteLogoChange = (field, value) => {
+        setWebsiteLogoInfo((prev) => ({ ...prev, [field]: value }));
+    };
+
+    const handleWebsiteLogoImageChange = (e) => {
+        const file = e.target.files?.[0];
+        if (!file) return;
+        if (websiteLogoImagePreview) {
+            URL.revokeObjectURL(websiteLogoImagePreview);
+        }
+        setWebsiteLogoImageFile(file);
+        setWebsiteLogoImagePreview(URL.createObjectURL(file));
+    };
+
+    const handleRemoveWebsiteLogoImage = () => {
+        if (websiteLogoImagePreview) {
+            URL.revokeObjectURL(websiteLogoImagePreview);
+        }
+        setWebsiteLogoImageFile(null);
+        setWebsiteLogoImagePreview("");
     };
 
     const handleEncouragementChange = (field, value) => {
@@ -566,6 +664,53 @@ const WebHome = () => {
         }
     };
 
+    const handleWebsiteLogoSave = async (e) => {
+        e.preventDefault();
+        if (!hasWebsiteLogoChanges) return;
+
+        setWebsiteLogoSaving(true);
+        const payload = buildWebsiteLogoPayload(websiteLogoInfo);
+
+        try {
+            if (websiteLogoImageFile) {
+                const formData = new FormData();
+                formData.append("id", payload.id ?? "");
+                formData.append("main_text", payload.main_text);
+                formData.append("secondary_text", payload.secondary_text);
+                formData.append("image_path", payload.image_path || "");
+                formData.append("created_at", payload.created_at ?? "");
+                formData.append("updated_at", payload.updated_at ?? "");
+                formData.append("image", websiteLogoImageFile);
+                await _post("/website-logo", formData);
+            } else {
+                await _put("/website-logo", {
+                    ...payload,
+                    image_path: payload.image_path || "",
+                    created_at: payload.created_at ?? "",
+                    updated_at: payload.updated_at ?? "",
+                });
+            }
+
+            setSuccessMessage("Website logo saved successfully.");
+            setShowSuccessAlert(true);
+            setOriginalWebsiteLogoInfo(websiteLogoInfo);
+            setWebsiteLogoImageFile(null);
+            setWebsiteLogoImagePreview("");
+            notifyWebsiteLogoUpdated();
+            fetchWebsiteLogoInfo();
+        } catch (error) {
+            console.error("Error saving website logo:", error);
+            if (error.response?.status === 422 && error.response?.data?.errors) {
+                const validationMessages = Object.values(error.response.data.errors).flat().join(" ");
+                toast.error(validationMessages || "Unable to save website logo. Please check required fields.");
+            } else {
+                toast.error("Unable to save website logo. Please try again.");
+            }
+        } finally {
+            setWebsiteLogoSaving(false);
+        }
+    };
+
     const handleProgramsSave = async (e) => {
         e.preventDefault();
         if (!hasProgramsChanges) return;
@@ -734,6 +879,95 @@ const WebHome = () => {
 
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
+            <div className="w-full max-w-5xl mx-auto mt-4">
+                <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
+                    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
+                        <div>
+                            <h2 className="text-lg font-semibold text-gray-800">Website Logo</h2>
+                            <p className="text-xs text-gray-500">Update the logo image and brand text used across the site.</p>
+                        </div>
+                        <button
+                            onClick={handleWebsiteLogoSave}
+                            disabled={!hasWebsiteLogoChanges || !hasWebsiteLogoRequiredFields || websiteLogoSaving}
+                            className={`w-full sm:w-auto px-5 py-2 text-xs rounded text-white transition ${
+                                !hasWebsiteLogoChanges || !hasWebsiteLogoRequiredFields || websiteLogoSaving
+                                    ? "bg-orange-300 cursor-not-allowed"
+                                    : "bg-orange-500 hover:bg-orange-600"
+                            }`}
+                        >
+                            {websiteLogoSaving ? "Saving..." : "Save changes"}
+                        </button>
+                    </div>
+
+                    {websiteLogoLoading ? (
+                        <div className="py-12 flex items-center justify-center">
+                            <CircularLoading customClass="text-orange-500 w-6 h-6" />
+                        </div>
+                    ) : (
+                        <form className="flex flex-col gap-5" onSubmit={handleWebsiteLogoSave} encType="multipart/form-data">
+                            <div className="flex flex-col gap-2">
+                                <label className="text-xs font-semibold text-gray-700">Logo image</label>
+                                <div className="flex flex-col sm:flex-row sm:items-center gap-4">
+                                    <div className="w-28 h-28 rounded-full border border-gray-200 bg-gray-50 overflow-hidden flex items-center justify-center text-[11px] text-gray-400">
+                                        {(websiteLogoImagePreview || websiteLogoExistingImage) ? (
+                                            <img
+                                                src={websiteLogoImagePreview || websiteLogoExistingImage}
+                                                alt="Website logo"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            "No image"
+                                        )}
+                                    </div>
+                                    <div className="flex-1">
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={handleWebsiteLogoImageChange}
+                                            className="w-full text-xs"
+                                        />
+                                        <p className="text-[11px] text-gray-500 mt-1">Use a square image for the cleanest result.</p>
+                                        {websiteLogoImagePreview && (
+                                            <button
+                                                type="button"
+                                                onClick={handleRemoveWebsiteLogoImage}
+                                                className="text-[11px] text-red-600 hover:text-red-700 mt-2"
+                                            >
+                                                Remove selected image
+                                            </button>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-semibold text-gray-700">Main text</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Kalinga ng Kababaihan"
+                                        value={websiteLogoInfo.main_text}
+                                        onChange={(e) => handleWebsiteLogoChange("main_text", e.target.value)}
+                                    />
+                                </div>
+
+                                <div className="flex flex-col gap-2">
+                                    <label className="text-xs font-semibold text-gray-700">Secondary text</label>
+                                    <input
+                                        type="text"
+                                        className="w-full border border-gray-200 rounded px-3 py-2 text-sm focus:ring-2 focus:ring-orange-200 outline-none"
+                                        placeholder="Women's League Las Pinas"
+                                        value={websiteLogoInfo.secondary_text}
+                                        onChange={(e) => handleWebsiteLogoChange("secondary_text", e.target.value)}
+                                    />
+                                </div>
+                            </div>
+                        </form>
+                    )}
+                </div>
+            </div>
+
             <div className="w-full max-w-5xl mx-auto mt-4">
                 <div className="bg-white border border-gray-200 rounded-lg shadow-sm p-6">
                     <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">

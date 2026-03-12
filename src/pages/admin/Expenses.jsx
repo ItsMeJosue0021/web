@@ -241,6 +241,11 @@ const Expenses = () => {
     };
 
     const openEdit = (expense) => {
+        if (isLiquidationExpense(expense)) {
+            toast.info("Edit this record from the project liquidation module.");
+            return;
+        }
+
         setEditId(expense.id);
         setEditValidationErrors({});
         setEditAttachmentPreview(expense.attachment ? `${baseURL}${expense.attachment}` : null);
@@ -369,6 +374,25 @@ const Expenses = () => {
     const [viewItemsOpen, setViewItemsOpen] = useState(false);
     const [viewItems, setViewItems] = useState([]);
 
+    const isLiquidationExpense = (expense) => expense?.source_type === "project_liquidation";
+
+    const getSourceLabel = (expense) => {
+        if (isLiquidationExpense(expense)) {
+            return "Project liquidation";
+        }
+
+        return "Manual";
+    };
+
+    const handleDeleteClick = (expense) => {
+        if (isLiquidationExpense(expense)) {
+            toast.info("Delete this record from the project liquidation module.");
+            return;
+        }
+
+        setDeleteId(expense.id);
+    };
+
     const formatCurrency = (value) => {
         const num = Number(value) || 0;
                         return `PHP ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -496,6 +520,7 @@ const Expenses = () => {
                             <thead className="bg-orange-500 text-white text-xs sticky top-0">
                             <tr className="text-xs">
                                 <th className="p-3 text-start">Reference Number</th>
+                                <th className="p-3 text-start">Source</th>
                                 <th className="p-3 text-start">Name</th>
                                 <th className="p-3 text-start">Description</th>
                                 <th className="p-3 text-start">Amount</th>
@@ -510,6 +535,22 @@ const Expenses = () => {
                                     <tr key={row.id}
                                     className={`border-b border-gray-100 hover:bg-gray-50 ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
                                         <td className="p-3 text-xs font-semibold text-gray-800">{row.reference_number}</td>
+                                        <td className="p-3 text-xs">
+                                            <div className="flex flex-col gap-1">
+                                                <span
+                                                    className={`inline-flex w-fit items-center rounded-full px-2 py-1 text-[10px] font-semibold ${
+                                                        isLiquidationExpense(row)
+                                                            ? "bg-blue-50 text-blue-700"
+                                                            : "bg-emerald-50 text-emerald-700"
+                                                    }`}
+                                                >
+                                                    {getSourceLabel(row)}
+                                                </span>
+                                                {row.project?.title && (
+                                                    <span className="text-[10px] text-gray-500">{row.project.title}</span>
+                                                )}
+                                            </div>
+                                        </td>
                                         <td className="p-3 text-xs">{row.name}</td>
                                         <td className="p-3 text-xs">{row.description}</td>
                                         <td className="p-3 text-xs font-mono">{formatCurrency(row.amount)}</td>
@@ -521,19 +562,36 @@ const Expenses = () => {
                                                     setViewItems(row.items || []);
                                                     setViewItemsOpen(true);
                                                 }}
-                                                className="bg-gray-100 text-gray-700 text-[10px] px-2 py-1 rounded hover:bg-gray-200"
-                                                >
+                                                disabled={isLiquidationExpense(row)}
+                                                className={`text-[10px] px-2 py-1 rounded ${
+                                                    isLiquidationExpense(row)
+                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                                                }`}
+                                                title={isLiquidationExpense(row) ? "Project liquidation expenses do not use the See Items view." : "See items"}
+                                            >
                                                 See Items
                                             </button>
                                             <button
-                                                className="bg-blue-50 text-blue-600 px-1 py-1 rounded"
+                                                className={`px-1 py-1 rounded ${
+                                                    isLiquidationExpense(row)
+                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                        : "bg-blue-50 text-blue-600"
+                                                }`}
                                                 onClick={() => openEdit(row)}
+                                                title={isLiquidationExpense(row) ? "Edit from the project liquidation module." : "Edit expense"}
                                                 >
                                                 <Edit size={16} />
                                             </button>
                                             <button 
-                                                onClick={() => setDeleteId(row.id)} 
-                                                className="bg-red-50 text-red-600 px-1 py-1 rounded">
+                                                onClick={() => handleDeleteClick(row)} 
+                                                className={`px-1 py-1 rounded ${
+                                                    isLiquidationExpense(row)
+                                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                                        : "bg-red-50 text-red-600"
+                                                }`}
+                                                title={isLiquidationExpense(row) ? "Delete from the project liquidation module." : "Delete expense"}
+                                            >
                                                 <Trash2 size={16} />
                                             </button>
                                         </td>

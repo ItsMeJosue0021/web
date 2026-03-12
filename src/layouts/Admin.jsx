@@ -1,5 +1,5 @@
 import '../css/layout-head.css';
-import logo from '../assets/img/logo.png';
+import Logo from '../components/Logo';
 import { useEffect, useState, useContext } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Breadcrumbs from '../components/Breadcrumbs';
@@ -80,8 +80,14 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                 <div className="w-full h-36 md:h-40 bg-orange-500 ">
                     <div className='flex items-start justify-between h-full p-4'>
                         <div className='flex items-center space-x-2 text-white'>
-                            <img src={logo} alt="logo" className='w-16 h-16 rounded-full p-0.5 bg-white'/>
-                            <div className='hidden md:flex flex-col text-sm font-bold'>
+                            <Logo
+                                wrapperClassName="flex items-center space-x-2 text-white hover:text-white"
+                                imageClassName="w-16 h-16 rounded-full p-0.5 bg-white"
+                                textWrapperClassName="hidden md:flex flex-col text-sm font-bold"
+                                mainTextClassName="text-base chewy"
+                                secondaryTextClassName="text-xs poppins-regular text-gray-50"
+                            />
+                            <div className='hidden'>
                                 <p className='text-base chewy'>Kalinga ng Kababaihan</p>
                                 <p className='text-xs poppins-regular text-gray-50'>Women&apos;s League Las Piñas</p>
                             </div>

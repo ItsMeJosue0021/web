@@ -3,8 +3,7 @@ import React, { useState } from 'react';
 import { X, Send } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { _post } from '../../api';
-import botAvatar from "../../assets/img/logo.png";
-import userAvatar from "../../assets/img/logo.png";
+import { useWebsiteLogo } from "../../hooks/useWebsiteLogo";
 import "../../css/loading.css";
 
 const ChatBox = ({ toggleChatbot }) => {
@@ -12,6 +11,7 @@ const ChatBox = ({ toggleChatbot }) => {
     const [input, setInput] = useState("");
     const [messages, setMessages] = useState([]);
     const [isLoading, setIsLoading] = useState(false);
+    const { websiteLogo, logoImageSrc } = useWebsiteLogo();
 
     // 🔥 SAMPLE QUESTIONS (restored)
     const sampleQuestions = [
@@ -62,8 +62,8 @@ const ChatBox = ({ toggleChatbot }) => {
                 {/* HEADER */}
                 <div className="bg-orange-600 text-white p-4 flex justify-between items-center rounded-t-xl">
                     <div className="flex items-center gap-2">
-                        <img src={botAvatar} className="w-8 h-8 rounded-full" />
-                        <span className="font-semibold text-sm chewy">Kalinga ng Kababaihan</span>
+                        <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-8 h-8 rounded-full object-cover" />
+                        <span className="font-semibold text-sm chewy">{websiteLogo.main_text}</span>
                     </div>
                     <button onClick={toggleChatbot} className='bg-transparent'><X /></button>
                 </div>
@@ -93,7 +93,7 @@ const ChatBox = ({ toggleChatbot }) => {
                         <div key={i} className={`flex items-end gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}>
 
                             {msg.sender === "bot" && (
-                                <img src={botAvatar} className="w-7 h-7 rounded-full" />
+                                <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-7 h-7 rounded-full object-cover" />
                             )}
 
                             <div
@@ -108,7 +108,7 @@ const ChatBox = ({ toggleChatbot }) => {
                             </div>
 
                             {msg.sender === "user" && (
-                                <img src={userAvatar} className="w-7 h-7 rounded-full" />
+                                <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-7 h-7 rounded-full object-cover" />
                             )}
                         </div>
                     ))}
@@ -116,7 +116,7 @@ const ChatBox = ({ toggleChatbot }) => {
                     {/* Typing Indicator */}
                     {isLoading && (
                         <div className="flex items-center gap-2 mt-2">
-                            <img src={botAvatar} className="w-6 h-6 rounded-full" />
+                            <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-6 h-6 rounded-full object-cover" />
                             <div className="typing-indicator">
                                 <span></span><span></span><span></span>
                             </div>

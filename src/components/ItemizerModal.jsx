@@ -1,10 +1,10 @@
-import { Trash2, X } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { _get, _post, _put, _delete } from "../api";
-import { Modal } from "flowbite-react";
 import ModalContainer from "./ModalContainer";
 import ConfirmationAlert from "./alerts/ConfirmationAlert";
 import WarningAlert from "./alerts/WarningAlert";
+import SuccesAlert from "./alerts/SuccesAlert";
 import { getExpiryWarningMeta } from "../utils/expiryWarning";
 
 const ItemizerModal = ({ donation, fetchDonations }) => {
@@ -18,6 +18,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
     const [saving, setSaving] = useState(false);
     const [actionModal, setActionModal] = useState(null);
     const [actionLoading, setActionLoading] = useState(false);
+    const [showApproveSuccessModal, setShowApproveSuccessModal] = useState(false);
     const [showItemizeWarning, setShowItemizeWarning] = useState(false);
     const [donationStatus, setDonationStatus] = useState(donation?.status);
     const [rejectReason, setRejectReason] = useState("");
@@ -215,11 +216,16 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         try {
             if (actionModal === "approve") {
                 await _put(`/goods-donations/v2/${donation.id}/approve`);
+                setDonationStatus("approved");
+                setShowApproveSuccessModal(true);
+                setTimeout(() => {
+                    window.location.href = "/donations/goods";
+                }, 1500);
             } else {
                 await _put(`/goods-donations/v2/${donation.id}/reject`, { reason: rejectReason });
+                setDonationStatus("rejected");
             }
             fetchDonations();
-            setDonationStatus(actionModal === "approve" ? "approved" : "rejected");
         } catch (error) {
             console.error("Error updating donation:", error);
         } finally {
@@ -227,6 +233,11 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
             setActionModal(null);
             setRejectReason("");
         }
+    };
+
+    const handleApproveSuccessClose = () => {
+        setShowApproveSuccessModal(false);
+        window.location.href = "/donations/goods";
     };
 
     const getCategoryName = (id) => {
@@ -276,6 +287,12 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                     confirmLoadingLabel="Confirming.."
                 />
             )}
+            {showApproveSuccessModal && (
+                <SuccesAlert
+                    message="Donation approved successfully."
+                    onClose={handleApproveSuccessClose}
+                />
+            )}
             {actionModal === "reject" && (
                 <div className="fixed inset-0 bg-black/30 z-50 flex items-center justify-center p-4">
                     <div className="bg-white w-full max-w-md rounded-lg shadow-lg p-5">
@@ -312,22 +329,24 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                     </div>
                 </div>
             )}
-            <div className="w-full max-w-[800px] pb-8 md:pb-0 ">
-                <div className="mb-6 rounded-2xl border border-orange-100 bg-gradient-to-br from-orange-50 via-white to-amber-50 p-4 md:p-5 shadow-sm">
-                    <div className="flex flex-col gap-1">
-                        <p className="text-xs font-semibold uppercase tracking-wide text-orange-700">Donation overview</p>
-                        <p className="text-xl font-semibold text-orange-600">
-                            Itemize your goods donations for easier monitoring.
-                        </p>
+            <div className="w-full max-w-[1100px] pb-8 md:pb-0">
+                <div className="mb-6 rounded-2xl border border-gray-200 bg-white shadow-sm">
+                    <div className="px-4 py-4 md:px-5 md:py-5 border-b border-gray-100">
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Donation overview</p>
+                        <h2 className="mt-1 text-lg font-semibold text-gray-800">Donor information</h2>
                     </div>
-                    <div className="mt-4 grid grid-cols-1 gap-3 text-sm text-gray-700 md:grid-cols-2">
-                        <div className="rounded-xl border border-orange-100 bg-white/80 px-3 py-2">
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Donor</p>
-                            <p className="font-medium text-gray-900">{donation.name || "Anonymous"}</p>
-                        </div>
-                        <div className="rounded-xl border border-orange-100 bg-white/80 px-3 py-2">
-                            <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500">Email</p>
-                            <p className="font-medium text-gray-900">{donation.email || "N/A"}</p>
+                    <div className="px-4 py-4 md:px-5 md:py-5">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                            <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1">Donor Name</p>
+                                <p className="font-semibold text-gray-900">
+                                    {donation.name || "Anonymous"}
+                                </p>
+                            </div>
+                            <div className="rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
+                                <p className="text-[11px] font-semibold uppercase tracking-wide text-gray-500 mb-1">Email Address</p>
+                                <p className="font-semibold text-gray-900 break-all">{donation.email || "N/A"}</p>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -340,11 +359,11 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                         </div>
                         <div className="flex flex-wrap items-center gap-2">
                             {donationStatus === "approved" ? (
-                                <span className="rounded-full bg-green-50 px-3 py-1 text-[11px] font-semibold text-green-700 border border-green-100">
+                                <span className="rounded-md bg-green-50 px-3 py-1 text-[11px] font-semibold text-green-700 border border-green-100">
                                     Approved
                                 </span>
                             ) : donationStatus === "rejected" ? (
-                                <span className="rounded-full bg-red-50 px-3 py-1 text-[11px] font-semibold text-red-700 border border-red-100">
+                                <span className="rounded-md bg-red-50 px-3 py-1 text-[11px] font-semibold text-red-700 border border-red-100">
                                     Rejected
                                 </span>
                             ) : (
@@ -352,7 +371,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                     <button
                                         type="button"
                                         onClick={openRejectModal}
-                                        className="text-xs rounded-full px-4 py-2 cursor-pointer bg-red-50 text-red-700 border border-red-100 hover:bg-red-100"
+                                        className="text-xs rounded-md px-4 py-2 cursor-pointer bg-red-50 text-red-700 border border-red-100 hover:bg-red-100"
                                     >
                                         Reject
                                     </button>
@@ -360,7 +379,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                         type="button"
                                         onClick={openApproveModal}
                                         disabled={loading || items.length === 0}
-                                        className={`text-xs rounded-full px-4 py-2 cursor-pointer border ${loading || items.length === 0 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-green-600 text-white border-green-600 hover:bg-green-700"}`}
+                                        className={`text-xs rounded-md px-4 py-2 cursor-pointer border ${loading || items.length === 0 ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-green-600 text-white border-green-600 hover:bg-green-700"}`}
                                     >
                                         Confirm
                                     </button>
@@ -368,7 +387,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                             )}
                             <button
                                 onClick={() => setAddItemModalOpen(true)}
-                                className="text-xs rounded-full px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none shadow-sm">
+                                className="text-xs rounded-md px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none shadow-sm">
                                 Add Items
                             </button>
                         </div>
@@ -380,66 +399,73 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                 <p className="text-xs text-center text-gray-500">Loading items...</p>
                             </div>
                         ) : (
-                            items.length > 0 && items.map((item) => {
-                                const expiryMeta = getExpiryMeta(item.expiry_date || item.expiryDate);
-                                return (
-                                <div key={item.id} className="relative h-auto overflow-y-auto rounded-2xl border border-gray-200 bg-white p-4 shadow-sm transition hover:shadow-md">
-                                    <div className="w-full h-auto flex flex-col md:flex-row items-start md:items-center gap-4">
-                                        <img 
-                                            src={`${baseURL}${item.image}`} 
-                                            alt="item" 
-                                            className="rounded-xl w-full md:w-28 h-52 md:h-28 min-w-28 min-h-28 object-center object-cover bg-gray-100" 
-                                        />
-                                        <div className="w-full flex flex-col gap-2 text-xs text-gray-600">
-                                            <div className="flex items-start justify-between gap-3 pr-10">
-                                                <div>
-                                                    <p className="text-xs font-semibold uppercase tracking-wide text-gray-400">Item</p>
-                                                    <strong className="text-base text-orange-600">{item.name}</strong>
-                                                </div>
-                                                <span className="rounded-full bg-orange-50 px-3 py-1 text-[11px] font-semibold text-orange-700">
-                                                    Qty {item.quantity}
-                                                </span>
-                                            </div>
-                                            <div className="grid grid-cols-2 md:grid-cols-4 gap-2">
-                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Category</p>
-                                                    <p className="text-xs font-medium text-gray-700">{getCategoryName(item.category)}</p>
-                                                </div>
-                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Subcategory</p>
-                                                    <p className="text-xs font-medium text-gray-700">{getSubcategoryName(item.sub_category)}</p>
-                                                </div>
-                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Unit</p>
-                                                    <p className="text-xs font-medium text-gray-700">{item.unit || "..."}</p>
-                                                </div>
-                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Notes</p>
-                                                    <p className="text-xs font-medium text-gray-700">{item.notes || "..."}</p>
-                                                </div>
-                                                <div className="rounded-lg border border-gray-100 bg-gray-50 px-2 py-2">
-                                                    <p className="text-[10px] font-semibold uppercase tracking-wide text-gray-400">Expiry Date</p>
-                                                    <span className={`inline-flex items-center rounded px-2 py-1 text-[11px] font-semibold ${expiryMeta.className}`}>
-                                                        {expiryMeta.label}
-                                                    </span>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <button
-                                        onClick={() => setDeleteItemId(item.id)}
-                                        className="absolute right-3 top-3 rounded-full bg-white p-1 text-gray-400 transition hover:border-red-200 hover:text-red-500"
-                                        aria-label="Delete item"
-                                    >
-                                        <Trash2 className="min-w-4 w-4 min-h-4 h-4" />
-                                    </button>
+                            items.length > 0 ? (
+                                <div className="w-full max-h-[480px] overflow-y-auto overflow-x-hidden rounded-2xl border border-gray-200 bg-white shadow-sm">
+                                    <table className="w-full text-xs text-left">
+                                        <thead className="sticky top-0 bg-white/95 backdrop-blur border-b border-gray-100">
+                                            <tr>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Image</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Item</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Qty</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Category</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Subcategory</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Unit</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Notes</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Expiry Date</th>
+                                                <th className="px-4 py-3 text-[11px] font-semibold uppercase tracking-wide text-gray-500">Action</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {items.map((item, index) => {
+                                                const expiryMeta = getExpiryMeta(item.expiry_date || item.expiryDate);
+                                                return (
+                                                    <tr key={item.id} className={`border-b border-gray-100 text-gray-600 ${index % 2 === 0 ? "bg-white" : "bg-slate-50/50"} hover:bg-blue-50/40 transition-colors`}>
+                                                        <td className="px-4 py-3 align-top">
+                                                            {item.image && String(item.image).trim() ? (
+                                                                <img
+                                                                    src={`${baseURL}${item.image}`}
+                                                                    alt="item"
+                                                                    className="rounded-lg h-16 w-24 object-cover object-center bg-gray-100"
+                                                                />
+                                                            ) : (
+                                                                <div className="rounded-lg h-16 w-24 bg-gray-200 flex items-center justify-center text-center px-2">
+                                                                    <span className="text-xs font-semibold text-gray-500 text-center">No image available</span>
+                                                                </div>
+                                                            )}
+                                                        </td>
+                                                        <td className="px-4 py-3 font-medium text-gray-800 align-top">{item.name}</td>
+                                                        <td className="px-4 py-3 align-top">{item.quantity}</td>
+                                                        <td className="px-4 py-3 align-top">{getCategoryName(item.category)}</td>
+                                                        <td className="px-4 py-3 align-top">{getSubcategoryName(item.sub_category)}</td>
+                                                        <td className="px-4 py-3 align-top">{item.unit || "..."}</td>
+                                                        <td className="px-4 py-3 align-top text-gray-600 max-w-[260px] break-words whitespace-normal">
+                                                            {item.notes || "---"}
+                                                        </td>
+                                                        <td className="px-4 py-3 align-top">
+                                                                <span className={`inline-flex items-center rounded-sm px-2 py-1 text-[11px] font-semibold ${expiryMeta.className}`}>
+                                                                {expiryMeta.label}
+                                                            </span>
+                                                        </td>
+                                                        <td className="px-4 py-3 align-top">
+                                                            <button
+                                                                onClick={() => setDeleteItemId(item.id)}
+                                                                className="rounded-md bg-white border border-gray-200 p-1.5 text-gray-400 transition hover:border-red-200 hover:text-red-500"
+                                                                aria-label="Delete item"
+                                                            >
+                                                                <Trash2 className="min-w-4 w-4 min-h-4 h-4" />
+                                                            </button>
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            })}
+                                        </tbody>
+                                    </table>
                                 </div>
-                            )})
-                        )}
-                        {items.length === 0 && !loading && (
-                            <div className="min-h-48 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
-                                <p className="text-xs text-center text-gray-500">No items found.</p>
-                            </div>
+                            ) : (
+                                <div className="min-h-48 w-full flex flex-col items-center justify-center gap-2 rounded-2xl border border-dashed border-gray-200 bg-gray-50">
+                                    <p className="text-xs text-center text-gray-500">No items found.</p>
+                                </div>
+                            )
                         )}
                     </div>
                 </div>

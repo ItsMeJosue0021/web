@@ -209,6 +209,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 toggle={() => setIsSettingsOpen(!isSettingsOpen)}
                                                 items={[
                                                     { to: "/settings/chatbot", label: "Chatbot" },
+                                                    { to: "/settings/donation-resources", label: "Donation Resources" },
                                                     { to: "/settings/users", label: "Users" },
                                                     { to: "/settings/archived-users", label: "Archived Users" }
                                                 ]}
@@ -379,6 +380,9 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                             <div className="pl-4 pt-1">
                                                 <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Chatbot</p>
+                                                </Link>
+                                                <Link to="/settings/donation-resources" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/donation-resources" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Donation Resources</p>
                                                 </Link>
                                                 <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Users</p>

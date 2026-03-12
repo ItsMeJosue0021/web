@@ -52,6 +52,7 @@ import Inventory from './pages/admin/Inventory';
 import VolunteerRequests from './pages/admin/VolunteerRequests';
 import ArchivedUsers from './pages/admin/ArchivedUsers';
 import MembershipRequests from './pages/admin/MembershipRequests';
+import DonationResources from './pages/admin/DonationResources';
 
 const App = () => {
     useEffect(() => {
@@ -160,6 +161,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <ArchivedUsers />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings/donation-resources"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <DonationResources />
                         </ProtectedRoute>
                     }
                 />

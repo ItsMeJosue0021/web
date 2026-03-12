@@ -55,7 +55,9 @@ const Goods = () => {
     const [donationCategories, setDonationCategories] = useState([]);
     const [filteredSubcategories, setFilteredSubcategories] = useState([]);
     const [items, setItems] = useState([]);
+    const [units, setUnits] = useState([]);
     const [itemErrors, setItemErrors] = useState({});
+    const [unitsError, setUnitsError] = useState("");
     const [itemForm, setItemForm] = useState({
         name: "",
         category_id: "",
@@ -77,67 +79,41 @@ const Goods = () => {
     const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
     const suggestionContainerRef = useRef(null);
     const suggestionsRequestRef = useRef(0);
+    const [unitsLoading, setUnitsLoading] = useState(false);
 
     const [map, setMap] = useState({
         main: false,    
         satellite: false
     });
 
-    useEffect(() => {
-        fetchCategories();
-    }, []);
-    
     const fetchCategories = async () => {
         try {
             const response = await _get(`/goods-donation-categories`);
             setDonationCategories(response.data.categories || []);
-            if (!response.ok) {
-                console.log(response);
-            }
         } catch (error) {
             console.error(error);
         }
     }
 
+    const fetchUnits = async () => {
+        setUnitsLoading(true);
+        setUnitsError("");
+        try {
+            const response = await _get("/units");
+            setUnits(response.data?.units || []);
+        } catch (error) {
+            console.error(error);
+            setUnitsError("Unable to load unit options. Please try again later.");
+            setUnits([]);
+        } finally {
+            setUnitsLoading(false);
+        }
+    };
 
-    const unitOptions = [
-        { unit: "kg", description: "Kilogram (weight)" },
-        { unit: "g", description: "Gram (weight)" },
-        { unit: "mg", description: "Milligram (weight)" },
-        { unit: "lb", description: "Pound (weight)" },
-        { unit: "oz", description: "Ounce (weight)" },
-
-        { unit: "L", description: "Liter (liquid volume)" },
-        { unit: "mL", description: "Milliliter (liquid volume)" },
-        { unit: "gal", description: "Gallon (liquid volume)" },
-
-        { unit: "pc", description: "Piece (single item)" },
-        { unit: "pcs", description: "Pieces (multiple items)" },
-        { unit: "pack", description: "Pack (group of items in one package)" },
-        { unit: "box", description: "Box (items grouped inside a box)" },
-        { unit: "bundle", description: "Bundle (multiple items tied or grouped together)" },
-        { unit: "set", description: "Set (complete group of related items)" },
-        { unit: "dozen", description: "Dozen (12 items)" },
-        { unit: "pair", description: "Pair (2 related or wearable items)" },
-
-        { unit: "sachet", description: "Sachet (small sealed packet)" },
-        { unit: "can", description: "Can (canned item)" },
-        { unit: "bottle", description: "Bottle (liquid in a bottle)" },
-        { unit: "jar", description: "Jar (items stored in a glass or plastic jar)" },
-        { unit: "tray", description: "Tray (tray-packed items, such as eggs)" },
-        { unit: "cup", description: "Cup (small food or beverage cup)" },
-        { unit: "bag", description: "Bag (bagged goods like rice or snacks)" },
-        { unit: "pouch", description: "Pouch (soft packaging pouch)" },
-        { unit: "bar", description: "Bar (soap bar, chocolate bar)" },
-        { unit: "roll", description: "Roll (rolled items like tissue paper)" },
-
-        { unit: "container", description: "Container (general storage container)" },
-        { unit: "carton", description: "Carton (boxed liquid/food like milk)" },
-
-        { unit: "kit", description: "Kit (grouped items for a purpose, e.g., hygiene kit)" },
-        { unit: "family pack", description: "Family Pack (combined goods intended for one family)" },
-        { unit: "relief pack", description: "Relief Pack (standardized pack for disaster response)" },
-    ];
+    useEffect(() => {
+        fetchCategories();
+        fetchUnits();
+    }, []);
 
     const handleItemCategoryChange = (e) => {
         const selectedId = e.target.value;
@@ -206,6 +182,7 @@ const Goods = () => {
         if (!itemForm.subcategory_id) nextErrors.subcategory_id = "Subcategory is required.";
         if (!itemForm.quantity) nextErrors.quantity = "Quantity is required.";
         if (itemForm.quantity && isNaN(itemForm.quantity)) nextErrors.quantity = "Quantity must be a number.";
+        if (!itemForm.unit) nextErrors.unit = "Unit is required.";
 
         setItemErrors(nextErrors);
         return Object.keys(nextErrors).length === 0;
@@ -953,25 +930,27 @@ const Goods = () => {
                                         type="text"
                                         value={itemForm.quantity}
                                         onChange={(e) => setItemForm({ ...itemForm, quantity: e.target.value })}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className="bg-white text-sm h-10 max-h-10 px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     />
                                     {itemErrors.quantity && <p className="text-red-500 text-xs">{itemErrors.quantity}</p>}
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Unit</label>
+                                    <label className="text-xs font-medium">Unit <span className="text-red-500">*</span></label>
                                     <select
                                         value={itemForm.unit}
                                         onChange={(e) => setItemForm({ ...itemForm, unit: e.target.value })}
                                         className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                     >
                                         <option value="">Select unit...</option>
-                                        {unitOptions.map((option) => (
+                                        {units.map((option) => (
                                             <option key={option.unit} value={option.unit}>
                                                 {option.description}
                                             </option>
                                         ))}
                                     </select>
+                                    <p className="text-[11px] text-red-500">{unitsLoading ? "Loading units..." : unitsError || ""}</p>
+                                    <p className="text-red-500 text-xs min-h-[16px]">{itemErrors.unit || ""}</p>
                                 </div>
 
                                 <div className="w-full flex flex-col">

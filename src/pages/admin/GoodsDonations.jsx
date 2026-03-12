@@ -1,13 +1,12 @@
 import Admin from "../../layouts/Admin";
 import { useState, useEffect, useRef } from "react";
-import { Edit, Trash2, SlidersHorizontal, Search, X } from "lucide-react";
+import { X } from "lucide-react";
 import { _get, _delete, _post, _put } from "../../api"; 
 import ConfirmationAlert from "../../components/alerts/ConfirmationAlert";
 import { toast } from "react-toastify";
 import { AnimatePresence, motion } from "framer-motion";
 import Logo from "../../components/Logo";
 import html2pdf from 'html2pdf.js';
-import { set } from "lodash";
 import CircularLoading from "../../components/CircularLoading";
 
 const GoodsDonations = () => {

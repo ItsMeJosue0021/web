@@ -131,6 +131,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
         if (!form.subcategory_id) e.subcategory_id = "Subcategory is required.";
         if (!form.quantity) e.quantity = "Quantity is required.";
         if (form.quantity && isNaN(form.quantity)) e.quantity = "Quantity must be a number.";
+        if (!form.unit) e.unit = "Unit is required.";
 
         setErrors(e);
 
@@ -540,7 +541,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Unit</label>
+                                    <label className="text-xs font-medium">Unit <span className="text-red-500">*</span></label>
                                     <select
                                         value={form.unit}
                                         onChange={(e) => setForm({ ...form, unit: e.target.value })}
@@ -553,6 +554,7 @@ const ItemizerModal = ({ donation, fetchDonations }) => {
                                             </option>
                                         ))}
                                     </select>
+                                    {errors.unit && <p className="text-red-500 text-xs">{errors.unit}</p>}
                                 </div>
 
                                 {/* NOTES */}

@@ -1,11 +1,10 @@
 /* eslint-disable react/prop-types */
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Printer } from "lucide-react";
 import { toast } from "react-toastify";
 import ModalContainer from "../ModalContainer";
 import CircularLoading from "../CircularLoading";
 import { useInventoryItemHistory } from "../../hooks/useInventoryItemHistory";
-import SourceItemDetailModal from "./SourceItemDetailModal";
 import { getExpiryWarningMeta } from "../../utils/expiryWarning";
 import { getApiErrorMessage, printInventoryItemHistory } from "../../services/inventoryService";
 
@@ -23,28 +22,39 @@ const formatDateTime = (value) => {
     });
 };
 
-const STORAGE_BASE_URL = "https://api.kalingangkababaihan.com/storage/";
-
-const resolveImageUrl = (image) => {
-    if (!image) return "";
-    if (/^https?:\/\//i.test(image)) return image;
-    const normalized = `${image}`.replace(/^\/+/, "").replace(/^storage\//, "");
-    return `${STORAGE_BASE_URL}${normalized}`;
-};
-
 const getNormalizedType = (value) => `${value || ""}`.toLowerCase();
+const sanitizeNearExpirationDays = (value) => {
+    const parsed = Number.parseInt(`${value ?? ""}`.trim(), 10);
+
+    if (Number.isNaN(parsed) || parsed <= 0) {
+        return "";
+    }
+
+    return `${Math.min(parsed, 365)}`;
+};
 
 const InventoryHistoryModal = ({ inventoryItem, close }) => {
     const [draftType, setDraftType] = useState("");
     const [draftStartDate, setDraftStartDate] = useState("");
     const [draftEndDate, setDraftEndDate] = useState("");
+    const [draftNearExpirationDays, setDraftNearExpirationDays] = useState("");
+    const initialForceItem = (value) => {
+        if (`${value}` === "1" || `${value}` === "true") return 1;
+        if (value === true || value === 1) return 1;
+        return 0;
+    };
 
     const [appliedFilters, setAppliedFilters] = useState({
         type: "",
         start_date: "",
         end_date: "",
+        near_expiration_days: "",
+        force_item: initialForceItem(inventoryItem?.force_item),
+        item_name: inventoryItem?.item_name || "",
+        unit: inventoryItem?.unit || "",
+        category: inventoryItem?.category || inventoryItem?.category_id || "",
+        sub_category: inventoryItem?.sub_category || inventoryItem?.sub_category_id || "",
     });
-    const [selectedSourceItemId, setSelectedSourceItemId] = useState(null);
     const [printingHistory, setPrintingHistory] = useState(false);
     const [isPrintPreviewOpen, setIsPrintPreviewOpen] = useState(false);
     const [printPreviewUrl, setPrintPreviewUrl] = useState("");
@@ -54,12 +64,18 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
         setDraftType("");
         setDraftStartDate("");
         setDraftEndDate("");
+        setDraftNearExpirationDays("");
         setAppliedFilters({
             type: "",
             start_date: "",
             end_date: "",
+            near_expiration_days: "",
+            force_item: initialForceItem(inventoryItem?.force_item),
+            item_name: inventoryItem?.item_name || "",
+            unit: inventoryItem?.unit || "",
+            category: inventoryItem?.category || inventoryItem?.category_id || "",
+            sub_category: inventoryItem?.sub_category || inventoryItem?.sub_category_id || "",
         });
-        setSelectedSourceItemId(null);
         setIsPrintPreviewOpen(false);
         setPrintPreviewUrl((previousUrl) => {
             if (previousUrl) {
@@ -68,7 +84,7 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
             return "";
         });
         setPrintFilename("");
-    }, [inventoryItem?.id]);
+    }, [inventoryItem?.id, inventoryItem?.force_item, inventoryItem?.item_name, inventoryItem?.unit, inventoryItem?.category, inventoryItem?.category_id, inventoryItem?.sub_category, inventoryItem?.sub_category_id]);
 
     useEffect(() => {
         return () => {
@@ -85,13 +101,83 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
         refetch,
     } = useInventoryItemHistory(inventoryItem?.id, appliedFilters);
 
-    const inTransactions = transactions.filter((row) => getNormalizedType(row.type) === "in");
+    const summaryFilters = useMemo(() => ({
+        type: "",
+        start_date: "",
+        end_date: "",
+        near_expiration_days: "",
+        force_item: initialForceItem(inventoryItem?.force_item),
+        item_name: inventoryItem?.item_name || "",
+        unit: inventoryItem?.unit || "",
+        category: inventoryItem?.category || inventoryItem?.category_id || "",
+        sub_category: inventoryItem?.sub_category || inventoryItem?.sub_category_id || "",
+    }), [inventoryItem?.force_item, inventoryItem?.item_name, inventoryItem?.unit, inventoryItem?.category, inventoryItem?.category_id, inventoryItem?.sub_category, inventoryItem?.sub_category_id]);
+
+    const {
+        transactions: summaryTransactions,
+    } = useInventoryItemHistory(inventoryItem?.id, summaryFilters);
+
+    const itemSummary = useMemo(() => {
+        const rows = Array.isArray(summaryTransactions) ? summaryTransactions : [];
+        const inventoryItemName = inventoryItem?.inventory_item_name || inventoryItem?.item_name || inventoryItem?.name || "N/A";
+        const unit = inventoryItem?.unit || "-";
+        const remainingFromInventoryItem = getNumericValue(inventoryItem?.quantity);
+
+        const inRows = rows.filter((row) => getNormalizedType(row?.type) === "in");
+        let trackedRemainingCount = 0;
+
+        const totalIncomingQuantity = inRows.reduce((sum, row) => {
+            const parsedQuantity = getNumericValue(row?.quantity);
+            if (parsedQuantity === null) return sum;
+            return sum + parsedQuantity;
+        }, 0);
+
+        const totalTrackedRemainingQuantity = inRows.reduce((sum, row) => {
+            const parsedRemaining = getNumericValue(row?.source_item_remaining_quantity);
+            if (parsedRemaining !== null) {
+                trackedRemainingCount += 1;
+            }
+            if (parsedRemaining === null) return sum;
+            return sum + parsedRemaining;
+        }, 0);
+
+        const hasTrackedRemaining = inRows.length > 0 && trackedRemainingCount === inRows.length;
+
+        const totalUsedFromOutTransactions = rows.reduce((sum, row) => {
+            const type = getNormalizedType(row?.type);
+            if (type !== "out") return sum;
+            const parsedQuantity = getNumericValue(row?.quantity);
+            if (parsedQuantity === null) return sum;
+            return sum + parsedQuantity;
+        }, 0);
+
+        const remainingStock = hasTrackedRemaining
+            ? totalTrackedRemainingQuantity
+            : remainingFromInventoryItem ?? 0;
+
+        const totalUsed = hasTrackedRemaining
+            ? Math.max(totalIncomingQuantity - totalTrackedRemainingQuantity, 0)
+            : totalUsedFromOutTransactions;
+
+        return {
+            itemName: inventoryItemName,
+            unit,
+            remainingStock,
+            totalUsed,
+        };
+    }, [summaryTransactions, inventoryItem?.id, inventoryItem?.inventory_item_name, inventoryItem?.item_name, inventoryItem?.name, inventoryItem?.unit, inventoryItem?.quantity]);
 
     const applyFilters = () => {
         setAppliedFilters({
             type: draftType,
             start_date: draftStartDate,
             end_date: draftEndDate,
+            near_expiration_days: sanitizeNearExpirationDays(draftNearExpirationDays),
+            force_item: initialForceItem(inventoryItem?.force_item),
+            item_name: inventoryItem?.item_name || "",
+            unit: inventoryItem?.unit || "",
+            category: inventoryItem?.category || inventoryItem?.category_id || "",
+            sub_category: inventoryItem?.sub_category || inventoryItem?.sub_category_id || "",
         });
     };
 
@@ -99,10 +185,17 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
         setDraftType("");
         setDraftStartDate("");
         setDraftEndDate("");
+        setDraftNearExpirationDays("");
         setAppliedFilters({
             type: "",
             start_date: "",
             end_date: "",
+            near_expiration_days: "",
+            force_item: initialForceItem(inventoryItem?.force_item),
+            item_name: inventoryItem?.item_name || "",
+            unit: inventoryItem?.unit || "",
+            category: inventoryItem?.category || inventoryItem?.category_id || "",
+            sub_category: inventoryItem?.sub_category || inventoryItem?.sub_category_id || "",
         });
     };
 
@@ -123,7 +216,11 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
 
         setPrintingHistory(true);
         try {
-            const fileBlob = await printInventoryItemHistory(inventoryItem.id, appliedFilters);
+            const printPayload = {
+                ...appliedFilters,
+                item_name: appliedFilters.item_name || inventoryItem?.inventory_item_name || inventoryItem?.item_name || inventoryItem?.name || "N/A",
+            };
+            const fileBlob = await printInventoryItemHistory(inventoryItem.id, printPayload);
             const nextUrl = window.URL.createObjectURL(
                 fileBlob instanceof Blob ? fileBlob : new Blob([fileBlob], { type: "application/pdf" })
             );
@@ -144,14 +241,18 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
 
     return (
         <ModalContainer isFull={false} close={close}>
-            <div className="w-full md:w-[1100px] max-h-[82vh] rounded-xl bg-white p-4 flex flex-col gap-4">
+            <div className="w-full md:w-[1100px] h-[82vh] max-h-[82vh] rounded-xl bg-white p-4 flex flex-col gap-4 overflow-hidden">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
                     <div>
                         <p className="text-orange-600 font-semibold">Inventory History</p>
                         <p className="text-xs text-gray-500">
+                            Item: <span className="font-semibold text-gray-700">{inventoryItem?.inventory_item_name || inventoryItem?.name || "N/A"}</span>
+                            {" | "}
                             Item ID: <span className="font-semibold text-gray-700">{inventoryItem?.id || "N/A"}</span>
                             {" | "}
                             Subcategory: <span className="font-semibold text-gray-700">{inventoryItem?.sub_category_name || "N/A"}</span>
+                            {" | "}
+                            Category: <span className="font-semibold text-gray-700">{inventoryItem?.category_name || "N/A"}</span>
                             {" | "}
                             Unit: <span className="font-semibold text-gray-700">{inventoryItem?.unit || "N/A"}</span>
                         </p>
@@ -186,6 +287,8 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
                         >
                             <option value="">All types</option>
                             <option value="in">In</option>
+                            <option value="out">Out</option>
+                            <option value="adjustment">Adjustment</option>
                         </select>
                     </div>
 
@@ -209,6 +312,19 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
                         />
                     </div>
 
+                    <div className="flex flex-col gap-1">
+                        <label className="text-[11px] text-gray-600">Near expiration (days)</label>
+                        <input
+                            type="number"
+                            min={1}
+                            max={365}
+                            value={draftNearExpirationDays}
+                            onChange={(event) => setDraftNearExpirationDays(event.target.value)}
+                            placeholder="e.g. 30"
+                            className="bg-white text-xs px-3 py-2 rounded border border-gray-200"
+                        />
+                    </div>
+
                     <button
                         type="button"
                         onClick={applyFilters}
@@ -224,6 +340,27 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
                     >
                         Clear
                     </button>
+                </div>
+
+                <div className="flex flex-wrap items-stretch gap-2 bg-orange-50 border border-orange-200 rounded-lg p-3">
+                    <div className="flex-1 min-w-[200px] bg-white border border-orange-200 rounded-lg px-3 py-2 shadow-sm">
+                        <label className="text-[11px] uppercase tracking-[0.04em] text-orange-700 font-semibold">Item Name</label>
+                        <p className="mt-1 text-sm sm:text-base font-black text-gray-900 break-words">{itemSummary.itemName}</p>
+                    </div>
+
+                    <div className="flex-1 min-w-[170px] bg-white border border-emerald-200 rounded-lg px-3 py-2 shadow-sm">
+                        <label className="text-[11px] uppercase tracking-[0.04em] text-emerald-700 font-semibold">Total Remaining Stock</label>
+                        <p className="mt-1 text-sm sm:text-base font-black text-emerald-700">
+                            {itemSummary.remainingStock === null ? "-" : `${itemSummary.remainingStock} ${itemSummary.unit}`}
+                        </p>
+                    </div>
+
+                    <div className="flex-1 min-w-[170px] bg-white border border-rose-200 rounded-lg px-3 py-2 shadow-sm">
+                        <label className="text-[11px] uppercase tracking-[0.04em] text-rose-700 font-semibold">Total Stock Used</label>
+                        <p className="mt-1 text-sm sm:text-base font-black text-rose-700">
+                            {itemSummary.totalUsed} {itemSummary.unit}
+                        </p>
+                    </div>
                 </div>
 
                 <div className="flex-1 min-h-0 rounded-lg border border-gray-200 overflow-hidden">
@@ -247,25 +384,15 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
                             No history records found for this inventory row and filter set.
                         </div>
                     ) : (
-                        <div className="w-full h-full overflow-y-auto p-3 space-y-4">
+                            <div className="h-full overflow-y-auto p-3 space-y-4">
                             <HistoryTable
-                                title="Incoming Items (IN)"
-                                type="in"
-                                rows={inTransactions}
-                                emptyText="No incoming records found."
-                                onOpenSourceItem={setSelectedSourceItemId}
+                                rows={transactions}
+                                emptyText="No matching records found."
                             />
                         </div>
                     )}
                 </div>
             </div>
-
-            {selectedSourceItemId && (
-                <SourceItemDetailModal
-                    sourceItemId={selectedSourceItemId}
-                    close={() => setSelectedSourceItemId(null)}
-                />
-            )}
 
             {isPrintPreviewOpen && (
                 <ModalContainer isFull={false} close={closePrintPreview}>
@@ -303,16 +430,6 @@ const InventoryHistoryModal = ({ inventoryItem, close }) => {
     );
 };
 
-const getOriginalStock = (row) => {
-    return (
-        row.source_item_original_quantity ??
-        row.source_item_quantity ??
-        row.original_stock ??
-        row.quantity ??
-        "-"
-    );
-};
-
 const getRemainingStock = (row) => {
     return (
         row.source_item_remaining_quantity ??
@@ -337,47 +454,73 @@ const getNumericValue = (value) => {
     return null;
 };
 
-const HistoryTable = ({ title, type, rows, emptyText, onOpenSourceItem }) => {
-    const isIncoming = type === "in";
-
+const HistoryTable = ({ rows, emptyText }) => {
     return (
         <div className="rounded-lg border border-gray-200 overflow-hidden">
             <div className="px-3 py-2 bg-gray-50 border-b border-gray-200">
-                <p className="text-xs font-semibold text-gray-700">{title}</p>
+                <p className="text-xs font-semibold text-gray-700">Movement History</p>
             </div>
 
             {rows.length === 0 ? (
                 <div className="p-4 text-xs text-gray-500 text-center">{emptyText}</div>
             ) : (
                 <div className="w-full overflow-x-auto">
-                    <table className="w-full text-xs border-collapse">
-                        <thead className="bg-orange-500 text-white">
-                            <tr>
-                                <th className="p-3 text-start">Occurred At</th>
-                                <th className="p-3 text-start">{isIncoming ? "Original Stock" : "Quantity"}</th>
-                                <th className="p-3 text-start">Remaining Stock</th>
-                                <th className="p-3 text-start">Status</th>
-                                <th className="p-3 text-start">Source Item</th>
+                        <table className="w-full text-xs border-collapse">
+                            <thead className="bg-orange-500 text-white">
+                                <tr>
+                                    <th className="p-3 text-start">Occurred At</th>
+                                    <th className="p-3 text-start">Type</th>
+                                    <th className="p-3 text-start">Quantity</th>
+                                    <th className="p-3 text-start">Stock</th>
+                                    <th className="p-3 text-start">Status</th>
                                 <th className="p-3 text-start">Source Expiry</th>
-                                {!isIncoming && <th className="p-3 text-start">Project</th>}
-                                {!isIncoming && <th className="p-3 text-start">Notes</th>}
+                                <th className="p-3 text-start">Project</th>
+                                <th className="p-3 text-start">Notes</th>
                             </tr>
                         </thead>
                         <tbody>
                             {rows.map((row, index) => (
                                 (() => {
+                                    const normalizedType = getNormalizedType(row.type);
                                     const expiryState = getExpiryWarningMeta(row.source_item_expiry_date);
                                     const remainingStockValue = getRemainingStock(row);
                                     const remainingStockNumber = getNumericValue(remainingStockValue);
                                     const hasRemainingStock = remainingStockNumber !== null && remainingStockNumber > 0;
                                     const isUnavailable = expiryState.isExpired || !hasRemainingStock;
+                                    const quantityNumber = getNumericValue(row.quantity);
+                                    const normalizedQuantity = quantityNumber === null ? row.quantity : Math.abs(quantityNumber);
+                                    const quantitySign = normalizedType === "out" ? "-" : normalizedType === "in" ? "+" : "";
+                                    const quantityText = `${quantitySign}${normalizedQuantity || 0}`;
+                                    const isIn = normalizedType === "in";
+                                    const isOut = normalizedType === "out";
+                                    const typeBadgeClass = isIn
+                                        ? "inline-flex items-center rounded px-2 py-1 text-[11px] font-bold bg-green-100 text-green-700 border border-green-200"
+                                        : isOut
+                                            ? "inline-flex items-center rounded px-2 py-1 text-[11px] font-bold bg-red-100 text-red-700 border border-red-200"
+                                            : "inline-flex items-center rounded px-2 py-1 text-[11px] font-bold bg-gray-100 text-gray-700 border border-gray-200";
+                                    const typeDotClass = isIn
+                                        ? "bg-green-500"
+                                        : isOut
+                                            ? "bg-red-500"
+                                            : "bg-gray-400";
+                                    const quantityClass = isIn
+                                        ? "text-green-700"
+                                        : isOut
+                                            ? "text-red-700"
+                                            : "text-gray-700";
                                     return (
                                         <tr
                                             key={row.id || row.inventory_item_id || `${row.occurred_at || ""}-${index}`}
                                             className={`border-b border-gray-100 ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}
                                         >
                                             <td className="p-3">{formatDateTime(row.occurred_at)}</td>
-                                            <td className="p-3">{`${getOriginalStock(row)} ${row.unit || ""}`.trim()}</td>
+                                            <td className="p-3">
+                                                <span className={typeBadgeClass}>
+                                                    <span className={`w-1.5 h-1.5 rounded-full ${typeDotClass} mr-1.5`} />
+                                                    <span className="capitalize">{normalizedType || "-"}</span>
+                                                </span>
+                                            </td>
+                                            <td className={`p-3 ${quantityClass}`}>{`${quantityText} ${row.unit || ""}`.trim()}</td>
                                             <td className="p-3">{`${remainingStockValue} ${row.unit || ""}`.trim()}</td>
                                             <td className="p-3">
                                                 {isUnavailable ? (
@@ -391,33 +534,12 @@ const HistoryTable = ({ title, type, rows, emptyText, onOpenSourceItem }) => {
                                                 )}
                                             </td>
                                             <td className="p-3">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => onOpenSourceItem(row.source_item_id)}
-                                                    disabled={!row.source_item_id}
-                                                    className={`flex items-center gap-2 text-left ${row.source_item_id ? "text-blue-600 hover:text-blue-700" : "text-gray-500 cursor-not-allowed"}`}
-                                                >
-                                                    {row.source_item_image ? (
-                                                        <img
-                                                            src={resolveImageUrl(row.source_item_image)}
-                                                            alt={row.source_item_name || "Source item"}
-                                                            className="w-8 h-8 rounded object-cover border border-gray-200"
-                                                        />
-                                                    ) : (
-                                                        <span className="w-8 h-8 rounded bg-gray-100 border border-gray-200 flex items-center justify-center text-[10px] text-gray-400">
-                                                            N/A
-                                                        </span>
-                                                    )}
-                                                    <span className="underline underline-offset-2">{row.source_item_name || "-"}</span>
-                                                </button>
-                                            </td>
-                                            <td className="p-3">
                                                 <span className={`inline-flex rounded px-2 py-1 text-[11px] ${expiryState.className}`}>
                                                     {expiryState.label}
                                                 </span>
                                             </td>
-                                            {!isIncoming && <td className="p-3">{row.project_title || "-"}</td>}
-                                            {!isIncoming && <td className="p-3">{row.notes || "-"}</td>}
+                                            <td className="p-3">{row.project_title || "-"}</td>
+                                            <td className="p-3">{row.notes || "-"}</td>
                                         </tr>
                                     );
                                 })()

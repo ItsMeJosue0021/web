@@ -18,6 +18,10 @@ const buildInventoryParams = (filters = {}) => {
 const buildHistoryParams = (filters = {}) => {
     const params = {};
 
+    if (filters.inventory_item_id) params.inventory_item_id = filters.inventory_item_id;
+    if (filters.force_item) params.force_item = filters.force_item;
+    if (filters.item_name) params.item_name = filters.item_name;
+    if (filters.category) params.category = filters.category;
     if (filters.type) params.type = filters.type;
     if (filters.start_date) params.start_date = filters.start_date;
     if (filters.end_date) params.end_date = filters.end_date;

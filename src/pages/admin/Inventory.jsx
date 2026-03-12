@@ -175,15 +175,25 @@ const Inventory = () => {
     };
 
     const handleOpenHistory = (item) => {
-        const inventoryItemId = item?.id;
-        if (!hasIdValue(inventoryItemId)) {
+        if (!hasIdValue(item?.id)) {
             toast.warn("No inventory item ID found for this row.");
             return;
         }
 
-        // Manual test case: if one subcategory has two units (e.g., box and packs),
-        // opening each row should show separate histories because requests use inventory item id.
-        setHistoryItem(item);
+        setHistoryItem({
+            id: `${item.id}`,
+            inventory_item_name: item?.inventory_item_name || item?.item_name || item?.name,
+            item_name: item?.inventory_item_name || item?.item_name || item?.name,
+            category: item?.category,
+            category_id: item?.category,
+            sub_category: item?.sub_category,
+            sub_category_id: item?.sub_category,
+            sub_category_name: item?.sub_category_name,
+            category_name: item?.category_name,
+            unit: item?.unit,
+            quantity: item?.quantity,
+            force_item: 1,
+        });
     };
 
     const header = {
@@ -355,6 +365,7 @@ const Inventory = () => {
                                 <tr className="text-xs">
                                     <th className="p-3 text-start">Category</th>
                                     <th className="p-3 text-start">Subcategory</th>
+                                    <th className="p-3 text-start">Item Name</th>
                                     <th className="p-3 text-start">Quantity</th>
                                     <th className="p-3 text-start">Unit</th>
                                     <th className="p-3 text-start">Updated At</th>
@@ -373,6 +384,7 @@ const Inventory = () => {
                                         >
                                             <td className="p-3 text-xs">{row.category_name || "-"}</td>
                                             <td className="p-3 text-xs">{row.sub_category_name || "-"}</td>
+                                            <td className="p-3 text-xs">{row.inventory_item_name || row.item_name || "-"}</td>
                                             <td className={`p-3 text-xs ${Number(row.quantity) <= 0 ? "text-red-500" : ""}`}>
                                                 {row.quantity ?? 0}
                                             </td>
@@ -400,9 +412,13 @@ const Inventory = () => {
             {historyItem && (
                 <InventoryHistoryModal
                     inventoryItem={{
-                        id: historyItem?.id,
-                        sub_category_name: historyItem.sub_category_name,
-                        unit: historyItem.unit,
+                id: historyItem?.id,
+                        inventory_item_name: historyItem?.inventory_item_name,
+                        item_name: historyItem?.item_name,
+                        sub_category_name: historyItem?.sub_category_name,
+                        category_name: historyItem?.category_name,
+                        unit: historyItem?.unit,
+                        force_item: historyItem?.force_item,
                     }}
                     close={() => setHistoryItem(null)}
                 />

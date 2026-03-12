@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import Guest from '../../layouts/Guest'
 import { Link } from "react-router-dom";
 import { _post, _get } from "../../api";
@@ -10,6 +10,22 @@ import { IoMdClose } from "react-icons/io";
 import ModalContainer from "../../components/ModalContainer";
 import CircularLoading from "../../components/CircularLoading";
 import { getExpiryWarningMeta } from "../../utils/expiryWarning";
+
+const normalizeSuggestion = (entry, index) => {
+    if (typeof entry === "string") {
+        const name = entry.trim();
+        if (!name) return null;
+        return { id: `${name}-${index}`, name };
+    }
+
+    if (entry && typeof entry === "object") {
+        const name = `${entry.name ?? entry.label ?? entry.value ?? ""}`.trim();
+        if (!name) return null;
+        return { id: entry.id ?? `${name}-${index}`, name };
+    }
+
+    return null;
+};
 
 const Goods = () => {
     const today = new Date();
@@ -58,7 +74,9 @@ const Goods = () => {
     const [suggestionsLoading, setSuggestionsLoading] = useState(false);
     const [suggestionsError, setSuggestionsError] = useState("");
     const [isSuggestionOpen, setIsSuggestionOpen] = useState(false);
+    const [activeSuggestionIndex, setActiveSuggestionIndex] = useState(-1);
     const suggestionContainerRef = useRef(null);
+    const suggestionsRequestRef = useRef(0);
 
     const [map, setMap] = useState({
         main: false,    
@@ -133,22 +151,51 @@ const Goods = () => {
         setFilteredSubcategories(category ? category.subcategories : []);
     };
 
-    const fetchItemSuggestions = async (seed = "") => {
+    const fetchItemSuggestions = useCallback(async (query, limit = 10) => {
+        const trimmedQuery = query.trim();
+        if (!trimmedQuery) {
+            setItemSuggestions([]);
+            setSuggestionsError("");
+            setSuggestionsLoading(false);
+            setActiveSuggestionIndex(-1);
+            return;
+        }
+
+        const requestId = suggestionsRequestRef.current + 1;
+        suggestionsRequestRef.current = requestId;
+
         setSuggestionsLoading(true);
         setSuggestionsError("");
         try {
-            const params = { count: 10 };
-            if (seed) params.seed = seed;
-            const response = await _get("/goods-donations/v2/suggestions", { params });
-            const suggestions = response.data?.suggestions || response.data || [];
-            setItemSuggestions(Array.isArray(suggestions) ? suggestions : []);
+            const response = await _get("/item-names/suggestions", {
+                params: { q: trimmedQuery, limit }
+            });
+            const rawSuggestions = response.data?.suggestions || response.data || [];
+            const suggestions = (Array.isArray(rawSuggestions) ? rawSuggestions : [])
+                .map(normalizeSuggestion)
+                .filter(Boolean);
+
+            if (suggestionsRequestRef.current !== requestId) return;
+
+            setItemSuggestions(suggestions);
+            setActiveSuggestionIndex(suggestions.length > 0 ? 0 : -1);
         } catch (error) {
+            if (suggestionsRequestRef.current !== requestId) return;
             console.error("Error fetching suggestions:", error);
             setSuggestionsError("Unable to load suggestions.");
             setItemSuggestions([]);
+            setActiveSuggestionIndex(-1);
         } finally {
-            setSuggestionsLoading(false);
+            if (suggestionsRequestRef.current === requestId) {
+                setSuggestionsLoading(false);
+            }
         }
+    }, []);
+
+    const selectSuggestion = (suggestion) => {
+        setItemForm((prev) => ({ ...prev, name: suggestion.name }));
+        setIsSuggestionOpen(false);
+        setActiveSuggestionIndex(-1);
     };
 
     const validateItemForm = () => {
@@ -181,6 +228,11 @@ const Goods = () => {
         setItemImagePreview("");
         setFilteredSubcategories([]);
         setItemErrors({});
+        setItemSuggestions([]);
+        setSuggestionsError("");
+        setSuggestionsLoading(false);
+        setActiveSuggestionIndex(-1);
+        suggestionsRequestRef.current += 1;
         setIsSuggestionOpen(false);
     };
 
@@ -288,23 +340,22 @@ const Goods = () => {
     }, [isSuggestionOpen]);
 
     useEffect(() => {
-        if (!isItemModalOpen) return;
-        const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
-        const seed = category?.name ? `${category.name}`.toLowerCase() : "";
-        fetchItemSuggestions(seed);
-    }, [isItemModalOpen, itemForm.category_id, donationCategories]);
+        if (!isItemModalOpen || !isSuggestionOpen) return;
+        const query = itemForm.name.trim();
+        if (!query) {
+            suggestionsRequestRef.current += 1;
+            setItemSuggestions([]);
+            setSuggestionsError("");
+            setSuggestionsLoading(false);
+            setActiveSuggestionIndex(-1);
+            return;
+        }
 
-    useEffect(() => {
-        if (!isItemModalOpen) return;
-        const trimmed = itemForm.name.trim();
-        if (trimmed.length < 3) return;
-        const lastWord = trimmed.split(/\s+/).slice(-1)[0];
-        if (!lastWord || lastWord.length < 3) return;
         const timer = setTimeout(() => {
-            fetchItemSuggestions(lastWord.toLowerCase());
-        }, 400);
+            fetchItemSuggestions(query, 10);
+        }, 100);
         return () => clearTimeout(timer);
-    }, [isItemModalOpen, itemForm.name]);
+    }, [isItemModalOpen, isSuggestionOpen, itemForm.name, fetchItemSuggestions]);
 
     const saveItem = () => {
         if (editingItemId) {
@@ -774,8 +825,48 @@ const Goods = () => {
                                         <input
                                             type="text"
                                             value={itemForm.name}
-                                            onChange={(e) => setItemForm({ ...itemForm, name: e.target.value })}
+                                            onChange={(e) => {
+                                                const nextName = e.target.value;
+                                                setItemForm((prev) => ({ ...prev, name: nextName }));
+                                                setIsSuggestionOpen(true);
+                                            }}
                                             onFocus={() => setIsSuggestionOpen(true)}
+                                            onKeyDown={(e) => {
+                                                if (!isSuggestionOpen) return;
+
+                                                if (e.key === "ArrowDown") {
+                                                    if (itemSuggestions.length === 0) return;
+                                                    e.preventDefault();
+                                                    setActiveSuggestionIndex((prev) =>
+                                                        prev < itemSuggestions.length - 1 ? prev + 1 : 0
+                                                    );
+                                                    return;
+                                                }
+
+                                                if (e.key === "ArrowUp") {
+                                                    if (itemSuggestions.length === 0) return;
+                                                    e.preventDefault();
+                                                    setActiveSuggestionIndex((prev) =>
+                                                        prev > 0 ? prev - 1 : itemSuggestions.length - 1
+                                                    );
+                                                    return;
+                                                }
+
+                                                if (e.key === "Enter") {
+                                                    if (itemSuggestions.length === 0) return;
+                                                    e.preventDefault();
+                                                    const selectedSuggestion =
+                                                        itemSuggestions[activeSuggestionIndex] || itemSuggestions[0];
+                                                    if (selectedSuggestion) {
+                                                        selectSuggestion(selectedSuggestion);
+                                                    }
+                                                    return;
+                                                }
+
+                                                if (e.key === "Escape") {
+                                                    setIsSuggestionOpen(false);
+                                                }
+                                            }}
                                             placeholder="Name of the item.."
                                             className="w-full bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
                                         />
@@ -786,11 +877,7 @@ const Goods = () => {
                                                     <button
                                                         type="button"
                                                         onMouseDown={(e) => e.preventDefault()}
-                                                        onClick={() => {
-                                                            const category = donationCategories.find(cat => `${cat.id}` === `${itemForm.category_id}`);
-                                                            const seed = category?.name ? `${category.name}`.toLowerCase() : "";
-                                                            fetchItemSuggestions(seed);
-                                                        }}
+                                                        onClick={() => fetchItemSuggestions(itemForm.name, 10)}
                                                         className="text-[11px] text-orange-600 hover:text-orange-700"
                                                     >
                                                         Refresh
@@ -806,16 +893,14 @@ const Goods = () => {
                                                     <div className="max-h-56 overflow-y-auto py-1">
                                                         {itemSuggestions.map((suggestion, index) => (
                                                             <button
-                                                                key={`${suggestion}-${index}`}
+                                                                key={`${suggestion.id}-${index}`}
                                                                 type="button"
                                                                 onMouseDown={(e) => e.preventDefault()}
-                                                                onClick={() => {
-                                                                    setItemForm({ ...itemForm, name: suggestion });
-                                                                    setIsSuggestionOpen(false);
-                                                                }}
-                                                                className="w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100"
+                                                                onMouseEnter={() => setActiveSuggestionIndex(index)}
+                                                                onClick={() => selectSuggestion(suggestion)}
+                                                                className={`w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 ${activeSuggestionIndex === index ? "bg-gray-100" : ""}`}
                                                             >
-                                                                {suggestion}
+                                                                {suggestion.name}
                                                             </button>
                                                         ))}
                                                     </div>

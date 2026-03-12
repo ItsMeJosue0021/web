@@ -6,7 +6,17 @@ import {
 } from "../services/inventoryService";
 
 export const useInventoryItemHistory = (inventoryItemId, filters = {}) => {
-    const { type = "", start_date = "", end_date = "" } = filters;
+    const {
+        type = "",
+        start_date = "",
+        end_date = "",
+        item_name = "",
+        category = "",
+        sub_category = "",
+        force_item = "",
+        unit = "",
+        near_expiration_days = "",
+    } = filters;
 
     const [transactions, setTransactions] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -24,6 +34,12 @@ export const useInventoryItemHistory = (inventoryItemId, filters = {}) => {
             type,
             start_date,
             end_date,
+            item_name,
+            category,
+            sub_category,
+            force_item,
+            unit,
+            near_expiration_days,
             ...overrideFilters,
         };
 
@@ -39,7 +55,7 @@ export const useInventoryItemHistory = (inventoryItemId, filters = {}) => {
         } finally {
             setLoading(false);
         }
-    }, [inventoryItemId, type, start_date, end_date]);
+    }, [inventoryItemId, type, start_date, end_date, item_name, category, sub_category, force_item, unit, near_expiration_days]);
 
     useEffect(() => {
         fetchHistory();

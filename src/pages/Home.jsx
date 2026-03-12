@@ -424,8 +424,8 @@ const Home = () => {
 
               <div className="absolute left-4 right-4 bottom-5">
                 <div className="bg-black/35 backdrop-blur-sm border border-white/20 rounded-xl px-5 py-4 text-white">
-                  <p className="text-[11px] uppercase tracking-[0.2em] text-orange-100 mb-2">Featured Story</p>
-                  <p className="text-lg md:text-2xl font-semibold leading-snug">
+                  <p className="text-[10px] uppercase tracking-[0.16em] text-orange-100 mb-1.5">Featured Story</p>
+                  <p className="text-base md:text-xl font-semibold leading-snug">
                     {sliderImages[currentIndex]?.text || "Community-first support, delivered with heart."}
                   </p>
                 </div>

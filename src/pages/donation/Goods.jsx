@@ -42,6 +42,15 @@ const Goods = () => {
         );
     };
 
+    const sectionCardClass =
+        "w-full rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200";
+    const sectionTitleClass = "text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold";
+    const panelHeadingClass = "text-sm font-semibold text-gray-800";
+    const panelSubheadingClass = "text-xs text-gray-500";
+    const fieldBaseClass = "w-full px-4 py-2.5 rounded-md border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition";
+    const labelClass = "text-xs font-medium text-gray-700";
+    const fieldErrorClass = "text-red-500 text-xs";
+
     // Individual states
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
@@ -406,8 +415,8 @@ const Goods = () => {
     return (
         <Guest>   
             {loading && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/35 backdrop-blur-sm p-4">
+                        <div className="w-full max-w-[420px] bg-white/95 rounded-lg shadow-xl border border-gray-200 p-6 flex flex-col items-center text-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
                             <CircularLoading customClass="w-7 h-7 text-orange-600" />
                         </div>
@@ -418,7 +427,7 @@ const Goods = () => {
                     </div>
                 </div>
             )}  
-            <div className="bg-gray-50 min-h-screen w-full p-4">
+            <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen w-full p-4">
                 <div className="w-full max-w-[1100px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
                     {activeStep < 4 && (
                         <Link to="/donate" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
@@ -429,17 +438,17 @@ const Goods = () => {
                         </Link>
                     )}
                     {activeStep < 4 && (
-                        <div className="mb-4 w-full max-w-[850px] mx-auto rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                        <div className="mb-4 w-full max-w-[850px] mx-auto rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
                             This site is in development. Donations are not being accepted yet. Please do not submit any donation or payment at this time.
                         </div>
                     )}
 
                     <div className="flex items-start gap-12 md:mt-4">
-                        <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-4 md:p-8">
+                        <div className={`${sectionCardClass} max-w-[850px] mx-auto p-4 md:p-8`}>
                             {activeStep < 4 && (
-                                <div className="w-full flex flex-col items-start justify-start mb-6 gap-1">
-                                    <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Goods Donation</p>
-                                    <p className="text-xl font-semibold text-gray-800">We&apos;d love to acknowledge your support <span className="text-[11px] text-gray-500">(Optional)</span></p>
+                                    <div className="w-full flex flex-col items-start justify-start mb-6 gap-1">
+                                    <p className={sectionTitleClass}>Goods Donation</p>
+                                    <p className="text-2xl font-semibold text-gray-800">We&apos;d love to acknowledge your support <span className="text-[11px] text-gray-500">(Optional)</span></p>
                                     <p className="text-sm text-gray-600">Please complete this form so we can properly track your donation. Thank you!</p>
                                 </div>
                             )}
@@ -447,9 +456,9 @@ const Goods = () => {
                             {activeStep === 1 ? (
                                 <div className="w-full flex items-center justify-center p-1">
                                     <div className="w-full flex flex-col items-start justify-start gap-5">
-                                        <div className="w-full bg-gray-50 border border-gray-200 rounded-xl p-4">
+                                        <div className="w-full bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                             <div className="mb-3">
-                                                <p className="text-sm font-semibold text-gray-800">Donor Information</p>
+                                                <p className={panelHeadingClass}>Donor Information</p>
                                                 <p className="text-xs text-gray-600">
                                                     Add your name and email so we can acknowledge your goods donation.
                                                 </p>
@@ -458,7 +467,7 @@ const Goods = () => {
                                             <div className="flex flex-col gap-4">
                                                 <div className="w-full flex flex-col md:flex-row md:items-center gap-2 md:gap-2">
                                                     <div className="w-full md:w-32">
-                                                        <label className="text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                                        <label className={labelClass}>Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
                                                     </div>
                                                     
                                                     <div className="w-full flex flex-col md:flex-row md:items-center gap-3 md:gap-4">
@@ -467,7 +476,7 @@ const Goods = () => {
                                                             name="name"
                                                             value={name}
                                                             onChange={(e) => setName(e.target.value)}
-                                                            className={`w-full md:w-auto px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-white'} border-gray-300 text-xs`}
+                                                            className={`${fieldBaseClass} ${isAnonymous ? 'bg-gray-100 cursor-not-allowed' : 'bg-white'}`}
                                                             disabled={isAnonymous}
                                                         />
                                                         <label className="w-fit flex items-center gap-2">
@@ -487,7 +496,7 @@ const Goods = () => {
 
                                                 <div className="w-full flex flex-col md:flex-row md:items-center gap-2 md:gap-2">
                                                     <div className="w-full md:w-32">
-                                                        <label className="text-xs font-medium">
+                                                        <label className={labelClass}>
                                                             Email <span className="text-red-500">*</span>
                                                         </label>
                                                     </div>
@@ -497,7 +506,7 @@ const Goods = () => {
                                                             name="email"
                                                             value={email}
                                                             onChange={(e) => setEmail(e.target.value)}
-                                                            className="w-full px-4 py-2 rounded-md border border-gray-300 bg-white text-xs"
+                                                            className={`${fieldBaseClass}`}
                                                         />
                                                     </div>
                                                     
@@ -505,10 +514,10 @@ const Goods = () => {
                                             </div>
                                         </div>
 
-                                        <div className="w-full bg-white border border-gray-200 rounded-xl p-4">
+                                        <div className="w-full bg-white border border-gray-200 rounded-lg p-5 shadow-sm">
                                             <div className="mb-3 flex flex-col md:flex-row md:items-center md:justify-between gap-2">
                                                 <div>
-                                                    <p className="text-sm font-semibold text-gray-800">Itemize Your Donation</p>
+                                                <p className={panelHeadingClass}>Itemize Your Donation</p>
                                                     <p className="text-xs text-gray-600">
                                                         Please list each item you are donating. Add as many items as needed before proceeding.
                                                     </p>
@@ -516,7 +525,7 @@ const Goods = () => {
                                                 <button
                                                     type="button"
                                                     onClick={openAddItemModal}
-                                                    className="text-xs rounded px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none w-fit"
+                                                    className="text-xs rounded-md px-4 py-2 cursor-pointer hover:bg-orange-700 text-white bg-orange-600 border-none w-fit shadow-sm"
                                                 >
                                                     Add Item
                                                 </button>
@@ -584,7 +593,7 @@ const Goods = () => {
                                         <div className="w-full flex justify-end">
                                             <button
                                                 type="submit"
-                                                className={`text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0 ${!canProceedToStep2 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                                className={`text-xs px-6 py-2 rounded-md bg-orange-600 hover:bg-orange-700 text-white transition-colors duration-200 border-0 shadow-sm ${!canProceedToStep2 ? 'opacity-50 cursor-not-allowed' : ''}`}
                                                 onClick={() => setActiveStep(2)}
                                                 disabled={!canProceedToStep2}
                                             >
@@ -601,8 +610,8 @@ const Goods = () => {
                                         <p className="text-xs">You may personally hand in your cash donations at the following addresses:</p>
                                     </div>
                                     <div className="flex flex-col md:flex-row items-center gap-4 w-full pt-4">
-                                        <div onClick={() => setAddress("Main Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Main Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
-                                            <p className="text-orange-500 text-base font-semibold mb-2">Main Address</p>
+                                        <div onClick={() => setAddress("Main Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-md shadow-sm ${address === 'Main Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
+                                            <p className="text-orange-700 text-base font-semibold mb-2">Main Address</p>
                                             <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Pinas City</p>
                                             {address === 'Main Address' && (
                                                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
@@ -617,8 +626,8 @@ const Goods = () => {
                                             </div>
                                         </div>
 
-                                        <div onClick={() => setAddress("Satellite Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${address === 'Satellite Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
-                                            <p className="text-orange-500 text-base  font-semibold mb-2">Satellite Address</p>
+                                        <div onClick={() => setAddress("Satellite Address")} className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-md shadow-sm ${address === 'Satellite Address' ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}>
+                                            <p className="text-orange-700 text-base  font-semibold mb-2">Satellite Address</p>
                                             <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Pinas City</p>
                                             {address === 'Satellite Address' && (
                                                 <div className="absolute top-2 left-2 bg-green-500 text-white text-xs font-semibold px-1 py-1 rounded-full flex items-center">
@@ -637,14 +646,14 @@ const Goods = () => {
                                     <div className="flex items-center gap-2 w-full mt-4">
                                         <button
                                             type="submit"
-                                            className="w-fit text-xs px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors duration-300 border-0"
+                                            className="w-fit text-xs px-6 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 border border-gray-200 text-gray-700"
                                             onClick={() => setActiveStep(1)}
                                         >
                                             Back
                                         </button>
                                         <button
                                             type="submit"
-                                            className="w-fit text-xs px-6 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0"
+                                            className="w-fit text-xs px-6 py-2 rounded-md bg-orange-600 hover:bg-orange-700 text-white transition-colors duration-200 border-0 shadow-sm"
                                             onClick={() => setActiveStep(3)}
                                         >
                                             Next
@@ -720,7 +729,7 @@ const Goods = () => {
                                     <div className="flex items-center gap-2 w-full mt-4">
                                         <button
                                             type="submit"
-                                            className="w-fit text-xs px-6 py-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors duration-300 border-0"
+                                        className="w-fit text-xs px-6 py-2 rounded-md bg-gray-100 hover:bg-gray-200 transition-colors duration-200 border border-gray-200 text-gray-700"
                                             onClick={() => setActiveStep(2)}
                                         >
                                             Back
@@ -729,7 +738,7 @@ const Goods = () => {
                                         {/* Submit */}
                                         <button
                                         type="submit"
-                                        className="w-fit text-xs px-4 py-2 rounded-md bg-orange-500 hover:bg-orange-600 text-white transition-colors duration-300 border-0"
+                                        className="w-fit text-xs px-6 py-2 rounded-md bg-orange-600 hover:bg-orange-700 text-white transition-colors duration-200 border-0 shadow-sm"
                                         onClick={handleSubmit}
                                         >
                                             {loading ? 'Sending...' : 'Send Donation'}
@@ -751,7 +760,7 @@ const Goods = () => {
 
                                     <div className="flex flex-col items-center gap-3 mt-6">
                                         <button
-                                            className="px-6 py-2 text-xs rounded-md bg-orange-500 hover:bg-orange-600 text-white"
+                                            className="w-fit px-6 py-2 text-xs rounded-md bg-orange-600 hover:bg-orange-700 text-white shadow-sm"
                                             onClick={() => {
                                                 setName("");
                                                 setEmail("");
@@ -782,10 +791,10 @@ const Goods = () => {
             </div>
             {isItemModalOpen && (
                 <ModalContainer isFull={false} close={closeItemModal}>
-                    <div className="w-full max-w-[960px] bg-white rounded-xl p-5 hide-scrollbar">
+                <div className="w-full max-w-[960px] bg-white rounded-lg p-6 hide-scrollbar border border-gray-200 shadow-lg">
                         <div>
                             <div>
-                                <h2 className="text-lg font-semibold text-orange-600">
+                                <h2 className="text-lg font-semibold text-orange-700">
                                     {editingItemId ? "Edit Item" : "Add New Item"}
                                 </h2>
                                 <p className="text-xs">
@@ -795,7 +804,7 @@ const Goods = () => {
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
                                 <div className="w-full flex flex-col md:col-span-2">
-                                    <label className="text-xs font-medium">
+                                    <label className={labelClass}>
                                         Item Name <span className="text-red-500">*</span>
                                     </label>
                                     <div className="relative mt-1" ref={suggestionContainerRef}>
@@ -845,7 +854,7 @@ const Goods = () => {
                                                 }
                                             }}
                                             placeholder="Name of the item.."
-                                            className="w-full bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                            className={`${fieldBaseClass} ${itemForm.name ? "" : "bg-white"}`}
                                         />
                                         {isSuggestionOpen && (
                                             <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg">
@@ -889,13 +898,13 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">
+                                    <label className={labelClass}>
                                         Category <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         value={itemForm.category_id}
                                         onChange={handleItemCategoryChange}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className={fieldBaseClass}
                                     >
                                         <option value="">Select category...</option>
                                         {donationCategories.map(cat => (
@@ -906,13 +915,13 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">
+                                    <label className={labelClass}>
                                         Subcategory <span className="text-red-500">*</span>
                                     </label>
                                     <select
                                         value={itemForm.subcategory_id}
                                         onChange={(e) => setItemForm({ ...itemForm, subcategory_id: e.target.value })}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className={fieldBaseClass}
                                     >
                                         <option value="">Select subcategory...</option>
                                         {filteredSubcategories.map(sub => (
@@ -923,24 +932,24 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">
+                                    <label className={labelClass}>
                                         Quantity <span className="text-red-500">*</span>
                                     </label>
                                     <input
                                         type="text"
                                         value={itemForm.quantity}
                                         onChange={(e) => setItemForm({ ...itemForm, quantity: e.target.value })}
-                                        className="bg-white text-sm h-10 max-h-10 px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className={`${fieldBaseClass} max-h-10`}
                                     />
                                     {itemErrors.quantity && <p className="text-red-500 text-xs">{itemErrors.quantity}</p>}
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Unit <span className="text-red-500">*</span></label>
+                                    <label className={labelClass}>Unit <span className="text-red-500">*</span></label>
                                     <select
                                         value={itemForm.unit}
                                         onChange={(e) => setItemForm({ ...itemForm, unit: e.target.value })}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className={fieldBaseClass}
                                     >
                                         <option value="">Select unit...</option>
                                         {units.map((option) => (
@@ -954,7 +963,7 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">
+                                    <label className={labelClass}>
                                         Expiry Date <span className="text-[9px] text-gray-500">(Optional)</span>
                                     </label>
                                     <input
@@ -962,12 +971,12 @@ const Goods = () => {
                                         value={itemForm.expiry_date}
                                         onChange={(e) => setItemForm({ ...itemForm, expiry_date: e.target.value })}
                                         min={minExpiryDate}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs max-h-10"
+                                        className={fieldBaseClass}
                                     />
                                 </div>
 
                                 <div className="w-full flex flex-col">
-                                    <label className="text-xs font-medium">Item Image</label>
+                                    <label className={labelClass}>Item Image</label>
                                     <input
                                         type="file"
                                         onChange={(e) => {
@@ -978,7 +987,7 @@ const Goods = () => {
                                             setItemImagePreview(file ? URL.createObjectURL(file) : "");
                                             setItemForm({ ...itemForm, image: file || null });
                                         }}
-                                        className="bg-white text-xs px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs"
+                                        className={fieldBaseClass}
                                     />
                                     {itemImagePreview && (
                                         <div className="mt-2">
@@ -992,11 +1001,11 @@ const Goods = () => {
                                 </div>
 
                                 <div className="w-full flex flex-col md:col-span-2">
-                                    <label className="text-xs font-medium">Notes</label>
+                                    <label className={labelClass}>Notes</label>
                                     <textarea
                                         value={itemForm.notes}
                                         onChange={(e) => setItemForm({ ...itemForm, notes: e.target.value })}
-                                        className="bg-white text-sm px-4 py-2 rounded-md border border-gray-300 placeholder:text-xs resize-none h-20"
+                                        className={`${fieldBaseClass} h-20`}
                                     />
                                 </div>
                             </div>
@@ -1006,14 +1015,14 @@ const Goods = () => {
                                     onClick={() => {
                                         if (saveItem()) setIsItemModalOpen(false);
                                     }}
-                                    className="text-xs rounded px-6 py-2 cursor-pointer text-white bg-orange-600 border-none hover:bg-orange-700"
+                                    className="text-xs rounded-md px-6 py-2 cursor-pointer text-white bg-orange-600 hover:bg-orange-700 border-none shadow-sm transition-colors duration-200"
                                 >
                                     {editingItemId ? "Update Item" : "Save Item"}
                                 </button>
 
                                 <button
                                     onClick={closeItemModal}
-                                    className="text-xs rounded px-6 py-2 cursor-pointer hover:bg-gray-300 text-black bg-gray-200 border-none"
+                                    className="text-xs rounded-md px-6 py-2 cursor-pointer bg-gray-100 hover:bg-gray-200 text-gray-700 border border-gray-200"
                                 >
                                     Cancel
                                 </button>

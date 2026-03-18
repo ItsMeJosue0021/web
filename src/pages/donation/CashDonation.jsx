@@ -22,6 +22,12 @@ const CashDonation = () => {
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1);
   const [map, setMap] = useState({ main: false, satellite: false });
+  const sectionTitleClass = "text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold";
+  const panelCardClass =
+    "w-full rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200";
+  const labelClass = "w-full md:w-[40%] text-xs font-medium text-gray-700";
+  const fieldBaseClass =
+    "w-full px-4 py-2.5 rounded-md border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 focus:border-orange-500 transition";
 
   const handlePayment = async () => {
     setLoading(true);
@@ -50,7 +56,7 @@ const CashDonation = () => {
     <Guest>
       {loading && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-          <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+          <div className="w-full max-w-[420px] bg-white rounded-lg shadow-xl border border-gray-200/80 p-6 flex flex-col items-center text-center gap-3">
             <div className="w-12 h-12 rounded-full bg-orange-50 flex items-center justify-center">
               <CircularLoading customClass="w-7 h-7 text-orange-600" />
             </div>
@@ -62,7 +68,7 @@ const CashDonation = () => {
         </div>
       )}
 
-      <div className="bg-gray-50 min-h-screen w-full p-4">
+      <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen w-full p-4">
         <div className="w-full max-w-[1100px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
           {step !== 4 && (
             <Link
@@ -76,24 +82,24 @@ const CashDonation = () => {
             </Link>
           )}
           {step !== 4 && (
-            <div className="mb-4 w-full max-w-[850px] mx-auto rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+            <div className="mb-4 w-full max-w-[850px] mx-auto rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
               This site is in development. Donations are not being accepted yet. Please do not submit any donation or payment at this time.
             </div>
           )}
 
-          <div className="w-full max-w-[850px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-            <div className="w-full flex flex-col items-start justify-start gap-2 mb-4">
-              <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">Cash Donation</p>
-              <p className="text-lg text-gray-800 font-semibold">We'd love to say thank you</p>
+          <div className={`${panelCardClass} w-full max-w-[850px] mx-auto p-6 md:p-8`}>
+            <div className="w-full flex flex-col items-start justify-start gap-2 mb-6">
+              <p className={sectionTitleClass}>Cash Donation</p>
+              <p className="text-2xl text-gray-800 font-semibold">We&apos;d love to say thank you</p>
               <p className="text-sm text-gray-600">
                 Share your details so we can properly record your donation and express our gratitude.
               </p>
             </div>
 
             {step === 1 && (
-              <div className="w-full flex flex-col gap-4">
+              <div className="w-full flex flex-col gap-5">
                 <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-7">
-                  <label className="w-full md:w-[40%] text-xs font-medium">
+                  <label className={labelClass}>
                     Name <span className="text-[9px] text-gray-500">(Optional)</span>
                   </label>
                   <div className="w-full md:w-[60%] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
@@ -102,7 +108,7 @@ const CashDonation = () => {
                       name="name"
                       value={data.name}
                       onChange={(e) => setData((prev) => ({ ...prev, name: e.target.value }))}
-                      className={`w-full px-4 py-2 rounded-md border ${isAnonymous ? "bg-gray-200 cursor-not-allowed" : "bg-gray-50"} border-gray-300 text-xs`}
+                      className={`${fieldBaseClass} ${isAnonymous ? "bg-gray-200 cursor-not-allowed border-gray-300" : "bg-white"}`}
                       disabled={isAnonymous}
                     />
                     <label className="flex items-center gap-2">
@@ -120,13 +126,13 @@ const CashDonation = () => {
                 </div>
 
                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
-                  <label className="w-full md:w-[40%] text-xs font-medium">
+                  <label className={labelClass}>
                     Email <span className="text-xs text-red-500">*</span>
                   </label>
                   <input
                     type="email"
                     name="email"
-                    className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                    className={`${fieldBaseClass} md:w-[60%]`}
                     value={data.email}
                     onChange={(e) => setData((prev) => ({ ...prev, email: e.target.value }))}
                   />
@@ -134,13 +140,13 @@ const CashDonation = () => {
 
                 <div className="w-full">
                   <div className="w-full flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
-                    <label className="w-full md:w-[40%] text-xs font-medium">
+                    <label className={labelClass}>
                       Amount <span className="text-xs text-red-500">*</span>
                     </label>
                     <input
                       type="number"
                       name="amount"
-                      className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                      className={`${fieldBaseClass} md:w-[60%]`}
                       value={data.amount}
                       onChange={(e) => setData((prev) => ({ ...prev, amount: e.target.value }))}
                     />
@@ -163,29 +169,29 @@ const CashDonation = () => {
 
             {step === 2 && (
               <div className="w-full flex flex-col justify-center items-center gap-4 pb-4">
-                <div className="w-full h-fit flex flex-col items-start justify-start">
-                  <p className="text-base font-medium">Donation handoff details</p>
+                <div className="w-full h-fit flex flex-col items-start justify-start gap-1">
+                  <p className="text-base font-semibold text-gray-800">Donation handoff details</p>
                   <p className="text-xs text-gray-600">Pick the location, date, and time that works best for you.</p>
                 </div>
 
                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-3 pt-4">
-                  <label className="w-full md:w-[40%] text-xs font-medium">Drop-Off Date <span className="text-xs text-red-500">*</span></label>
+                  <label className={labelClass}>Drop-Off Date <span className="text-xs text-red-500">*</span></label>
                   <input
                     type="date"
                     name="date"
                     min={new Date().toISOString().split("T")[0]}
-                    className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                    className={`${fieldBaseClass} md:w-[60%]`}
                     value={data.date}
                     onChange={(e) => setData((prev) => ({ ...prev, date: e.target.value }))}
                   />
                 </div>
 
                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-3">
-                  <label className="w-full md:w-[40%] text-xs font-medium">Drop-Off Time <span className="text-xs text-red-500">*</span></label>
+                  <label className={labelClass}>Drop-Off Time <span className="text-xs text-red-500">*</span></label>
                   <input
                     type="time"
                     name="time"
-                    className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                    className={`${fieldBaseClass} md:w-[60%]`}
                     value={data.time}
                     onChange={(e) => setData((prev) => ({ ...prev, time: e.target.value }))}
                   />
@@ -194,7 +200,7 @@ const CashDonation = () => {
                 <div className="flex flex-col md:flex-row items-center gap-4 w-full pt-4">
                   <div
                     onClick={() => setData((prev) => ({ ...prev, address: "Main Address" }))}
-                    className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${data.address === "Main Address" ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}
+                    className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-6 rounded-lg border ${data.address === "Main Address" ? "bg-gray-100 border-orange-200" : "bg-white border-transparent"} hover:bg-gray-50 border border-gray-200/80`}
                   >
                     <p className="text-orange-500 text-base font-semibold mb-2">Main Address</p>
                     <p className="text-sm text-center">B4 Lot 6-6 Fantasy Road 3, Teresa Park Subd., Pilar, Las Pinas City</p>
@@ -214,7 +220,7 @@ const CashDonation = () => {
 
                   <div
                     onClick={() => setData((prev) => ({ ...prev, address: "Satellite Address" }))}
-                    className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-8 rounded-xl shadow-sm ${data.address === "Satellite Address" ? "bg-gray-100 border-blue-200" : "bg-transparent"} hover:bg-gray-100 border border-transparent hover:border-blue-200`}
+                    className={`cursor-pointer relative w-full flex flex-col items-center justify-center p-6 rounded-lg border ${data.address === "Satellite Address" ? "bg-gray-100 border-orange-200" : "bg-white border-transparent"} hover:bg-gray-50 border border-gray-200/80`}
                   >
                     <p className="text-orange-500 text-base  font-semibold mb-2">Satellite Address</p>
                     <p className="text-sm text-center">Block 20 Lot 15-A Mines View, Teresa Park Subd., Pilar, Las Pinas City</p>
@@ -255,9 +261,9 @@ const CashDonation = () => {
 
             {step === 3 && (
               <div className="w-full">
-                <h2 className="w-full border-b text-base font-medium mb-2">Review your donation details</h2>
+                <h2 className="w-full border-b pb-2 text-base font-semibold text-gray-800">Review your donation details</h2>
 
-                <div className="space-y-2 text-xs bg-gray-50 border border-gray-200 rounded-lg p-4">
+                <div className="space-y-2 text-sm text-gray-700 bg-white border border-gray-200 rounded-lg p-4 mt-4">
                   <p><span className="font-semibold">Name:</span> {isAnonymous ? "Anonymous" : data.name || "N/A"}</p>
                   <p><span className="font-semibold">Email:</span> {data.email || "N/A"}</p>
                   <p><span className="font-semibold">Amount:</span> PHP {data.amount || "0"}</p>
@@ -372,7 +378,7 @@ const CashDonation = () => {
                 ? "https://www.google.com/maps?q=Block%2020%20Lot%2015-A%20Mines%20View%2C%20Teresa%20Park%20Subd.%2C%20Pilar%2C%20Las%20Pinas%20City&output=embed"
                 : ""
             }
-            className="w-full h-[95%] mt-2 rounded"
+            className="w-full h-[95%] mt-2 rounded-md"
             style={{ border: 0 }}
             allowFullScreen
             loading="lazy"

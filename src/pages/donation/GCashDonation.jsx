@@ -6,7 +6,6 @@ import { _post } from "../../api";
 import CircularLoading from "../../components/CircularLoading";
 
 const GCashDonation = () => {
-
     const [data, setData] = useState({
         name: "",
         email: "",
@@ -16,6 +15,12 @@ const GCashDonation = () => {
     const [errors, setErrors] = useState({});
     const [isAnonymous, setIsAnonymous] = useState(false);
     const [loading, setLoading] = useState(false);
+    const sectionTitleClass = "text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold";
+    const panelClass =
+        "w-full rounded-lg border border-gray-200 bg-white shadow-sm transition-all duration-200";
+    const fieldBaseClass =
+        "w-full px-4 py-2.5 rounded-md border border-gray-200 bg-white text-sm text-gray-700 placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-500/25 focus:border-orange-500 transition";
+    const labelClass = "w-full md:w-[40%] text-xs font-medium text-gray-700";
 
     const handlePayment = async () => {
         setLoading(true);
@@ -38,7 +43,7 @@ const GCashDonation = () => {
         <Guest>
             {loading && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/30 backdrop-blur-sm p-4">
-                    <div className="w-full max-w-[420px] bg-white rounded-2xl shadow-xl border border-gray-100 p-6 flex flex-col items-center text-center gap-3">
+                    <div className="w-full max-w-[420px] bg-white rounded-lg shadow-xl border border-gray-200/80 p-6 flex flex-col items-center text-center gap-3">
                         <div className="w-12 h-12 rounded-full bg-blue-50 flex items-center justify-center overflow-hidden">
                             <img src="/gcashpng.png" alt="GCash" className="w-7 h-7 object-contain" />
                         </div>
@@ -50,7 +55,7 @@ const GCashDonation = () => {
                     </div>
                 </div>
             )}
-            <div className="bg-gray-50 min-h-screen w-full p-4 ">
+            <div className="bg-gradient-to-br from-slate-50 to-gray-100 min-h-screen w-full p-4">
                 <div className="w-full max-w-[1100px] mx-auto h-full flex flex-col p-2 md:px-4 pt-24">
                     <Link to="/donate/monetary" className="md:px-4 py-2 mb-3 rounded w-fit text-xs text-gray-500">
                         <div className="flex items-center gap-2">
@@ -58,26 +63,28 @@ const GCashDonation = () => {
                             <span>Back</span>
                         </div>
                     </Link>
-                    <div className="mb-4 w-full max-w-[700px] mx-auto rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-xs text-red-800">
+                    <div className="mb-4 w-full max-w-[700px] mx-auto rounded-md border border-amber-200 bg-amber-50 px-4 py-3 text-xs text-amber-800">
                         This site is in development. Donations are not being accepted yet. Please do not submit any donation or payment at this time.
                     </div>
-                    <div className="w-full max-w-[700px] mx-auto bg-white rounded-2xl shadow-sm border border-gray-100 p-6 md:p-8">
-                        <div className="w-full flex flex-col items-start justify-start gap-3 mb-4">
-                            <p className="text-xs uppercase tracking-[0.2em] text-orange-500 font-semibold">GCash Donation</p>
-                            <p className="text-lg text-gray-800 font-semibold">We&apos;d love to say thank you</p>
+                    <div className={`${panelClass} w-full max-w-[700px] mx-auto p-6 md:p-8`}>
+                        <div className="w-full flex flex-col items-start justify-start gap-3 mb-6">
+                            <p className={sectionTitleClass}>GCash Donation</p>
+                            <p className="text-2xl text-gray-800 font-semibold">We&apos;d love to say thank you</p>
                             <p className="text-sm text-gray-600">Share your details so we can properly record your donation and express our gratitude.</p>
                         </div>
 
-                        <div className="w-full flex flex-col gap-4">
+                        <div className="w-full flex flex-col gap-5">
                             <div className="w-full flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-7">
-                                <label className="w-full md:w-[40%] text-xs font-medium">Name <span className="text-[9px] text-gray-500">(Optional)</span></label>
+                                <label className={labelClass}>
+                                    Name <span className="text-[9px] text-gray-500">(Optional)</span>
+                                </label>
                                 <div className="w-full md:w-[60%] flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                     <input
                                         type="text"
                                         name="name"
                                         value={data.name}
                                         onChange={(e) => setData(prev => ({...prev, name: e.target.value}))}
-                                        className={`w-full px-4 py-2 rounded-md border ${isAnonymous ? 'bg-gray-200 cursor-not-allowed' : 'bg-gray-50'} border-gray-300 text-xs`}
+                                        className={`${fieldBaseClass} ${isAnonymous ? 'bg-gray-200 cursor-not-allowed border-gray-300' : 'bg-white'}`}
                                         disabled={isAnonymous} 
                                     />
                                     <label className="flex items-center gap-2">
@@ -95,22 +102,22 @@ const GCashDonation = () => {
                             </div>
 
                             <div className="w-full flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
-                                <label className="w-full md:w-[40%] text-xs font-medium">Email <span className="text-xs text-red-500">*</span></label>
+                                <label className={labelClass}>Email <span className="text-xs text-red-500">*</span></label>
                                 <input 
                                     type="email" 
                                     name="email" 
-                                    className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                                    className={`${fieldBaseClass} md:w-[60%]`}
                                     value={data.email} onChange={(e) => setData(prev => ({...prev, email: e.target.value}))} 
                                 />
                             </div>
 
                             <div className="w-full">
                                 <div className="w-full flex flex-col md:flex-row items-center justify-between gap-2 md:gap-4">
-                                    <label className="w-full md:w-[40%] text-xs font-medium">Amount <span className="text-xs text-red-500">*</span></label>
+                                    <label className={labelClass}>Amount <span className="text-xs text-red-500">*</span></label>
                                     <input 
                                         type="number" 
                                         name="amount" 
-                                        className="w-full md:w-[60%] px-4 py-2 rounded-md border border-gray-300 text-xs bg-gray-50"
+                                        className={`${fieldBaseClass} md:w-[60%]`}
                                         value={data.amount} 
                                         onChange={(e) => setData(prev => ({...prev, amount: e.target.value}))} 
                                     />

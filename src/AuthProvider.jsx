@@ -21,9 +21,13 @@ const AuthProvider = ({ children }) => {
             localStorage.setItem('token', res.data.access_token);
             await fetchUser();
 
-            if (res.data.user.role.name === 'admin') {
+            const role = typeof res.data.user.role === 'string'
+                ? res.data.user.role
+                : res.data.user.role?.name;
+
+            if (role === 'admin' || role === 'super-admin') {
                 navigate('/dashboard');
-            } else if (res.data.user.role.name === 'user') {
+            } else if (role === 'user') {
                 navigate('/');
             }
         } catch (error) {   

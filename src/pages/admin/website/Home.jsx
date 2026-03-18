@@ -169,7 +169,11 @@ const WebHome = () => {
         try {
             const response = await _get("/homepage-carousel");
             const payload = response.data;
-            const normalized = Array.isArray(payload) ? payload : payload?.data || [];
+            const normalized = Array.isArray(payload)
+                ? payload
+                : Array.isArray(payload?.carousel_images)
+                    ? payload.carousel_images
+                    : payload?.data || [];
             setCarouselImages(normalized);
         } catch (error) {
             console.error("Error fetching homepage carousel:", error);
@@ -592,7 +596,8 @@ const WebHome = () => {
     };
 
     const resolveCarouselImage = (item) => {
-        const raw = item?.image_url || item?.image || item?.url || item?.path;
+        const raw = item?.image_path || item?.image_url || item?.image || item?.url || item?.path;
+        if (typeof raw !== "string") return "";
         if (!raw) return "";
         return raw.startsWith("http") ? raw : `${storageBase}${raw}`;
     };

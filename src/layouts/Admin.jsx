@@ -14,7 +14,6 @@ import {
 } from 'framer-motion';
 import { 
     Users, 
-    Lightbulb, 
     MessageSquareMore, 
     Settings, 
     LayoutPanelLeftIcon, 
@@ -45,8 +44,17 @@ const Admin = ({children, header, breadcrumbs = []}) => {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMembershipOpen, setIsMembershipOpen] = useState(false);
 
+    const normalizedRole = typeof user?.role === "string" ? user.role : user?.role?.name;
+    const isSuperAdmin = normalizedRole === "super-admin";
+
     useEffect(() => {
         if (location.pathname.includes("/settings")) {
+            setIsOpen(true);
+        }
+        if (location.pathname === "/roles") {
+            setIsOpen(true);
+        }
+        if (location.pathname.includes("/settings/admin-logs")) {
             setIsOpen(true);
         }
         if (location.pathname.includes("/web")) {
@@ -224,6 +232,10 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                             { to: "/settings/donation-resources", label: "Donation Resources" },
                                                             { to: "/settings/users", label: "Users" },
                                                             { to: "/settings/archived-users", label: "Archived Users" },
+                                                            ...(isSuperAdmin ? [
+                                                                { to: "/roles", label: "Admin Management" },
+                                                                { to: "/settings/admin-logs", label: "Activity Logs" },
+                                                            ] : []),
                                                         ]}
                                                         onItemClick={toggleModal}
                                                     />
@@ -386,37 +398,6 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     </Link>
 
                                     <div className="w-full flex flex-col">
-                                        <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
-                                            <div className="flex justify-center w-10">
-                                                <Settings className="w-5 h-5 text-gray-700" />
-                                            </div>
-                                            <div className="flex items-center justify-between w-full">
-                                                <p className="text-xs text-black font-medium">Settings</p>
-                                                <img
-                                                src={arrowDown}
-                                                alt="icon"
-                                                className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
-                                                />
-                                            </div>
-                                        </div>
-
-                                        {isOpen && (
-                                            <div className="pl-4 pt-1">
-                                                <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Chatbot</p>
-                                                </Link>
-                                                <Link to="/settings/donation-resources" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/donation-resources" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Donation Resources</p>
-                                                </Link>
-                                                <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Users</p>
-                                                </Link>
-                                                <Link to="/settings/archived-users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/archived-users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Archived Users</p>
-                                                </Link>
-                                            </div>
-                                        )}
-
                                         <div onClick={() => setIsWebOpen(!isWebOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
                                             <div className="flex justify-center w-10">
                                                 <LayoutPanelLeftIcon className="w-5 h-5 text-gray-700" />
@@ -450,6 +431,49 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 </Link>   
                                             </div>
                                         )}
+
+                                        <div onClick={() => setIsOpen(!isOpen)} className="w-full rounded-md hover:bg-gray-100 flex items-center space-x-2 cursor-pointer h-9 px-2">
+                                            <div className="flex justify-center w-10">
+                                                <Settings className="w-5 h-5 text-gray-700" />
+                                            </div>
+                                            <div className="flex items-center justify-between w-full">
+                                                <p className="text-xs text-black font-medium">Settings</p>
+                                                <img
+                                                src={arrowDown}
+                                                alt="icon"
+                                                className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : "rotate-0"}`}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {isOpen && (
+                                            <div className="pl-4 pt-1">
+                                                <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Chatbot</p>
+                                                </Link>
+                                                <Link to="/settings/donation-resources" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/donation-resources" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Donation Resources</p>
+                                                </Link>
+                                                <Link to="/settings/users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Users</p>
+                                                </Link>
+                                                <Link to="/settings/archived-users" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/archived-users" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                    <p className="text-xs text-black font-medium">Archived Users</p>
+                                                </Link>
+                                                {isSuperAdmin && (
+                                                    <>
+                                                        <Link to="/roles" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/roles" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                            <p className="text-xs text-black font-medium">Admin Management</p>
+                                                        </Link>
+                                                        <Link to="/settings/admin-logs" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/admin-logs" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                            <p className="text-xs text-black font-medium">Activity Logs</p>
+                                                        </Link>
+                                                    </>
+                                                )}
+                                            </div>
+                                        )}
+
+                                        
                                     </div>
                                 </div>
                             </div>

@@ -9,9 +9,13 @@ const UnuathenticatedRoute = ({ children }) => {
     if (loading) return <LoadingDots/>;
 
     if (user) {
-        if (user.role === 'admin') {
+        const normalizedRole = typeof user?.role === "string"
+            ? user.role
+            : user?.role?.name;
+
+        if (normalizedRole === 'admin' || normalizedRole === 'super-admin') {
             return <Navigate to="/dashboard" />;
-        } else if (user.role === 'user') {
+        } else if (normalizedRole === 'user') {
             return <Navigate to="/portal" />;
         }
     }

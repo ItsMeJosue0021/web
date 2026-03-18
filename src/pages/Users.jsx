@@ -29,7 +29,9 @@ const Users = () => {
     const fetchUsers = async (term = searchTerm) => {
         setLoading(true);
         try {
-            const query = term ? `?search=${encodeURIComponent(term)}` : "";
+            const query = term
+                ? `?search=${encodeURIComponent(term)}&role=user`
+                : "?role=user";
             const response = await _get(`/users${query}`);
             setUsers(response.data.users);
         } catch (error) {
@@ -71,7 +73,7 @@ const Users = () => {
 
     const header = {
         title: "User Management",
-        subTitle: "Manage all users in the system",
+        subTitle: "Manage regular users in the system",
     };
 
     const breadcrumbs = [
@@ -82,7 +84,7 @@ const Users = () => {
     const handlePrint = async () => {
         setIsPrintLoading(true);
         try {
-            const response = await _get("/users/print", {
+            const response = await _get("/users/print?role=user", {
                 responseType: "blob",
             });
 

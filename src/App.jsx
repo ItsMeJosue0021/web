@@ -53,6 +53,7 @@ import VolunteerRequests from './pages/admin/VolunteerRequests';
 import ArchivedUsers from './pages/admin/ArchivedUsers';
 import MembershipRequests from './pages/admin/MembershipRequests';
 import DonationResources from './pages/admin/DonationResources';
+import ActivityLogs from './pages/admin/ActivityLogs';
 
 const App = () => {
     useEffect(() => {
@@ -111,7 +112,7 @@ const App = () => {
                 <Route
                     path="/roles"
                     element={
-                        <ProtectedRoute role="admin">
+                        <ProtectedRoute role="super-admin">
                             <Roles />
                         </ProtectedRoute>
                     }
@@ -265,6 +266,15 @@ const App = () => {
                     element={
                         <ProtectedRoute role="admin">
                             <WebContactUs />
+                        </ProtectedRoute>
+                    }
+                />
+
+                <Route
+                    path="/settings/admin-logs"
+                    element={
+                        <ProtectedRoute role="super-admin">
+                            <ActivityLogs />
                         </ProtectedRoute>
                     }
                 />

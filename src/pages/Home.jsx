@@ -577,26 +577,32 @@ const Home = () => {
       {/* Donate Section */}
       <section className="w-full bg-white py-20 md:py-24">
         <div className="max-w-[1200px] mx-auto px-4">
-          <div className="flex flex-col md:flex-row items-center justify-center gap-10 p-6 md:p-8 rounded-3xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 shadow-sm">
-            <img
-              src={
-                encouragementInfo.image_path
-                  ? (encouragementInfo.image_path.startsWith("http")
-                    ? encouragementInfo.image_path
-                    : `${baseURL}${encouragementInfo.image_path}`)
-                  : getInvolvedImg
-              }
-              alt={encouragementInfo.title || "img"}
-              className="w-full h-auto md:w-[460px] rounded-2xl shadow-sm border border-white/80"
-            />
-            <div className="flex flex-col items-center md:items-start gap-5 max-w-xl">
+          <div className="grid grid-cols-1 md:grid-cols-[1fr_2fr] items-stretch gap-10 p-6 md:p-8 rounded-3xl bg-gradient-to-br from-orange-50 to-amber-50 border border-orange-100 shadow-sm md:min-h-[340px]">
+            <div className="w-full h-full min-h-[220px]">
+              {encouragementInfo.image_path ? (
+                <img
+                  src={
+                    encouragementInfo.image_path.startsWith("http")
+                      ? encouragementInfo.image_path
+                      : `${baseURL}${encouragementInfo.image_path}`
+                  }
+                  alt={encouragementInfo.title || "img"}
+                  className="w-full h-full object-cover rounded-2xl shadow-sm border border-white/80"
+                />
+              ) : (
+                <div className="w-full h-full rounded-2xl border border-gray-300/80 bg-gray-200 text-gray-600 flex items-center justify-center text-sm font-medium uppercase tracking-wide text-center p-4">
+                  no image avaiable
+                </div>
+              )}
+            </div>
+            <div className="flex flex-col items-center md:items-start gap-5">
               <p className="text-3xl md:text-4xl text-gray-800 font-bold chewy text-center md:text-left leading-tight">
                 {encouragementInfo.title || "Give food. Bring hope. Fuel brighter futures."}
               </p>
               <p className="text-base md:text-lg text-gray-700 font-light text-center md:text-left">
                 {encouragementInfo.description || "Your contribution turns into meals, medicine, and safe spaces for women and families who need it most."}
               </p>
-              <ul className="text-sm text-gray-700 space-y-2 w-full max-w-lg">
+              <ul className="text-sm text-gray-700 space-y-2 w-full">
                 {activeEncouragementChecklist.map((item, idx) => (
                   <li key={idx} className="flex items-start gap-2">
                     <span className="mt-0.5">

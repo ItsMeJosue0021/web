@@ -32,7 +32,8 @@ const hasIdValue = (value) => value !== undefined && value !== null && `${value}
 
 const Inventory = () => {
     const { user } = useContext(AuthContext);
-    const isAdmin = user?.role === "admin" || user?.role?.name === "admin";
+    const role = typeof user?.role === "string" ? user.role : user?.role?.name;
+    const isAdmin = role === "admin" || role === "super-admin";
 
     const [categories, setCategories] = useState([]);
     const [categoriesError, setCategoriesError] = useState("");

@@ -12,7 +12,23 @@ const ProtectedRoute = ({ children, role }) => {
 
     if (!user) return <Navigate to="/login" />;
 
-    if (role && user.role !== role) return <Navigate to="/login" state={{ from: location }} />;
+    const normalizedRole = typeof user?.role === "string"
+        ? user.role
+        : user?.role?.name;
+
+    const requiredRole = role || "";
+    const isAdmin = normalizedRole === "admin" || normalizedRole === "super-admin";
+
+    if (
+        (requiredRole === "admin" && !isAdmin) ||
+        (requiredRole === "super-admin" && normalizedRole !== "super-admin")
+    ) {
+        return <Navigate to="/login" state={{ from: location }} />;
+    }
+
+    if (requiredRole && normalizedRole !== requiredRole && requiredRole !== "admin") {
+        return <Navigate to="/login" state={{ from: location }} />;
+    }
 
     return children;
 };

@@ -207,6 +207,7 @@ const Roles = () => {
         title: "Admin Management",
         subTitle: "Manage admin accounts (assign/edit/delete admins).",
     };
+    const isAddMode = formMode === "add";
 
     const breadcrumbs = [
         { name: "Settings", link: "/roles" },
@@ -315,7 +316,9 @@ const Roles = () => {
                             <form className="flex flex-col gap-3" onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                                     <div>
-                                        <p className="text-xs">First Name</p>
+                                        <p className="text-xs">
+                                            First Name <span className="text-red-500">*</span>
+                                        </p>
                                         <input
                                             type="text"
                                             name="first_name"
@@ -336,7 +339,9 @@ const Roles = () => {
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-xs">Last Name</p>
+                                        <p className="text-xs">
+                                            Last Name <span className="text-red-500">*</span>
+                                        </p>
                                         <input
                                             type="text"
                                             name="last_name"
@@ -347,7 +352,9 @@ const Roles = () => {
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-xs">Username</p>
+                                        <p className="text-xs">
+                                            Username <span className="text-red-500">*</span>
+                                        </p>
                                         <input
                                             type="text"
                                             name="username"
@@ -358,7 +365,9 @@ const Roles = () => {
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-xs">Email</p>
+                                        <p className="text-xs">
+                                            Email <span className="text-red-500">*</span>
+                                        </p>
                                         <input
                                             type="email"
                                             name="email"
@@ -380,7 +389,8 @@ const Roles = () => {
                                     </div>
                                     <div>
                                         <p className="text-xs">
-                                            {formMode === "add" ? "Password" : "Password (leave blank to keep)"}
+                                            Password{" "}
+                                            {isAddMode ? <span className="text-red-500">*</span> : <span>(leave blank to keep)</span>}
                                         </p>
                                         <input
                                             type="password"
@@ -392,7 +402,10 @@ const Roles = () => {
                                         />
                                     </div>
                                     <div>
-                                        <p className="text-xs">Confirm Password</p>
+                                        <p className="text-xs">
+                                            Confirm Password{" "}
+                                            {isAddMode && <span className="text-red-500">*</span>}
+                                        </p>
                                         <input
                                             type="password"
                                             name="confirmPassword"

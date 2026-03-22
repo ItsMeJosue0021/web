@@ -835,7 +835,7 @@ const Projects = () => {
             {/* LIQUIDATE MODAL */}
             {isLiquidateOpen && (
                 <ModalContainer isFull={true} close={closeLiquidateModal}>
-                    <div className="w-full h-full max-w-7xl mx-auto flex flex-col gap-4">
+                    <div className="w-full max-w-7xl mx-auto flex min-h-0 max-h-[calc(100vh-7rem)] flex-col gap-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
                             <div>
                                 <p className="text-lg font-semibold text-orange-600">Liquidate Items</p>
@@ -868,8 +868,8 @@ const Projects = () => {
                             </div>
                         </div>
 
-                        <div className="flex-1 min-h-0 grid grid-cols-1 2xl:grid-cols-3 gap-4">
-                            <div className="2xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
+                        <div className="flex-1 min-h-0 overflow-y-auto pr-1 grid grid-cols-1 xl:grid-cols-3 gap-4">
+                            <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
                                 <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[260px]">
                                 <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                                     <input
@@ -1024,7 +1024,7 @@ const Projects = () => {
                             </div>
                             </div>
 
-                            <div className="flex flex-col gap-3 border rounded-lg p-3 bg-white min-h-[260px]">
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 bg-white min-h-[260px] max-h-[70vh] overflow-hidden">
                                 <div>
                                     <p className="text-sm font-semibold">Cash Expense Liquidation</p>
                                     <p className="text-[11px] text-gray-500">
@@ -1032,147 +1032,149 @@ const Projects = () => {
                                     </p>
                                 </div>
 
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[11px] text-gray-600">Amount</label>
-                                    <input
-                                        type="number"
-                                        min="0"
-                                        step="0.01"
-                                        value={cashLiquidationForm.amount}
-                                        onChange={(e) =>
-                                            setCashLiquidationForm((prev) => ({ ...prev, amount: e.target.value }))
-                                        }
-                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                        placeholder="Enter amount used"
-                                    />
-                                    {cashLiquidationErrors.amount && (
-                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[11px] text-gray-600">Date Money Was Used</label>
-                                    <input
-                                        type="date"
-                                        value={cashLiquidationForm.date_used}
-                                        onChange={(e) =>
-                                            setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
-                                        }
-                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                    />
-                                    {cashLiquidationErrors.date_used && (
-                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[11px] text-gray-600">Point Person</label>
-                                    <input
-                                        type="text"
-                                        value={cashLiquidationForm.point_person}
-                                        onChange={(e) =>
-                                            setCashLiquidationForm((prev) => ({ ...prev, point_person: e.target.value }))
-                                        }
-                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                        placeholder="Enter responsible person"
-                                    />
-                                    {cashLiquidationErrors.point_person && (
-                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.point_person)}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[11px] text-gray-600">Receipt Image (Optional)</label>
-                                    <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={(e) =>
-                                            setCashLiquidationForm((prev) => ({
-                                                ...prev,
-                                                receipt: e.target.files?.[0] || null,
-                                            }))
-                                        }
-                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                    />
-                                    {cashLiquidationForm.receipt && (
-                                        <p className="text-[11px] text-gray-500 truncate">
-                                            Selected: {cashLiquidationForm.receipt.name}
-                                        </p>
-                                    )}
-                                    {cashLiquidationErrors.receipt && (
-                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.receipt)}</p>
-                                    )}
-                                </div>
-
-                                <div className="border border-gray-200 rounded p-2 bg-gray-50/50 min-h-[160px] max-h-[240px] overflow-y-auto">
-                                    <div className="flex items-center justify-between gap-2 mb-2">
-                                        <p className="text-[11px] font-semibold text-gray-700">Recorded Cash Entries</p>
-                                        <button
-                                            type="button"
-                                            onClick={() => fetchProjectCashLiquidations(liquidateProject?.id)}
-                                            className="text-[11px] px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-100"
-                                        >
-                                            Refresh
-                                        </button>
+                                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[11px] text-gray-600">Amount</label>
+                                        <input
+                                            type="number"
+                                            min="0"
+                                            step="0.01"
+                                            value={cashLiquidationForm.amount}
+                                            onChange={(e) =>
+                                                setCashLiquidationForm((prev) => ({ ...prev, amount: e.target.value }))
+                                            }
+                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                            placeholder="Enter amount used"
+                                        />
+                                        {cashLiquidationErrors.amount && (
+                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
+                                        )}
                                     </div>
 
-                                    {cashLiquidationsLoading ? (
-                                        <div className="py-6 flex items-center justify-center">
-                                            <CircularLoading customClass="text-blue-500 w-5 h-5" />
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[11px] text-gray-600">Date Money Was Used</label>
+                                        <input
+                                            type="date"
+                                            value={cashLiquidationForm.date_used}
+                                            onChange={(e) =>
+                                                setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
+                                            }
+                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        />
+                                        {cashLiquidationErrors.date_used && (
+                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[11px] text-gray-600">Point Person</label>
+                                        <input
+                                            type="text"
+                                            value={cashLiquidationForm.point_person}
+                                            onChange={(e) =>
+                                                setCashLiquidationForm((prev) => ({ ...prev, point_person: e.target.value }))
+                                            }
+                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                            placeholder="Enter responsible person"
+                                        />
+                                        {cashLiquidationErrors.point_person && (
+                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.point_person)}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-[11px] text-gray-600">Receipt Image (Optional)</label>
+                                        <input
+                                            type="file"
+                                            accept="image/*"
+                                            onChange={(e) =>
+                                                setCashLiquidationForm((prev) => ({
+                                                    ...prev,
+                                                    receipt: e.target.files?.[0] || null,
+                                                }))
+                                            }
+                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        />
+                                        {cashLiquidationForm.receipt && (
+                                            <p className="text-[11px] text-gray-500 truncate">
+                                                Selected: {cashLiquidationForm.receipt.name}
+                                            </p>
+                                        )}
+                                        {cashLiquidationErrors.receipt && (
+                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.receipt)}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="border border-gray-200 rounded p-2 bg-gray-50/50 min-h-[160px] max-h-[240px] overflow-y-auto">
+                                        <div className="flex items-center justify-between gap-2 mb-2">
+                                            <p className="text-[11px] font-semibold text-gray-700">Recorded Cash Entries</p>
+                                            <button
+                                                type="button"
+                                                onClick={() => fetchProjectCashLiquidations(liquidateProject?.id)}
+                                                className="text-[11px] px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-100"
+                                            >
+                                                Refresh
+                                            </button>
                                         </div>
-                                    ) : cashLiquidationsError ? (
-                                        <p className="text-[11px] text-red-500">{cashLiquidationsError}</p>
-                                    ) : cashLiquidations.length === 0 ? (
-                                        <p className="text-[11px] text-gray-500">No cash liquidation records yet.</p>
-                                    ) : (
-                                        <div className="flex flex-col gap-2">
-                                            {cashLiquidations.map((entry, index) => (
-                                                <div
-                                                    key={entry.id || `cash-entry-${index}`}
-                                                    className="bg-white border border-gray-200 rounded p-2 text-[11px]"
-                                                >
-                                                    <div className="flex items-start justify-between gap-2">
-                                                        <div className="flex-1 min-w-0">
-                                                            <p className="font-semibold text-gray-800">
-                                                                {formatCashAmount(entry.amount)}
-                                                            </p>
-                                                            <p className="text-gray-600">
-                                                                Date used: {formatShortDate(entry.date_used || entry.used_at || entry.date)}
-                                                            </p>
-                                                            <p className="text-gray-600">
-                                                                Point person: {entry.point_person || entry.person_responsible || "-"}
-                                                            </p>
+
+                                        {cashLiquidationsLoading ? (
+                                            <div className="py-6 flex items-center justify-center">
+                                                <CircularLoading customClass="text-blue-500 w-5 h-5" />
+                                            </div>
+                                        ) : cashLiquidationsError ? (
+                                            <p className="text-[11px] text-red-500">{cashLiquidationsError}</p>
+                                        ) : cashLiquidations.length === 0 ? (
+                                            <p className="text-[11px] text-gray-500">No cash liquidation records yet.</p>
+                                        ) : (
+                                            <div className="flex flex-col gap-2">
+                                                {cashLiquidations.map((entry, index) => (
+                                                    <div
+                                                        key={entry.id || `cash-entry-${index}`}
+                                                        className="bg-white border border-gray-200 rounded p-2 text-[11px]"
+                                                    >
+                                                        <div className="flex items-start justify-between gap-2">
+                                                            <div className="flex-1 min-w-0">
+                                                                <p className="font-semibold text-gray-800">
+                                                                    {formatCashAmount(entry.amount)}
+                                                                </p>
+                                                                <p className="text-gray-600">
+                                                                    Date used: {formatShortDate(entry.date_used || entry.used_at || entry.date)}
+                                                                </p>
+                                                                <p className="text-gray-600">
+                                                                    Point person: {entry.point_person || entry.person_responsible || "-"}
+                                                                </p>
+                                                            </div>
+                                                            <button
+                                                                type="button"
+                                                                onClick={() => handleConfirmCashLiquidationDelete(entry.id)}
+                                                                disabled={!entry.id || deletingCashLiquidationId === entry.id}
+                                                                className={`shrink-0 px-2 py-1 rounded border ${
+                                                                    !entry.id || deletingCashLiquidationId === entry.id
+                                                                        ? "text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50"
+                                                                        : "text-red-600 border-red-200 hover:bg-red-50"
+                                                                }`}
+                                                            >
+                                                                {deletingCashLiquidationId === entry.id ? "Deleting..." : "Delete"}
+                                                            </button>
                                                         </div>
-                                                        <button
-                                                            type="button"
-                                                            onClick={() => handleConfirmCashLiquidationDelete(entry.id)}
-                                                            disabled={!entry.id || deletingCashLiquidationId === entry.id}
-                                                            className={`shrink-0 px-2 py-1 rounded border ${
-                                                                !entry.id || deletingCashLiquidationId === entry.id
-                                                                    ? "text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50"
-                                                                    : "text-red-600 border-red-200 hover:bg-red-50"
-                                                            }`}
-                                                        >
-                                                            {deletingCashLiquidationId === entry.id ? "Deleting..." : "Delete"}
-                                                        </button>
+                                                        {entry.receipt && (
+                                                            <a
+                                                                href={resolveReceiptUrl(entry.receipt)}
+                                                                target="_blank"
+                                                                rel="noreferrer"
+                                                                className="inline-block text-blue-600 hover:text-blue-700 underline mt-1"
+                                                            >
+                                                                View receipt
+                                                            </a>
+                                                        )}
                                                     </div>
-                                                    {entry.receipt && (
-                                                        <a
-                                                            href={resolveReceiptUrl(entry.receipt)}
-                                                            target="_blank"
-                                                            rel="noreferrer"
-                                                            className="inline-block text-blue-600 hover:text-blue-700 underline mt-1"
-                                                        >
-                                                            View receipt
-                                                        </a>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )}
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
 
-                                <div className="mt-auto pt-2">
+                                <div className="border-t border-gray-100 pt-3">
                                     <button
                                         type="button"
                                         onClick={submitCashLiquidation}

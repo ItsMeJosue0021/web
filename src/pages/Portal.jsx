@@ -268,9 +268,8 @@ const Portal = () => {
     };
 
     const openMembershipImage = (filePath) => {
-        const url = buildFileUrl(filePath);
-        if (!url) return;
-        handleImageClick(url);
+        if (!filePath) return;
+        handleImageClick(filePath);
     };
 
     return (
@@ -696,7 +695,7 @@ const Portal = () => {
                                 transition={{ duration: 0.2 }}
                                 className="bg-white rounded-lg w-full max-w-[800px] p-2 flex items-center justify-center">
                                     <img 
-                                        src={`${baseURL}${selectedIamge}`} 
+                                        src={buildFileUrl(selectedIamge) || ""}
                                         alt="image" 
                                         className="w-full h-auto max-h-[90vh] rounded-md object-contain" 
                                     />

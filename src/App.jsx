@@ -54,6 +54,7 @@ import ArchivedUsers from './pages/admin/ArchivedUsers';
 import MembershipRequests from './pages/admin/MembershipRequests';
 import DonationResources from './pages/admin/DonationResources';
 import ActivityLogs from './pages/admin/ActivityLogs';
+import SettingsProfile from './pages/admin/SettingsProfile';
 
 const App = () => {
     useEffect(() => {
@@ -275,6 +276,14 @@ const App = () => {
                     element={
                         <ProtectedRoute role="super-admin">
                             <ActivityLogs />
+                        </ProtectedRoute>
+                    }
+                />
+                <Route
+                    path="/settings/profile"
+                    element={
+                        <ProtectedRoute role="admin">
+                            <SettingsProfile />
                         </ProtectedRoute>
                     }
                 />

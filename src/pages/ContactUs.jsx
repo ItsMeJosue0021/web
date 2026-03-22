@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react";
 import { MapPin, Phone, Send } from "lucide-react";
 import Guest from "../layouts/Guest";
-import aboutImage from "../assets/img/about.png";
 import { toast } from "react-toastify";
 import { _post, _get } from "../api";
 import Footer from "../components/Footer";
 
 const ContactUs = () => {
+    const storageBase = "https://api.kalingangkababaihan.com/storage/";
     const [formData, setFormData] = useState({
         name: "",
         email: "",
@@ -46,6 +46,12 @@ const ContactUs = () => {
             setIsSending(false);
         }
     };
+
+    const contactImageSrc = (() => {
+        const rawImage = contactInfo?.image || contactInfo?.image_path;
+        if (!rawImage) return "";
+        return rawImage.startsWith("http") ? rawImage : `${storageBase}${rawImage}`;
+    })();
 
     return (
         <Guest>
@@ -121,11 +127,22 @@ const ContactUs = () => {
                     >
                         {/* IMAGE */}
                         <div className="w-full">
-                            <img 
-                                src={aboutImage}
-                                alt="Contact"
-                                className="w-full h-80 md:h-[420px] object-cover rounded-2xl shadow"
-                            />
+                            <div className="w-full h-80 md:h-[420px] rounded-2xl shadow border border-orange-100 overflow-hidden bg-orange-50">
+                                {contactImageSrc ? (
+                                    <img
+                                        src={contactImageSrc}
+                                        alt="Contact"
+                                        className="w-full h-full object-cover"
+                                    />
+                                ) : (
+                                    <div className="w-full h-full flex flex-col items-center justify-center gap-2 text-center px-6 bg-gradient-to-br from-orange-50 via-white to-orange-100">
+                                        <p className="text-base font-semibold text-gray-700">No image available</p>
+                                        <p className="text-sm text-gray-500 max-w-sm">
+                                            Upload a contact image from the admin website content page to show it here.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
 
                         {/* FORM FIELDS */}

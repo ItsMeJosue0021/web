@@ -1,6 +1,6 @@
 import '../css/layout-head.css';
 import Logo from '../components/Logo';
-import { useEffect, useState, useContext } from 'react';
+import { useEffect, useState, useContext, useMemo } from 'react';
 import { ToastContainer } from 'react-toastify';
 import Breadcrumbs from '../components/Breadcrumbs';
 import arrowDown from '../assets/icons/down-arrow.png';
@@ -46,6 +46,11 @@ const Admin = ({children, header, breadcrumbs = []}) => {
 
     const normalizedRole = typeof user?.role === "string" ? user.role : user?.role?.name;
     const isSuperAdmin = normalizedRole === "super-admin";
+    const adminProfileImage = useMemo(() => {
+        if (!user?.image) return "/images/avatar.png";
+        if (user.image.startsWith("http")) return user.image;
+        return `http://127.0.0.1:8000/storage/${user.image}`;
+    }, [user?.image]);
 
     useEffect(() => {
         if (location.pathname.includes("/settings")) {
@@ -126,10 +131,10 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                     >
                                     <div className="flex flex-col gap-4 text-black text-base md:text-sm poppins-bold">
 
-                                         <UserProfile
-                                            name={user.fullName}
-                                            email={user.email}
-                                            avatarUrl="/images/avatar.png"
+                                        <UserProfile
+                                            name={user?.fullName}
+                                            email={user?.email}
+                                            avatarUrl={adminProfileImage}
                                             onClose={toggleModal}
                                         />
 
@@ -228,6 +233,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                         isOpen={isSettingsOpen}
                                                         toggle={() => setIsSettingsOpen(!isSettingsOpen)}
                                                         items={[
+                                                            { to: "/settings/profile", label: "Profile" },
                                                             { to: "/settings/chatbot", label: "Chatbot" },
                                                             { to: "/settings/donation-resources", label: "Donation Resources" },
                                                             { to: "/settings/users", label: "Users" },
@@ -447,10 +453,13 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         </div>
 
                                         {isOpen && (
-                                            <div className="pl-4 pt-1">
-                                                <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
-                                                    <p className="text-xs text-black font-medium">Chatbot</p>
-                                                </Link>
+                                                <div className="pl-4 pt-1">
+                                                    <Link to="/settings/profile" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/profile" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                        <p className="text-xs text-black font-medium">Profile</p>
+                                                    </Link>
+                                                    <Link to="/settings/chatbot" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/chatbot" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
+                                                        <p className="text-xs text-black font-medium">Chatbot</p>
+                                                    </Link>
                                                 <Link to="/settings/donation-resources" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/settings/donation-resources" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Donation Resources</p>
                                                 </Link>

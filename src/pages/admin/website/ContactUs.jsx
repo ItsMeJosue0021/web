@@ -24,27 +24,29 @@ const WebContactUs = () => {
     const [imagePreview, setImagePreview] = useState("");
     const [existingImage, setExistingImage] = useState("");
 
+    const resolveContactImage = (value) => {
+        if (!value) return "";
+        return value.startsWith("http") ? value : `${storageBase}${value}`;
+    };
+
     const fetchContactInfo = async () => {
         setLoading(true);
         try {
             const response = await _get("/contact-info");
             const data = response.data || {};
+            const storedImage = data.image || data.image_path || "";
             const cleaned = {
                 telephone_number: data.telephone_number || "",
                 phone_number: data.phone_number || "",
                 email_address: data.email_address || "",
                 physical_address: data.physical_address || "",
-                image_path: data.image_path || "",
+                image_path: storedImage,
             };
             setFormData(cleaned);
             setOriginalData(cleaned);
             setImageFile(null);
             setImagePreview("");
-            const resolvedImage = data.image_path
-                ? (data.image_path.startsWith("http")
-                    ? data.image_path
-                    : `${storageBase}${data.image_path}`)
-                : "";
+            const resolvedImage = resolveContactImage(storedImage);
             setExistingImage(resolvedImage);
         } catch (error) {
             console.error("Error fetching contact info:", error);
@@ -243,7 +245,7 @@ const WebContactUs = () => {
                                                 className="w-full h-full object-cover"
                                             />
                                         ) : (
-                                            "No image"
+                                            "No image available"
                                         )}
                                     </div>
                                     <div className="flex-1">

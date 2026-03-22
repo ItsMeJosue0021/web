@@ -29,6 +29,7 @@ import { AuthContext } from '../AuthProvider';
 import { GrMoney } from "react-icons/gr";
 import { MdOutlineInventory } from "react-icons/md";
 import { RiPassPendingLine } from "react-icons/ri";
+import { resolveStorageImageUrl } from '../utils/resolveStorageImageUrl';
 
 
 
@@ -47,9 +48,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
     const normalizedRole = typeof user?.role === "string" ? user.role : user?.role?.name;
     const isSuperAdmin = normalizedRole === "super-admin";
     const adminProfileImage = useMemo(() => {
-        if (!user?.image) return "/images/avatar.png";
-        if (user.image.startsWith("http")) return user.image;
-        return `http://127.0.0.1:8000/storage/${user.image}`;
+        return resolveStorageImageUrl(user?.image);
     }, [user?.image]);
 
     useEffect(() => {

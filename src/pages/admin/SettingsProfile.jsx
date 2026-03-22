@@ -4,8 +4,7 @@ import { AuthContext } from "../../AuthProvider";
 import { _post } from "../../api";
 import { toast } from "react-toastify";
 import CircularLoading from "../../components/CircularLoading";
-
-const storageBaseURL = "http://127.0.0.1:8000/storage/";
+import { resolveStorageImageUrl } from "../../utils/resolveStorageImageUrl";
 
 const SettingsProfile = () => {
     const { user, refreshUser } = useContext(AuthContext);
@@ -44,11 +43,7 @@ const SettingsProfile = () => {
         if (profileFile) {
             return URL.createObjectURL(profileFile);
         }
-        if (!user?.image) {
-            return "/images/avatar.png";
-        }
-        if (user.image.startsWith("http")) return user.image;
-        return `${storageBaseURL}${user.image}`;
+        return resolveStorageImageUrl(user?.image);
     }, [user?.image, profileFile]);
 
     useEffect(() => {

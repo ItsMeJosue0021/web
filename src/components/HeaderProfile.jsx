@@ -1,13 +1,12 @@
 import { useState, useContext } from 'react';
 import { AuthContext } from '../AuthProvider';
 import Logout from './Logout';
+import { resolveStorageImageUrl } from '../utils/resolveStorageImageUrl';
 
 const HeaderProfile = () => {
 
     const { user } = useContext(AuthContext);
-    const avatarUrl = user?.image
-        ? (user.image.startsWith("http") ? user.image : `http://127.0.0.1:8000/storage/${user.image}`)
-        : "/images/avatar.png";
+    const avatarUrl = resolveStorageImageUrl(user?.image);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
     return (

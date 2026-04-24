@@ -149,13 +149,13 @@ const VolunteerButton = ({ project }) => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
-                                    <div className="rounded-lg border border-orange-100 bg-orange-50/60 p-4">
-                                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                    <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
+                                        <div className="flex flex-col items-center gap-3 text-center">
                                             <div>
-                                                <p className="text-sm font-semibold text-orange-700">
+                                                <p className="text-sm font-semibold text-sky-800">
                                                     Want to register instead?
                                                 </p>
-                                                <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                                                <p className="mt-1 text-xs leading-relaxed text-slate-600">
                                                     You can still volunteer as a guest below, or create an account first
                                                     if you want a more complete profile and easier access later.
                                                 </p>
@@ -163,9 +163,9 @@ const VolunteerButton = ({ project }) => {
                                             <Link
                                                 to="/register"
                                                 onClick={() => setIsFormOpen(false)}
-                                                className="inline-flex items-center justify-center rounded-md border border-orange-200 bg-white px-4 py-2 text-xs font-medium text-orange-700 transition hover:bg-orange-100"
+                                                className="inline-flex min-w-[160px] items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                             >
-                                                Register Instead
+                                                Create an Account
                                             </Link>
                                         </div>
                                     </div>

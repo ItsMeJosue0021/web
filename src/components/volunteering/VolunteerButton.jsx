@@ -1,5 +1,6 @@
 import { useState, useContext } from "react";
 import { createPortal } from "react-dom";
+import { Link } from "react-router-dom";
 import ModalContainer from "../ModalContainer";
 import { _post } from "../../api";
 import { AuthContext } from "../../AuthProvider";
@@ -148,6 +149,27 @@ const VolunteerButton = ({ project }) => {
                                 </div>
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
+                                    <div className="rounded-lg border border-orange-100 bg-orange-50/60 p-4">
+                                        <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                                            <div>
+                                                <p className="text-sm font-semibold text-orange-700">
+                                                    Want to register instead?
+                                                </p>
+                                                <p className="mt-1 text-xs leading-relaxed text-gray-600">
+                                                    You can still volunteer as a guest below, or create an account first
+                                                    if you want a more complete profile and easier access later.
+                                                </p>
+                                            </div>
+                                            <Link
+                                                to="/register"
+                                                onClick={() => setIsFormOpen(false)}
+                                                className="inline-flex items-center justify-center rounded-md border border-orange-200 bg-white px-4 py-2 text-xs font-medium text-orange-700 transition hover:bg-orange-100"
+                                            >
+                                                Register Instead
+                                            </Link>
+                                        </div>
+                                    </div>
+
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                         <div className="flex flex-col">
                                             <label htmlFor="firstName" className="text-xs font-medium text-gray-700">First Name <span className="text-sm text-red-500">*</span> </label>

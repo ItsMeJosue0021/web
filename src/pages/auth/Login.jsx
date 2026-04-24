@@ -92,7 +92,7 @@ const Login = () => {
                                             <label className="text-gray-500 text-[10px]">Remember me</label>
                                         </div>
                                     </div>
-                                    <a href="#" className="font-medium text-primary-600 hover:underline dark:text-primary-500 text-[10px]">Forgot password?</a>
+                                    <Link to="/forgot-password" className="font-medium text-primary-600 hover:underline dark:text-primary-500 text-[10px]">Forgot password?</Link>
                                 </div>
                                 <button disabled={submitting} type="submit" className="w-full text-white bg-orange-600 hover:bg-orange-700  font-medium rounded text-xs px-4 py-2 text-center ">
                                     { submitting ? "Signing in.." : "Sign in"}

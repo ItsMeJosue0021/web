@@ -1,7 +1,7 @@
-import React, { useState } from 'react';
-import { X, Send } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { _post } from '../../api';
+import { useEffect, useRef, useState } from "react";
+import { ChevronRight, Send, X } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import { _post } from "../../api";
 import { useWebsiteLogo } from "../../hooks/useWebsiteLogo";
 import "../../css/loading.css";
 
@@ -12,12 +12,23 @@ const ChatBox = ({ toggleChatbot }) => {
     const { websiteLogo, logoImageSrc } = useWebsiteLogo();
     const displayName = websiteLogo?.main_text || "Kalinga ng Kababaihan";
     const hasMessages = messages.length > 0;
+    const messagesContainerRef = useRef(null);
+    const assistantInitial = displayName?.trim()?.charAt(0)?.toUpperCase() || "K";
 
     const sampleQuestions = [
         "What is Kalinga ng Kababaihan WLLPC?",
         "Where is Kalingang Kababaihan WLLPC located?",
-        "What does your organization do?"
+        "What does your organization do?",
     ];
+
+    useEffect(() => {
+        if (!messagesContainerRef.current) return;
+
+        messagesContainerRef.current.scrollTo({
+            top: messagesContainerRef.current.scrollHeight,
+            behavior: "smooth",
+        });
+    }, [messages, isLoading]);
 
     const sendMessage = async (message = input) => {
         message = String(message || "").trim();
@@ -32,14 +43,15 @@ const ChatBox = ({ toggleChatbot }) => {
         try {
             const response = await _post("/chat", {
                 message,
-                history: newMessages.map(m => ({ text: m.text, sender: m.sender }))
+                history: newMessages.map((msg) => ({ text: msg.text, sender: msg.sender })),
             });
 
             const botMessage = response.data.message || "I'm sorry, I don't have an answer right now.";
 
-            setMessages(prev => [...prev, { text: botMessage, sender: "bot" }]);
+            setMessages((prev) => [...prev, { text: botMessage, sender: "bot" }]);
         } catch (error) {
-            setMessages(prev => [...prev, { text: "Unable to fetch response right now.", sender: "bot" }]);
+            console.error("Error fetching chatbot response:", error);
+            setMessages((prev) => [...prev, { text: "Unable to fetch response right now.", sender: "bot" }]);
         } finally {
             setIsLoading(false);
         }
@@ -52,148 +64,144 @@ const ChatBox = ({ toggleChatbot }) => {
         }
     };
 
+    const renderAssistantAvatar = (sizeClass = "h-10 w-10", textClass = "text-sm") => (
+        <div className={`${sizeClass} shrink-0 overflow-hidden rounded-full border border-slate-200 bg-white shadow-sm`}>
+            {logoImageSrc ? (
+                <img src={logoImageSrc} alt={displayName} className="h-full w-full object-cover" />
+            ) : (
+                <span className={`flex h-full w-full items-center justify-center font-semibold text-orange-700 ${textClass}`}>
+                    {assistantInitial}
+                </span>
+            )}
+        </div>
+    );
+
     return (
         <AnimatePresence>
             <motion.div
-                initial={{ opacity: 0, y: 60 }}
+                initial={{ opacity: 0, y: 48 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 60 }}
-                className="fixed bottom-0 md:bottom-24 right-0 md:right-6 z-[9999] 
-                w-[100vw] sm:w-[360px] h-[calc(100vh-72px)] sm:h-[600px] 
-                sm:rounded-2xl rounded-none bg-white/95 shadow-2xl border border-orange-200/80 
-                flex flex-col overflow-hidden backdrop-blur"
+                exit={{ opacity: 0, y: 48 }}
+                transition={{ duration: 0.22, ease: "easeOut" }}
+                className="fixed inset-0 z-[9999] flex h-[100dvh] w-screen min-w-0 flex-col overflow-hidden bg-white lg:inset-auto lg:bottom-6 lg:right-6 lg:h-[620px] lg:max-h-[calc(100vh-3rem)] lg:w-[350px] lg:max-w-[calc(100vw-3rem)] lg:rounded-[24px] lg:border lg:border-slate-200 lg:shadow-[0_24px_70px_rgba(15,23,42,0.18)]"
             >
-                <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-500 text-white p-4 flex justify-between items-center">
-                    <div className="flex items-center gap-2">
-                        <div className="w-9 h-9 rounded-full overflow-hidden border-2 border-white/80 bg-white/20 flex items-center justify-center">
-                            {logoImageSrc ? (
-                                <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
-                            ) : (
-                                <span className="text-sm font-semibold text-white">
-                                    {displayName?.charAt(0) || "K"}
-                                </span>
-                            )}
-                        </div>
-                        <div>
-                            <p className="font-semibold text-sm">Support Assistant</p>
-                            <p className="text-xs text-white/80">{displayName}</p>
-                        </div>
-                    </div>
-                    <button
-                        onClick={toggleChatbot}
-                        aria-label="Close chat"
-                        className="p-2 rounded-full hover:bg-white/15 transition-colors"
-                    >
-                        <X size={18} />
-                    </button>
-                </div>
-
-                <div className="flex-1 overflow-y-auto px-4 py-5 space-y-4 bg-slate-50 relative">
-                    {!hasMessages && !isLoading && (
-                        <div className="absolute inset-0 flex flex-col justify-center px-4">
-                            <p className="text-xs font-semibold uppercase tracking-[0.18em] text-gray-500 mb-3">
-                                Quick start
-                            </p>
-                            <div className="flex flex-wrap gap-2">
-                                {sampleQuestions.map((q, index) => (
-                                    <button
-                                        key={index}
-                                        onClick={() => sendMessage(q)}
-                                        className="px-3 py-2 text-left text-xs bg-white text-slate-700 
-                                                   border border-orange-200 rounded-xl shadow-sm hover:bg-orange-50 
-                                                   transition-all hover:-translate-y-0.5 hover:shadow"
-                                    >
-                                        {q}
-                                    </button>
-                                ))}
+                <div className="border-b border-slate-200 bg-white px-4 py-3.5">
+                    <div className="flex items-center justify-between gap-3">
+                        <div className="flex items-center gap-3">
+                            {renderAssistantAvatar("h-11 w-11", "text-base")}
+                            <div className="min-w-0">
+                                <p className="text-[15px] font-semibold leading-tight text-slate-900">Support Assistant</p>
+                                <p className="truncate text-[13px] text-slate-500">{displayName}</p>
+                                <div className="mt-1 flex items-center gap-2">
+                                    <span className="h-2 w-2 rounded-full bg-emerald-400" />
+                                    <span className="text-[11px] font-medium text-slate-400">Ready to help</span>
+                                </div>
                             </div>
                         </div>
-                    )}
 
-                    {messages.map((msg, i) => (
-                        <div
-                            key={i}
-                            className={`flex items-end gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                        <button
+                            onClick={toggleChatbot}
+                            aria-label="Close chat"
+                            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 hover:text-slate-700"
                         >
-                            {msg.sender === "bot" && (
-                                <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-white shadow">
-                                    {logoImageSrc ? (
-                                        <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="flex h-full w-full text-[10px] font-semibold text-slate-700 items-center justify-center">
-                                            {displayName?.charAt(0) || "K"}
-                                        </span>
-                                    )}
-                                </div>
-                            )}
+                            <X size={18} />
+                        </button>
+                    </div>
+                </div>
 
-                            <div
-                                className={`relative max-w-[78%] px-4 py-2 rounded-2xl text-sm leading-relaxed ${
-                                    msg.sender === "user"
-                                        ? "bg-orange-600 text-white rounded-br-none shadow-sm"
-                                        : "bg-white text-slate-700 rounded-bl-none border border-slate-200/80 shadow-sm"
-                                }`}
-                            >
-                                <span className="block whitespace-pre-wrap break-words">{msg.text}</span>
+                <div
+                    ref={messagesContainerRef}
+                    className="flex-1 overflow-y-auto bg-[#f3f5f8] px-3 py-4 md:px-4"
+                >
+                    {!hasMessages && !isLoading ? (
+                        <div className="flex h-full flex-col justify-between gap-5">
+                            <div className="rounded-[22px] border border-slate-200 bg-white p-4 shadow-sm">
+                                <div className="flex items-start gap-3">
+                                    {renderAssistantAvatar("h-10 w-10", "text-sm")}
+                                    <div>
+                                        <p className="text-base font-semibold text-slate-900">How can we help today?</p>
+                                        <p className="mt-1 text-[13px] leading-relaxed text-slate-500">
+                                            Ask about our organization, contact details, projects, or ways to get involved.
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
 
-                            {msg.sender === "user" && (
-                                <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-orange-50 shadow">
-                                    {logoImageSrc ? (
-                                        <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
-                                    ) : (
-                                        <span className="flex h-full w-full text-[10px] font-semibold text-orange-700 items-center justify-center">
-                                            {displayName?.charAt(0) || "K"}
-                                        </span>
-                                    )}
+                            <div>
+                                <p className="mb-3 px-1 text-[11px] font-semibold uppercase tracking-[0.2em] text-slate-400">
+                                    Quick Start
+                                </p>
+                                <div className="space-y-2">
+                                    {sampleQuestions.map((question, index) => (
+                                        <button
+                                            key={index}
+                                            type="button"
+                                            onClick={() => sendMessage(question)}
+                                            className="group flex w-full items-center justify-between rounded-[18px] border border-slate-200 bg-white px-4 py-3 text-left text-[13px] font-medium text-slate-700 shadow-sm transition hover:border-slate-300 hover:bg-slate-50"
+                                        >
+                                            <span className="pr-3 leading-relaxed">{question}</span>
+                                            <ChevronRight className="h-4 w-4 shrink-0 text-slate-400 transition group-hover:text-slate-600" />
+                                        </button>
+                                    ))}
                                 </div>
-                            )}
+                            </div>
                         </div>
-                    ))}
+                    ) : (
+                        <div className="flex flex-col gap-3">
+                            {messages.map((msg, index) => (
+                                <div
+                                    key={index}
+                                    className={`flex items-end gap-2 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
+                                >
+                                    {msg.sender === "bot" && renderAssistantAvatar("h-8 w-8", "text-xs")}
 
-                    {isLoading && (
-                        <div className="flex items-center gap-2 mt-2">
-                            <div className="w-7 h-7 rounded-full overflow-hidden border border-white bg-white shadow">
-                                {logoImageSrc ? (
-                                    <img src={logoImageSrc} alt={displayName} className="w-full h-full object-cover" />
-                                ) : (
-                                    <span className="flex h-full w-full text-[10px] font-semibold text-slate-700 items-center justify-center">
-                                        {displayName?.charAt(0) || "K"}
-                                    </span>
-                                )}
-                            </div>
-                            <div className="typing-indicator px-3 py-2 rounded-full bg-white border border-slate-200 shadow-sm">
-                                <span></span><span></span><span></span>
-                            </div>
+                                    <div
+                                        className={`max-w-[82%] px-4 py-2.5 text-[13px] leading-relaxed shadow-sm ${
+                                            msg.sender === "user"
+                                                ? "rounded-[20px] rounded-br-md bg-orange-500 text-white"
+                                                : "rounded-[20px] rounded-bl-md border border-slate-200 bg-white text-slate-700"
+                                        }`}
+                                    >
+                                        <span className="block whitespace-pre-wrap break-words">{msg.text}</span>
+                                    </div>
+                                </div>
+                            ))}
+
+                            {isLoading && (
+                                <div className="flex items-center gap-2">
+                                    {renderAssistantAvatar("h-8 w-8", "text-xs")}
+                                    <div className="typing-indicator rounded-full border border-slate-200 bg-white px-3 py-2 shadow-sm">
+                                        <span></span>
+                                        <span></span>
+                                        <span></span>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
 
-                <div className="p-3 border-t border-slate-200 bg-white flex items-center gap-2">
-                    <div className="relative flex-1">
+                <div className="border-t border-slate-200 bg-white px-3 py-3 md:px-4">
+                    <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-slate-50 px-3 py-2">
                         <input
                             type="text"
                             value={input}
                             onKeyDown={handleEnter}
                             onChange={(e) => setInput(e.target.value)}
-                            placeholder="Write a message…"
-                            className="w-full px-4 py-3 text-sm text-slate-700 bg-slate-100 border border-slate-200
-                                       rounded-full outline-none focus:border-orange-400 focus:ring-2 focus:ring-orange-100"
+                            placeholder="Write a message..."
+                            className="min-w-0 flex-1 bg-transparent px-1 py-2 text-sm text-slate-700 outline-none placeholder:text-slate-400"
                         />
+                        <button
+                            onClick={() => sendMessage()}
+                            aria-label="Send message"
+                            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-orange-500 text-white transition hover:bg-orange-600 disabled:cursor-not-allowed disabled:bg-orange-300"
+                            disabled={isLoading || !input.trim()}
+                        >
+                            <Send size={18} />
+                        </button>
                     </div>
-                    <button
-                        onClick={() => sendMessage()}
-                        aria-label="Send message"
-                        className="h-11 w-11 rounded-full bg-orange-600 text-white flex items-center justify-center shadow
-                                   hover:bg-orange-700 transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-                        disabled={isLoading || !input.trim()}
-                    >
-                        <Send size={18} />
-                    </button>
-                </div>
 
-                <div className="bg-slate-100 text-[10px] text-slate-500 px-3 py-2 border-t border-slate-200">
-                    <p className="text-center">
+                    <p className="mt-2 text-center text-[11px] leading-relaxed text-slate-400">
                         Responses are for assistance only. Please call or message us for urgent matters.
                     </p>
                 </div>

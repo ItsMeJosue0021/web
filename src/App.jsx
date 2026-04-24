@@ -3,6 +3,7 @@ import UnuathenticatedRoute from './routes/UnauthenticatedRoute';
 import ProtectedRoute from './routes/ProtectedRoute';
 import Unauthorized from './pages/auth/Unauthorized';
 import Login from './pages/auth/Login';
+import ForgotPassword from './pages/auth/ForgotPassword';
 import Roles from './pages/Roles';
 import Home from './pages/Home';
 import AboutUs from './pages/AboutUs';
@@ -15,6 +16,7 @@ import Chat from './pages/Chat';
 import Members from './pages/Members';
 import Portal from './pages/Portal';
 import Registration from './pages/auth/Registration';
+import ResetPassword from './pages/auth/ResetPassword';
 import Inquiries from './pages/Inquiries';
 import Knowledgebase from './pages/Knowledgebase';
 import Users from './pages/Users';
@@ -431,6 +433,20 @@ const App = () => {
                     element={
                         <UnuathenticatedRoute>
                             <Registration />
+                        </UnuathenticatedRoute>
+                    }
+                />
+                <Route path="/forgot-password"
+                    element={
+                        <UnuathenticatedRoute>
+                            <ForgotPassword />
+                        </UnuathenticatedRoute>
+                    }
+                />
+                <Route path="/reset-password"
+                    element={
+                        <UnuathenticatedRoute>
+                            <ResetPassword />
                         </UnuathenticatedRoute>
                     }
                 />

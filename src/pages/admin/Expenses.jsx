@@ -8,6 +8,8 @@ import ConfirmationAlert from '../../components/alerts/ConfirmationAlert';
 import ModalContainer from '../../components/ModalContainer';
 import { toast } from "react-toastify";
 
+const PAYMENT_METHOD_OPTIONS = ["Cash", "Bank Transfer", "GCash"];
+
 const Expenses = () => {
 
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
@@ -689,12 +691,18 @@ const Expenses = () => {
 
                                     <div className="flex flex-col gap-1">
                                         <label className="text-xs">Payment Method *</label>
-                                        <input
+                                        <select
                                             value={form.payment_method}
                                             onChange={(e) => setForm({ ...form, payment_method: e.target.value })}
                                             className="border rounded px-3 py-2 text-sm max-h-10"
-                                            placeholder="e.g. Cash, Bank Transfer, GCash"
-                                        />
+                                        >
+                                            <option value="" disabled>Select payment method</option>
+                                            {PAYMENT_METHOD_OPTIONS.map((method) => (
+                                                <option key={method} value={method}>
+                                                    {method}
+                                                </option>
+                                            ))}
+                                        </select>
                                         {validationErrors.payment_method && (
                                             <p className="text-xs text-red-500">{validationErrors.payment_method[0]}</p>
                                         )}

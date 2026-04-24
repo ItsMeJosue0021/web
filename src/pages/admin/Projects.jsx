@@ -60,6 +60,8 @@ const Projects = () => {
     const [cashLiquidations, setCashLiquidations] = useState([]);
     const [cashLiquidationsLoading, setCashLiquidationsLoading] = useState(false);
     const [cashLiquidationsError, setCashLiquidationsError] = useState("");
+    const [cashLiquidationMaxAmount, setCashLiquidationMaxAmount] = useState(null);
+    const [cashLiquidationLimitLoading, setCashLiquidationLimitLoading] = useState(false);
     const [deletingCashLiquidationId, setDeletingCashLiquidationId] = useState(null);
     const [isCashLiquidationDeleteOpen, setIsCashLiquidationDeleteOpen] = useState(false);
     const [cashLiquidationDeleteId, setCashLiquidationDeleteId] = useState(null);
@@ -438,6 +440,23 @@ const Projects = () => {
         }
     };
 
+    const fetchCashLiquidationLimit = async () => {
+        setCashLiquidationLimitLoading(true);
+        try {
+            const response = await _get("/expenditures/totals");
+            const totalMonetaryDonations = Number(response.data?.total_monetary_donations) || 0;
+            const totalExpenses = Number(response.data?.total_expenditures) || 0;
+            const remainingAmount = totalMonetaryDonations - totalExpenses;
+
+            setCashLiquidationMaxAmount(remainingAmount > 0 ? remainingAmount : 0);
+        } catch (error) {
+            console.error("Error fetching cash liquidation limit:", error);
+            setCashLiquidationMaxAmount(null);
+        } finally {
+            setCashLiquidationLimitLoading(false);
+        }
+    };
+
     const resetCashLiquidationForm = () => {
         setCashLiquidationForm({
             amount: "",
@@ -458,6 +477,7 @@ const Projects = () => {
         await Promise.all([
             fetchProjectResources(project.id),
             fetchProjectCashLiquidations(project.id),
+            fetchCashLiquidationLimit(),
         ]);
         fetchInventoryItems({ search: "", categoryId: "", subCategoryId: "" });
     };
@@ -469,9 +489,29 @@ const Projects = () => {
         resetCashLiquidationForm();
         setCashLiquidations([]);
         setCashLiquidationsError("");
+        setCashLiquidationMaxAmount(null);
         setDeletingCashLiquidationId(null);
         setIsCashLiquidationDeleteOpen(false);
         setCashLiquidationDeleteId(null);
+    };
+
+    const handleCashLiquidationAmountChange = (value) => {
+        if (value === "") {
+            setCashLiquidationForm((prev) => ({ ...prev, amount: "" }));
+            return;
+        }
+
+        const numericValue = Number(value);
+        if (Number.isNaN(numericValue)) return;
+
+        const safeValue = cashLiquidationMaxAmount !== null
+            ? Math.min(numericValue, cashLiquidationMaxAmount)
+            : numericValue;
+
+        setCashLiquidationForm((prev) => ({
+            ...prev,
+            amount: `${safeValue}`,
+        }));
     };
 
     const handleItemSearchChange = (value) => {
@@ -586,6 +626,8 @@ const Projects = () => {
         const parsedAmount = Number(cashLiquidationForm.amount);
         if (!cashLiquidationForm.amount || Number.isNaN(parsedAmount) || parsedAmount <= 0) {
             validation.amount = "Amount is required and must be greater than 0.";
+        } else if (cashLiquidationMaxAmount !== null && parsedAmount > cashLiquidationMaxAmount) {
+            validation.amount = `Amount cannot exceed the max amount of ${formatCashAmount(cashLiquidationMaxAmount)}.`;
         }
         if (!cashLiquidationForm.date_used) {
             validation.date_used = "Date used is required.";
@@ -622,6 +664,7 @@ const Projects = () => {
             resetCashLiquidationForm();
             fetchProjects();
             fetchProjectCashLiquidations(liquidateProject.id);
+            fetchCashLiquidationLimit();
         } catch (error) {
             if (error?.response?.status === 422) {
                 setCashLiquidationErrors(error.response?.data?.errors || {});
@@ -650,6 +693,7 @@ const Projects = () => {
             toast.success("Cash liquidation deleted.");
             fetchProjectCashLiquidations(liquidateProject?.id);
             fetchProjects();
+            fetchCashLiquidationLimit();
         } catch (error) {
             console.error("Error deleting cash liquidation:", error);
             toast.error("Error deleting cash liquidation.");
@@ -1034,18 +1078,34 @@ const Projects = () => {
 
                                 <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
                                     <div className="flex flex-col gap-1">
+                                        <p className="text-[11px] font-medium text-orange-600">
+                                            Max Amount: {cashLiquidationLimitLoading
+                                                ? "Loading..."
+                                                : cashLiquidationMaxAmount === null
+                                                    ? "Unavailable"
+                                                    : formatCashAmount(cashLiquidationMaxAmount)}
+                                        </p>
                                         <label className="text-[11px] text-gray-600">Amount</label>
                                         <input
                                             type="number"
                                             min="0"
                                             step="0.01"
+                                            max={cashLiquidationMaxAmount ?? undefined}
                                             value={cashLiquidationForm.amount}
-                                            onChange={(e) =>
-                                                setCashLiquidationForm((prev) => ({ ...prev, amount: e.target.value }))
-                                            }
+                                            onChange={(e) => handleCashLiquidationAmountChange(e.target.value)}
                                             className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
                                             placeholder="Enter amount used"
                                         />
+                                        {cashLiquidationMaxAmount === 0 && !cashLiquidationLimitLoading && (
+                                            <p className="text-[11px] text-amber-600">
+                                                No remaining monetary balance is available for cash liquidation.
+                                            </p>
+                                        )}
+                                        {cashLiquidationMaxAmount === null && !cashLiquidationLimitLoading && (
+                                            <p className="text-[11px] text-amber-600">
+                                                Unable to load the current max amount. You can still enter a value and submit.
+                                            </p>
+                                        )}
                                         {cashLiquidationErrors.amount && (
                                             <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
                                         )}
@@ -1178,8 +1238,12 @@ const Projects = () => {
                                     <button
                                         type="button"
                                         onClick={submitCashLiquidation}
-                                        disabled={savingCashLiquidation}
-                                        className={`w-full text-xs px-4 py-2 rounded text-white ${savingCashLiquidation ? "bg-blue-300 cursor-not-allowed" : "bg-blue-600 hover:bg-blue-700"}`}
+                                        disabled={savingCashLiquidation || cashLiquidationLimitLoading || cashLiquidationMaxAmount === 0}
+                                        className={`w-full text-xs px-4 py-2 rounded text-white ${
+                                            savingCashLiquidation || cashLiquidationLimitLoading || cashLiquidationMaxAmount === 0
+                                                ? "bg-blue-300 cursor-not-allowed"
+                                                : "bg-blue-600 hover:bg-blue-700"
+                                        }`}
                                     >
                                         {savingCashLiquidation ? "Saving..." : "Save Cash Liquidation"}
                                     </button>
@@ -1217,16 +1281,16 @@ const Projects = () => {
                             </div>
 
                             <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleSubmit}>
-                                <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
+                                <div className="flex items-center justify-start gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                                     <input
                                         type="checkbox"
                                         id="isEvent"
                                         checked={isEvent}
                                         onChange={(e) => setIsEvent(e.target.checked)}
-                                        className="h-4 w-4 bg-white border border-gray-300 cursor-pointer accent-white"
+                                        className="h-4 w-4 flex-none shrink-0 bg-white border border-gray-300 cursor-pointer accent-white"
                                         style={{ accentColor: '#fff' }}
                                     />
-                                    <label htmlFor="isEvent" className="text-xs text-gray-700">
+                                    <label htmlFor="isEvent" className="flex-1 text-left text-xs text-gray-700">
                                         Mark this project as an event
                                     </label>
                                 </div>

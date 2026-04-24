@@ -2,18 +2,10 @@ import React from "react";
 import { useState, createContext, useContext } from "react";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Link } from "react-router-dom";
-import { GoHome } from "react-icons/go";
-import { BiLogOut } from "react-icons/bi";
-import { GiHamburgerMenu } from "react-icons/gi";
 import { AuthContext } from "../AuthProvider";
 import LoggingOut from "../components/LoggingOut";
 import Logo from "../components/Logo";
-import { X } from 'lucide-react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { IoSettingsOutline } from "react-icons/io5";
-import { IoPaperPlaneOutline } from "react-icons/io5";
-import { IoNewspaperOutline } from "react-icons/io5";
+import { LogOut } from 'lucide-react';
 
 export const PortalContext = createContext();
 
@@ -21,11 +13,8 @@ const User = ({ children }) => {
 
   const { logout } = useContext(AuthContext);
 
-  const [isOpen, setIsOpen] = useState(true);
   const [activeTab, setActiveTab] = useState('home');
   const [loggingOut, setLoggingOut] = useState(false);
-
-  const [mobileNavOpen, setMobileNavOpen] = useState(false);
 
   const handleLogout = async () => {
     setLoggingOut(true);
@@ -42,8 +31,8 @@ const User = ({ children }) => {
     <div className="w-screen min-h-screen h-auto overflow-hidden">
       <ToastContainer />
       <div className="w-full flex flex-col items-start justify-start ">
-        <div className="fixed w-full h-fit flex items-center justify-between bg-white shadow-sm px-4 md:px-8 py-2">
-          <div className=" h-fit flex items-center justify-between w-full  ">
+        <div className="fixed z-30 w-full h-fit flex items-center justify-between bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-sm px-4 md:px-8 py-3">
+          <div className="h-fit flex items-center justify-between w-full">
             <Logo
               wrapperClassName="flex items-center space-x-2 text-black hover:text-black"
               imageClassName="min-w-14 w-14 min-h-14 h-14 rounded-full"
@@ -51,171 +40,25 @@ const User = ({ children }) => {
               mainTextClassName="text-xs md:text-sm chewy"
               secondaryTextClassName="text-[10px] poppins-regular"
             />
-            <div className="hidden md:flex items-center space-x-10">
-              <ul className='text-xs flex space-x-10'>
-                  <li>
-                      <Link to="/" className="text-black">Home</Link>
-                  </li>
-                  <li>
-                      <Link to="/about-us" className='text-black'>About Us</Link>
-                  </li>
-                  <li>
-                      <Link to="/volunteers" className='text-black'>Volunteers</Link>
-                  </li>
-                  <li>
-                      <Link to="/faqs" className='text-black'>FAQs</Link>
-                  </li>
-                  <li>
-                      <Link to="/contact-us" className='text-black'>Contact Us</Link>
-                  </li>
-              </ul>
-            </div>
-            <div
-              onClick={() => setMobileNavOpen(!mobileNavOpen)}
-              className="md:hidden flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
-            >
-              <GiHamburgerMenu
-                size={20}
-                strokeWidth={0.5}
-                className="group-hover:text-blue-500 transition-all duration-300 ease-in-out text-gray-700"
-              />
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleLogout}
+                className="inline-flex items-center gap-2 rounded-md border border-red-100 bg-red-50 px-3 py-2 text-xs font-semibold text-red-600 transition-colors hover:bg-red-100 hover:text-red-700"
+              >
+                <LogOut className="w-4 h-4" />
+                <span className="hidden sm:inline">Logout</span>
+              </button>
             </div>
           </div>
         </div>
-        <div className="w-full h-auto flex items-start px-0 md:px-8 ">
-          <div className={`${isOpen ? 'w-56 min-w-56' : 'w-fit'} hidden md:flex pr-8 min-h-screen h-auto pt-28 border-r border-gray-100`}>
-              <div className="w-full flex flex-col items-start justify-start gap-1">
-                  <div
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="flex items-center justify-center p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group"
-                  >
-                    <GiHamburgerMenu
-                      size={20}
-                      strokeWidth={0.5}
-                      className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
-                    />
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab('home')}
-                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'home' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
-                      <div>
-                        <GoHome
-                          size={20}
-                          strokeWidth={0.5}
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
-                        />
-                      </div>
-                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Home</span>)}
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab('requests')}
-                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'requests' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
-                      <div>
-                        <IoPaperPlaneOutline
-                          size={20}
-                          strokeWidth={0.5}
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
-                        />
-                      </div>
-                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Requests</span>)}
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab('membership')}
-                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'membership' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
-                      <div>
-                        <IoNewspaperOutline
-                          size={20}
-                          strokeWidth={0.5}
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
-                        />
-                      </div>
-                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Membership</span>)}
-                  </div>
-
-                  <div
-                    onClick={() => setActiveTab('profile')}
-                    className={`${isOpen ? 'w-full' : 'w-fit'} ${activeTab === 'profile' ? 'bg-gray-50 border-blue-100 text-blue-500' : ''} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-gray-50 hover:border-blue-100 group`}>
-                      <div>
-                        <IoSettingsOutline
-                          size={18}
-                          strokeWidth={0.5}
-                          className="group-hover:text-blue-500 transition-all duration-300 ease-in-out"
-                        />
-                      </div>
-                      {isOpen && (<span className="text-xs group-hover:text-blue-500 transition-all duration-300 ease-in-out">Settings</span>)}
-                  </div>
-
-                  <div
-                    onClick={() => handleLogout()}
-                    className={`${isOpen ? 'w-full' : 'w-fit'} flex items-center gap-2 p-2 rounded-lg border border-gray-100 cursor-pointer transition-all duration-300 ease-in-out hover:bg-red-50 hover:border-red-100 group`}>
-                      <div>
-                        <BiLogOut
-                          size={18}
-                          strokeWidth={0.2}
-                          className="group-hover:text-red-500 transition-all duration-300 ease-in-out"/>
-                      </div>
-                      {isOpen && (<span className="text-xs group-hover:text-red-500 transition-all duration-300 ease-in-out">Logout</span>)}
-                  </div>
-              </div>
-          </div>
-          <div className="w-full min-screen h-screen pt-20 bg-white">
-            <PortalContext.Provider value={{ activeTab, setActiveTab }}>
-              {children}
-            </PortalContext.Provider>
-          </div>
+        <div className="w-full min-screen h-screen pt-16 bg-white">
+          <PortalContext.Provider value={{ activeTab, setActiveTab }}>
+            {children}
+          </PortalContext.Provider>
         </div>
       </div>
       {loggingOut && <LoggingOut />}
-
-      {mobileNavOpen && (
-        <AnimatePresence>
-            <motion.div
-            role="alert"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className='fixed top-0 right-0 md:absolute md:right-0 md:top-16 h-full w-full md:h-fit md:w-72 bg-white px-2 py-5 rounded-lg shadow-md'>
-                <ul className='w-full h-full flex flex-col items-center justify-center gap-4 md:gap-0 poppins-bold text-black cursor-pointer text-lg md:text-sm'>
-                    <div className="md:hidden flex">
-                        <X className="w-7 h-7 absolute top-4 right-4" onClick={() => setMobileNavOpen(false)} />
-                    </div>
-                    <Link to="/" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600 ">Home</a>
-                    </Link>
-                    <Link to="/about-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">About Us</a>
-                    </Link>
-                    <Link to="/volunteers" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Volunteers</a>
-                    </Link>
-                    <Link to="/faqs" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">FAQs</a>
-                    </Link>
-                    <Link to="/contact-us" className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Contact Us</a>
-                    </Link>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('home');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Portal</a>
-                    </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('membership');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Membership</a>
-                    </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('requests');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Requests</a>
-                    </span>
-                    <span onClick={() => {setMobileNavOpen(false); setActiveTab('profile');}} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Profile</a>
-                    </span>
-                    <span onClick={() => handleLogout()} className="w-full flex justify-center md:justify-start px-4 py-2 hover:bg-orange-50 group rounded-md">
-                        <a className="text-black group-hover:text-orange-600">Logout</a>
-                    </span>
-                </ul>
-            </motion.div>
-        </AnimatePresence>
-      )}
     </div>
   );
 };

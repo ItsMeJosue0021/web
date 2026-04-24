@@ -5,6 +5,15 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import VolunteerButton from "../components/volunteering/VolunteerButton";
+import ProjectShareButton from "../components/projects/ProjectShareButton";
+import {
+    canProjectAcceptVolunteers,
+    getProjectLifecycleClasses,
+    getProjectLifecycleLabel,
+    getProjectPublicPath,
+    getProjectTypeClasses,
+    getProjectTypeLabel,
+} from "../utils/projectMeta";
 
 const EventsList = () => {
 
@@ -127,7 +136,16 @@ const EventsList = () => {
                             )}
 
                             {/* CONTENT */}
-                            <div className="p-4 flex flex-col gap-2">
+                            <div className="p-4 flex flex-1 flex-col gap-3">
+                                <div className="flex flex-wrap items-center gap-2">
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${getProjectTypeClasses(event)}`}>
+                                        {getProjectTypeLabel(event)}
+                                    </span>
+                                    <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-[10px] font-semibold ${getProjectLifecycleClasses(event)}`}>
+                                        {getProjectLifecycleLabel(event)}
+                                    </span>
+                                </div>
+
                                 <h2 className="text-base font-semibold text-gray-800 line-clamp-2">
                                     {event.title}
                                 </h2>
@@ -143,14 +161,19 @@ const EventsList = () => {
                                 </p>
 
                                 {/* CTA */}
-                                <div className="flex items-center gap-2 mt-2">
+                                <div className="mt-auto flex flex-wrap items-center gap-2">
                                     <Link
-                                        to={`/our-projects/${event.id}`}
+                                        to={getProjectPublicPath(event)}
                                         className="text-xs px-4 py-1 rounded-md border border-gray-300 text-gray-700 hover:border-orange-600 hover:text-orange-600 transition w-fit"
                                     >
                                         See More
                                     </Link>
-                                    <VolunteerButton project={event} />
+                                    {canProjectAcceptVolunteers(event) && <VolunteerButton project={event} />}
+                                    <ProjectShareButton
+                                        title={event.title}
+                                        description={event.description}
+                                        path={getProjectPublicPath(event)}
+                                    />
                                 </div>
                             </div>
                         </div>

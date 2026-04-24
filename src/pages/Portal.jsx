@@ -1,5 +1,6 @@
 ﻿import { useEffect } from "react";
 import { useContext } from "react";
+import { Link } from "react-router-dom";
 import { AuthContext } from "../AuthProvider";
 import { PortalContext } from "../layouts/User";
 import { SlidersHorizontal, X } from "lucide-react";
@@ -18,6 +19,15 @@ import { MdOutlineCameraAlt } from "react-icons/md";
 import VolunteerButton from "../components/volunteering/VolunteerButton";
 import VolunteerRequestsTable from "../components/volunteering/VolunteerRequestsTable";
 import { useWebsiteLogo } from "../hooks/useWebsiteLogo";
+import ProjectShareButton from "../components/projects/ProjectShareButton";
+import {
+    canProjectAcceptVolunteers,
+    getProjectLifecycleClasses,
+    getProjectLifecycleLabel,
+    getProjectPublicPath,
+    getProjectTypeClasses,
+    getProjectTypeLabel,
+} from "../utils/projectMeta";
 
 const Portal = () => {
 
@@ -25,6 +35,13 @@ const Portal = () => {
     const {activeTab, setActiveTab} = useContext(PortalContext);
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
     const { websiteLogo, logoImageSrc } = useWebsiteLogo();
+
+    const portalTabs = [
+        { key: 'home', label: 'Home' },
+        { key: 'requests', label: 'Requests' },
+        { key: 'membership', label: 'Membership' },
+        { key: 'profile', label: 'Settings' },
+    ];
 
 
     const [events, setEvents] = useState([]);
@@ -162,16 +179,6 @@ const Portal = () => {
         }
     }
 
-    const isProjectUpcoming = (project) => {
-        const dateString = project?.time ? `${project.date} ${project.time}` : project?.date;
-        if (!dateString) return true;
-
-        const parsed = new Date(dateString);
-        if (Number.isNaN(parsed.getTime())) return true;
-
-        return parsed.getTime() >= Date.now();
-    }
-
     const formatDate = (value) => {
         if (!value) return "-";
         const parsed = new Date(value);
@@ -276,91 +283,125 @@ const Portal = () => {
         <div className="h-full bg-white">
             {showDetails && <EventDetailsModal event={null} onClose={() => setShowDetails(false)} />}
             <div className="bg-white w-full h-[95%] flex items-center justify-center flex-col p-4 overflow-y-auto overflow-x-hidden">
-                <div className="bg-white w-full max-w-[600px] h-full mx-auto flex items-start justify-between gap-4" >
-
-                    {activeTab === 'home' && (
-                        <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3">
-                            <div className="w-full sticky top-2 mb-3">
-                                <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow hover:bg-blue-50 border border-gray-100 hover:border-blue-200 group transition-colors duration-300 ease-in-out">
-                                    <Search className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ease-in-out" />
-                                    <input  
-                                        onChange={handleSearchProjects}   
-                                        type="text" 
-                                        placeholder="Search projects..." 
-                                        className="text-gray-700 w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400 transition-colors duration-300 ease-in-out"/>
+                <div className="bg-white w-full max-w-[820px] h-full mx-auto flex items-start justify-between gap-4">
+                    <div className="w-full flex flex-col gap-4">
+                        <div className="sticky top-0 z-20 bg-white py-4">
+                            <div className="w-full overflow-x-auto hide-scrollbar">
+                                <div className="flex min-w-max items-center gap-2 border-b border-gray-200 pb-3">
+                                    {portalTabs.map((item) => (
+                                        <button
+                                            key={item.key}
+                                            type="button"
+                                            onClick={() => setActiveTab(item.key)}
+                                            className={`rounded-md border px-4 py-2 text-xs font-medium transition-colors ${
+                                                activeTab === item.key
+                                                    ? "border-gray-300 bg-gray-100 text-gray-900"
+                                                    : "border-transparent text-gray-600 hover:border-gray-200 hover:bg-gray-50 hover:text-gray-900"
+                                            }`}
+                                        >
+                                            {item.label}
+                                        </button>
+                                    ))}
                                 </div>
                             </div>
-                            {loading ? (
-                                <div className="w-full flex items-center justify-center py-10">
-                                    <CircularLoading customClass='text-blue-500 w-6 h-6' />
-                                </div>
-                            ) : (
-                                <div className="grid grid-cols-1 gap-3 w-full h-full overflow-y-auto pb-2 pr-1 hide-scrollbar">
-                                    {projects.length > 0 ? projects.map((project, index) => (
-                                        <div key={index} className="w-full h-full flex flex-col gap-2 bg-white rounded-xl shadow-sm p-4 border border-gray-200">
-                                            <div className="flex items-center justify-between gap-2">
-                                                <div className="flex items-center gap-2">
-                                                    <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-8 h-8 rounded-full object-cover"/>
-                                                    <div className="flex flex-col items-start">
-                                                        <p className="text-xs font-medium">{websiteLogo.main_text}</p>
-                                                        <p className="text-[9px] text-gray-500">{project.date} {project.time ? `â€¢ ${project.time}` : ""}</p>
-                                                    </div>
-                                                </div>
-                                                <span className="text-[10px] px-2 py-1 rounded-full bg-green-50 text-green-600 border border-green-100">
-                                                    {isProjectUpcoming(project) ? "Upcoming" : "Past"}
-                                                </span>
-                                            </div>
 
-                                            <div className="flex flex-col gap-1">
-                                                <h1 className="text-sm font-semibold text-gray-800 line-clamp-2">{project.title}</h1>
-                                                <p className="text-xs text-gray-600 line-clamp-3">{project.description}</p>
-                                            </div>
-
-                                            {project.image && (
-                                                <div className="w-full h-44 rounded-lg overflow-hidden bg-gray-100">
-                                                    <img 
-                                                        onClick={() => handleImageClick(project.image)}
-                                                        src={`${baseURL}${project.image}`} 
-                                                        className="w-full h-full object-cover cursor-pointer"
-                                                        alt={project.title}
-                                                    />
-                                                </div>
-                                            )}
-                                            
-                                            <div className="flex items-center justify-between gap-2 mt-1">
-                                                <p className="text-[11px] text-gray-500 flex items-center gap-1">
-                                                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-orange-50 text-orange-600 border border-orange-100">
-                                                        {project.date} {project.time ? `â€¢ ${project.time}` : ""}
-                                                    </span>
-                                                </p>
-                                                {isProjectUpcoming(project) && <VolunteerButton project={project} />}
-                                            </div>
-                                        </div> 
-                                    )) : (
-                                        <div className="h-full w-full flex flex-col items-center justify-center bg-white border border-dashed border-gray-200 rounded-xl py-12 px-4 text-center">
-                                            <p className="text-sm font-semibold text-gray-700">No projects found</p>
-                                            <p className="text-[11px] text-gray-500">Try adjusting your search or check back later.</p>
-                                        </div>
-                                    )}
+                            {activeTab === 'home' && (
+                                <div className="pt-4">
+                                    <div className="w-full text-sm rounded-xl px-4 py-3 flex items-center justify-start gap-2 bg-white shadow hover:bg-blue-50 border border-gray-100 hover:border-blue-200 group transition-colors duration-300 ease-in-out">
+                                        <Search className="w-4 h-4 text-gray-500 group-hover:text-blue-400 transition-colors duration-300 ease-in-out" />
+                                        <input  
+                                            onChange={handleSearchProjects}   
+                                            type="text" 
+                                            placeholder="Search projects..." 
+                                            className="text-gray-700 w-full h-full border-0 text-xs placeholder:text-xs bg-transparent outline-none group-hover:placeholder:text-blue-400 transition-colors duration-300 ease-in-out"/>
+                                    </div>
                                 </div>
                             )}
                         </div>
-                    )}
 
-                    {activeTab === 'requests' && (
-                        <div className="w-full h-full rounded flex items-start flex-col justify-start gap-2">
-                            <VolunteerRequestsTable requests={requests} loading={requestsLoading} />
-                        </div>
-                    )}
+                        {activeTab === 'home' && (
+                            <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3">
+                                {loading ? (
+                                    <div className="w-full flex items-center justify-center py-10">
+                                        <CircularLoading customClass='text-blue-500 w-6 h-6' />
+                                    </div>
+                                ) : (
+                                    <div className="grid grid-cols-1 gap-3 w-full h-full overflow-y-auto pb-2 pr-1 hide-scrollbar">
+                                        {projects.length > 0 ? projects.map((project, index) => (
+                                            <div key={index} className="w-full h-full flex flex-col gap-2 bg-white rounded-xl shadow-sm p-4 border border-gray-300">
+                                                <div className="flex items-center justify-between gap-2">
+                                                    <div className="flex items-center gap-2">
+                                                        <img src={logoImageSrc} alt={websiteLogo.main_text || "Organization logo"} className="w-8 h-8 rounded-full object-cover"/>
+                                                        <div className="flex flex-col items-start">
+                                                            <p className="text-xs font-medium">{websiteLogo.main_text}</p>
+                                                            <p className="text-[9px] text-gray-500">{project.date} {project.time ? `â€¢ ${project.time}` : ""}</p>
+                                                        </div>
+                                                    </div>
+                                                    <div className="flex flex-wrap items-center justify-end gap-1.5">
+                                                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold ${getProjectTypeClasses(project)}`}>
+                                                            {getProjectTypeLabel(project)}
+                                                        </span>
+                                                        <span className={`inline-flex items-center rounded-full px-2 py-1 text-[10px] font-semibold ${getProjectLifecycleClasses(project)}`}>
+                                                            {getProjectLifecycleLabel(project)}
+                                                        </span>
+                                                    </div>
+                                                </div>
 
-                    {activeTab === 'membership' && (
-                        <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3 overflow-y-auto px-2 md:px-4">
-                            {membershipRequestLoading ? (
-                                <div className="w-full h-40 flex items-center justify-center">
-                                    <CircularLoading customClass='text-blue-500 w-6 h-6' />
-                                </div>
-                            ) : membershipRequest ? (
-                                <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
+                                                <div className="flex flex-col gap-1">
+                                                    <h1 className="text-sm font-semibold text-gray-800 line-clamp-2">{project.title}</h1>
+                                                    <p className="text-xs text-gray-600 line-clamp-3">{project.description}</p>
+                                                </div>
+
+                                                {project.image && (
+                                                    <div className="w-full h-44 rounded-lg overflow-hidden bg-gray-100">
+                                                        <img 
+                                                            onClick={() => handleImageClick(project.image)}
+                                                            src={`${baseURL}${project.image}`} 
+                                                            className="w-full h-full object-cover cursor-pointer"
+                                                            alt={project.title}
+                                                        />
+                                                    </div>
+                                                )}
+                                                
+                                                <div className="mt-1 flex flex-wrap items-center justify-between gap-2">
+                                                    <span className="inline-flex items-center px-2 py-1 rounded-full bg-orange-50 text-orange-600 border border-orange-100 text-[11px]">
+                                                        {project.date} {project.time ? `â€¢ ${project.time}` : ""}
+                                                    </span>
+                                                    <div className="flex flex-wrap items-center justify-end gap-2">
+                                                        {canProjectAcceptVolunteers(project) && <VolunteerButton project={project} />}
+                                                        <ProjectShareButton
+                                                            title={project.title}
+                                                            description={project.description}
+                                                            path={getProjectPublicPath(project)}
+                                                        />
+                                                    </div>
+                                                </div>
+                                            </div> 
+                                        )) : (
+                                            <div className="h-full w-full flex flex-col items-center justify-center bg-white border border-dashed border-gray-200 rounded-xl py-12 px-4 text-center">
+                                                <p className="text-sm font-semibold text-gray-700">No projects found</p>
+                                                <p className="text-[11px] text-gray-500">Try adjusting your search or check back later.</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+
+                        {activeTab === 'requests' && (
+                            <div className="w-full h-full rounded flex items-start flex-col justify-start gap-2">
+                                <VolunteerRequestsTable requests={requests} loading={requestsLoading} />
+                            </div>
+                        )}
+
+                        {activeTab === 'membership' && (
+                            <div className="w-full h-full rounded flex items-start flex-col justify-start gap-3 overflow-y-auto px-2 md:px-4">
+                                {membershipRequestLoading ? (
+                                    <div className="w-full h-40 flex items-center justify-center">
+                                        <CircularLoading customClass='text-blue-500 w-6 h-6' />
+                                    </div>
+                                ) : membershipRequest ? (
+                                    <div className="w-full bg-white border border-gray-200 rounded-xl shadow-sm p-5 space-y-4">
                                     <div className="flex items-start justify-between gap-3">
                                         <div className="flex flex-col gap-1">
                                             <p className="text-sm font-semibold text-gray-800">Your Membership Request</p>
@@ -407,9 +448,9 @@ const Portal = () => {
                                         {normalizeStatus(membershipRequest.status) === 'rejected' && "Your request was rejected. Please contact support if you believe this is a mistake."}
                                         {!['approved', 'rejected'].includes(normalizeStatus(membershipRequest.status)) && "Your request is under review. We'll notify you once it's processed."}
                                     </div>
-                                </div>
-                            ) : (
-                                <>
+                                    </div>
+                                ) : (
+                                    <>
                                     <div className="w-full bg-gradient-to-r from-orange-50 via-white to-orange-50 border border-orange-100 rounded-xl shadow-sm p-5 space-y-4">
                                         <div className="flex flex-col lg:flex-row items-center gap-6">
                                             <div className="w-fit bg-white border border-gray-200 rounded-lg p-3 flex items-center justify-center">
@@ -502,13 +543,13 @@ const Portal = () => {
                                             </button>
                                         </div>
                                     </div>
-                                </>
-                            )}
-                        </div>
-                    )}
-                    
-                    {activeTab === 'profile' && (
-                        <div className="w-full flex h-fit flex-col gap-4">
+                                    </>
+                                )}
+                            </div>
+                        )}
+                        
+                        {activeTab === 'profile' && (
+                            <div className="w-full flex h-fit flex-col gap-4">
                             <div className="w-full rounded-xl bg-gradient-to-r from-orange-50 via-white to-orange-50 border border-orange-100 shadow-sm p-5 flex flex-col gap-4">
                                 <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                                     <div className="flex items-center justify-center min-w-28 w-28 min-h-28 h-28 sm:min-w-32 sm:w-32 sm:min-h-32 sm:h-32 rounded-full bg-white border border-orange-100 shadow-sm">
@@ -629,9 +670,9 @@ const Portal = () => {
                                     </button>
                                 </div>
                             </div>
-                        </div>
-                    )}
-                    
+                            </div>
+                        )}
+                    </div>
                 </div>
 
                 <ChatButton/>

@@ -16,7 +16,6 @@ const Header = () => {
     const isRegisterPage = location.pathname === "/register";
 
     useEffect(() => {
-
         if (location.pathname.includes("about-us")) {
             setActive("about");
         } else if (location.pathname.includes("volunteers")) {
@@ -27,8 +26,12 @@ const Header = () => {
              setActive("contact");
         } else if (location.pathname.includes("our-projects")) {
              setActive("projects");
+        } else {
+            setActive("home");
         }
+    }, [location.pathname]);
 
+    useEffect(() => {
         const handleScroll = () => {
             if (window.scrollY > 50) {
                 setIsScrolled(true);
@@ -58,22 +61,22 @@ const Header = () => {
                 {!isLoginPage && !isRegisterPage && (
                     <ul className='flex space-x-10'>
                         <li>
-                            <Link to="/" className={`${active === "home" ? 'text-blue-600' : 'text-black'}`}>Home</Link>
+                            <Link to="/" className={`transition-colors ${active === "home" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Home</Link>
                         </li>
                         <li>
-                            <Link to="/about-us" className={`${active === "about" ? 'text-blue-600' : 'text-black'}`}>About Us</Link>
+                            <Link to="/about-us" className={`transition-colors ${active === "about" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>About Us</Link>
                         </li>
                         {/* <li>
                             <Link to="/volunteers" className={`${active === "volunteers" ? 'text-blue-600' : 'text-black'}`}>Volunteers</Link>
                         </li> */}
                         <li>
-                            <Link to="/our-projects" className={`${active === "projects" ? 'text-blue-600' : 'text-black'}`}>Projects</Link>
+                            <Link to="/our-projects" className={`transition-colors ${active === "projects" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Projects</Link>
                         </li>
                         <li>
-                            <Link to="/faqs" className={`${active === "faqs" ? 'text-blue-600' : 'text-black'}`}>FAQs</Link>
+                            <Link to="/faqs" className={`transition-colors ${active === "faqs" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>FAQs</Link>
                         </li>
                         <li>
-                            <Link to="/contact-us" className={`${active === "contact" ? 'text-blue-600' : 'text-black'}`}>Contact Us</Link>
+                            <Link to="/contact-us" className={`transition-colors ${active === "contact" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Contact Us</Link>
                         </li>
                     </ul>
                 )}
@@ -145,19 +148,19 @@ const Header = () => {
                                     <p className="px-2 py-1 text-[11px] font-semibold uppercase tracking-wide text-gray-500">
                                         Browse
                                     </p>
-                                    <Link to="/" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                    <Link to="/" onClick={toggleModal} className={`w-full flex px-3 py-2 rounded-lg text-sm transition-colors ${active === "home" ? "bg-orange-50 text-orange-600 hover:text-orange-600" : "text-black hover:bg-orange-50 hover:text-orange-600"}`}>
                                         Home
                                     </Link>
-                                    <Link to="/about-us" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                    <Link to="/about-us" onClick={toggleModal} className={`w-full flex px-3 py-2 rounded-lg text-sm transition-colors ${active === "about" ? "bg-orange-50 text-orange-600 hover:text-orange-600" : "text-black hover:bg-orange-50 hover:text-orange-600"}`}>
                                         About Us
                                     </Link>
-                                    <Link to="/our-projects" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                    <Link to="/our-projects" onClick={toggleModal} className={`w-full flex px-3 py-2 rounded-lg text-sm transition-colors ${active === "projects" ? "bg-orange-50 text-orange-600 hover:text-orange-600" : "text-black hover:bg-orange-50 hover:text-orange-600"}`}>
                                         Projects
                                     </Link>
-                                    <Link to="/faqs" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                    <Link to="/faqs" onClick={toggleModal} className={`w-full flex px-3 py-2 rounded-lg text-sm transition-colors ${active === "faqs" ? "bg-orange-50 text-orange-600 hover:text-orange-600" : "text-black hover:bg-orange-50 hover:text-orange-600"}`}>
                                         FAQs
                                     </Link>
-                                    <Link to="/contact-us" onClick={toggleModal} className="w-full flex px-3 py-2 rounded-lg hover:bg-orange-50 text-black text-sm">
+                                    <Link to="/contact-us" onClick={toggleModal} className={`w-full flex px-3 py-2 rounded-lg text-sm transition-colors ${active === "contact" ? "bg-orange-50 text-orange-600 hover:text-orange-600" : "text-black hover:bg-orange-50 hover:text-orange-600"}`}>
                                         Contact Us
                                     </Link>
                                 </div>

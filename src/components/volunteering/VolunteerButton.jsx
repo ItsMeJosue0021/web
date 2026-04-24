@@ -150,7 +150,7 @@ const VolunteerButton = ({ project }) => {
                             ) : (
                                 <form onSubmit={handleSubmit} className="space-y-4">
                                     <div className="rounded-xl border border-sky-100 bg-sky-50 p-4">
-                                        <div className="flex flex-col items-center gap-3 text-center">
+                                        <div className="flex flex-col items-start gap-3 text-left">
                                             <div>
                                                 <p className="text-sm font-semibold text-sky-800">
                                                     Want to register instead?
@@ -163,7 +163,7 @@ const VolunteerButton = ({ project }) => {
                                             <Link
                                                 to="/register"
                                                 onClick={() => setIsFormOpen(false)}
-                                                className="inline-flex min-w-[160px] items-center justify-center rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
+                                                className="inline-flex min-w-[160px] items-center justify-center self-start rounded-md bg-blue-600 px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-blue-700"
                                             >
                                                 Create an Account
                                             </Link>

@@ -7,7 +7,22 @@ import { AuthContext } from "../../AuthProvider";
 import SuccesAlert from "../alerts/SuccesAlert";
 
 const VolunteerButton = ({ project }) => {
+    const formatUserAddress = (address = {}, emptyFallback = "Not provided") => {
+        const parts = [
+            address.block,
+            address.lot,
+            address.street,
+            address.subdivision,
+            address.barangay,
+            address.city,
+            address.province,
+            address.code,
+        ]
+            .map((part) => `${part ?? ""}`.trim())
+            .filter(Boolean);
 
+        return parts.length > 0 ? parts.join(", ") : emptyFallback;
+    };
 
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -18,6 +33,7 @@ const VolunteerButton = ({ project }) => {
         lastName: "",
         email: "",
         contactNumber: "",
+        address: "",
     });
     const [errors, setErrors] = useState({});
     const { user } = useContext(AuthContext);
@@ -45,6 +61,7 @@ const VolunteerButton = ({ project }) => {
                   last_name: user.lastName,
                   email: user.email,
                   contact_number: user.contactNumber,
+                  address: formatUserAddress(user.address, "") || null,
               }
             : {
                   first_name: formData.firstName,
@@ -52,19 +69,21 @@ const VolunteerButton = ({ project }) => {
                   last_name: formData.lastName,
                   email: formData.email,
                   contact_number: formData.contactNumber,
+                  address: formData.address,
               };
 
         try {
             await _post(`/projects/${project.id}/volunteer`, payload);
             setIsFormOpen(false);
             setShowSuccessModal(true);
-            setFormData({
-                firstName: "",
-                middleName: "",
-                lastName: "",
-                email: "",
-                contactNumber: "",
-            });
+                setFormData({
+                    firstName: "",
+                    middleName: "",
+                    lastName: "",
+                    email: "",
+                    contactNumber: "",
+                    address: "",
+                });
         } catch (error) {
             const backendErrors = error?.response?.data?.errors;
             if (backendErrors) {
@@ -74,6 +93,7 @@ const VolunteerButton = ({ project }) => {
                     last_name: "lastName",
                     email: "email",
                     contact_number: "contactNumber",
+                    address: "address",
                 };
 
                 const formattedErrors = {};
@@ -127,6 +147,7 @@ const VolunteerButton = ({ project }) => {
                                         <p><span className="font-medium">Name:</span> {user.firstName} {user.middleName} {user.lastName}</p>
                                         <p><span className="font-medium">Email:</span> {user.email}</p>
                                         <p><span className="font-medium">Contact:</span> {user.contactNumber}</p>
+                                        <p><span className="font-medium">Address:</span> {formatUserAddress(user.address)}</p>
                                     </div>
                                     <div className="flex justify-end gap-3 pt-2">
                                         <button
@@ -235,6 +256,20 @@ const VolunteerButton = ({ project }) => {
                                                 placeholder="Enter your contact number"
                                             />
                                             {errors.contactNumber && <p className="mt-1 text-xs text-red-600">{errors.contactNumber}</p>}
+                                        </div>
+
+                                        <div className="flex flex-col md:col-span-2">
+                                            <label htmlFor="address" className="text-xs font-medium text-gray-700">Address <span className="text-sm text-red-500">*</span> </label>
+                                            <textarea
+                                                id="address"
+                                                name="address"
+                                                rows={3}
+                                                value={formData.address}
+                                                onChange={handleChange}
+                                                className="mt-1 rounded-md border border-gray-300 px-3 py-2 text-xs outline-none focus:ring-2 focus:ring-orange-500"
+                                                placeholder="Enter your full address"
+                                            />
+                                            {errors.address && <p className="mt-1 text-xs text-red-600">{errors.address}</p>}
                                         </div>
                                     </div>
 

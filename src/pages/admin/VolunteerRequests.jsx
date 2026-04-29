@@ -87,7 +87,7 @@ const VolunteerRequests = () => {
                         </div>
                     </div>
                 ) : (
-                    <div className="w-full min-w-[700px] rounded-lg overflow-x-auto">
+                    <div className="w-full min-w-[980px] rounded-lg overflow-x-auto">
                         <table className="w-full border rounded-lg shadow bg-white text-sm">
                             <thead className="bg-orange-500 text-white ">
                             <tr className="text-xs">
@@ -96,6 +96,7 @@ const VolunteerRequests = () => {
                                 <th className="p-3 text-start">Volunteer's Name</th>
                                 <th className="p-3 text-start">Email</th>
                                 <th className="p-3 text-start">Contact Number</th>
+                                <th className="p-3 text-start">Address</th>
                                 <th className="p-3 text-start">Date Requested</th>
                                 <th className="p-3 text-start">Is_Member?</th>
                                 <th className="p-3 text-start">Is_User?</th>
@@ -113,6 +114,9 @@ const VolunteerRequests = () => {
                                         <td className="p-3 text-xs">{row.first_name} {row.middle_name} {row.last_name}</td>
                                         <td className={`p-3 text-xs `}>{row.email}</td>
                                         <td className="p-3 text-xs ">{row.contact_number}</td>
+                                        <td className="p-3 text-xs max-w-[220px] whitespace-normal break-words">
+                                            {row.address || <span className="text-gray-400">Not provided</span>}
+                                        </td>
                                         <td className="p-3 text-xs ">{row.created_at}</td>
                                         <td className="p-3 text-xs ">
                                             {row.is_member ? (

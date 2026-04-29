@@ -20,7 +20,7 @@ const ModalContainer = ({children, isFull, close}) => {
                     </div>
 
                     <div className="w-full flex-1 flex justify-center py-4">
-                        <div className="w-full max-w-5xl flex items-center justify-center">
+                        <div className={`w-full flex items-center justify-center ${isFull ? 'max-w-none' : 'max-w-5xl'}`}>
                             {children}
                         </div>
                     </div>

@@ -10,6 +10,129 @@ import CircularLoading from "../../components/CircularLoading";
 import ModalContainer from "../../components/ModalContainer";
 import VolunteerListPerProject from "../../components/VolunteerListPerProject";
 
+const createEmptyProposedResource = () => ({
+    name: "",
+    category_id: "",
+    sub_category_id: "",
+    quantity: "",
+    unit: "",
+    notes: "",
+});
+
+const normalizeResourceText = (value = "") =>
+    `${value}`
+        .toLowerCase()
+        .trim()
+        .replace(/[^a-z0-9]+/g, " ")
+        .replace(/\s+/g, " ")
+        .trim();
+
+const getResourceCategoryId = (resource) => `${resource?.category_id ?? resource?.category ?? ""}`;
+const getResourceSubCategoryId = (resource) => `${resource?.sub_category_id ?? resource?.sub_category ?? ""}`;
+const getResourceName = (resource) => `${resource?.name ?? resource?.item_name ?? ""}`;
+
+const resourcesMatch = (proposed, actual) => {
+    const proposedCategoryId = getResourceCategoryId(proposed);
+    const actualCategoryId = getResourceCategoryId(actual);
+    if (proposedCategoryId && actualCategoryId && proposedCategoryId !== actualCategoryId) {
+        return false;
+    }
+
+    const proposedSubCategoryId = getResourceSubCategoryId(proposed);
+    const actualSubCategoryId = getResourceSubCategoryId(actual);
+    if (proposedSubCategoryId && actualSubCategoryId && proposedSubCategoryId !== actualSubCategoryId) {
+        return false;
+    }
+
+    const proposedName = normalizeResourceText(getResourceName(proposed));
+    const actualName = normalizeResourceText(getResourceName(actual));
+
+    if (!proposedName || !actualName) {
+        return true;
+    }
+
+    return (
+        proposedName === actualName ||
+        proposedName.includes(actualName) ||
+        actualName.includes(proposedName)
+    );
+};
+
+const buildResourceComparisonRows = (proposedResources = [], actualResources = []) => {
+    const rows = proposedResources.map((proposed) => {
+        const actualMatches = actualResources.filter((actual) => resourcesMatch(proposed, actual));
+        const actualQuantity = actualMatches.reduce(
+            (sum, actual) => sum + Number(actual?.usedQuantity ?? actual?.quantity ?? 0),
+            0
+        );
+        const proposedQuantity = Number(proposed?.quantity ?? 0);
+        const excessQuantity = actualQuantity > proposedQuantity ? actualQuantity - proposedQuantity : 0;
+
+        let status = "missing";
+        if (actualQuantity > 0 && actualQuantity < proposedQuantity) {
+            status = "partial";
+        } else if (actualQuantity > proposedQuantity && proposedQuantity > 0) {
+            status = "excess";
+        } else if (actualQuantity === proposedQuantity && proposedQuantity > 0) {
+            status = "accomplished";
+        }
+
+        return {
+            key: `proposed-${proposed.uid ?? proposed.id ?? proposed.name}`,
+            proposed,
+            actualMatches,
+            proposedQuantity,
+            actualQuantity,
+            excessQuantity,
+            status,
+        };
+    });
+
+    const unplannedActualRows = actualResources
+        .filter((actual) => !proposedResources.some((proposed) => resourcesMatch(proposed, actual)))
+        .map((actual) => ({
+            key: `actual-${actual.uid ?? actual.id ?? actual.name}`,
+            proposed: null,
+            actualMatches: [actual],
+            proposedQuantity: 0,
+            actualQuantity: Number(actual?.usedQuantity ?? actual?.quantity ?? 0),
+            excessQuantity: 0,
+            status: "unplanned",
+        }));
+
+    return [...rows, ...unplannedActualRows];
+};
+
+const getComparisonStatusMeta = (status) => {
+    switch (status) {
+        case "accomplished":
+            return {
+                label: "Accomplished",
+                className: "bg-green-50 text-green-700 border border-green-200",
+            };
+        case "partial":
+            return {
+                label: "Partial",
+                className: "bg-amber-50 text-amber-700 border border-amber-200",
+            };
+        case "excess":
+            return {
+                label: "Excess",
+                className: "bg-orange-50 text-orange-700 border border-orange-200",
+            };
+        case "unplanned":
+            return {
+                label: "Unplanned Actual",
+                className: "bg-blue-50 text-blue-700 border border-blue-200",
+            };
+        default:
+            return {
+                label: "Missing",
+                className: "bg-red-50 text-red-700 border border-red-200",
+            };
+    }
+};
+
 const Projects = () => {
     const baseURL = "https://api.kalingangkababaihan.com/storage/";
 
@@ -22,6 +145,11 @@ const Projects = () => {
     const [date, setDate] = useState("");
     const [image, setImage] = useState(null);
     const [isEvent, setIsEvent] = useState(false);
+    const [projectFormLoading, setProjectFormLoading] = useState(false);
+    const [proposedResources, setProposedResources] = useState([]);
+    const [proposedResourceDraft, setProposedResourceDraft] = useState(createEmptyProposedResource());
+    const [proposedResourceErrors, setProposedResourceErrors] = useState({});
+    const [editingProposedResourceUid, setEditingProposedResourceUid] = useState(null);
 
     const [showAddProjectModal, setShowAddProjectModal] = useState(false);
     const [showEditProjectModal, setShowEditProjectModal] = useState(false);
@@ -63,9 +191,11 @@ const Projects = () => {
     const [cashLiquidationMaxAmount, setCashLiquidationMaxAmount] = useState(null);
     const [cashLiquidationLimitLoading, setCashLiquidationLimitLoading] = useState(false);
     const [deletingCashLiquidationId, setDeletingCashLiquidationId] = useState(null);
+    const [isCashLiquidationModalOpen, setIsCashLiquidationModalOpen] = useState(false);
     const [isCashLiquidationDeleteOpen, setIsCashLiquidationDeleteOpen] = useState(false);
     const [cashLiquidationDeleteId, setCashLiquidationDeleteId] = useState(null);
     const [existingResourcesLoading, setExistingResourcesLoading] = useState(false);
+    const [liquidationProposedResources, setLiquidationProposedResources] = useState([]);
     const [startDate, setStartDate] = useState("");
     const [endDate, setEndDate] = useState("");
     const [isPrintOpen, setIsPrintOpen] = useState(false);
@@ -83,6 +213,12 @@ const Projects = () => {
     };
 
     const getFieldErrorMessage = (value) => (Array.isArray(value) ? value[0] : value);
+    const proposedResourceValidationMessages = Object.entries(validationErrors)
+        .filter(([key]) => key.startsWith("proposed_resources"))
+        .map(([, value], index) => ({
+            id: `proposed-resource-error-${index}`,
+            message: getFieldErrorMessage(value),
+        }));
 
     const extractCashLiquidationCollection = (payload) => {
         if (Array.isArray(payload)) return payload;
@@ -177,9 +313,129 @@ const Projects = () => {
         setDate("");
         setImage(null);
         setIsEvent(false);
+        setProposedResources([]);
+        setProposedResourceDraft(createEmptyProposedResource());
+        setProposedResourceErrors({});
+        setEditingProposedResourceUid(null);
+        setProjectFormLoading(false);
     };
 
-    const handleOpenEditModal = (project) => {
+    const mapProposedResourceFromApi = (resource) => ({
+        uid: generateUid(),
+        id: resource?.id,
+        name: resource?.name || "",
+        category_id: resource?.category_id ? `${resource.category_id}` : "",
+        category_name: resource?.category_name || "",
+        sub_category_id: resource?.sub_category_id ? `${resource.sub_category_id}` : "",
+        sub_category_name: resource?.sub_category_name || "",
+        quantity: resource?.quantity ? `${resource.quantity}` : "",
+        unit: resource?.unit || "",
+        notes: resource?.notes || "",
+    });
+
+    const resetProposedResourceDraft = () => {
+        setProposedResourceDraft(createEmptyProposedResource());
+        setProposedResourceErrors({});
+        setEditingProposedResourceUid(null);
+    };
+
+    const validateProposedResourceDraft = () => {
+        const nextErrors = {};
+
+        if (!proposedResourceDraft.category_id) nextErrors.category_id = "Category is required.";
+        if (!proposedResourceDraft.sub_category_id) nextErrors.sub_category_id = "Subcategory is required.";
+        if (!proposedResourceDraft.name.trim()) nextErrors.name = "Item/material name is required.";
+        if (!proposedResourceDraft.quantity || Number.isNaN(Number(proposedResourceDraft.quantity)) || Number(proposedResourceDraft.quantity) <= 0) {
+            nextErrors.quantity = "Quantity must be greater than 0.";
+        }
+
+        setProposedResourceErrors(nextErrors);
+        return Object.keys(nextErrors).length === 0;
+    };
+
+    const handleProposedResourceCategoryChange = (value) => {
+        setProposedResourceDraft((prev) => ({
+            ...prev,
+            category_id: value,
+            sub_category_id: "",
+        }));
+        setProposedResourceErrors((prev) => ({
+            ...prev,
+            category_id: undefined,
+            sub_category_id: undefined,
+        }));
+    };
+
+    const handleSaveProposedResource = () => {
+        if (!validateProposedResourceDraft()) return;
+
+        const selectedCategory = categories.find((category) => `${category.id}` === `${proposedResourceDraft.category_id}`);
+        const selectedSubCategory = (selectedCategory?.subcategories || []).find(
+            (subcategory) => `${subcategory.id}` === `${proposedResourceDraft.sub_category_id}`
+        );
+
+        const nextResource = {
+            uid: editingProposedResourceUid || generateUid(),
+            id: proposedResources.find((resource) => resource.uid === editingProposedResourceUid)?.id,
+            name: proposedResourceDraft.name.trim(),
+            category_id: `${proposedResourceDraft.category_id}`,
+            category_name: selectedCategory?.name || "",
+            sub_category_id: `${proposedResourceDraft.sub_category_id}`,
+            sub_category_name: selectedSubCategory?.name || "",
+            quantity: `${Math.max(1, Number(proposedResourceDraft.quantity))}`,
+            unit: proposedResourceDraft.unit.trim(),
+            notes: proposedResourceDraft.notes.trim(),
+        };
+
+        setProposedResources((prev) => {
+            if (!editingProposedResourceUid) {
+                return [...prev, nextResource];
+            }
+
+            return prev.map((resource) =>
+                resource.uid === editingProposedResourceUid ? nextResource : resource
+            );
+        });
+
+        resetProposedResourceDraft();
+    };
+
+    const handleEditProposedResource = (resource) => {
+        setEditingProposedResourceUid(resource.uid);
+        setProposedResourceDraft({
+            name: resource.name || "",
+            category_id: resource.category_id ? `${resource.category_id}` : "",
+            sub_category_id: resource.sub_category_id ? `${resource.sub_category_id}` : "",
+            quantity: resource.quantity ? `${resource.quantity}` : "",
+            unit: resource.unit || "",
+            notes: resource.notes || "",
+        });
+        setProposedResourceErrors({});
+    };
+
+    const handleRemoveProposedResource = (resourceUid) => {
+        setProposedResources((prev) => prev.filter((resource) => resource.uid !== resourceUid));
+        if (editingProposedResourceUid === resourceUid) {
+            resetProposedResourceDraft();
+        }
+    };
+
+    const appendProposedResourcesToFormData = (formData) => {
+        proposedResources.forEach((resource, index) => {
+            formData.append(`proposed_resources[${index}][name]`, resource.name);
+            formData.append(`proposed_resources[${index}][category_id]`, resource.category_id);
+            formData.append(`proposed_resources[${index}][sub_category_id]`, resource.sub_category_id);
+            formData.append(`proposed_resources[${index}][quantity]`, `${resource.quantity}`);
+            if (resource.unit) {
+                formData.append(`proposed_resources[${index}][unit]`, resource.unit);
+            }
+            if (resource.notes) {
+                formData.append(`proposed_resources[${index}][notes]`, resource.notes);
+            }
+        });
+    };
+
+    const handleOpenEditModal = async (project) => {
         clearForm();
         setValidationErrors({});
 
@@ -190,6 +446,27 @@ const Projects = () => {
         setDate(project.date || "");
         setIsEvent(project.is_event == 1);
         setShowEditProjectModal(true);
+        setProjectFormLoading(true);
+
+        try {
+            const response = await _get(`/projects/${project.id}`);
+            const projectDetail = response.data || {};
+            setTitle(projectDetail.title || project.title || "");
+            setDescription(projectDetail.description || project.description || "");
+            setLocation(projectDetail.location || project.location || "");
+            setDate(projectDetail.date || project.date || "");
+            setIsEvent(projectDetail.is_event == 1);
+            setProposedResources(
+                Array.isArray(projectDetail.proposed_resources)
+                    ? projectDetail.proposed_resources.map(mapProposedResourceFromApi)
+                    : []
+            );
+        } catch (error) {
+            console.error("Error fetching project details:", error);
+            toast.error("Unable to load the full project details.");
+        } finally {
+            setProjectFormLoading(false);
+        }
     };
 
     const handleViewImage = (image) => {
@@ -280,6 +557,8 @@ const Projects = () => {
         formData.append("location", location);
         formData.append("date", date);
         formData.append("is_event", isEvent ? "1" : "0");
+        formData.append("sync_proposed_resources", "1");
+        appendProposedResourcesToFormData(formData);
 
         if (image) formData.append("image", image);
 
@@ -311,6 +590,8 @@ const Projects = () => {
         formData.append("location", location);
         formData.append("date", date);
         formData.append("is_event", isEvent ? "1" : "0");
+        formData.append("sync_proposed_resources", "1");
+        appendProposedResourcesToFormData(formData);
 
         if (image) formData.append("image", image);
 
@@ -389,6 +670,7 @@ const Projects = () => {
         try {
             const response = await _get(`/projects/${projectId}/resources`);
             const resources = response.data?.items || response.data?.resources || response.data || [];
+            const proposed = response.data?.proposed_resources || [];
             const mapped = resources
                 .map((res) => {
                     const itemData = res.item || {};
@@ -398,7 +680,9 @@ const Projects = () => {
                         id,
                         uid: generateUid(),
                         name: res.name || res.item_name || itemData.name || "",
+                        category_id: res.category_id || itemData.category || "",
                         category_name: res.category_name || itemData.category_name || res.category?.name || "",
+                        sub_category_id: res.sub_category_id || itemData.sub_category || "",
                         sub_category_name: res.sub_category_name || itemData.sub_category_name || res.subcategory?.name || "",
                         quantity: res.available_quantity ?? itemData.quantity ?? res.quantity ?? 0,
                         unit: res.unit || itemData.unit || "",
@@ -411,9 +695,13 @@ const Projects = () => {
                 })
                 .filter(Boolean);
             setSelectedItems(mapped);
+            setLiquidationProposedResources(
+                Array.isArray(proposed) ? proposed.map(mapProposedResourceFromApi) : []
+            );
         } catch (error) {
             console.error("Error fetching project resources:", error);
             setSelectedItems([]);
+            setLiquidationProposedResources([]);
         } finally {
             setExistingResourcesLoading(false);
         }
@@ -484,8 +772,10 @@ const Projects = () => {
 
     const closeLiquidateModal = () => {
         setIsLiquidateOpen(false);
+        setIsCashLiquidationModalOpen(false);
         setLiquidateProject(null);
         setSelectedItems([]);
+        setLiquidationProposedResources([]);
         resetCashLiquidationForm();
         setCashLiquidations([]);
         setCashLiquidationsError("");
@@ -493,6 +783,13 @@ const Projects = () => {
         setDeletingCashLiquidationId(null);
         setIsCashLiquidationDeleteOpen(false);
         setCashLiquidationDeleteId(null);
+    };
+
+    const openCashLiquidationModal = () => {
+        if (!liquidateProject?.id) return;
+        setIsCashLiquidationModalOpen(true);
+        fetchProjectCashLiquidations(liquidateProject.id);
+        fetchCashLiquidationLimit();
     };
 
     const handleCashLiquidationAmountChange = (value) => {
@@ -707,7 +1004,11 @@ const Projects = () => {
     const subCategoryOptions = itemCategory
         ? categories.find((cat) => `${cat.id}` === `${itemCategory}`)?.subcategories || []
         : categories.flatMap((cat) => cat.subcategories || []);
+    const proposedSubCategoryOptions = proposedResourceDraft.category_id
+        ? categories.find((cat) => `${cat.id}` === `${proposedResourceDraft.category_id}`)?.subcategories || []
+        : [];
     const pendingGoodsItemsCount = selectedItems.filter((item) => !item.isExisting).length;
+    const comparisonRows = buildResourceComparisonRows(liquidationProposedResources, selectedItems);
 
     const [openVolunteerList, setOpenVolunteerList] = useState(false);
     const [projectId, setProjectId] = useState(null);
@@ -778,7 +1079,11 @@ const Projects = () => {
                         {printLoading ? "Generating..." : "Print"}
                     </button>
                     <button
-                        onClick={() => setShowAddProjectModal(true)}
+                        onClick={() => {
+                            clearForm();
+                            setValidationErrors({});
+                            setShowAddProjectModal(true);
+                        }}
                         className="bg-orange-500 hover:bg-orange-600 text-white text-xs px-4 py-2 rounded w-full sm:w-auto flex items-center gap-2 justify-center"
                     >
                         <span>+</span>
@@ -797,7 +1102,11 @@ const Projects = () => {
                     No projects found. Create a new project to get started.
                     <div className="mt-3">
                         <button
-                            onClick={() => setShowAddProjectModal(true)}
+                            onClick={() => {
+                                clearForm();
+                                setValidationErrors({});
+                                setShowAddProjectModal(true);
+                            }}
                             className="text-xs px-3 py-2 rounded-md bg-orange-500 text-white hover:bg-orange-600"
                         >
                             Add project
@@ -879,7 +1188,7 @@ const Projects = () => {
             {/* LIQUIDATE MODAL */}
             {isLiquidateOpen && (
                 <ModalContainer isFull={true} close={closeLiquidateModal}>
-                    <div className="w-full max-w-7xl mx-auto flex min-h-0 max-h-[calc(100vh-7rem)] flex-col gap-4">
+                    <div className="w-full max-w-[98vw] mx-auto flex min-h-0 max-h-[calc(100vh-7rem)] flex-col gap-4">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 w-full">
                             <div>
                                 <p className="text-lg font-semibold text-orange-600">Liquidate Items</p>
@@ -888,6 +1197,13 @@ const Projects = () => {
                                 </p>
                             </div>
                             <div className="flex flex-wrap items-center gap-2">
+                                <button
+                                    type="button"
+                                    onClick={openCashLiquidationModal}
+                                    className="w-full sm:w-auto text-xs px-4 py-2 rounded border border-blue-200 text-blue-700 hover:bg-blue-50"
+                                >
+                                    Cash Liquidation
+                                </button>
                                 <button
                                     type="button"
                                     onClick={handleLiquidationPrint}
@@ -912,9 +1228,151 @@ const Projects = () => {
                             </div>
                         </div>
 
-                        <div className="flex-1 min-h-0 overflow-y-auto pr-1 grid grid-cols-1 xl:grid-cols-3 gap-4">
-                            <div className="xl:col-span-2 grid grid-cols-1 lg:grid-cols-2 gap-4 min-h-0">
-                                <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[260px]">
+                        <div className="rounded-lg border border-blue-100 bg-blue-50/50 px-4 py-3">
+                            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+                                <div>
+                                    <p className="text-sm font-semibold text-blue-900">Cash liquidation is now handled separately</p>
+                                    <p className="text-[11px] text-blue-800/80">
+                                        Open the cash liquidation modal when you need to log monetary expenses. The main workspace below is now dedicated to the proposed-versus-actual goods comparison.
+                                    </p>
+                                </div>
+                                <div className="flex flex-col text-[11px] text-blue-900 lg:text-right">
+                                    <span>
+                                        Recorded cash entries: {cashLiquidationsLoading ? "Loading..." : cashLiquidations.length}
+                                    </span>
+                                    <span>
+                                        Remaining balance: {cashLiquidationLimitLoading
+                                            ? "Loading..."
+                                            : cashLiquidationMaxAmount === null
+                                                ? "Unavailable"
+                                                : formatCashAmount(cashLiquidationMaxAmount)}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 min-h-0 overflow-y-auto pr-1">
+                            <div className="grid grid-cols-1 xl:grid-cols-[minmax(0,1.15fr)_minmax(0,0.95fr)] gap-4 min-h-0">
+                                <div className="xl:col-span-2 flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white">
+                                    <div className="flex items-center justify-between gap-2">
+                                        <div>
+                                            <p className="text-sm font-semibold">Proposed vs Actual Resources</p>
+                                            <p className="text-[11px] text-gray-500">
+                                                Compare what the project planned to use against the actual inventory items liquidated.
+                                            </p>
+                                        </div>
+                                        {liquidationProposedResources.length > 0 && (
+                                            <p className="text-[11px] text-gray-500">
+                                                {liquidationProposedResources.length} proposed item(s)
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="min-h-[300px] max-h-[380px] overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                        {existingResourcesLoading ? (
+                                            <div className="w-full py-8 flex items-center justify-center">
+                                                <CircularLoading customClass="text-blue-500 w-5 h-5" />
+                                            </div>
+                                        ) : liquidationProposedResources.length === 0 && selectedItems.length === 0 ? (
+                                            <p className="text-xs text-center text-gray-500 py-6">
+                                                No proposed or actual resource records yet for this project.
+                                            </p>
+                                        ) : comparisonRows.length === 0 ? (
+                                            <p className="text-xs text-center text-gray-500 py-6">
+                                                No proposed resources were saved for this project yet. Actual liquidated items will still appear below after you add them.
+                                            </p>
+                                        ) : (
+                                            <div className="overflow-x-auto">
+                                                <table className="min-w-[760px] w-full text-[11px]">
+                                                    <thead className="text-left text-gray-600">
+                                                        <tr>
+                                                            <th className="px-2 py-2 font-semibold">Proposed Item</th>
+                                                            <th className="px-2 py-2 font-semibold">Proposed Qty</th>
+                                                            <th className="px-2 py-2 font-semibold">Actual Item(s) Used</th>
+                                                            <th className="px-2 py-2 font-semibold">Actual Qty</th>
+                                                            <th className="px-2 py-2 font-semibold">Status</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        {comparisonRows.map((row) => {
+                                                            const statusMeta = getComparisonStatusMeta(row.status);
+                                                            return (
+                                                                <tr key={row.key} className="border-t border-gray-200 align-top">
+                                                                    <td className="px-2 py-2">
+                                                                        {row.proposed ? (
+                                                                            <div className="flex flex-col gap-1">
+                                                                                <p className="font-medium text-gray-800">{row.proposed.name}</p>
+                                                                                <p className="text-gray-500">
+                                                                                    {row.proposed.category_name || "Uncategorized"}
+                                                                                    {row.proposed.sub_category_name ? ` • ${row.proposed.sub_category_name}` : ""}
+                                                                                </p>
+                                                                                {row.proposed.notes && (
+                                                                                    <p className="text-gray-500">Notes: {row.proposed.notes}</p>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            <span className="text-gray-400">No proposal</span>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-2 py-2 text-gray-700">
+                                                                        {row.proposed ? `${row.proposedQuantity} ${row.proposed?.unit || ""}`.trim() : "-"}
+                                                                    </td>
+                                                                    <td className="px-2 py-2">
+                                                                        {row.actualMatches.length === 0 ? (
+                                                                            <span className="text-gray-400">No actual items yet</span>
+                                                                        ) : (
+                                                                            <div className="flex flex-col gap-1">
+                                                                                {row.actualMatches.map((actual) => (
+                                                                                    <div key={actual.uid || actual.id} className="text-gray-700">
+                                                                                        <p className="font-medium">{actual.name}</p>
+                                                                                        <p className="text-gray-500">
+                                                                                            {actual.category_name || "Uncategorized"}
+                                                                                            {actual.sub_category_name ? ` • ${actual.sub_category_name}` : ""}
+                                                                                        </p>
+                                                                                    </div>
+                                                                                ))}
+                                                                            </div>
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-2 py-2 text-gray-700">
+                                                                        {row.actualQuantity > 0 ? (
+                                                                            <div className="flex flex-col gap-1">
+                                                                                <span>
+                                                                                    {`${row.actualQuantity} ${row.actualMatches[0]?.unit || row.proposed?.unit || ""}`.trim()}
+                                                                                </span>
+                                                                                {row.excessQuantity > 0 && (
+                                                                                    <span className="text-[10px] font-medium text-orange-700">
+                                                                                        Excess: +{`${row.excessQuantity} ${row.actualMatches[0]?.unit || row.proposed?.unit || ""}`.trim()}
+                                                                                    </span>
+                                                                                )}
+                                                                            </div>
+                                                                        ) : (
+                                                                            "-"
+                                                                        )}
+                                                                    </td>
+                                                                    <td className="px-2 py-2">
+                                                                        <div className="flex flex-col gap-1">
+                                                                            <span className={`inline-flex w-fit rounded-full px-2 py-1 text-[10px] font-semibold ${statusMeta.className}`}>
+                                                                                {statusMeta.label}
+                                                                            </span>
+                                                                            {row.excessQuantity > 0 && (
+                                                                                <span className="text-[10px] text-orange-700">
+                                                                                    +{row.excessQuantity} over planned
+                                                                                </span>
+                                                                            )}
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            );
+                                                        })}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+
+                                <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[320px]">
                                 <div className="flex flex-col sm:flex-row flex-wrap gap-2">
                                     <input
                                         value={itemSearch}
@@ -949,7 +1407,7 @@ const Projects = () => {
                                     </select>
                                 </div>
 
-                                <div className="flex-1 min-h-[220px] overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                <div className="flex-1 min-h-[250px] overflow-y-auto border rounded p-2 bg-gray-50/50">
                                     {inventoryLoading || existingResourcesLoading ? (
                                         <div className="w-full h-full flex items-center justify-center py-8">
                                             <CircularLoading customClass="text-blue-500 w-6 h-6" />
@@ -1000,13 +1458,13 @@ const Projects = () => {
                                 </div>
                             </div>
 
-                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[260px]">
+                            <div className="flex flex-col gap-3 border rounded-lg p-3 overflow-hidden bg-white min-h-[320px]">
                                 <div className="flex items-center justify-between">
                                     <p className="text-sm font-semibold">Selected Items</p>
                                     <p className="text-[11px] text-gray-500">{selectedItems.length} item(s)</p>
                                 </div>
 
-                                <div className="flex-1 min-h-[220px] overflow-y-auto border rounded p-2 bg-gray-50/50">
+                                <div className="flex-1 min-h-[250px] overflow-y-auto border rounded p-2 bg-gray-50/50">
                                     {selectedItems.length === 0 ? (
                                         <p className="text-xs text-center text-gray-500 py-6">
                                             No items selected yet.
@@ -1040,9 +1498,14 @@ const Projects = () => {
                                                         </div>
                                                         <button
                                                             onClick={() => handleRemoveSelectedItem(item.uid)}
-                                                            className="text-[11px] text-red-500 hover:text-red-600"
+                                                            disabled={item.isExisting}
+                                                            className={`text-[11px] ${
+                                                                item.isExisting
+                                                                    ? "text-gray-400 cursor-not-allowed"
+                                                                    : "text-red-500 hover:text-red-600"
+                                                            }`}
                                                         >
-                                                            Remove
+                                                            {item.isExisting ? "Saved" : "Remove"}
                                                         </button>
                                                     </div>
 
@@ -1067,174 +1530,126 @@ const Projects = () => {
                                 </div>
                             </div>
                             </div>
+                        </div>
+                    </div>
+                </ModalContainer>
+            )}
 
-                            <div className="flex flex-col gap-3 border rounded-lg p-3 bg-white min-h-[260px] max-h-[70vh] overflow-hidden">
-                                <div>
-                                    <p className="text-sm font-semibold">Cash Expense Liquidation</p>
-                                    <p className="text-[11px] text-gray-500">
-                                        Record cash used for this project separately from goods liquidation.
+            {isCashLiquidationModalOpen && (
+                <ModalContainer
+                    isFull={false}
+                    close={() => setIsCashLiquidationModalOpen(false)}
+                >
+                    <div className="w-full max-w-[92vw] md:w-[880px] lg:w-[960px] max-h-[calc(100vh-5rem)] rounded-xl bg-white p-4 flex flex-col gap-4 overflow-hidden">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                            <div>
+                                <p className="text-lg font-semibold text-orange-600">Cash Expense Liquidation</p>
+                                <p className="text-xs text-gray-500">
+                                    {liquidateProject?.title
+                                        ? `Record cash used for project: ${liquidateProject.title}`
+                                        : "Record cash used for this project separately from goods liquidation."}
+                                </p>
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => setIsCashLiquidationModalOpen(false)}
+                                className="w-full sm:w-auto text-xs px-4 py-2 rounded bg-gray-200 hover:bg-gray-300"
+                            >
+                                Close
+                            </button>
+                        </div>
+
+                        <div className="grid flex-1 min-h-0 grid-cols-1 lg:grid-cols-[minmax(0,0.95fr)_minmax(0,1.05fr)] gap-4 overflow-hidden">
+                            <div className="flex min-h-0 flex-col gap-3 overflow-y-auto pr-1">
+                                <div className="flex flex-col gap-1">
+                                    <p className="text-[11px] font-medium text-orange-600">
+                                        Max Amount: {cashLiquidationLimitLoading
+                                            ? "Loading..."
+                                            : cashLiquidationMaxAmount === null
+                                                ? "Unavailable"
+                                                : formatCashAmount(cashLiquidationMaxAmount)}
                                     </p>
-                                </div>
-
-                                <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pr-1">
-                                    <div className="flex flex-col gap-1">
-                                        <p className="text-[11px] font-medium text-orange-600">
-                                            Max Amount: {cashLiquidationLimitLoading
-                                                ? "Loading..."
-                                                : cashLiquidationMaxAmount === null
-                                                    ? "Unavailable"
-                                                    : formatCashAmount(cashLiquidationMaxAmount)}
+                                    <label className="text-[11px] text-gray-600">Amount</label>
+                                    <input
+                                        type="number"
+                                        min="0"
+                                        step="0.01"
+                                        max={cashLiquidationMaxAmount ?? undefined}
+                                        value={cashLiquidationForm.amount}
+                                        onChange={(e) => handleCashLiquidationAmountChange(e.target.value)}
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        placeholder="Enter amount used"
+                                    />
+                                    {cashLiquidationMaxAmount === 0 && !cashLiquidationLimitLoading && (
+                                        <p className="text-[11px] text-amber-600">
+                                            No remaining monetary balance is available for cash liquidation.
                                         </p>
-                                        <label className="text-[11px] text-gray-600">Amount</label>
-                                        <input
-                                            type="number"
-                                            min="0"
-                                            step="0.01"
-                                            max={cashLiquidationMaxAmount ?? undefined}
-                                            value={cashLiquidationForm.amount}
-                                            onChange={(e) => handleCashLiquidationAmountChange(e.target.value)}
-                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                            placeholder="Enter amount used"
-                                        />
-                                        {cashLiquidationMaxAmount === 0 && !cashLiquidationLimitLoading && (
-                                            <p className="text-[11px] text-amber-600">
-                                                No remaining monetary balance is available for cash liquidation.
-                                            </p>
-                                        )}
-                                        {cashLiquidationMaxAmount === null && !cashLiquidationLimitLoading && (
-                                            <p className="text-[11px] text-amber-600">
-                                                Unable to load the current max amount. You can still enter a value and submit.
-                                            </p>
-                                        )}
-                                        {cashLiquidationErrors.amount && (
-                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[11px] text-gray-600">Date Money Was Used</label>
-                                        <input
-                                            type="date"
-                                            value={cashLiquidationForm.date_used}
-                                            onChange={(e) =>
-                                                setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
-                                            }
-                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                        />
-                                        {cashLiquidationErrors.date_used && (
-                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[11px] text-gray-600">Point Person</label>
-                                        <input
-                                            type="text"
-                                            value={cashLiquidationForm.point_person}
-                                            onChange={(e) =>
-                                                setCashLiquidationForm((prev) => ({ ...prev, point_person: e.target.value }))
-                                            }
-                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                            placeholder="Enter responsible person"
-                                        />
-                                        {cashLiquidationErrors.point_person && (
-                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.point_person)}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col gap-1">
-                                        <label className="text-[11px] text-gray-600">Receipt Image (Optional)</label>
-                                        <input
-                                            type="file"
-                                            accept="image/*"
-                                            onChange={(e) =>
-                                                setCashLiquidationForm((prev) => ({
-                                                    ...prev,
-                                                    receipt: e.target.files?.[0] || null,
-                                                }))
-                                            }
-                                            className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                        />
-                                        {cashLiquidationForm.receipt && (
-                                            <p className="text-[11px] text-gray-500 truncate">
-                                                Selected: {cashLiquidationForm.receipt.name}
-                                            </p>
-                                        )}
-                                        {cashLiquidationErrors.receipt && (
-                                            <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.receipt)}</p>
-                                        )}
-                                    </div>
-
-                                    <div className="border border-gray-200 rounded p-2 bg-gray-50/50 min-h-[160px] max-h-[240px] overflow-y-auto">
-                                        <div className="flex items-center justify-between gap-2 mb-2">
-                                            <p className="text-[11px] font-semibold text-gray-700">Recorded Cash Entries</p>
-                                            <button
-                                                type="button"
-                                                onClick={() => fetchProjectCashLiquidations(liquidateProject?.id)}
-                                                className="text-[11px] px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-100"
-                                            >
-                                                Refresh
-                                            </button>
-                                        </div>
-
-                                        {cashLiquidationsLoading ? (
-                                            <div className="py-6 flex items-center justify-center">
-                                                <CircularLoading customClass="text-blue-500 w-5 h-5" />
-                                            </div>
-                                        ) : cashLiquidationsError ? (
-                                            <p className="text-[11px] text-red-500">{cashLiquidationsError}</p>
-                                        ) : cashLiquidations.length === 0 ? (
-                                            <p className="text-[11px] text-gray-500">No cash liquidation records yet.</p>
-                                        ) : (
-                                            <div className="flex flex-col gap-2">
-                                                {cashLiquidations.map((entry, index) => (
-                                                    <div
-                                                        key={entry.id || `cash-entry-${index}`}
-                                                        className="bg-white border border-gray-200 rounded p-2 text-[11px]"
-                                                    >
-                                                        <div className="flex items-start justify-between gap-2">
-                                                            <div className="flex-1 min-w-0">
-                                                                <p className="font-semibold text-gray-800">
-                                                                    {formatCashAmount(entry.amount)}
-                                                                </p>
-                                                                <p className="text-gray-600">
-                                                                    Date used: {formatShortDate(entry.date_used || entry.used_at || entry.date)}
-                                                                </p>
-                                                                <p className="text-gray-600">
-                                                                    Point person: {entry.point_person || entry.person_responsible || "-"}
-                                                                </p>
-                                                            </div>
-                                                            <button
-                                                                type="button"
-                                                                onClick={() => handleConfirmCashLiquidationDelete(entry.id)}
-                                                                disabled={!entry.id || deletingCashLiquidationId === entry.id}
-                                                                className={`shrink-0 px-2 py-1 rounded border ${
-                                                                    !entry.id || deletingCashLiquidationId === entry.id
-                                                                        ? "text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50"
-                                                                        : "text-red-600 border-red-200 hover:bg-red-50"
-                                                                }`}
-                                                            >
-                                                                {deletingCashLiquidationId === entry.id ? "Deleting..." : "Delete"}
-                                                            </button>
-                                                        </div>
-                                                        {entry.receipt && (
-                                                            <a
-                                                                href={resolveReceiptUrl(entry.receipt)}
-                                                                target="_blank"
-                                                                rel="noreferrer"
-                                                                className="inline-block text-blue-600 hover:text-blue-700 underline mt-1"
-                                                            >
-                                                                View receipt
-                                                            </a>
-                                                        )}
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        )}
-                                    </div>
+                                    )}
+                                    {cashLiquidationMaxAmount === null && !cashLiquidationLimitLoading && (
+                                        <p className="text-[11px] text-amber-600">
+                                            Unable to load the current max amount. You can still enter a value and submit.
+                                        </p>
+                                    )}
+                                    {cashLiquidationErrors.amount && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
+                                    )}
                                 </div>
 
-                                <div className="border-t border-gray-100 pt-3">
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Date Money Was Used</label>
+                                    <input
+                                        type="date"
+                                        value={cashLiquidationForm.date_used}
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                    />
+                                    {cashLiquidationErrors.date_used && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Point Person</label>
+                                    <input
+                                        type="text"
+                                        value={cashLiquidationForm.point_person}
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({ ...prev, point_person: e.target.value }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                        placeholder="Enter responsible person"
+                                    />
+                                    {cashLiquidationErrors.point_person && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.point_person)}</p>
+                                    )}
+                                </div>
+
+                                <div className="flex flex-col gap-1">
+                                    <label className="text-[11px] text-gray-600">Receipt Image (Optional)</label>
+                                    <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) =>
+                                            setCashLiquidationForm((prev) => ({
+                                                ...prev,
+                                                receipt: e.target.files?.[0] || null,
+                                            }))
+                                        }
+                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
+                                    />
+                                    {cashLiquidationForm.receipt && (
+                                        <p className="text-[11px] text-gray-500 truncate">
+                                            Selected: {cashLiquidationForm.receipt.name}
+                                        </p>
+                                    )}
+                                    {cashLiquidationErrors.receipt && (
+                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.receipt)}</p>
+                                    )}
+                                </div>
+
+                                <div className="border-t border-gray-100 pt-3 mt-auto">
                                     <button
                                         type="button"
                                         onClick={submitCashLiquidation}
@@ -1247,6 +1662,81 @@ const Projects = () => {
                                     >
                                         {savingCashLiquidation ? "Saving..." : "Save Cash Liquidation"}
                                     </button>
+                                </div>
+                            </div>
+
+                            <div className="flex min-h-0 flex-col gap-3 overflow-hidden">
+                                <div className="flex items-center justify-between gap-2">
+                                    <div>
+                                        <p className="text-sm font-semibold text-gray-800">Recorded Cash Entries</p>
+                                        <p className="text-[11px] text-gray-500">
+                                            Review saved cash liquidation entries for this project.
+                                        </p>
+                                    </div>
+                                    <button
+                                        type="button"
+                                        onClick={() => fetchProjectCashLiquidations(liquidateProject?.id)}
+                                        className="text-[11px] px-2 py-1 rounded border border-gray-200 text-gray-600 hover:bg-gray-100"
+                                    >
+                                        Refresh
+                                    </button>
+                                </div>
+
+                                <div className="flex-1 min-h-[260px] overflow-y-auto border border-gray-200 rounded p-3 bg-gray-50/50">
+                                    {cashLiquidationsLoading ? (
+                                        <div className="h-full py-6 flex items-center justify-center">
+                                            <CircularLoading customClass="text-blue-500 w-5 h-5" />
+                                        </div>
+                                    ) : cashLiquidationsError ? (
+                                        <p className="text-[11px] text-red-500">{cashLiquidationsError}</p>
+                                    ) : cashLiquidations.length === 0 ? (
+                                        <p className="text-[11px] text-gray-500">No cash liquidation records yet.</p>
+                                    ) : (
+                                        <div className="flex flex-col gap-2">
+                                            {cashLiquidations.map((entry, index) => (
+                                                <div
+                                                    key={entry.id || `cash-entry-${index}`}
+                                                    className="bg-white border border-gray-200 rounded p-3 text-[11px]"
+                                                >
+                                                    <div className="flex items-start justify-between gap-2">
+                                                        <div className="flex-1 min-w-0">
+                                                            <p className="font-semibold text-gray-800">
+                                                                {formatCashAmount(entry.amount)}
+                                                            </p>
+                                                            <p className="text-gray-600">
+                                                                Date used: {formatShortDate(entry.date_used || entry.used_at || entry.date)}
+                                                            </p>
+                                                            <p className="text-gray-600">
+                                                                Point person: {entry.point_person || entry.person_responsible || "-"}
+                                                            </p>
+                                                        </div>
+                                                        <button
+                                                            type="button"
+                                                            onClick={() => handleConfirmCashLiquidationDelete(entry.id)}
+                                                            disabled={!entry.id || deletingCashLiquidationId === entry.id}
+                                                            className={`shrink-0 px-2 py-1 rounded border ${
+                                                                !entry.id || deletingCashLiquidationId === entry.id
+                                                                    ? "text-gray-400 border-gray-200 cursor-not-allowed bg-gray-50"
+                                                                    : "text-red-600 border-red-200 hover:bg-red-50"
+                                                            }`}
+                                                        >
+                                                            {deletingCashLiquidationId === entry.id ? "Deleting..." : "Delete"}
+                                                        </button>
+                                                    </div>
+                                                    {entry.receipt && (
+                                                        <a
+                                                            href={resolveReceiptUrl(entry.receipt)}
+                                                            target="_blank"
+                                                            rel="noreferrer"
+                                                            className="inline-block text-blue-600 hover:text-blue-700 underline mt-1"
+                                                        >
+                                                            View receipt
+                                                        </a>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         </div>
@@ -1263,7 +1753,7 @@ const Projects = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden">
+                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] max-h-[calc(100vh-2rem)] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden flex flex-col">
                             <X
                                 onClick={() => {
                                     clearForm();
@@ -1280,7 +1770,7 @@ const Projects = () => {
                                 </p>
                             </div>
 
-                            <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleSubmit}>
+                            <form className="px-6 py-5 flex-1 overflow-y-auto flex flex-col gap-4" onSubmit={handleSubmit}>
                                 <div className="flex items-center justify-start gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                                     <input
                                         type="checkbox"
@@ -1359,6 +1849,184 @@ const Projects = () => {
                                             Optional. Upload a clear project photo (JPG or PNG).
                                         </p>
                                     </div>
+
+                                    <div className="flex flex-col gap-3 md:col-span-2 border border-gray-200 rounded-xl p-4 bg-gray-50/40">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-700">Proposed Items / Materials</label>
+                                                <p className="text-[11px] text-gray-500">
+                                                    Optional. Add the resources this project is expected to need before any actual inventory is liquidated.
+                                                </p>
+                                            </div>
+                                            <span className="text-[11px] text-gray-500">{proposedResources.length} added</span>
+                                        </div>
+
+                                        {proposedResourceValidationMessages.length > 0 && (
+                                            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                                                {proposedResourceValidationMessages.map((entry) => (
+                                                    <p key={entry.id} className="text-[11px] text-red-600">{entry.message}</p>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Category *</label>
+                                                <select
+                                                    value={proposedResourceDraft.category_id}
+                                                    onChange={(e) => handleProposedResourceCategoryChange(e.target.value)}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    <option value="">Select category...</option>
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={category.id}>{category.name}</option>
+                                                    ))}
+                                                </select>
+                                                {proposedResourceErrors.category_id && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.category_id}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Subcategory *</label>
+                                                <select
+                                                    value={proposedResourceDraft.sub_category_id}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, sub_category_id: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    <option value="">Select subcategory...</option>
+                                                    {proposedSubCategoryOptions.map((subcategory) => (
+                                                        <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>
+                                                    ))}
+                                                </select>
+                                                {proposedResourceErrors.sub_category_id && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.sub_category_id}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1 md:col-span-2">
+                                                <label className="text-xs font-medium text-gray-700">Item / Material Name *</label>
+                                                <input
+                                                    value={proposedResourceDraft.name}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, name: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="Example: Rice packs, tarpaulin, hygiene kits"
+                                                />
+                                                {proposedResourceErrors.name && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.name}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Quantity *</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    value={proposedResourceDraft.quantity}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, quantity: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="Planned quantity"
+                                                />
+                                                {proposedResourceErrors.quantity && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.quantity}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Unit</label>
+                                                <input
+                                                    value={proposedResourceDraft.unit}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, unit: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="pcs, packs, kg, boxes"
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-1 md:col-span-2">
+                                                <label className="text-xs font-medium text-gray-700">Notes</label>
+                                                <textarea
+                                                    value={proposedResourceDraft.notes}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, notes: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg min-h-[72px]"
+                                                    placeholder="Optional planning notes"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-end gap-2">
+                                            {editingProposedResourceUid && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetProposedResourceDraft}
+                                                    className="bg-gray-100 hover:bg-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    Cancel Edit
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={handleSaveProposedResource}
+                                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-xs rounded-lg"
+                                            >
+                                                {editingProposedResourceUid ? "Update Proposed Item" : "Add Proposed Item"}
+                                            </button>
+                                        </div>
+
+                                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                                            {proposedResources.length === 0 ? (
+                                                <p className="text-[11px] text-gray-500 px-3 py-4">
+                                                    No proposed items added yet.
+                                                </p>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-[700px] w-full text-[11px]">
+                                                        <thead className="bg-gray-50 text-left text-gray-600">
+                                                            <tr>
+                                                                <th className="px-3 py-2 font-semibold">Item</th>
+                                                                <th className="px-3 py-2 font-semibold">Category</th>
+                                                                <th className="px-3 py-2 font-semibold">Quantity</th>
+                                                                <th className="px-3 py-2 font-semibold">Unit</th>
+                                                                <th className="px-3 py-2 font-semibold">Notes</th>
+                                                                <th className="px-3 py-2 font-semibold text-right">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {proposedResources.map((resource) => (
+                                                                <tr key={resource.uid} className="border-t border-gray-200">
+                                                                    <td className="px-3 py-2 font-medium text-gray-800">{resource.name}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">
+                                                                        {resource.category_name || "-"}
+                                                                        {resource.sub_category_name ? ` • ${resource.sub_category_name}` : ""}
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.quantity}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.unit || "-"}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.notes || "-"}</td>
+                                                                    <td className="px-3 py-2">
+                                                                        <div className="flex items-center justify-end gap-2">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleEditProposedResource(resource)}
+                                                                                className="text-[11px] px-2 py-1 rounded border border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemoveProposedResource(resource.uid)}
+                                                                                className="text-[11px] px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50"
+                                                                            >
+                                                                                Remove
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
 
                                 <div className="flex items-center justify-end gap-2 pt-2">
@@ -1396,7 +2064,7 @@ const Projects = () => {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                     >
-                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden">
+                        <div className="bg-white w-full max-w-[92vw] sm:max-w-[720px] md:max-w-[900px] max-h-[calc(100vh-2rem)] rounded-2xl shadow-2xl border border-gray-100 relative overflow-hidden flex flex-col">
                             <X
                                 onClick={() => {
                                     clearForm();
@@ -1413,7 +2081,14 @@ const Projects = () => {
                                 </p>
                             </div>
 
-                            <form className="px-6 py-5 flex flex-col gap-4" onSubmit={handleEditSubmit}>
+                            <form className="px-6 py-5 flex-1 overflow-y-auto flex flex-col gap-4" onSubmit={handleEditSubmit}>
+                                {projectFormLoading && (
+                                    <div className="rounded-lg border border-gray-200 bg-gray-50 px-3 py-2 text-xs text-gray-600 flex items-center gap-2">
+                                        <CircularLoading customClass="text-blue-500 w-4 h-4" />
+                                        Loading full project details...
+                                    </div>
+                                )}
+
                                 <div className="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-3 py-2">
                                     <input
                                         type="checkbox"
@@ -1491,6 +2166,184 @@ const Projects = () => {
                                         <p className="text-[11px] text-gray-500">
                                             Optional. Upload a clear project photo (JPG or PNG).
                                         </p>
+                                    </div>
+
+                                    <div className="flex flex-col gap-3 md:col-span-2 border border-gray-200 rounded-xl p-4 bg-gray-50/40">
+                                        <div className="flex items-center justify-between gap-2">
+                                            <div>
+                                                <label className="text-xs font-medium text-gray-700">Proposed Items / Materials</label>
+                                                <p className="text-[11px] text-gray-500">
+                                                    Update the planned resources for this project. These are proposals only and do not deduct inventory.
+                                                </p>
+                                            </div>
+                                            <span className="text-[11px] text-gray-500">{proposedResources.length} added</span>
+                                        </div>
+
+                                        {proposedResourceValidationMessages.length > 0 && (
+                                            <div className="rounded-lg border border-red-200 bg-red-50 px-3 py-2">
+                                                {proposedResourceValidationMessages.map((entry) => (
+                                                    <p key={entry.id} className="text-[11px] text-red-600">{entry.message}</p>
+                                                ))}
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Category *</label>
+                                                <select
+                                                    value={proposedResourceDraft.category_id}
+                                                    onChange={(e) => handleProposedResourceCategoryChange(e.target.value)}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    <option value="">Select category...</option>
+                                                    {categories.map((category) => (
+                                                        <option key={category.id} value={category.id}>{category.name}</option>
+                                                    ))}
+                                                </select>
+                                                {proposedResourceErrors.category_id && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.category_id}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Subcategory *</label>
+                                                <select
+                                                    value={proposedResourceDraft.sub_category_id}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, sub_category_id: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    <option value="">Select subcategory...</option>
+                                                    {proposedSubCategoryOptions.map((subcategory) => (
+                                                        <option key={subcategory.id} value={subcategory.id}>{subcategory.name}</option>
+                                                    ))}
+                                                </select>
+                                                {proposedResourceErrors.sub_category_id && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.sub_category_id}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1 md:col-span-2">
+                                                <label className="text-xs font-medium text-gray-700">Item / Material Name *</label>
+                                                <input
+                                                    value={proposedResourceDraft.name}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, name: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="Example: Rice packs, tarpaulin, hygiene kits"
+                                                />
+                                                {proposedResourceErrors.name && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.name}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Quantity *</label>
+                                                <input
+                                                    type="number"
+                                                    min="1"
+                                                    value={proposedResourceDraft.quantity}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, quantity: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="Planned quantity"
+                                                />
+                                                {proposedResourceErrors.quantity && (
+                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.quantity}</p>
+                                                )}
+                                            </div>
+
+                                            <div className="flex flex-col gap-1">
+                                                <label className="text-xs font-medium text-gray-700">Unit</label>
+                                                <input
+                                                    value={proposedResourceDraft.unit}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, unit: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                    placeholder="pcs, packs, kg, boxes"
+                                                />
+                                            </div>
+
+                                            <div className="flex flex-col gap-1 md:col-span-2">
+                                                <label className="text-xs font-medium text-gray-700">Notes</label>
+                                                <textarea
+                                                    value={proposedResourceDraft.notes}
+                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, notes: e.target.value }))}
+                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg min-h-[72px]"
+                                                    placeholder="Optional planning notes"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <div className="flex items-center justify-end gap-2">
+                                            {editingProposedResourceUid && (
+                                                <button
+                                                    type="button"
+                                                    onClick={resetProposedResourceDraft}
+                                                    className="bg-gray-100 hover:bg-gray-200 px-3 py-2 text-xs rounded-lg"
+                                                >
+                                                    Cancel Edit
+                                                </button>
+                                            )}
+                                            <button
+                                                type="button"
+                                                onClick={handleSaveProposedResource}
+                                                className="bg-orange-500 hover:bg-orange-600 text-white px-4 py-2 text-xs rounded-lg"
+                                            >
+                                                {editingProposedResourceUid ? "Update Proposed Item" : "Add Proposed Item"}
+                                            </button>
+                                        </div>
+
+                                        <div className="border border-gray-200 rounded-lg overflow-hidden bg-white">
+                                            {proposedResources.length === 0 ? (
+                                                <p className="text-[11px] text-gray-500 px-3 py-4">
+                                                    No proposed items added yet.
+                                                </p>
+                                            ) : (
+                                                <div className="overflow-x-auto">
+                                                    <table className="min-w-[700px] w-full text-[11px]">
+                                                        <thead className="bg-gray-50 text-left text-gray-600">
+                                                            <tr>
+                                                                <th className="px-3 py-2 font-semibold">Item</th>
+                                                                <th className="px-3 py-2 font-semibold">Category</th>
+                                                                <th className="px-3 py-2 font-semibold">Quantity</th>
+                                                                <th className="px-3 py-2 font-semibold">Unit</th>
+                                                                <th className="px-3 py-2 font-semibold">Notes</th>
+                                                                <th className="px-3 py-2 font-semibold text-right">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            {proposedResources.map((resource) => (
+                                                                <tr key={resource.uid} className="border-t border-gray-200">
+                                                                    <td className="px-3 py-2 font-medium text-gray-800">{resource.name}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">
+                                                                        {resource.category_name || "-"}
+                                                                        {resource.sub_category_name ? ` • ${resource.sub_category_name}` : ""}
+                                                                    </td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.quantity}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.unit || "-"}</td>
+                                                                    <td className="px-3 py-2 text-gray-600">{resource.notes || "-"}</td>
+                                                                    <td className="px-3 py-2">
+                                                                        <div className="flex items-center justify-end gap-2">
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleEditProposedResource(resource)}
+                                                                                className="text-[11px] px-2 py-1 rounded border border-blue-200 text-blue-600 hover:bg-blue-50"
+                                                                            >
+                                                                                Edit
+                                                                            </button>
+                                                                            <button
+                                                                                type="button"
+                                                                                onClick={() => handleRemoveProposedResource(resource.uid)}
+                                                                                className="text-[11px] px-2 py-1 rounded border border-red-200 text-red-600 hover:bg-red-50"
+                                                                            >
+                                                                                Remove
+                                                                            </button>
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            ))}
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            )}
+                                        </div>
                                     </div>
                                 </div>
 

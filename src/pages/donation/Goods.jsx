@@ -124,27 +124,58 @@ const Goods = () => {
         fetchUnits();
     }, []);
 
+    const clearItemSuggestions = useCallback(() => {
+        suggestionsRequestRef.current += 1;
+        setItemSuggestions([]);
+        setSuggestionsError("");
+        setSuggestionsLoading(false);
+        setActiveSuggestionIndex(-1);
+    }, []);
+
+    const isFoodCategoryId = useCallback((categoryId) => {
+        const category = donationCategories.find((cat) => String(cat.id) === String(categoryId));
+        return `${category?.name ?? ""}`.trim().toLowerCase() === "food";
+    }, [donationCategories]);
+
+    const selectedCategory = donationCategories.find((cat) => String(cat.id) === String(itemForm.category_id));
+    const selectedSubcategory = filteredSubcategories.find((sub) => String(sub.id) === String(itemForm.subcategory_id));
+    const isFoodCategory = isFoodCategoryId(itemForm.category_id);
+    const canSuggestItemNames = Boolean(selectedCategory && selectedSubcategory);
+
     const handleItemCategoryChange = (e) => {
         const selectedId = e.target.value;
+        const category = donationCategories.find((cat) => String(cat.id) === String(selectedId));
+
         setItemForm((prev) => ({
             ...prev,
             category_id: selectedId,
-            subcategory_id: ""
+            subcategory_id: "",
+            expiry_date: category && `${category.name}`.trim().toLowerCase() === "food" ? prev.expiry_date : "",
         }));
-
-        const category = donationCategories.find(cat => cat.id == selectedId);
         setFilteredSubcategories(category ? category.subcategories : []);
+        clearItemSuggestions();
+        setIsSuggestionOpen(false);
     };
 
-    const fetchItemSuggestions = useCallback(async (query, limit = 10) => {
-        const trimmedQuery = query.trim();
-        if (!trimmedQuery) {
-            setItemSuggestions([]);
-            setSuggestionsError("");
-            setSuggestionsLoading(false);
-            setActiveSuggestionIndex(-1);
+    const handleItemSubcategoryChange = (e) => {
+        const selectedId = e.target.value;
+        setItemForm((prev) => ({
+            ...prev,
+            subcategory_id: selectedId,
+        }));
+        clearItemSuggestions();
+    };
+
+    const fetchItemSuggestions = useCallback(async (query = "", limit = 10) => {
+        const category = donationCategories.find((cat) => String(cat.id) === String(itemForm.category_id));
+        const subcategory = filteredSubcategories.find((sub) => String(sub.id) === String(itemForm.subcategory_id));
+
+        if (!category || !subcategory) {
+            clearItemSuggestions();
             return;
         }
+
+        const trimmedQuery = query.trim();
 
         const requestId = suggestionsRequestRef.current + 1;
         suggestionsRequestRef.current = requestId;
@@ -152,8 +183,14 @@ const Goods = () => {
         setSuggestionsLoading(true);
         setSuggestionsError("");
         try {
-            const response = await _get("/item-names/suggestions", {
-                params: { q: trimmedQuery, limit }
+            const response = await _get("/goods-donations/v2/suggestions", {
+                params: {
+                    count: limit,
+                    q: trimmedQuery || undefined,
+                    category: category.name,
+                    subcategory: subcategory.name,
+                    seed: `${category.name} / ${subcategory.name}`,
+                }
             });
             const rawSuggestions = response.data?.suggestions || response.data || [];
             const suggestions = (Array.isArray(rawSuggestions) ? rawSuggestions : [])
@@ -175,7 +212,7 @@ const Goods = () => {
                 setSuggestionsLoading(false);
             }
         }
-    }, []);
+    }, [clearItemSuggestions, donationCategories, filteredSubcategories, itemForm.category_id, itemForm.subcategory_id]);
 
     const selectSuggestion = (suggestion) => {
         setItemForm((prev) => ({ ...prev, name: suggestion.name }));
@@ -214,11 +251,7 @@ const Goods = () => {
         setItemImagePreview("");
         setFilteredSubcategories([]);
         setItemErrors({});
-        setItemSuggestions([]);
-        setSuggestionsError("");
-        setSuggestionsLoading(false);
-        setActiveSuggestionIndex(-1);
-        suggestionsRequestRef.current += 1;
+        clearItemSuggestions();
         setIsSuggestionOpen(false);
     };
 
@@ -232,7 +265,7 @@ const Goods = () => {
             subcategory_id: itemForm.subcategory_id,
             quantity: itemForm.quantity,
             unit: itemForm.unit,
-            expiry_date: itemForm.expiry_date,
+            expiry_date: isFoodCategoryId(itemForm.category_id) ? itemForm.expiry_date : "",
             notes: itemForm.notes,
             image: itemForm.image
         };
@@ -259,7 +292,7 @@ const Goods = () => {
                         subcategory_id: itemForm.subcategory_id,
                         quantity: itemForm.quantity,
                         unit: itemForm.unit,
-                        expiry_date: itemForm.expiry_date,
+                        expiry_date: isFoodCategoryId(itemForm.category_id) ? itemForm.expiry_date : "",
                         notes: itemForm.notes,
                         image: itemForm.image
                     }
@@ -327,21 +360,16 @@ const Goods = () => {
 
     useEffect(() => {
         if (!isItemModalOpen || !isSuggestionOpen) return;
-        const query = itemForm.name.trim();
-        if (!query) {
-            suggestionsRequestRef.current += 1;
-            setItemSuggestions([]);
-            setSuggestionsError("");
-            setSuggestionsLoading(false);
-            setActiveSuggestionIndex(-1);
+        if (!canSuggestItemNames) {
+            clearItemSuggestions();
             return;
         }
 
         const timer = setTimeout(() => {
-            fetchItemSuggestions(query, 10);
+            fetchItemSuggestions(itemForm.name, 10);
         }, 100);
         return () => clearTimeout(timer);
-    }, [isItemModalOpen, isSuggestionOpen, itemForm.name, fetchItemSuggestions]);
+    }, [canSuggestItemNames, clearItemSuggestions, fetchItemSuggestions, isItemModalOpen, isSuggestionOpen, itemForm.name]);
 
     const saveItem = () => {
         if (editingItemId) {
@@ -803,6 +831,40 @@ const Goods = () => {
                             </div>
 
                             <div className="w-full grid grid-cols-1 md:grid-cols-2 gap-4 py-4">
+                                <div className="w-full flex flex-col">
+                                    <label className={labelClass}>
+                                        Category <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={itemForm.category_id}
+                                        onChange={handleItemCategoryChange}
+                                        className={fieldBaseClass}
+                                    >
+                                        <option value="">Select category...</option>
+                                        {donationCategories.map(cat => (
+                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
+                                        ))}
+                                    </select>
+                                    {itemErrors.category_id && <p className="text-red-500 text-xs">{itemErrors.category_id}</p>}
+                                </div>
+
+                                <div className="w-full flex flex-col">
+                                    <label className={labelClass}>
+                                        Subcategory <span className="text-red-500">*</span>
+                                    </label>
+                                    <select
+                                        value={itemForm.subcategory_id}
+                                        onChange={handleItemSubcategoryChange}
+                                        className={fieldBaseClass}
+                                    >
+                                        <option value="">Select subcategory...</option>
+                                        {filteredSubcategories.map(sub => (
+                                            <option key={sub.id} value={sub.id}>{sub.name}</option>
+                                        ))}
+                                    </select>
+                                    {itemErrors.subcategory_id && <p className="text-red-500 text-xs">{itemErrors.subcategory_id}</p>}
+                                </div>
+
                                 <div className="w-full flex flex-col md:col-span-2">
                                     <label className={labelClass}>
                                         Item Name <span className="text-red-500">*</span>
@@ -811,12 +873,17 @@ const Goods = () => {
                                         <input
                                             type="text"
                                             value={itemForm.name}
+                                            disabled={!canSuggestItemNames}
                                             onChange={(e) => {
                                                 const nextName = e.target.value;
                                                 setItemForm((prev) => ({ ...prev, name: nextName }));
                                                 setIsSuggestionOpen(true);
                                             }}
-                                            onFocus={() => setIsSuggestionOpen(true)}
+                                            onFocus={() => {
+                                                if (canSuggestItemNames) {
+                                                    setIsSuggestionOpen(true);
+                                                }
+                                            }}
                                             onKeyDown={(e) => {
                                                 if (!isSuggestionOpen) return;
 
@@ -853,10 +920,10 @@ const Goods = () => {
                                                     setIsSuggestionOpen(false);
                                                 }
                                             }}
-                                            placeholder="Name of the item.."
-                                            className={`${fieldBaseClass} ${itemForm.name ? "" : "bg-white"}`}
+                                            placeholder={canSuggestItemNames ? "Name of the item..." : "Select category and subcategory first"}
+                                            className={`${fieldBaseClass} ${canSuggestItemNames ? "bg-white" : "bg-gray-100 cursor-not-allowed"}`}
                                         />
-                                        {isSuggestionOpen && (
+                                        {isSuggestionOpen && canSuggestItemNames && (
                                             <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg">
                                                 <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
                                                     <p className="text-[11px] font-medium text-gray-500">Suggestions</p>
@@ -874,7 +941,7 @@ const Goods = () => {
                                                 ) : suggestionsError ? (
                                                     <p className="px-3 py-2 text-[11px] text-red-500">{suggestionsError}</p>
                                                 ) : itemSuggestions.length === 0 ? (
-                                                    <p className="px-3 py-2 text-[11px] text-gray-400">No suggestions available.</p>
+                                                    <p className="px-3 py-2 text-[11px] text-gray-400">No related suggestions available.</p>
                                                 ) : (
                                                     <div className="max-h-56 overflow-y-auto py-1">
                                                         {itemSuggestions.map((suggestion, index) => (
@@ -894,41 +961,12 @@ const Goods = () => {
                                             </div>
                                         )}
                                     </div>
+                                    <p className="mt-1 text-[11px] text-gray-500">
+                                        {canSuggestItemNames
+                                            ? "Suggestions are based on the selected category and subcategory."
+                                            : "Select the category and subcategory first to enable related item-name suggestions."}
+                                    </p>
                                     {itemErrors.name && <p className="text-red-500 text-xs">{itemErrors.name}</p>}
-                                </div>
-
-                                <div className="w-full flex flex-col">
-                                    <label className={labelClass}>
-                                        Category <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={itemForm.category_id}
-                                        onChange={handleItemCategoryChange}
-                                        className={fieldBaseClass}
-                                    >
-                                        <option value="">Select category...</option>
-                                        {donationCategories.map(cat => (
-                                            <option key={cat.id} value={cat.id}>{cat.name}</option>
-                                        ))}
-                                    </select>
-                                    {itemErrors.category_id && <p className="text-red-500 text-xs">{itemErrors.category_id}</p>}
-                                </div>
-
-                                <div className="w-full flex flex-col">
-                                    <label className={labelClass}>
-                                        Subcategory <span className="text-red-500">*</span>
-                                    </label>
-                                    <select
-                                        value={itemForm.subcategory_id}
-                                        onChange={(e) => setItemForm({ ...itemForm, subcategory_id: e.target.value })}
-                                        className={fieldBaseClass}
-                                    >
-                                        <option value="">Select subcategory...</option>
-                                        {filteredSubcategories.map(sub => (
-                                            <option key={sub.id} value={sub.id}>{sub.name}</option>
-                                        ))}
-                                    </select>
-                                    {itemErrors.subcategory_id && <p className="text-red-500 text-xs">{itemErrors.subcategory_id}</p>}
                                 </div>
 
                                 <div className="w-full flex flex-col">
@@ -962,18 +1000,20 @@ const Goods = () => {
                                     <p className="text-red-500 text-xs min-h-[16px]">{itemErrors.unit || ""}</p>
                                 </div>
 
-                                <div className="w-full flex flex-col">
-                                    <label className={labelClass}>
-                                        Expiry Date <span className="text-[9px] text-gray-500">(Optional)</span>
-                                    </label>
-                                    <input
-                                        type="date"
-                                        value={itemForm.expiry_date}
-                                        onChange={(e) => setItemForm({ ...itemForm, expiry_date: e.target.value })}
-                                        min={minExpiryDate}
-                                        className={fieldBaseClass}
-                                    />
-                                </div>
+                                {isFoodCategory && (
+                                    <div className="w-full flex flex-col">
+                                        <label className={labelClass}>
+                                            Expiry Date <span className="text-[9px] text-gray-500">(Optional)</span>
+                                        </label>
+                                        <input
+                                            type="date"
+                                            value={itemForm.expiry_date}
+                                            onChange={(e) => setItemForm({ ...itemForm, expiry_date: e.target.value })}
+                                            min={minExpiryDate}
+                                            className={fieldBaseClass}
+                                        />
+                                    </div>
+                                )}
 
                                 <div className="w-full flex flex-col">
                                     <label className={labelClass}>Item Image</label>

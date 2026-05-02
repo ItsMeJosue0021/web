@@ -183,8 +183,8 @@ const Registration = () => {
                 />
             )}
 
-            <section className="relative h-screen overflow-hidden bg-white">
-                <div className="relative flex h-full w-full flex-col overflow-hidden bg-white lg:flex-row">
+            <section className="relative min-h-screen overflow-y-auto bg-white pt-16 lg:h-screen lg:overflow-hidden lg:pt-0">
+                <div className="relative flex min-h-screen w-full flex-col bg-white lg:h-full lg:min-h-0 lg:flex-row lg:overflow-hidden">
                     <aside className="relative hidden h-full lg:flex lg:w-1/2">
                         <img
                             src={activeSlide.src}
@@ -270,25 +270,25 @@ const Registration = () => {
                         </div>
                     </aside>
 
-                    <div className="flex h-full w-full flex-col bg-white lg:w-1/2 lg:border-l lg:border-gray-200">
-                        <div className="relative h-56 overflow-hidden lg:hidden">
+                    <div className="flex w-full flex-col bg-white lg:h-full lg:w-1/2 lg:border-l lg:border-gray-200">
+                        <div className="relative h-48 overflow-hidden sm:h-56 lg:hidden">
                             <img
                                 src={activeSlide.src}
                                 alt={activeSlide.alt}
                                 className="absolute inset-0 h-full w-full object-cover"
                             />
                             <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/60 to-transparent" />
-                            <div className="relative z-10 flex h-full flex-col justify-end p-6 text-white">
+                            <div className="relative z-10 flex h-full flex-col justify-end p-5 text-white sm:p-6">
                                 <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-200">
                                     Featured Reflection
                                 </p>
-                                <p className="mt-2 max-w-sm text-xl font-semibold leading-snug">
+                                <p className="mt-2 max-w-sm text-lg font-semibold leading-snug sm:text-xl">
                                     "{activeSlide.quote}"
                                 </p>
                             </div>
                         </div>
 
-                        <div className="flex h-full flex-col overflow-hidden px-5 pb-5 pt-5 sm:px-8 lg:px-10 lg:pb-6 lg:pt-10 ">
+                        <div className="flex flex-1 flex-col px-4 pb-6 pt-5 sm:px-8 lg:h-full lg:overflow-hidden lg:px-10 lg:pb-6 lg:pt-10">
                             <div className="flex flex-col gap-4 border-b border-gray-100 pb-4 sm:flex-row sm:items-start sm:justify-between">
                                 <div className="space-y-3">
                                     {/* <Logo /> */}
@@ -296,7 +296,7 @@ const Registration = () => {
                                         <p className="text-[11px] font-semibold uppercase tracking-[0.3em] text-orange-600">
                                             Create Account
                                         </p>
-                                        <h2 className="text-xl font-semibold text-gray-900 sm:text-2xl lg:text-[26px]">
+                                        <h2 className="text-lg font-semibold text-gray-900 sm:text-2xl lg:text-[26px]">
                                             Register for the community portal
                                         </h2>
                                         <p className="max-w-xl text-[13px] leading-5 text-gray-500">
@@ -306,14 +306,14 @@ const Registration = () => {
                                 </div>
                             </div>
 
-                            <form onSubmit={handleSubmit} className="mt-4 flex min-h-0 flex-1 flex-col justify-between gap-4">
+                            <form onSubmit={handleSubmit} className="mt-4 flex flex-1 flex-col gap-4 lg:min-h-0 lg:justify-between">
                                 <div className="rounded-xl  bg-white p-4 sm:p-5">
                                     <div className="flex flex-col gap-2 border-b border-gray-200 pb-3 sm:flex-row sm:items-end sm:justify-between">
                                         <div>
                                             <p className="text-[11px] font-semibold uppercase tracking-[0.22em] text-gray-500">
                                                 {activeStep.number}
                                             </p>
-                                            <h3 className="mt-1 text-base font-semibold text-gray-900 lg:text-[17px]">
+                                            <h3 className="mt-1 text-[15px] font-semibold text-gray-900 lg:text-[17px]">
                                                 {activeStep.title}
                                             </h3>
                                         </div>

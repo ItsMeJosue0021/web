@@ -14,6 +14,7 @@ const Header = () => {
     const { user } = useContext(AuthContext);
     const isLoginPage = location.pathname === "/login";
     const isRegisterPage = location.pathname === "/register";
+    const isAuthPage = isLoginPage || isRegisterPage;
 
     useEffect(() => {
         if (location.pathname.includes("about-us")) {
@@ -53,12 +54,24 @@ const Header = () => {
   return (
     <header className={`z-20 text-xs fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
         <div className="w-full max-w-[1200px] mx-auto flex items-center justify-between px-4">
-            {!isLoginPage && !isRegisterPage && (
+            {!isAuthPage && (
                 <Logo/>
             )}
 
+            {isAuthPage && (
+                <div className="lg:hidden">
+                    <Logo
+                        wrapperClassName="flex items-center space-x-2 text-black hover:text-black"
+                        imageClassName="h-10 w-10 rounded-full"
+                        textWrapperClassName="flex flex-col text-xs font-bold leading-tight"
+                        mainTextClassName="text-xs chewy"
+                        secondaryTextClassName="text-[9px] poppins-regular"
+                    />
+                </div>
+            )}
+
             <div className='hidden lg:flex items-center space-x-10 poppins-bold text-black'>
-                {!isLoginPage && !isRegisterPage && (
+                {!isAuthPage && (
                     <ul className='flex space-x-10'>
                         <li>
                             <Link to="/" className={`transition-colors ${active === "home" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Home</Link>
@@ -84,7 +97,7 @@ const Header = () => {
                 <div className="flex gap-2">
                     {!user ? (
                         <div className="flex items-center gap-2">
-                            {!isLoginPage && !isRegisterPage && (
+                            {!isAuthPage && (
                                 <div>
                                     <Link to="/login">
                                         <button className='px-4 py-2 rounded bg-transparent text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
@@ -92,7 +105,7 @@ const Header = () => {
                                 </div>
                             )} 
 
-                            {!isRegisterPage && !isLoginPage && (
+                            {!isAuthPage && (
                                 <div>
                                     <Link to="/register">
                                         <button className='px-4 py-2 rounded text-black bg-gray-200/50 hover:bg-gray-300/50  border-0 hover:outline-none active:outline-none'>Register</button>
@@ -100,7 +113,7 @@ const Header = () => {
                                 </div>
                             )} 
 
-                             {!isRegisterPage && !isLoginPage && (
+                             {!isAuthPage && (
                                 <Link to='/donate' className='px-4 py-2 rounded text-white hover:text-white bg-orange-600 border-0 hover:outline-none active:outline-none'>Donate Now</Link>
                              )}
                             
@@ -186,7 +199,7 @@ const Header = () => {
                                     )}
                                 </div>
 
-                                {!isRegisterPage && !isLoginPage && (
+                                {!isAuthPage && (
                                     <div className="mt-5">
                                         <Link
                                             to="/donate"

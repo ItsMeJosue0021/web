@@ -15,6 +15,8 @@ const Header = () => {
     const isLoginPage = location.pathname === "/login";
     const isRegisterPage = location.pathname === "/register";
     const isAuthPage = isLoginPage || isRegisterPage;
+    const isHomePage = location.pathname === "/";
+    const useLightHeader = isHomePage && !isScrolled;
 
     useEffect(() => {
         if (location.pathname.includes("about-us")) {
@@ -51,11 +53,31 @@ const Header = () => {
         setIsModalOpen(!isModalOpen);
     };
 
+    const getNavLinkClass = (key) => {
+        if (useLightHeader) {
+            return `transition-colors ${
+                active === key
+                    ? "text-orange-300 hover:text-orange-200"
+                    : "text-white/88 hover:text-white"
+            }`;
+        }
+
+        return `transition-colors ${
+            active === key
+                ? "text-orange-600 hover:text-orange-600"
+                : "text-black hover:text-orange-600"
+        }`;
+    };
+
   return (
     <header className={`z-20 text-xs fixed w-full transition-all ease-in-out duration-600 ${isScrolled ? 'bg-gray-50 py-2' : 'bg-transparent py-4'}`}>
-        <div className="w-full max-w-[1200px] mx-auto flex items-center justify-between px-4">
+        <div className="w-full max-w-[1400px] mx-auto flex items-center justify-between px-4">
             {!isAuthPage && (
-                <Logo/>
+                <Logo
+                    wrapperClassName={`flex items-center space-x-2 ${useLightHeader ? "text-white hover:text-white" : "text-black hover:text-black"}`}
+                    mainTextClassName={`text-xs md:text-sm chewy ${useLightHeader ? "text-white drop-shadow-[0_1px_4px_rgba(15,23,42,0.6)]" : ""}`}
+                    secondaryTextClassName={`text-[10px] poppins-regular ${useLightHeader ? "text-white/80" : ""}`}
+                />
             )}
 
             {isAuthPage && (
@@ -70,26 +92,26 @@ const Header = () => {
                 </div>
             )}
 
-            <div className='hidden lg:flex items-center space-x-10 poppins-bold text-black'>
+            <div className={`hidden lg:flex items-center space-x-10 poppins-bold ${useLightHeader ? "text-white" : "text-black"}`}>
                 {!isAuthPage && (
                     <ul className='flex space-x-10'>
                         <li>
-                            <Link to="/" className={`transition-colors ${active === "home" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Home</Link>
+                            <Link to="/" className={getNavLinkClass("home")}>Home</Link>
                         </li>
                         <li>
-                            <Link to="/about-us" className={`transition-colors ${active === "about" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>About Us</Link>
+                            <Link to="/about-us" className={getNavLinkClass("about")}>About Us</Link>
                         </li>
                         {/* <li>
                             <Link to="/volunteers" className={`${active === "volunteers" ? 'text-blue-600' : 'text-black'}`}>Volunteers</Link>
                         </li> */}
                         <li>
-                            <Link to="/our-projects" className={`transition-colors ${active === "projects" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Projects</Link>
+                            <Link to="/our-projects" className={getNavLinkClass("projects")}>Projects</Link>
                         </li>
                         <li>
-                            <Link to="/faqs" className={`transition-colors ${active === "faqs" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>FAQs</Link>
+                            <Link to="/faqs" className={getNavLinkClass("faqs")}>FAQs</Link>
                         </li>
                         <li>
-                            <Link to="/contact-us" className={`transition-colors ${active === "contact" ? 'text-orange-600 hover:text-orange-600' : 'text-black hover:text-orange-600'}`}>Contact Us</Link>
+                            <Link to="/contact-us" className={getNavLinkClass("contact")}>Contact Us</Link>
                         </li>
                     </ul>
                 )}
@@ -100,7 +122,11 @@ const Header = () => {
                             {!isAuthPage && (
                                 <div>
                                     <Link to="/login">
-                                        <button className='px-4 py-2 rounded bg-transparent text-orange-600 border border-orange-600 hover:border-orange-600 hover:outline-none active:outline-none'>Login</button>
+                                        <button className={`px-4 py-2 rounded border hover:outline-none active:outline-none ${
+                                            useLightHeader
+                                                ? "border-white/30 bg-white/10 text-white backdrop-blur-sm hover:bg-white/15"
+                                                : "bg-transparent text-orange-600 border-orange-600 hover:border-orange-600"
+                                        }`}>Login</button>
                                     </Link>
                                 </div>
                             )} 
@@ -108,13 +134,21 @@ const Header = () => {
                             {!isAuthPage && (
                                 <div>
                                     <Link to="/register">
-                                        <button className='px-4 py-2 rounded text-black bg-gray-200/50 hover:bg-gray-300/50  border-0 hover:outline-none active:outline-none'>Register</button>
+                                        <button className={`px-4 py-2 rounded border-0 hover:outline-none active:outline-none ${
+                                            useLightHeader
+                                                ? "text-slate-900 bg-white/90 hover:bg-white"
+                                                : "text-black bg-gray-200/50 hover:bg-gray-300/50"
+                                        }`}>Register</button>
                                     </Link>
                                 </div>
                             )} 
 
                              {!isAuthPage && (
-                                <Link to='/donate' className='px-4 py-2 rounded text-white hover:text-white bg-orange-600 border-0 hover:outline-none active:outline-none'>Donate Now</Link>
+                                <Link to='/donate' className={`px-4 py-2 rounded text-white hover:text-white border-0 hover:outline-none active:outline-none ${
+                                    useLightHeader
+                                        ? "bg-orange-600 shadow-[0_14px_32px_-18px_rgba(234,88,12,0.75)]"
+                                        : "bg-orange-600"
+                                }`}>Donate Now</Link>
                              )}
                             
                         </div>
@@ -129,7 +163,7 @@ const Header = () => {
             
             <div className='relative flex lg:hidden'>
                 <button onClick={toggleModal} className="bg-transparent">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-7 stroke-black bg-transparent" fill="none" viewBox="0 0 24 24" >
+                    <svg xmlns="http://www.w3.org/2000/svg" className={`h-8 w-7 bg-transparent ${useLightHeader ? "stroke-white drop-shadow-[0_1px_4px_rgba(15,23,42,0.65)]" : "stroke-black"}`} fill="none" viewBox="0 0 24 24" >
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
                     </svg>
                 </button>

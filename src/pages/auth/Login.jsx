@@ -78,20 +78,6 @@ const Login = () => {
                                     {error && <p className='text-red-500 text-xs pt-2'>{error}</p>}
                                 </div>
                                 <div className="flex items-center justify-between">
-                                    <div className="flex items-start">
-                                        <div className="flex items-center h-5">
-                                            <input 
-                                                id="remember" 
-                                                type="checkbox" 
-                                                className="appearance-none w-3 h-3 bg-white border border-gray-300 rounded checked:bg-orange-500 checked:border-orange-500 focus:ring-2 focus:ring-orange-300 cursor-pointer accent-white"
-                                                style={{ accentColor: '#fff' }}
-                                                required="" 
-                                            />
-                                        </div>
-                                        <div className="ml-1 text-sm">
-                                            <label className="text-gray-500 text-[10px]">Remember me</label>
-                                        </div>
-                                    </div>
                                     <Link to="/forgot-password" className="font-medium text-primary-600 hover:underline dark:text-primary-500 text-[10px]">Forgot password?</Link>
                                 </div>
                                 <button disabled={submitting} type="submit" className="w-full text-white bg-orange-600 hover:bg-orange-700  font-medium rounded text-xs px-4 py-2 text-center ">

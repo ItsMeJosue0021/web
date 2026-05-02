@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { _get, _put } from "../../../api";
 import Admin from "../../../layouts/Admin";
 import Logo from "../../../components/Logo";
@@ -8,6 +8,8 @@ import ConfirmationAlert from "../../../components/alerts/ConfirmationAlert";
 import SuccesAlert from "../../../components/alerts/SuccesAlert";
 import { X, Search, Filter, Coins } from "lucide-react";
 import html2pdf from "html2pdf.js";
+
+const STORAGE_BASE_URL = "https://api.kalingangkababaihan.com/storage/";
 
 const GCashDonationsAdmin = () => {
     const [donations, setDonations] = useState([]);
@@ -19,11 +21,9 @@ const GCashDonationsAdmin = () => {
     const [success, setSuccess] = useState(false);
     const [approvingId, setApprovingId] = useState(null);
 
-    // Reports
     const [isReportView, setIsReportView] = useState(false);
-    const [cashDonations, setCashDonations] = useState([]);
+    const [reportDonations, setReportDonations] = useState([]);
 
-    // Default dates for the report: start of current month -> today
     const today = new Date();
     const monthStart = new Date(today.getFullYear(), today.getMonth(), 1);
     const defaultFrom = monthStart.toISOString().split("T")[0];
@@ -35,8 +35,8 @@ const GCashDonationsAdmin = () => {
     const [totalCount, setTotalCount] = useState(0);
 
     const months = [
-        "January","February","March","April","May","June",
-        "July","August","September","October","November","December",
+        "January", "February", "March", "April", "May", "June",
+        "July", "August", "September", "October", "November", "December",
     ];
 
     const containerRef = useRef();
@@ -44,23 +44,65 @@ const GCashDonationsAdmin = () => {
 
     const formatCurrency = (value) => {
         const num = Number(value) || 0;
-        return `₱ ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+        return `PHP ${num.toLocaleString("en-PH", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (Number.isNaN(date.getTime())) return "";
+        const m = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+        return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+    };
+
+    const buildFileUrl = (filePath) => {
+        if (!filePath) return "";
+        if (filePath.startsWith("http://") || filePath.startsWith("https://")) {
+            return filePath;
+        }
+        return `${STORAGE_BASE_URL}${filePath}`;
+    };
+
+    const openProof = (filePath) => {
+        const url = buildFileUrl(filePath);
+        if (!url) return;
+        window.open(url, "_blank", "noopener,noreferrer");
+    };
+
+    const getChannelLabel = (channel) => {
+        return channel === "qr" ? "QR" : "PayMongo";
+    };
+
+    const getStatusLabel = (donation) => {
+        if (donation.status === "paid") return "Paid";
+        if (donation.payment_channel === "qr") return "Pending verification";
+        return "Pending webhook";
+    };
+
+    const getStatusClasses = (donation) => {
+        if (donation.status === "paid") {
+            return "bg-green-50 text-green-700 border-green-100";
+        }
+        if (donation.payment_channel === "qr") {
+            return "bg-amber-50 text-amber-700 border-amber-100";
+        }
+        return "bg-blue-50 text-blue-700 border-blue-100";
     };
 
     useEffect(() => {
         if (isReportView) {
-            fetchCashDonations();
+            fetchReportDonations();
         }
     }, [isReportView]);
 
-    const fetchCashDonations = async (
+    const fetchReportDonations = async (
         dateFromParam = dateFrom,
         dateToParam = dateTo
     ) => {
         try {
             const params = { dateFrom: dateFromParam, dateTo: dateToParam };
             const response = await _get("/gcash-donations/print", { params });
-            setCashDonations(response.data.donations);
+            setReportDonations(response.data.donations);
             setTotalAmount(response.data.totalAmount || 0);
             setTotalCount(response.data.totalCount || 0);
             return response.data;
@@ -69,8 +111,8 @@ const GCashDonationsAdmin = () => {
         }
     };
 
-    const handleFilterCashDonations = () => {
-        fetchCashDonations(dateFrom, dateTo);
+    const handleFilterReportDonations = () => {
+        fetchReportDonations(dateFrom, dateTo);
     };
 
     const handlePrint = () => {
@@ -81,14 +123,6 @@ const GCashDonationsAdmin = () => {
             jsPDF: { unit: "in", format: "letter", orientation: "portrait" },
         };
         html2pdf().set(opt).from(containerRef.current).save();
-    };
-
-    const formatDate = (dateString) => {
-        if (!dateString) return "";
-        const date = new Date(dateString);
-        if (Number.isNaN(date.getTime())) return "";
-        const m = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
-        return `${m[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
     };
 
     const fetchDonations = async () => {
@@ -140,14 +174,14 @@ const GCashDonationsAdmin = () => {
 
     const listSummary = useMemo(() => {
         const total = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-        const paid = donations.filter((d) => d.status === "approved").length;
-        const pending = donations.filter((d) => d.status !== "approved").length;
+        const paid = donations.filter((d) => d.status === "paid").length;
+        const pending = donations.filter((d) => d.status !== "paid").length;
         return { total, paid, pending };
     }, [donations]);
 
-    const header = { 
+    const header = {
         title: "GCash Donations Management",
-        subTitle: "Easily manage incoming GCash donations — view donor details, filter records, and print reports."
+        subTitle: "Review PayMongo and QR donations in one place, verify manual QR submissions, and print paid donation reports."
     };
 
     const breadcrumbs = [
@@ -157,22 +191,19 @@ const GCashDonationsAdmin = () => {
 
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
-
             <div className="pt-4 bg-gray-50 min-h-screen">
-
                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3 mb-4">
                     <SummaryCard label="Total amount" value={formatCurrency(listSummary.total)} sub="Current view" accent="blue" />
-                    <SummaryCard label="Paid donations" value={listSummary.paid} sub="GCash only" accent="green" />
-                    {/* <SummaryCard label="Pending donations" value={listSummary.pending} sub="Awaiting approval" accent="amber" /> */}
+                    <SummaryCard label="Paid donations" value={listSummary.paid} sub="Gateway + QR" accent="green" />
+                    <SummaryCard label="Pending donations" value={listSummary.pending} sub="Needs webhook or review" accent="amber" />
                     <SummaryCard
                         label="Report range"
-                        value={`${dateFrom ? formatDate(dateFrom) : "--"} → ${dateTo ? formatDate(dateTo) : "--"}`}
-                        sub="Report filters"
+                        value={`${dateFrom ? formatDate(dateFrom) : "--"} -> ${dateTo ? formatDate(dateTo) : "--"}`}
+                        sub="Paid donations only"
                         accent="purple"
                     />
                 </div>
 
-                {/* Filters */}
                 <div className="bg-white p-4 rounded-md mb-6 border border-gray-100 shadow-sm flex flex-col gap-4">
                     <div className="flex flex-col lg:flex-row gap-3 lg:items-center lg:justify-between">
                         <div className="text-sm text-gray-700 font-semibold flex items-center gap-2">
@@ -181,7 +212,7 @@ const GCashDonationsAdmin = () => {
                         <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
                             <div className="relative w-full sm:w-64">
                                 <Search size={16} className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                                <input 
+                                <input
                                     type="text"
                                     placeholder="Search donor, tracking #, email"
                                     value={search}
@@ -189,7 +220,7 @@ const GCashDonationsAdmin = () => {
                                     className="bg-white border border-gray-200 rounded-md pl-9 pr-3 py-2 text-xs w-full"
                                 />
                             </div>
-                            <button 
+                            <button
                                 onClick={handleSearch}
                                 className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
                             >
@@ -205,7 +236,7 @@ const GCashDonationsAdmin = () => {
                     </div>
 
                     <div className="flex flex-wrap gap-2 items-center">
-                        <select 
+                        <select
                             value={month}
                             onChange={(e) => setMonth(e.target.value)}
                             className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
@@ -216,7 +247,7 @@ const GCashDonationsAdmin = () => {
                             ))}
                         </select>
 
-                        <select 
+                        <select
                             value={year}
                             onChange={(e) => setYear(e.target.value)}
                             className="bg-white border border-gray-200 rounded-md px-3 py-2 text-xs w-full sm:w-auto"
@@ -227,7 +258,7 @@ const GCashDonationsAdmin = () => {
                             ))}
                         </select>
 
-                        <button 
+                        <button
                             onClick={() => setIsReportView(true)}
                             className="bg-orange-600 hover:bg-orange-700 text-white px-3 py-2 rounded-md text-xs whitespace-nowrap"
                         >
@@ -236,7 +267,6 @@ const GCashDonationsAdmin = () => {
                     </div>
                 </div>
 
-                {/* TABLE */}
                 {loading ? (
                     <div className="flex justify-center items-center w-full h-40">
                         <CircularLoading customClass="w-6 h-6 text-blue-500" />
@@ -255,41 +285,85 @@ const GCashDonationsAdmin = () => {
                     </div>
                 ) : (
                     <div className="overflow-x-auto bg-white rounded-lg shadow-sm border border-gray-100">
-                        <table className="w-full min-w-[700px] text-sm text-left border-collapse">
+                        <table className="w-full min-w-[1100px] text-sm text-left border-collapse">
                             <thead className="bg-orange-500 text-white text-xs sticky top-0">
                                 <tr>
                                     <th className="p-3">Tracking #</th>
+                                    <th className="p-3">Channel</th>
                                     <th className="p-3">Name</th>
                                     <th className="p-3">Email</th>
                                     <th className="p-3">Amount</th>
+                                    <th className="p-3">Reference</th>
+                                    <th className="p-3">Proof</th>
+                                    <th className="p-3">Status</th>
                                     <th className="p-3">Date</th>
+                                    <th className="p-3 text-center">Action</th>
                                 </tr>
                             </thead>
 
                             <tbody>
-                                {donations.map((donation, index) => (
-                                    <tr key={donation.id} className={`border-b border-gray-100 hover:bg-gray-50 text-xs ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
-                                        <td className="p-3 font-medium text-gray-800">{donation.donation_tracking_number}</td>
-                                        <td className="p-3">{donation.name || "N/A"}</td>
-                                        <td className="p-3">{donation.email || "N/A"}</td>
-                                        <td className="p-3 font-mono">{formatCurrency(donation.amount)}</td>
-                                        <td className="p-3">{donation.created_at ? formatDate(donation.created_at) : ""}</td>
-                                    </tr>
-                                ))}
+                                {donations.map((donation, index) => {
+                                    const canConfirm = donation.payment_channel === "qr" && donation.status !== "paid";
+
+                                    return (
+                                        <tr key={donation.id} className={`border-b border-gray-100 hover:bg-gray-50 text-xs ${index % 2 === 0 ? "bg-orange-50/40" : ""}`}>
+                                            <td className="p-3 font-medium text-gray-800">{donation.donation_tracking_number}</td>
+                                            <td className="p-3">
+                                                <span className={`inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold ${donation.payment_channel === "qr" ? "bg-purple-50 text-purple-700 border-purple-100" : "bg-blue-50 text-blue-700 border-blue-100"}`}>
+                                                    {getChannelLabel(donation.payment_channel)}
+                                                </span>
+                                            </td>
+                                            <td className="p-3">{donation.name || "N/A"}</td>
+                                            <td className="p-3">{donation.email || "N/A"}</td>
+                                            <td className="p-3 font-mono">{formatCurrency(donation.amount)}</td>
+                                            <td className="p-3">{donation.payment_reference_number || "N/A"}</td>
+                                            <td className="p-3">
+                                                {donation.proof_of_payment ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => openProof(donation.proof_of_payment)}
+                                                        className="inline-flex items-center rounded-full border border-blue-100 bg-blue-50 px-3 py-1 text-[11px] font-semibold text-blue-700 hover:bg-blue-100"
+                                                    >
+                                                        View proof
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-400">N/A</span>
+                                                )}
+                                            </td>
+                                            <td className="p-3">
+                                                <span className={`inline-flex items-center rounded-full border px-2 py-1 text-[10px] font-semibold ${getStatusClasses(donation)}`}>
+                                                    {getStatusLabel(donation)}
+                                                </span>
+                                            </td>
+                                            <td className="p-3">{donation.created_at ? formatDate(donation.created_at) : ""}</td>
+                                            <td className="p-3 text-center">
+                                                {canConfirm ? (
+                                                    <button
+                                                        type="button"
+                                                        onClick={() => setToBeApproved(donation.id)}
+                                                        className="bg-green-600 hover:bg-green-700 text-white px-3 py-1 rounded text-xs"
+                                                    >
+                                                        Confirm
+                                                    </button>
+                                                ) : (
+                                                    <span className="text-gray-400">--</span>
+                                                )}
+                                            </td>
+                                        </tr>
+                                    );
+                                })}
                             </tbody>
                         </table>
                     </div>
                 )}
-
             </div>
 
-            {/* CONFIRM APPROVAL */}
             {toBeApproved && (
                 <ConfirmationAlert
                     onClose={() => setToBeApproved(null)}
                     onConfirm={() => approveDonation(toBeApproved)}
-                    title="Approve Donation"
-                    message="Are you sure you want to approve this donation?"
+                    title="Confirm QR Donation"
+                    message="Are you sure you want to confirm this QR donation as paid?"
                     isDelete={false}
                     isDeleting={false}
                     isConfirming={approvingId === toBeApproved}
@@ -298,26 +372,22 @@ const GCashDonationsAdmin = () => {
                 />
             )}
 
-            {/* SUCCESS ALERT */}
             {success && (
                 <SuccesAlert
-                    message="Donation approved successfully."
+                    message="QR donation confirmed successfully."
                     onClose={() => setSuccess(false)}
                 />
             )}
 
-            {/* REPORT MODAL */}
             {isReportView && (
                 <AnimatePresence>
                     <motion.div
-                        initial={{ opacity: 0 }} 
-                        animate={{ opacity: 1 }} 
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         className="fixed inset-0 z-50 bg-white p-5 overflow-auto"
                     >
                         <div className="w-full max-w-[900px] mx-auto">
-
-                            {/* Close Button */}
                             <div className="flex justify-end">
                                 <X
                                     className="text-gray-500 cursor-pointer hover:text-gray-700"
@@ -326,17 +396,14 @@ const GCashDonationsAdmin = () => {
                                 />
                             </div>
 
-                            {/* Filter Bar */}
                             <div className="w-full max-w-[800px] mx-auto mt-5 mb-3 flex flex-col md:flex-row justify-between gap-4">
-
                                 <div>
                                     <span className="text-sm font-semibold">Filter Donations</span>
 
                                     <div className="flex flex-col sm:flex-row gap-3 mt-2">
-
                                         <div className="flex items-center gap-2">
                                             <label className="text-xs">From</label>
-                                            <input 
+                                            <input
                                                 type="date"
                                                 value={dateFrom}
                                                 onChange={(e) => setDateFrom(e.target.value)}
@@ -346,7 +413,7 @@ const GCashDonationsAdmin = () => {
 
                                         <div className="flex items-center gap-2">
                                             <label className="text-xs">To</label>
-                                            <input 
+                                            <input
                                                 type="date"
                                                 value={dateTo}
                                                 onChange={(e) => setDateTo(e.target.value)}
@@ -354,8 +421,8 @@ const GCashDonationsAdmin = () => {
                                             />
                                         </div>
 
-                                        <button 
-                                            onClick={handleFilterCashDonations}
+                                        <button
+                                            onClick={handleFilterReportDonations}
                                             className="text-xs bg-blue-500 hover:bg-blue-600 text-white px-3 py-1.5 rounded"
                                         >
                                             Go
@@ -372,15 +439,13 @@ const GCashDonationsAdmin = () => {
                                 </button>
                             </div>
 
-                            {/* REPORT CONTENT */}
                             <div ref={containerRef} className="w-full max-w-[800px] mx-auto p-5 shadow bg-white">
-
                                 <Logo />
 
                                 <div className="text-center mt-5">
                                     <p className="font-bold">GCash Donations Report</p>
                                     <p className="text-xs text-gray-600">
-                                        From <span>{dateFrom ? formatDate(dateFrom) : "--date--"}</span> 
+                                        From <span>{dateFrom ? formatDate(dateFrom) : "--date--"}</span>
                                         &nbsp;to <span>{dateTo ? formatDate(dateTo) : "--date--"}</span>
                                     </p>
                                 </div>
@@ -396,6 +461,7 @@ const GCashDonationsAdmin = () => {
                                             <tr>
                                                 <th className="p-3 text-start">Date</th>
                                                 <th className="p-3 text-start">Donor</th>
+                                                <th className="p-3 text-start">Channel</th>
                                                 <th className="p-3 text-start">Amount</th>
                                                 <th className="p-3 text-start">Reference No.</th>
                                                 <th className="p-3 text-start">Email</th>
@@ -403,27 +469,27 @@ const GCashDonationsAdmin = () => {
                                         </thead>
 
                                         <tbody>
-                                            {cashDonations.length === 0 && (
+                                            {reportDonations.length === 0 && (
                                                 <tr>
-                                                    <td colSpan={5} className="p-3 text-center">
+                                                    <td colSpan={6} className="p-3 text-center">
                                                         No Records Found
                                                     </td>
                                                 </tr>
                                             )}
 
-                                            {cashDonations.map((donation, index) => (
+                                            {reportDonations.map((donation, index) => (
                                                 <tr key={donation.id} className={`${index % 2 === 0 ? "bg-gray-50" : ""}`}>
                                                     <td className="p-3">{donation.created_at ? new Date(donation.created_at).toLocaleDateString() : ""}</td>
                                                     <td className="p-3">{donation.name || "Anonymous"}</td>
+                                                    <td className="p-3">{getChannelLabel(donation.payment_channel)}</td>
                                                     <td className="p-3">{formatCurrency(donation.amount)}</td>
-                                                    <td className="p-3">{donation.reference || "N/A"}</td>
-                                                    <td className="p-3">{donation.email}</td>
+                                                    <td className="p-3">{donation.payment_reference_number || "N/A"}</td>
+                                                    <td className="p-3">{donation.email || "N/A"}</td>
                                                 </tr>
                                             ))}
                                         </tbody>
                                     </table>
                                 </div>
-
                             </div>
                         </div>
                     </motion.div>

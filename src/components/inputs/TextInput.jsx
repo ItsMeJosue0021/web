@@ -1,32 +1,31 @@
-import { useState } from "react";
-
-const TextInput = ({label, type, value, name, placeholder, onChange, hasError, maxLength, inputMode, pattern}) => {
-
-    const [isTyping, setIsTyping] = useState(false);
-
-    const handleInput = (event) => {
-        setIsTyping(event.target.value.length > 0);
-    };
-
+const TextInput = ({
+    label: _label,
+    type = "text",
+    value = "",
+    name,
+    placeholder,
+    onChange,
+    hasError,
+    className = "",
+    ...inputProps
+}) => {
     return (
-        <div className={`w-full relative flex flex-col gap-1 border ${hasError ? 'border-red-300' : 'border-gray-200' } rounded-md bg-white hover:border-orange-500`}>
-            {/* <label className={`text-[11px] absolute left-3 px-1 bg-white transition-all duration-200 ${isTyping ? "opacity-100 -top-2.5 scale-100" : "opacity-0 top-2 scale-90"}`}>
-                {label}
-            </label> */}
-
-            <input 
-            value={value}
-            onInput={handleInput} 
-            onChange={onChange}
-            type={type} 
-            name={name} 
-            placeholder={placeholder} 
-            maxLength={maxLength}
-            inputMode={inputMode}
-            pattern={pattern}
-            className="w-full border-0 outline-none bg-transparent py-2.5 px-3 text-[10px] placeholder:text-[10px"/>
+        <div
+            className={`w-full rounded-md border transition-colors ${
+                hasError ? "border-red-300" : "border-gray-100 hover:border-orange-500"
+            } bg-white focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-100/80`}
+        >
+            <input
+                value={value}
+                onChange={onChange}
+                type={type}
+                name={name}
+                placeholder={placeholder}
+                className={`w-full border-0 bg-transparent px-3 py-2.5 text-xs outline-none placeholder:text-xs ${className}`}
+                {...inputProps}
+            />
         </div>
-    )
-}
+    );
+};
 
 export default TextInput;

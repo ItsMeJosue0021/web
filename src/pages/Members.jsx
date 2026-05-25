@@ -177,9 +177,18 @@ const Members = () => {
 
     const handleSearch = useCallback(
         debounce(async (search) => {
+            const trimmedSearch = search.trim();
+
+            if (!trimmedSearch) {
+                fetchMembers();
+                return;
+            }
+
             isLoading(true);
             try {
-                const response = await _get(`/members/search?search=${search}`);
+                const response = await _get("/members/search", {
+                    params: { search: trimmedSearch },
+                });
                 setMembers(response.data);
             } catch (error) {
                 console.error("Error fetching data:", error);

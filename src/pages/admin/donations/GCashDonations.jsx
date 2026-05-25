@@ -125,30 +125,18 @@ const GCashDonationsAdmin = () => {
         html2pdf().set(opt).from(containerRef.current).save();
     };
 
-    const fetchDonations = async () => {
+    const fetchDonations = async (searchTerm = search) => {
         setLoading(true);
         try {
             const params = {};
             if (year) params.year = year;
             if (month) params.month = month;
+            if (searchTerm.trim()) params.q = searchTerm.trim();
 
             const response = await _get("/gcash-donations/filter", { params });
             setDonations(response.data);
         } catch (error) {
             console.error("Error fetching donations:", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleSearch = async () => {
-        if (!search.trim()) return fetchDonations();
-        setLoading(true);
-        try {
-            const response = await _get(`/gcash-donations/search?q=${search}`);
-            setDonations(response.data);
-        } catch (error) {
-            console.error("Search error:", error);
         } finally {
             setLoading(false);
         }
@@ -169,8 +157,12 @@ const GCashDonationsAdmin = () => {
     };
 
     useEffect(() => {
-        fetchDonations();
-    }, [year, month]);
+        const timer = setTimeout(() => {
+            fetchDonations(search);
+        }, 500);
+
+        return () => clearTimeout(timer);
+    }, [search, year, month]);
 
     const listSummary = useMemo(() => {
         const total = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
@@ -210,7 +202,8 @@ const GCashDonationsAdmin = () => {
                             <Filter size={16} className="text-orange-500" /> Quick filters
                         </div>
                         <div className="flex flex-col sm:flex-row gap-2 sm:items-center w-full lg:w-auto">
-                            <div className="relative w-full sm:w-64">
+                            <span className="text-xs font-medium text-gray-600">Search</span>
+                            <div className="relative w-full sm:w-[420px] lg:w-[520px]">
                                 <Search size={16} className="text-gray-400 absolute left-3 top-1/2 -translate-y-1/2" />
                                 <input
                                     type="text"
@@ -220,18 +213,6 @@ const GCashDonationsAdmin = () => {
                                     className="bg-white border border-gray-200 rounded-md pl-9 pr-3 py-2 text-xs w-full"
                                 />
                             </div>
-                            <button
-                                onClick={handleSearch}
-                                className="bg-orange-600 hover:bg-orange-700 text-white px-4 py-2 rounded-md text-xs whitespace-nowrap"
-                            >
-                                Search
-                            </button>
-                            <button
-                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
-                                className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
-                            >
-                                Clear
-                            </button>
                         </div>
                     </div>
 
@@ -264,6 +245,12 @@ const GCashDonationsAdmin = () => {
                         >
                             Generate Report
                         </button>
+                        <button
+                            onClick={() => { setYear(""); setMonth(""); }}
+                            className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
+                        >
+                            Clear
+                        </button>
                     </div>
                 </div>
 
@@ -276,10 +263,10 @@ const GCashDonationsAdmin = () => {
                         No donations found. Adjust filters or clear search to see more results.
                         <div className="mt-3">
                             <button
-                                onClick={() => { setSearch(""); setYear(""); setMonth(""); fetchDonations(); }}
+                                onClick={() => { setSearch(""); setYear(""); setMonth(""); }}
                                 className="text-xs px-3 py-2 rounded-md border border-gray-200 text-gray-600 hover:bg-gray-50"
                             >
-                                Clear filters
+                                Clear
                             </button>
                         </div>
                     </div>

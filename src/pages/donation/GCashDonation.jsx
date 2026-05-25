@@ -39,7 +39,8 @@ const GCashDonation = () => {
 
     const handleChange = (e) => {
         const { name, value } = e.target;
-        setData((prev) => ({ ...prev, [name]: value }));
+        const nextValue = name === "payment_reference_number" ? value.slice(0, 13) : value;
+        setData((prev) => ({ ...prev, [name]: nextValue }));
         setErrors((prev) => ({ ...prev, [name]: undefined }));
     };
 
@@ -303,6 +304,7 @@ const GCashDonation = () => {
                                                         name="payment_reference_number"
                                                         value={data.payment_reference_number}
                                                         onChange={handleChange}
+                                                        maxLength={13}
                                                         placeholder="Enter your payment reference number"
                                                         className={fieldBaseClass}
                                                     />

@@ -192,7 +192,8 @@ const Portal = () => {
 
     const handleMembershipTextChange = (e) => {
         const { name, value } = e.target;
-        setMembershipData(prev => ({ ...prev, [name]: value }));
+        const nextValue = name === 'payment_reference_number' ? value.slice(0, 13) : value;
+        setMembershipData(prev => ({ ...prev, [name]: nextValue }));
         setMembershipErrors(prev => ({ ...prev, [name]: undefined }));
     };
 
@@ -486,6 +487,7 @@ const Portal = () => {
                                                     name="payment_reference_number"
                                                     value={membershipData.payment_reference_number}
                                                     onChange={handleMembershipTextChange}
+                                                    maxLength={13}
                                                     placeholder="Enter your payment reference number"
                                                     className="text-xs bg-white border border-gray-200 rounded px-3 py-2 placeholder:text-gray-400"
                                                 />

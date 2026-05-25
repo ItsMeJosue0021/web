@@ -1,5 +1,5 @@
 import Admin from "../../layouts/Admin";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { X, Edit, Trash2 } from "lucide-react";
 import { _get, _post, _delete } from "../../api";
 import { toast } from "react-toastify";
@@ -18,6 +18,22 @@ const createEmptyProposedResource = () => ({
     unit: "",
     notes: "",
 });
+
+const normalizeSuggestion = (entry, index) => {
+    if (typeof entry === "string") {
+        const name = entry.trim();
+        if (!name) return null;
+        return { id: `${name}-${index}`, name };
+    }
+
+    if (entry && typeof entry === "object") {
+        const name = `${entry.name ?? entry.label ?? entry.value ?? ""}`.trim();
+        if (!name) return null;
+        return { id: entry.id ?? `${name}-${index}`, name };
+    }
+
+    return null;
+};
 
 const normalizeResourceText = (value = "") =>
     `${value}`
@@ -150,6 +166,16 @@ const Projects = () => {
     const [proposedResourceDraft, setProposedResourceDraft] = useState(createEmptyProposedResource());
     const [proposedResourceErrors, setProposedResourceErrors] = useState({});
     const [editingProposedResourceUid, setEditingProposedResourceUid] = useState(null);
+    const [units, setUnits] = useState([]);
+    const [unitsLoading, setUnitsLoading] = useState(false);
+    const [unitsError, setUnitsError] = useState("");
+    const [proposedItemSuggestions, setProposedItemSuggestions] = useState([]);
+    const [proposedSuggestionsLoading, setProposedSuggestionsLoading] = useState(false);
+    const [proposedSuggestionsError, setProposedSuggestionsError] = useState("");
+    const [isProposedSuggestionOpen, setIsProposedSuggestionOpen] = useState(false);
+    const [activeProposedSuggestionIndex, setActiveProposedSuggestionIndex] = useState(-1);
+    const proposedSuggestionContainerRef = useRef(null);
+    const proposedSuggestionsRequestRef = useRef(0);
 
     const [showAddProjectModal, setShowAddProjectModal] = useState(false);
     const [showEditProjectModal, setShowEditProjectModal] = useState(false);
@@ -275,6 +301,7 @@ const Projects = () => {
     useEffect(() => {
         fetchProjects();
         fetchCategories();
+        fetchUnits();
     }, []);
 
     useEffect(() => {
@@ -282,6 +309,20 @@ const Projects = () => {
             fetchInventoryItems({ search: "", categoryId: "", subCategoryId: "" });
         }
     }, [isLiquidateOpen]);
+
+    useEffect(() => {
+        if (!isProposedSuggestionOpen) return;
+        const handleOutsideClick = (event) => {
+            if (proposedSuggestionContainerRef.current && !proposedSuggestionContainerRef.current.contains(event.target)) {
+                setIsProposedSuggestionOpen(false);
+            }
+        };
+
+        document.addEventListener("mousedown", handleOutsideClick);
+        return () => {
+            document.removeEventListener("mousedown", handleOutsideClick);
+        };
+    }, [isProposedSuggestionOpen]);
 
     const fetchProjects = async ({ start = "", end = "" } = {}) => {
         try {
@@ -317,6 +358,8 @@ const Projects = () => {
         setProposedResourceDraft(createEmptyProposedResource());
         setProposedResourceErrors({});
         setEditingProposedResourceUid(null);
+        clearProposedItemSuggestions();
+        setIsProposedSuggestionOpen(false);
         setProjectFormLoading(false);
     };
 
@@ -333,10 +376,20 @@ const Projects = () => {
         notes: resource?.notes || "",
     });
 
+    const clearProposedItemSuggestions = useCallback(() => {
+        proposedSuggestionsRequestRef.current += 1;
+        setProposedItemSuggestions([]);
+        setProposedSuggestionsError("");
+        setProposedSuggestionsLoading(false);
+        setActiveProposedSuggestionIndex(-1);
+    }, []);
+
     const resetProposedResourceDraft = () => {
         setProposedResourceDraft(createEmptyProposedResource());
         setProposedResourceErrors({});
         setEditingProposedResourceUid(null);
+        clearProposedItemSuggestions();
+        setIsProposedSuggestionOpen(false);
     };
 
     const validateProposedResourceDraft = () => {
@@ -358,13 +411,110 @@ const Projects = () => {
             ...prev,
             category_id: value,
             sub_category_id: "",
+            name: "",
         }));
         setProposedResourceErrors((prev) => ({
             ...prev,
             category_id: undefined,
             sub_category_id: undefined,
         }));
+        clearProposedItemSuggestions();
+        setIsProposedSuggestionOpen(false);
     };
+
+    const handleProposedResourceSubCategoryChange = (value) => {
+        setProposedResourceDraft((prev) => ({
+            ...prev,
+            sub_category_id: value,
+            name: "",
+        }));
+        setProposedResourceErrors((prev) => ({
+            ...prev,
+            sub_category_id: undefined,
+        }));
+        clearProposedItemSuggestions();
+        setIsProposedSuggestionOpen(false);
+    };
+
+    const fetchProposedItemSuggestions = useCallback(async (query = "", limit = 10) => {
+        const category = categories.find((cat) => String(cat.id) === String(proposedResourceDraft.category_id));
+        const subcategory = (category?.subcategories || []).find(
+            (sub) => String(sub.id) === String(proposedResourceDraft.sub_category_id)
+        );
+
+        if (!category || !subcategory) {
+            clearProposedItemSuggestions();
+            return;
+        }
+
+        const requestId = proposedSuggestionsRequestRef.current + 1;
+        proposedSuggestionsRequestRef.current = requestId;
+
+        setProposedSuggestionsLoading(true);
+        setProposedSuggestionsError("");
+        try {
+            const response = await _get("/goods-donations/v2/suggestions", {
+                params: {
+                    count: limit,
+                    q: query.trim() || undefined,
+                    category: category.name,
+                    subcategory: subcategory.name,
+                    seed: `${category.name} / ${subcategory.name}`,
+                },
+            });
+            const rawSuggestions = response.data?.suggestions || response.data || [];
+            const suggestions = (Array.isArray(rawSuggestions) ? rawSuggestions : [])
+                .map(normalizeSuggestion)
+                .filter(Boolean);
+
+            if (proposedSuggestionsRequestRef.current !== requestId) return;
+
+            setProposedItemSuggestions(suggestions);
+            setActiveProposedSuggestionIndex(suggestions.length > 0 ? 0 : -1);
+        } catch (error) {
+            if (proposedSuggestionsRequestRef.current !== requestId) return;
+            console.error("Error fetching proposed item suggestions:", error);
+            setProposedSuggestionsError("Unable to load suggestions.");
+            setProposedItemSuggestions([]);
+            setActiveProposedSuggestionIndex(-1);
+        } finally {
+            if (proposedSuggestionsRequestRef.current === requestId) {
+                setProposedSuggestionsLoading(false);
+            }
+        }
+    }, [
+        categories,
+        clearProposedItemSuggestions,
+        proposedResourceDraft.category_id,
+        proposedResourceDraft.sub_category_id,
+    ]);
+
+    const selectProposedSuggestion = (suggestion) => {
+        setProposedResourceDraft((prev) => ({ ...prev, name: suggestion.name }));
+        setIsProposedSuggestionOpen(false);
+        setActiveProposedSuggestionIndex(-1);
+    };
+
+    useEffect(() => {
+        if (!isProposedSuggestionOpen) return;
+        if (!proposedResourceDraft.category_id || !proposedResourceDraft.sub_category_id) {
+            clearProposedItemSuggestions();
+            return;
+        }
+
+        const timer = setTimeout(() => {
+            fetchProposedItemSuggestions(proposedResourceDraft.name, 10);
+        }, 100);
+
+        return () => clearTimeout(timer);
+    }, [
+        clearProposedItemSuggestions,
+        fetchProposedItemSuggestions,
+        isProposedSuggestionOpen,
+        proposedResourceDraft.category_id,
+        proposedResourceDraft.name,
+        proposedResourceDraft.sub_category_id,
+    ]);
 
     const handleSaveProposedResource = () => {
         if (!validateProposedResourceDraft()) return;
@@ -411,6 +561,8 @@ const Projects = () => {
             notes: resource.notes || "",
         });
         setProposedResourceErrors({});
+        clearProposedItemSuggestions();
+        setIsProposedSuggestionOpen(false);
     };
 
     const handleRemoveProposedResource = (resourceUid) => {
@@ -635,6 +787,21 @@ const Projects = () => {
             setCategories(response.data.categories || []);
         } catch (error) {
             console.error("Error fetching categories:", error);
+        }
+    };
+
+    const fetchUnits = async () => {
+        setUnitsLoading(true);
+        setUnitsError("");
+        try {
+            const response = await _get("/units");
+            setUnits(response.data?.units || []);
+        } catch (error) {
+            console.error("Error fetching units:", error);
+            setUnitsError("Unable to load unit options. Please try again later.");
+            setUnits([]);
+        } finally {
+            setUnitsLoading(false);
         }
     };
 
@@ -1007,6 +1174,13 @@ const Projects = () => {
     const proposedSubCategoryOptions = proposedResourceDraft.category_id
         ? categories.find((cat) => `${cat.id}` === `${proposedResourceDraft.category_id}`)?.subcategories || []
         : [];
+    const selectedProposedCategory = categories.find(
+        (cat) => `${cat.id}` === `${proposedResourceDraft.category_id}`
+    );
+    const selectedProposedSubcategory = proposedSubCategoryOptions.find(
+        (sub) => `${sub.id}` === `${proposedResourceDraft.sub_category_id}`
+    );
+    const canSuggestProposedItemNames = Boolean(selectedProposedCategory && selectedProposedSubcategory);
     const pendingGoodsItemsCount = selectedItems.filter((item) => !item.isExisting).length;
     const comparisonRows = buildResourceComparisonRows(liquidationProposedResources, selectedItems);
 
@@ -1017,6 +1191,139 @@ const Projects = () => {
         setOpenVolunteerList(true);
         setProjectId(projectId);
     }
+
+    const renderProposedItemNameField = () => (
+        <div className="flex flex-col gap-1 md:col-span-2">
+            <label className="text-xs font-medium text-gray-700">Item / Material Name *</label>
+            <div className="relative" ref={proposedSuggestionContainerRef}>
+                <input
+                    value={proposedResourceDraft.name}
+                    disabled={!canSuggestProposedItemNames}
+                    onChange={(e) => {
+                        setProposedResourceDraft((prev) => ({ ...prev, name: e.target.value }));
+                        setProposedResourceErrors((prev) => ({ ...prev, name: undefined }));
+                        setIsProposedSuggestionOpen(true);
+                    }}
+                    onFocus={() => {
+                        if (canSuggestProposedItemNames) {
+                            setIsProposedSuggestionOpen(true);
+                        }
+                    }}
+                    onKeyDown={(e) => {
+                        if (!isProposedSuggestionOpen) return;
+
+                        if (e.key === "ArrowDown") {
+                            if (proposedItemSuggestions.length === 0) return;
+                            e.preventDefault();
+                            setActiveProposedSuggestionIndex((prev) =>
+                                prev < proposedItemSuggestions.length - 1 ? prev + 1 : 0
+                            );
+                            return;
+                        }
+
+                        if (e.key === "ArrowUp") {
+                            if (proposedItemSuggestions.length === 0) return;
+                            e.preventDefault();
+                            setActiveProposedSuggestionIndex((prev) =>
+                                prev > 0 ? prev - 1 : proposedItemSuggestions.length - 1
+                            );
+                            return;
+                        }
+
+                        if (e.key === "Enter") {
+                            if (proposedItemSuggestions.length === 0) return;
+                            e.preventDefault();
+                            const selectedSuggestion =
+                                proposedItemSuggestions[activeProposedSuggestionIndex] || proposedItemSuggestions[0];
+                            if (selectedSuggestion) {
+                                selectProposedSuggestion(selectedSuggestion);
+                            }
+                            return;
+                        }
+
+                        if (e.key === "Escape") {
+                            setIsProposedSuggestionOpen(false);
+                        }
+                    }}
+                    className={`w-full border border-gray-200 px-3 py-2 text-xs rounded-lg ${
+                        canSuggestProposedItemNames ? "bg-white" : "bg-gray-100 cursor-not-allowed"
+                    }`}
+                    placeholder={
+                        canSuggestProposedItemNames
+                            ? "Example: Rice packs, tarpaulin, hygiene kits"
+                            : "Select category and subcategory first"
+                    }
+                />
+
+                {isProposedSuggestionOpen && canSuggestProposedItemNames && (
+                    <div className="absolute left-0 right-0 z-20 mt-1 rounded-md border border-gray-200 bg-white shadow-lg">
+                        <div className="flex items-center justify-between px-3 py-2 border-b border-gray-100">
+                            <p className="text-[11px] font-medium text-gray-500">Suggestions</p>
+                            <button
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => fetchProposedItemSuggestions(proposedResourceDraft.name, 10)}
+                                className="text-[11px] text-orange-600 hover:text-orange-700"
+                            >
+                                Refresh
+                            </button>
+                        </div>
+                        {proposedSuggestionsLoading ? (
+                            <p className="px-3 py-2 text-[11px] text-gray-400">Loading suggestions...</p>
+                        ) : proposedSuggestionsError ? (
+                            <p className="px-3 py-2 text-[11px] text-red-500">{proposedSuggestionsError}</p>
+                        ) : proposedItemSuggestions.length === 0 ? (
+                            <p className="px-3 py-2 text-[11px] text-gray-400">No related suggestions available.</p>
+                        ) : (
+                            <div className="max-h-56 overflow-y-auto py-1">
+                                {proposedItemSuggestions.map((suggestion, index) => (
+                                    <button
+                                        key={`${suggestion.id}-${index}`}
+                                        type="button"
+                                        onMouseDown={(e) => e.preventDefault()}
+                                        onMouseEnter={() => setActiveProposedSuggestionIndex(index)}
+                                        onClick={() => selectProposedSuggestion(suggestion)}
+                                        className={`w-full text-left px-3 py-2 text-xs text-gray-700 hover:bg-gray-100 ${
+                                            activeProposedSuggestionIndex === index ? "bg-gray-100" : ""
+                                        }`}
+                                    >
+                                        {suggestion.name}
+                                    </button>
+                                ))}
+                            </div>
+                        )}
+                    </div>
+                )}
+            </div>
+            <p className="text-[11px] text-gray-500">
+                {canSuggestProposedItemNames
+                    ? "Suggestions are based on the selected category and subcategory."
+                    : "Select the category and subcategory first to enable related item-name suggestions."}
+            </p>
+            {proposedResourceErrors.name && (
+                <p className="text-[11px] text-red-500">{proposedResourceErrors.name}</p>
+            )}
+        </div>
+    );
+
+    const renderProposedUnitField = () => (
+        <div className="flex flex-col gap-1">
+            <label className="text-xs font-medium text-gray-700">Unit</label>
+            <select
+                value={proposedResourceDraft.unit}
+                onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, unit: e.target.value }))}
+                className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
+            >
+                <option value="">Select unit...</option>
+                {units.map((option) => (
+                    <option key={option.unit} value={option.unit}>
+                        {option.description}
+                    </option>
+                ))}
+            </select>
+            <p className="text-[11px] text-red-500">{unitsLoading ? "Loading units..." : unitsError || ""}</p>
+        </div>
+    );
 
     return (
         <Admin header={header} breadcrumbs={breadcrumbs}>
@@ -1891,7 +2198,7 @@ const Projects = () => {
                                                 <label className="text-xs font-medium text-gray-700">Subcategory *</label>
                                                 <select
                                                     value={proposedResourceDraft.sub_category_id}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, sub_category_id: e.target.value }))}
+                                                    onChange={(e) => handleProposedResourceSubCategoryChange(e.target.value)}
                                                     className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
                                                 >
                                                     <option value="">Select subcategory...</option>
@@ -1904,18 +2211,7 @@ const Projects = () => {
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-col gap-1 md:col-span-2">
-                                                <label className="text-xs font-medium text-gray-700">Item / Material Name *</label>
-                                                <input
-                                                    value={proposedResourceDraft.name}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, name: e.target.value }))}
-                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
-                                                    placeholder="Example: Rice packs, tarpaulin, hygiene kits"
-                                                />
-                                                {proposedResourceErrors.name && (
-                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.name}</p>
-                                                )}
-                                            </div>
+                                            {renderProposedItemNameField()}
 
                                             <div className="flex flex-col gap-1">
                                                 <label className="text-xs font-medium text-gray-700">Quantity *</label>
@@ -1932,15 +2228,7 @@ const Projects = () => {
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-col gap-1">
-                                                <label className="text-xs font-medium text-gray-700">Unit</label>
-                                                <input
-                                                    value={proposedResourceDraft.unit}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, unit: e.target.value }))}
-                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
-                                                    placeholder="pcs, packs, kg, boxes"
-                                                />
-                                            </div>
+                                            {renderProposedUnitField()}
 
                                             <div className="flex flex-col gap-1 md:col-span-2">
                                                 <label className="text-xs font-medium text-gray-700">Notes</label>
@@ -2209,7 +2497,7 @@ const Projects = () => {
                                                 <label className="text-xs font-medium text-gray-700">Subcategory *</label>
                                                 <select
                                                     value={proposedResourceDraft.sub_category_id}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, sub_category_id: e.target.value }))}
+                                                    onChange={(e) => handleProposedResourceSubCategoryChange(e.target.value)}
                                                     className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
                                                 >
                                                     <option value="">Select subcategory...</option>
@@ -2222,18 +2510,7 @@ const Projects = () => {
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-col gap-1 md:col-span-2">
-                                                <label className="text-xs font-medium text-gray-700">Item / Material Name *</label>
-                                                <input
-                                                    value={proposedResourceDraft.name}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, name: e.target.value }))}
-                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
-                                                    placeholder="Example: Rice packs, tarpaulin, hygiene kits"
-                                                />
-                                                {proposedResourceErrors.name && (
-                                                    <p className="text-[11px] text-red-500">{proposedResourceErrors.name}</p>
-                                                )}
-                                            </div>
+                                            {renderProposedItemNameField()}
 
                                             <div className="flex flex-col gap-1">
                                                 <label className="text-xs font-medium text-gray-700">Quantity *</label>
@@ -2250,15 +2527,7 @@ const Projects = () => {
                                                 )}
                                             </div>
 
-                                            <div className="flex flex-col gap-1">
-                                                <label className="text-xs font-medium text-gray-700">Unit</label>
-                                                <input
-                                                    value={proposedResourceDraft.unit}
-                                                    onChange={(e) => setProposedResourceDraft((prev) => ({ ...prev, unit: e.target.value }))}
-                                                    className="bg-white border border-gray-200 px-3 py-2 text-xs rounded-lg"
-                                                    placeholder="pcs, packs, kg, boxes"
-                                                />
-                                            </div>
+                                            {renderProposedUnitField()}
 
                                             <div className="flex flex-col gap-1 md:col-span-2">
                                                 <label className="text-xs font-medium text-gray-700">Notes</label>

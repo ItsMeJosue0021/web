@@ -1,7 +1,7 @@
 import Guest from "../layouts/Guest";
 import { Search, CalendarX2 } from 'lucide-react';
 import { _get } from "../api";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "react-router-dom";
 import Footer from "../components/Footer";
 import VolunteerButton from "../components/volunteering/VolunteerButton";
@@ -10,10 +10,24 @@ import {
     canProjectAcceptVolunteers,
     getProjectLifecycleClasses,
     getProjectLifecycleLabel,
+    getProjectLifecycleStatus,
     getProjectPublicPath,
     getProjectTypeClasses,
     getProjectTypeLabel,
 } from "../utils/projectMeta";
+
+const getEventTime = (value) => {
+    if (!value) return 0;
+
+    const dateOnlyMatch = /^(\d{4})-(\d{2})-(\d{2})$/.exec(`${value}`.trim());
+    if (dateOnlyMatch) {
+        const [, year, month, day] = dateOnlyMatch;
+        return new Date(Number(year), Number(month) - 1, Number(day)).getTime();
+    }
+
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? 0 : parsed.getTime();
+};
 
 const EventsList = () => {
 
@@ -23,26 +37,19 @@ const EventsList = () => {
     const [events, setEvents] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("upcoming");
+    const [startDate, setStartDate] = useState("");
+    const [endDate, setEndDate] = useState("");
 
     useEffect(() => {
-        const handler = setTimeout(() => {
-            fetchEvents(searchTerm);
-        }, 350); // light debounce to avoid hammering the API while typing
+        fetchEvents();
+    }, []);
 
-        return () => clearTimeout(handler);
-    }, [searchTerm]);
-
-    const fetchEvents = async (query = "") => {
-        const isSearch = query.trim() !== "";
-
+    const fetchEvents = async () => {
         setLoading(true);
 
         try {
-            const endpoint = isSearch
-                ? `/upcoming-projects?search=${encodeURIComponent(query)}`
-                : "/upcoming-projects";
-
-            const response = await _get(endpoint);
+            const response = await _get("/projects");
             setEvents(response.data);
         } catch (error) {
             console.error('Error fetching events:', error);
@@ -51,31 +58,149 @@ const EventsList = () => {
         }
     };
 
+    const visibleEvents = useMemo(() => {
+        const normalizedSearchTerm = searchTerm.trim().toLowerCase();
+
+        return events
+            .filter((event) => {
+                const lifecycleStatus = getProjectLifecycleStatus(event);
+
+                if (statusFilter === "upcoming" && lifecycleStatus === "done") {
+                    return false;
+                }
+
+                if (statusFilter === "previous" && lifecycleStatus !== "done") {
+                    return false;
+                }
+
+                if (startDate && event.date < startDate) {
+                    return false;
+                }
+
+                if (endDate && event.date > endDate) {
+                    return false;
+                }
+
+                if (!normalizedSearchTerm) {
+                    return true;
+                }
+
+                const searchableText = [
+                    event.title,
+                    event.description,
+                    event.location,
+                    ...(event.tags || []),
+                ]
+                    .filter(Boolean)
+                    .join(" ")
+                    .toLowerCase();
+
+                return searchableText.includes(normalizedSearchTerm);
+            })
+            .sort((first, second) => {
+                const firstTime = getEventTime(first.date);
+                const secondTime = getEventTime(second.date);
+                const firstIsPrevious = getProjectLifecycleStatus(first) === "done";
+                const secondIsPrevious = getProjectLifecycleStatus(second) === "done";
+
+                if (statusFilter === "all" && firstIsPrevious !== secondIsPrevious) {
+                    return firstIsPrevious ? 1 : -1;
+                }
+
+                if (statusFilter === "previous" || (firstIsPrevious && secondIsPrevious)) {
+                    return secondTime - firstTime;
+                }
+
+                return firstTime - secondTime;
+            });
+    }, [events, endDate, searchTerm, startDate, statusFilter]);
+
+    const emptyTitle = statusFilter === "previous"
+        ? "No previous projects found"
+        : statusFilter === "all"
+            ? "No projects found"
+            : "No upcoming projects just yet";
+
+    const emptyDescription = searchTerm || startDate || endDate || statusFilter !== "upcoming"
+        ? "Try adjusting your search or filters to find another community initiative."
+        : "We are preparing our next set of community initiatives. Check back soon or learn more about what we do.";
+
     return (
         <Guest>
             <div className="w-full h-auto pt-32 px-4 pb-20">
 
                 {/* HEADER */}
-                <div className="flex flex-col items-center text-center gap-2">
-                    <h1 className="text-3xl font-bold chewy text-orange-600">Our Upcoming Projects</h1>
+                <div className="max-w-[1200px] mx-auto flex flex-col items-start text-left gap-2">
+                    <h1 className="w-full text-center text-3xl font-bold chewy text-orange-600">Our Projects</h1>
 
-                    <p className="text-sm md:text-base text-gray-600 max-w-[650px]">
+                    <p className="w-full text-center text-sm md:text-base text-gray-600 max-w-[650px] mx-auto">
                         Stay informed about our latest activities and initiatives. These events are dedicated to 
                         empowering and supporting women in our community.
                     </p>
 
-                    {/* SEARCH BAR */}
-                    <div className="w-full max-w-[650px] flex items-center mt-4 shadow-sm bg-white border border-gray-200 rounded-md overflow-hidden">
-                        <div className="bg-orange-500 p-3 flex items-center justify-center">
-                            <Search size={20} className="text-white" />
+                    {/* SEARCH AND FILTERS */}
+                    <div className="w-full mt-4 flex flex-wrap items-end gap-3 rounded-md ">
+                        <div className="flex w-full max-w-[420px] items-center overflow-hidden rounded-md border border-gray-200 bg-white">
+                            <div className="bg-orange-500 p-2 flex items-center justify-center">
+                                <Search size={20} className="text-white" />
+                            </div>
+                            <input 
+                                type="text" 
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="bg-white px-4 py-2 text-sm w-full outline-none placeholder:text-xs"
+                                placeholder="Search for projects..."
+                            />
                         </div>
-                        <input 
-                            type="text" 
-                            value={searchTerm}
-                            onChange={(e) => setSearchTerm(e.target.value)}
-                            className="bg-white px-4 py-3 text-sm w-full outline-none placeholder:text-xs"
-                            placeholder="Search for projects..."
-                        />
+
+                        <label className="flex flex-col gap-1 text-xs font-semibold text-gray-600">
+                            Status
+                            <select
+                                value={statusFilter}
+                                onChange={(event) => setStatusFilter(event.target.value)}
+                                className="min-w-[150px] rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-700 outline-none focus:border-orange-500"
+                            >
+                                <option value="upcoming">Upcoming</option>
+                                <option value="previous">Previous</option>
+                                <option value="all">All projects</option>
+                            </select>
+                        </label>
+
+                        <label className="flex flex-col gap-1 text-xs font-semibold text-gray-600">
+                            Start date
+                            <input
+                                type="date"
+                                value={startDate}
+                                onChange={(event) => setStartDate(event.target.value)}
+                                className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-700 outline-none focus:border-orange-500"
+                            />
+                        </label>
+
+                        <label className="flex flex-col gap-1 text-xs font-semibold text-gray-600">
+                            End date
+                            <input
+                                type="date"
+                                value={endDate}
+                                min={startDate || undefined}
+                                onChange={(event) => setEndDate(event.target.value)}
+                                className="rounded-md border border-gray-200 bg-white px-3 py-2 text-sm font-normal text-gray-700 outline-none focus:border-orange-500"
+                            />
+                        </label>
+
+                        {(searchTerm || startDate || endDate || statusFilter !== "upcoming") && (
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setSearchTerm("");
+                                    setStartDate("");
+                                    setEndDate("");
+                                    setStatusFilter("upcoming");
+                                }}
+                                className="rounded-md border border-gray-200 px-4 py-2 text-sm text-gray-700 hover:border-orange-500 hover:text-orange-600 transition"
+                            >
+                                Clear filters
+                            </button>
+                        )}
                     </div>
                 </div>
 
@@ -90,16 +215,16 @@ const EventsList = () => {
                     )}
 
                     {/* Empty State */}
-                    {!loading && events.length === 0 && (
+                    {!loading && visibleEvents.length === 0 && (
                         <div className="col-span-full">
                             <div className="max-w-xl mx-auto bg-white border border-orange-100 shadow-sm rounded-2xl p-8 text-center flex flex-col items-center gap-4">
                                 <div className="w-14 h-14 rounded-full bg-orange-50 text-orange-500 flex items-center justify-center">
                                     <CalendarX2 size={28} />
                                 </div>
                                 <div className="space-y-2">
-                                    <h3 className="text-lg font-semibold text-gray-800">No upcoming projects just yet</h3>
+                                    <h3 className="text-lg font-semibold text-gray-800">{emptyTitle}</h3>
                                     <p className="text-sm text-gray-600">
-                                        We are preparing our next set of community initiatives. Check back soon or learn more about what we do.
+                                        {emptyDescription}
                                     </p>
                                 </div>
                                 <div className="flex flex-wrap items-center justify-center gap-3">
@@ -121,7 +246,7 @@ const EventsList = () => {
                     )}
 
                     {/* EVENTS */}
-                    {!loading && events.map((event) => (
+                    {!loading && visibleEvents.map((event) => (
                         <div
                             key={event.id}
                             className="h-fit bg-white rounded-lg shadow-md overflow-hidden flex flex-col hover:shadow-lg hover:-translate-y-1 transition-all duration-200"

@@ -369,7 +369,12 @@ const Portal = () => {
                                                         {project.date} {project.time ? `â€¢ ${project.time}` : ""}
                                                     </span>
                                                     <div className="flex flex-wrap items-center justify-end gap-2">
-                                                        {canProjectAcceptVolunteers(project) && <VolunteerButton project={project} />}
+                                                        {canProjectAcceptVolunteers(project) && (
+                                                            <VolunteerButton
+                                                                project={project}
+                                                                onEditProfile={() => setActiveTab('profile')}
+                                                            />
+                                                        )}
                                                         <ProjectShareButton
                                                             title={project.title}
                                                             description={project.description}

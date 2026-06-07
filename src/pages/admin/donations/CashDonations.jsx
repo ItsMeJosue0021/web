@@ -168,8 +168,9 @@ const CashDonationsAdmin = () => {
     }, [search, year, month]);
 
     const listSummary = useMemo(() => {
-        const total = donations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
-        const approved = donations.filter((d) => d.status === "approved").length;
+        const approvedDonations = donations.filter((d) => d.status === "approved");
+        const total = approvedDonations.reduce((sum, d) => sum + (Number(d.amount) || 0), 0);
+        const approved = approvedDonations.length;
         const pending = donations.filter((d) => d.status !== "approved").length;
         return { total, approved, pending };
     }, [donations]);

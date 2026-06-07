@@ -157,14 +157,6 @@ const VolunteerRequests = () => {
                                                     >
                                                         {actionLoading.id === row.id && actionLoading.action === 'approve' ? "Processing.." : "Approve"}
                                                     </button>
-                                                
-                                                    <button
-                                                        onClick={() => handleAction(row.id, 'reject')}
-                                                        disabled={actionLoading.id === row.id}
-                                                        className="text-[10px] px-3 py-0 text-white bg-red-500 rounded disabled:opacity-60"
-                                                    >
-                                                        {actionLoading.id === row.id && actionLoading.action === 'reject' ? "Processing.." : "Reject"}
-                                                    </button>
                                                 </div>
                                             )}
                                         </td>

@@ -30,6 +30,9 @@ const Expenses = () => {
     const [printUrl, setPrintUrl] = useState("");
     const [printFilename, setPrintFilename] = useState("");
     const [printLoading, setPrintLoading] = useState(false);
+    const [isBalanceHistoryOpen, setIsBalanceHistoryOpen] = useState(false);
+    const [balanceHistory, setBalanceHistory] = useState([]);
+    const [balanceHistoryLoading, setBalanceHistoryLoading] = useState(false);
 
     // add modal states
     const [form, setForm] = useState({
@@ -111,6 +114,24 @@ const Expenses = () => {
             console.log(error);
         }
     }
+
+    const fetchBalanceHistory = async () => {
+        setBalanceHistoryLoading(true);
+        try {
+            const response = await _get('/expenditures/balance-history');
+            setBalanceHistory(response.data.history || []);
+        } catch (error) {
+            console.log(error);
+            toast.error("Unable to load balance history.");
+        } finally {
+            setBalanceHistoryLoading(false);
+        }
+    };
+
+    const openBalanceHistory = () => {
+        setIsBalanceHistoryOpen(true);
+        fetchBalanceHistory();
+    };
 
     // delete expense
     const deleteExpense = async (id) => {
@@ -431,6 +452,7 @@ const Expenses = () => {
                         value={formatCurrency((totals.totalMonetaryDonations || 0) - (totals.totalExpenses || 0))}
                         sub="Donations - expenses"
                         accent="amber"
+                        onClick={openBalanceHistory}
                     />
                 </div>
                 <div className="bg-white p-4 rounded-lg border border-gray-100 shadow-sm flex flex-col gap-4">
@@ -1142,6 +1164,79 @@ const Expenses = () => {
                     </ModalContainer>
                 )}
 
+                {isBalanceHistoryOpen && (
+                    <ModalContainer isFull={false} close={() => setIsBalanceHistoryOpen(false)}>
+                        <div className="w-full md:w-[900px] max-h-[75vh] rounded-xl bg-white p-5 flex flex-col gap-4">
+                            <div className="flex items-start justify-between gap-3">
+                                <div>
+                                    <p className="text-lg font-semibold text-orange-600">Net Balance History</p>
+                                    <p className="text-xs text-gray-500">
+                                        Approved cash donations, paid GCash donations, and recorded project expenses ordered by date.
+                                    </p>
+                                </div>
+                                <button
+                                    type="button"
+                                    onClick={() => setIsBalanceHistoryOpen(false)}
+                                    className="text-xs px-3 py-2 rounded border border-gray-200 text-gray-600 hover:bg-gray-50"
+                                >
+                                    Close
+                                </button>
+                            </div>
+
+                            <div className="rounded-lg border border-gray-100 overflow-hidden">
+                                <div className="grid grid-cols-[120px_110px_minmax(0,1fr)_150px] gap-3 bg-orange-500 px-4 py-3 text-[11px] font-semibold uppercase text-white">
+                                    <p>Date</p>
+                                    <p>Type</p>
+                                    <p>Details</p>
+                                    <p className="text-right">Amount</p>
+                                </div>
+
+                                <div className="max-h-[52vh] overflow-y-auto">
+                                    {balanceHistoryLoading ? (
+                                        <div className="flex justify-center py-10">
+                                            <CircularLoading customClass="text-blue-500 w-6 h-6" />
+                                        </div>
+                                    ) : balanceHistory.length === 0 ? (
+                                        <div className="p-6 text-center text-xs text-gray-500">
+                                            No money history found.
+                                        </div>
+                                    ) : (
+                                        balanceHistory.map((entry) => (
+                                            <div
+                                                key={entry.id}
+                                                className="grid grid-cols-[120px_110px_minmax(0,1fr)_150px] gap-3 border-t border-gray-100 px-4 py-3 text-xs"
+                                            >
+                                                <p className="text-gray-600">{entry.date || "-"}</p>
+                                                <div>
+                                                    <span className={`rounded-full px-2 py-1 text-[10px] font-semibold ${
+                                                        entry.type === "income"
+                                                            ? "bg-green-50 text-green-600"
+                                                            : "bg-red-50 text-red-600"
+                                                    }`}>
+                                                        {entry.type === "income" ? "Received" : "Used"}
+                                                    </span>
+                                                </div>
+                                                <div className="min-w-0">
+                                                    <p className="font-semibold text-gray-800 truncate">{entry.source}</p>
+                                                    <p className="text-gray-500 truncate">{entry.description || "-"}</p>
+                                                    {entry.tracking_number && (
+                                                        <p className="text-[11px] text-gray-400 truncate">{entry.tracking_number}</p>
+                                                    )}
+                                                </div>
+                                                <p className={`text-right font-semibold ${
+                                                    entry.type === "income" ? "text-green-600" : "text-red-600"
+                                                }`}>
+                                                    {entry.type === "income" ? "+" : "-"}{formatCurrency(entry.amount)}
+                                                </p>
+                                            </div>
+                                        ))
+                                    )}
+                                </div>
+                            </div>
+                        </div>
+                    </ModalContainer>
+                )}
+
             </div>
         </Admin>
     )
@@ -1156,10 +1251,17 @@ const accentClasses = {
     purple: { text: "text-purple-600", bg: "bg-purple-50" },
 };
 
-const SummaryCard = ({ label, value, sub, accent = "blue" }) => {
+const SummaryCard = ({ label, value, sub, accent = "blue", onClick }) => {
     const colors = accentClasses[accent] || accentClasses.blue;
+    const Component = onClick ? "button" : "div";
     return (
-        <div className="bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-3">
+        <Component
+            type={onClick ? "button" : undefined}
+            onClick={onClick}
+            className={`bg-white border border-gray-100 shadow-sm rounded-xl p-4 flex items-center gap-3 text-left ${
+                onClick ? "hover:border-orange-200 hover:shadow-md transition cursor-pointer" : ""
+            }`}
+        >
             <div className={`w-12 h-12 rounded-lg ${colors.bg} flex items-center justify-center`}>
                 <Coins className={`${colors.text}`} size={20} />
             </div>
@@ -1168,7 +1270,7 @@ const SummaryCard = ({ label, value, sub, accent = "blue" }) => {
                 <p className={`text-xl font-bold ${colors.text}`}>{value}</p>
                 {sub && <p className="text-[11px] text-gray-500">{sub}</p>}
             </div>
-        </div>
+        </Component>
     );
 };
 

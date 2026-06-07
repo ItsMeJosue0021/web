@@ -978,6 +978,11 @@ const Projects = () => {
         }));
     };
 
+    const getCashLiquidationDate = () => {
+        const fallbackDate = new Date().toISOString().slice(0, 10);
+        return cashLiquidationForm.date_used || liquidateProject?.date || fallbackDate;
+    };
+
     const handleItemSearchChange = (value) => {
         setItemSearch(value);
         fetchInventoryItems({ search: value, categoryId: itemCategory, subCategoryId: itemSubCategory });
@@ -1093,9 +1098,6 @@ const Projects = () => {
         } else if (cashLiquidationMaxAmount !== null && parsedAmount > cashLiquidationMaxAmount) {
             validation.amount = `Amount cannot exceed the max amount of ${formatCashAmount(cashLiquidationMaxAmount)}.`;
         }
-        if (!cashLiquidationForm.date_used) {
-            validation.date_used = "Date used is required.";
-        }
         if (!cashLiquidationForm.point_person.trim()) {
             validation.point_person = "Point person is required.";
         }
@@ -1107,10 +1109,11 @@ const Projects = () => {
 
         const buildCashFormData = () => {
             const formData = new FormData();
+            const cashLiquidationDate = getCashLiquidationDate();
             formData.append("amount", `${parsedAmount}`);
-            formData.append("date_used", cashLiquidationForm.date_used);
-            formData.append("used_at", cashLiquidationForm.date_used);
-            formData.append("date", cashLiquidationForm.date_used);
+            formData.append("date_used", cashLiquidationDate);
+            formData.append("used_at", cashLiquidationDate);
+            formData.append("date", cashLiquidationDate);
             formData.append("point_person", cashLiquidationForm.point_person.trim());
             formData.append("person_responsible", cashLiquidationForm.point_person.trim());
             if (cashLiquidationForm.receipt) {
@@ -1899,21 +1902,6 @@ const Projects = () => {
                                     )}
                                     {cashLiquidationErrors.amount && (
                                         <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.amount)}</p>
-                                    )}
-                                </div>
-
-                                <div className="flex flex-col gap-1">
-                                    <label className="text-[11px] text-gray-600">Date Money Was Used</label>
-                                    <input
-                                        type="date"
-                                        value={cashLiquidationForm.date_used}
-                                        onChange={(e) =>
-                                            setCashLiquidationForm((prev) => ({ ...prev, date_used: e.target.value }))
-                                        }
-                                        className="w-full bg-white px-3 py-2 rounded border border-gray-200 text-xs"
-                                    />
-                                    {cashLiquidationErrors.date_used && (
-                                        <p className="text-[11px] text-red-500">{getFieldErrorMessage(cashLiquidationErrors.date_used)}</p>
                                     )}
                                 </div>
 

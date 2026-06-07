@@ -6,7 +6,7 @@ import { _post } from "../../api";
 import { AuthContext } from "../../AuthProvider";
 import SuccesAlert from "../alerts/SuccesAlert";
 
-const VolunteerButton = ({ project }) => {
+const VolunteerButton = ({ project, onEditProfile }) => {
     const formatUserAddress = (address = {}, emptyFallback = "Not provided") => {
         const parts = [
             address.block,
@@ -150,6 +150,18 @@ const VolunteerButton = ({ project }) => {
                                         <p><span className="font-medium">Address:</span> {formatUserAddress(user.address)}</p>
                                     </div>
                                     <div className="flex justify-end gap-3 pt-2">
+                                        {onEditProfile && (
+                                            <button
+                                                type="button"
+                                                onClick={() => {
+                                                    setIsFormOpen(false);
+                                                    onEditProfile();
+                                                }}
+                                                className="px-4 py-2 text-xs rounded-md border border-orange-200 bg-orange-50 text-orange-600 hover:bg-orange-100"
+                                            >
+                                                Edit Profile
+                                            </button>
+                                        )}
                                         <button
                                             type="button"
                                             onClick={() => setIsFormOpen(false)}

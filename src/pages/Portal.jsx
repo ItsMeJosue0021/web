@@ -113,6 +113,7 @@ const Portal = () => {
     }, []);
 
     const fetchVolunteerRequests = async () => {
+        if (!user?.id) return;
         setRequestsLoading(true);
         try {
             const response = await _get(`/volunteering-requests/by-user/${user.id}`);
@@ -125,10 +126,23 @@ const Portal = () => {
     }
 
     useEffect(() => {
+        if (user?.id) {
+            fetchVolunteerRequests();
+        }
+    }, [user?.id]);
+
+    useEffect(() => {
         if (activeTab === 'requests') {
             fetchVolunteerRequests();
         }
     }, [activeTab]);
+
+    const hasSubmittedVolunteerRequest = (projectId) => {
+        return requests.some((request) => {
+            const requestProjectId = request?.project_id ?? request?.project?.id;
+            return `${requestProjectId}` === `${projectId}`;
+        });
+    };
 
 
     const handleImageClick = (url) => {
@@ -372,6 +386,8 @@ const Portal = () => {
                                                         {canProjectAcceptVolunteers(project) && (
                                                             <VolunteerButton
                                                                 project={project}
+                                                                alreadyRequested={hasSubmittedVolunteerRequest(project.id)}
+                                                                onSubmitted={fetchVolunteerRequests}
                                                                 onEditProfile={() => setActiveTab('profile')}
                                                             />
                                                         )}

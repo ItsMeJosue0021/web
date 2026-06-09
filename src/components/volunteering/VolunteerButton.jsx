@@ -1,4 +1,4 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { createPortal } from "react-dom";
 import { Link } from "react-router-dom";
 import ModalContainer from "../ModalContainer";
@@ -6,7 +6,7 @@ import { _post } from "../../api";
 import { AuthContext } from "../../AuthProvider";
 import SuccesAlert from "../alerts/SuccesAlert";
 
-const VolunteerButton = ({ project, onEditProfile }) => {
+const VolunteerButton = ({ project, onEditProfile, alreadyRequested = false, onSubmitted }) => {
     const formatUserAddress = (address = {}, emptyFallback = "Not provided") => {
         const parts = [
             address.block,
@@ -27,6 +27,7 @@ const VolunteerButton = ({ project, onEditProfile }) => {
     const [isFormOpen, setIsFormOpen] = useState(false);
     const [showSuccessModal, setShowSuccessModal] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [slotsFull, setSlotsFull] = useState(Boolean(project?.volunteer_slots_full));
     const [formData, setFormData] = useState({
         firstName: "",
         middleName: "",
@@ -37,6 +38,13 @@ const VolunteerButton = ({ project, onEditProfile }) => {
     });
     const [errors, setErrors] = useState({});
     const { user } = useContext(AuthContext);
+    const isSlotsFull = slotsFull || Boolean(project?.volunteer_slots_full);
+    const isAlreadyRequested = Boolean(alreadyRequested);
+    const isDisabled = isSlotsFull || isAlreadyRequested;
+
+    useEffect(() => {
+        setSlotsFull(Boolean(project?.volunteer_slots_full));
+    }, [project?.volunteer_slots_full]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -48,6 +56,16 @@ const VolunteerButton = ({ project, onEditProfile }) => {
         e?.preventDefault();
 
         setErrors({});
+        if (isAlreadyRequested) {
+            setErrors({ form: "You already submitted a volunteer request for this project." });
+            return;
+        }
+
+        if (isSlotsFull) {
+            setErrors({ form: "Volunteer slots are already full for this project." });
+            return;
+        }
+
         if (!project) {
             setErrors({ form: "Project information is missing. Please try again later." });
             return;
@@ -76,6 +94,7 @@ const VolunteerButton = ({ project, onEditProfile }) => {
             await _post(`/projects/${project.id}/volunteer`, payload);
             setIsFormOpen(false);
             setShowSuccessModal(true);
+            onSubmitted?.(project.id);
                 setFormData({
                     firstName: "",
                     middleName: "",
@@ -104,9 +123,18 @@ const VolunteerButton = ({ project, onEditProfile }) => {
                         : String(messages);
                 });
                 const firstMessage = Object.values(formattedErrors).find(Boolean);
+                if (`${firstMessage ?? ""}`.toLowerCase().includes("slot")) {
+                    setSlotsFull(true);
+                    setIsFormOpen(false);
+                }
                 setErrors(firstMessage ? { ...formattedErrors, form: firstMessage } : formattedErrors);
             } else {
-                setErrors({ form: "Something went wrong. Please try again." });
+                const message = error?.response?.data?.message || "Something went wrong. Please try again.";
+                if (`${message}`.toLowerCase().includes("slot")) {
+                    setSlotsFull(true);
+                    setIsFormOpen(false);
+                }
+                setErrors({ form: message });
             }
         } finally {
             setIsSubmitting(false);
@@ -117,9 +145,19 @@ const VolunteerButton = ({ project, onEditProfile }) => {
     return (
         <div className="flex">
             <button 
-                onClick={() => setIsFormOpen(!isFormOpen)}
-                className="w-fit bg-blue-600 hover:bg-blue-700 text-white text-xs px-4 py-1 rounded-md">
-                Volunteer
+                type="button"
+                disabled={isDisabled}
+                onClick={() => {
+                    if (!isDisabled) {
+                        setIsFormOpen(!isFormOpen);
+                    }
+                }}
+                className={`w-fit text-white text-xs px-4 py-1 rounded-md ${
+                    isDisabled
+                        ? "bg-gray-300 cursor-not-allowed"
+                        : "bg-blue-600 hover:bg-blue-700"
+                }`}>
+                {isSlotsFull ? "Slots Full" : isAlreadyRequested ? "Submitted" : "Volunteer"}
             </button>
 
             {isFormOpen && (

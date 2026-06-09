@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, useRef } from "react";
-import { _get, _put } from "../../../api";
+import { _get } from "../../../api";
 import Admin from "../../../layouts/Admin";
 import Logo from "../../../components/Logo";
 import { AnimatePresence, motion } from "framer-motion";
@@ -15,8 +15,6 @@ const GoodsDonationsAdmin = () => {
     const [year, setYear] = useState("");
     const [month, setMonth] = useState("");
     const [loading, setLoading] = useState(true);
-    const [editingCell, setEditingCell] = useState({ id: null, field: null });
-    const [updatingCell, setUpdatingCell] = useState({ id: null, field: null });
 
     // reports
     const [isReportView, setIsReportView] = useState(false);
@@ -113,42 +111,6 @@ const GoodsDonationsAdmin = () => {
         } finally {
             setLoading(false);
         }
-    };
-
-    const updateDonation = async (id, payload) => {
-        try {
-            await _put(`/goods-donations/${id}/name-description`, payload);
-        } catch (error) {
-            console.error("Error updating donation:", error);
-        }
-    };
-
-    const isEditing = (id, field) =>
-        editingCell.id === id && editingCell.field === field;
-
-    const isUpdating = (id, field) =>
-        updatingCell.id === id && updatingCell.field === field;
-
-    const handleEditStart = (id, field) => {
-        setEditingCell({ id, field });
-    };
-
-    const handleEditChange = (id, field, value) => {
-        setDonations((prev) =>
-            prev.map((donation) =>
-                donation.id === id ? { ...donation, [field]: value } : donation
-            )
-        );
-    };
-
-    const handleEditBlur = async (donation, field) => {
-        setEditingCell({ id: null, field: null });
-        setUpdatingCell({ id: donation.id, field });
-        await updateDonation(donation.id, {
-            name: donation.name ?? "",
-            description: donation.description ?? ""
-        });
-        setUpdatingCell({ id: null, field: null });
     };
 
     const openItemizerModal = (donation) => {
@@ -305,35 +267,10 @@ const GoodsDonationsAdmin = () => {
                                         </td>
 
                                         <td className="p-2">
-                                            {isEditing(donation.id, "name") ? (
-                                                <input
-                                                    type="text"
-                                                    value={donation.name ?? ""}
-                                                    onChange={(e) =>
-                                                        handleEditChange(donation.id, "name", e.target.value)
-                                                    }
-                                                    onBlur={() => handleEditBlur(donation, "name")}
-                                                    onKeyDown={(e) => {
-                                                        if (e.key === "Enter") e.currentTarget.blur();
-                                                    }}
-                                                    className="w-full bg-white border border-gray-200 rounded px-2 py-1 text-xs"
-                                                    autoFocus
-                                                />
-                                            ) : isUpdating(donation.id, "name") ? (
-                                                <span className="text-[11px] text-gray-500">Updating...</span>
-                                            ) : (
-                                                <button
-                                                    type="button"
-                                                    onClick={() => handleEditStart(donation.id, "name")}
-                                                    className="w-full text-left bg-white"
-                                                    title="Click to edit"
-                                                >
-                                                    {donation.name || (
-                                                        <span className="px-2 py-1 rounded bg-gray-100 text-gray-600">
-                                                            Anonymous
-                                                        </span>
-                                                    )}
-                                                </button>
+                                            {donation.name || (
+                                                <span className="px-2 py-1 rounded bg-gray-100 text-gray-600">
+                                                    Anonymous
+                                                </span>
                                             )}
                                         </td>
 

@@ -159,6 +159,7 @@ const Projects = () => {
     const [description, setDescription] = useState("");
     const [location, setLocation] = useState("");
     const [date, setDate] = useState("");
+    const [maxVolunteers, setMaxVolunteers] = useState("");
     const [image, setImage] = useState(null);
     const [isEvent, setIsEvent] = useState(false);
     const [projectFormLoading, setProjectFormLoading] = useState(false);
@@ -352,6 +353,7 @@ const Projects = () => {
         setDescription("");
         setLocation("");
         setDate("");
+        setMaxVolunteers("");
         setImage(null);
         setIsEvent(false);
         setProposedResources([]);
@@ -596,6 +598,7 @@ const Projects = () => {
         setDescription(project.description || "");
         setLocation(project.location || "");
         setDate(project.date || "");
+        setMaxVolunteers(project.max_volunteers ? `${project.max_volunteers}` : "");
         setIsEvent(project.is_event == 1);
         setShowEditProjectModal(true);
         setProjectFormLoading(true);
@@ -607,6 +610,7 @@ const Projects = () => {
             setDescription(projectDetail.description || project.description || "");
             setLocation(projectDetail.location || project.location || "");
             setDate(projectDetail.date || project.date || "");
+            setMaxVolunteers(projectDetail.max_volunteers ? `${projectDetail.max_volunteers}` : "");
             setIsEvent(projectDetail.is_event == 1);
             setProposedResources(
                 Array.isArray(projectDetail.proposed_resources)
@@ -708,6 +712,7 @@ const Projects = () => {
         formData.append("description", description);
         formData.append("location", location);
         formData.append("date", date);
+        formData.append("max_volunteers", maxVolunteers);
         formData.append("is_event", isEvent ? "1" : "0");
         formData.append("sync_proposed_resources", "1");
         appendProposedResourcesToFormData(formData);
@@ -741,6 +746,7 @@ const Projects = () => {
         formData.append("description", description);
         formData.append("location", location);
         formData.append("date", date);
+        formData.append("max_volunteers", maxVolunteers);
         formData.append("is_event", isEvent ? "1" : "0");
         formData.append("sync_proposed_resources", "1");
         appendProposedResourcesToFormData(formData);
@@ -753,9 +759,14 @@ const Projects = () => {
             clearForm();
             setShowEditProjectModal(false);
             toast.success("Project updated successfully!");
+            setValidationErrors({});
         } catch (error) {
             console.error("Error updating project:", error);
-            toast.error("Error updating project.");
+            if (error.response?.data?.errors) {
+                setValidationErrors(error.response.data.errors);
+            } else {
+                toast.error("Error updating project.");
+            }
         } finally {
             setIsUpdatingProject(false);
         }
@@ -2133,7 +2144,22 @@ const Projects = () => {
                                         )}
                                     </div>
 
-                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Max Volunteers</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={maxVolunteers}
+                                            onChange={(e) => setMaxVolunteers(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 max-h-10 h-10 py-2 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="No limit"
+                                        />
+                                        {validationErrors.max_volunteers && (
+                                            <p className="text-xs text-red-500">{validationErrors.max_volunteers[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
                                         <label className="text-xs font-medium text-gray-700">Image</label>
                                         <input
                                             type="file"
@@ -2432,7 +2458,22 @@ const Projects = () => {
                                         )}
                                     </div>
 
-                                    <div className="flex flex-col gap-1 md:col-span-2">
+                                    <div className="flex flex-col gap-1">
+                                        <label className="text-xs font-medium text-gray-700">Max Volunteers</label>
+                                        <input
+                                            type="number"
+                                            min="1"
+                                            value={maxVolunteers}
+                                            onChange={(e) => setMaxVolunteers(e.target.value)}
+                                            className="bg-white border border-gray-200 px-3 py-2 max-h-10 h-10 text-xs rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-100"
+                                            placeholder="No limit"
+                                        />
+                                        {validationErrors.max_volunteers && (
+                                            <p className="text-xs text-red-500">{validationErrors.max_volunteers[0]}</p>
+                                        )}
+                                    </div>
+
+                                    <div className="flex flex-col gap-1">
                                         <label className="text-xs font-medium text-gray-700">Image</label>
                                         <input
                                             type="file"

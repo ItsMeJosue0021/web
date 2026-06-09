@@ -1,23 +1,156 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { _post } from "../../api";
 import { X } from "lucide-react";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+
+const PSGC_API_BASE = "https://psgc.cloud/api/v2";
+
+const normalizePsgcCollection = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.results)) return payload.results;
+    return [];
+};
+
+const getPsgcCode = (item) => item?.code || item?.psgc_code || item?.id || "";
+const getPsgcName = (item) => item?.name || item?.official_name || "";
 
 const UpdateProfileModal = ({ data, setModal, onSave }) => {
     const [saving, setSaving] = useState(false);
     const [errors, setErrors] = useState([]);
+    const [provinces, setProvinces] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [barangays, setBarangays] = useState([]);
+    const [locationsLoading, setLocationsLoading] = useState({
+        provinces: false,
+        cities: false,
+        barangays: false,
+    });
+    const [locationError, setLocationError] = useState("");
     const [profileData, setProfileData] = useState({
         username: data.username || '',
         email: data.email || '',
         contactNo: data.contactNumber || '',
-        block: data.address?.block || '',
-        lot: data.address?.lot || '',
-        street: data.address?.street || '',
-        subdivision: data.address?.subdivision || '',
+        addressLine: [
+            data.address?.block,
+            data.address?.lot,
+            data.address?.street,
+            data.address?.subdivision,
+        ].filter(Boolean).join(', '),
+        provinceCode: '',
+        cityCode: '',
+        barangayCode: '',
         barangay: data.address?.barangay || '',
         city: data.address?.city || '',
         province: data.address?.province || ''
     });
+
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            setLocationsLoading((prev) => ({ ...prev, provinces: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/provinces?per_page=100`);
+                const payload = await response.json();
+                setProvinces(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load provinces:", error);
+                setLocationError("Unable to load Philippine address options. You can still save your current profile details.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, provinces: false }));
+            }
+        };
+
+        fetchProvinces();
+    }, []);
+
+    useEffect(() => {
+        if (!profileData.province || profileData.provinceCode || provinces.length === 0) return;
+
+        const matchedProvince = provinces.find((province) =>
+            getPsgcName(province).toLowerCase() === profileData.province.toLowerCase()
+        );
+
+        if (matchedProvince) {
+            setProfileData((prev) => ({ ...prev, provinceCode: getPsgcCode(matchedProvince) }));
+        }
+    }, [profileData.province, profileData.provinceCode, provinces]);
+
+    useEffect(() => {
+        if (!profileData.provinceCode) {
+            setCities([]);
+            return;
+        }
+
+        const fetchCities = async () => {
+            setLocationsLoading((prev) => ({ ...prev, cities: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/provinces/${encodeURIComponent(profileData.provinceCode)}/cities-municipalities?per_page=500`);
+                const payload = await response.json();
+                setCities(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load cities/municipalities:", error);
+                setLocationError("Unable to load cities or municipalities for the selected province.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, cities: false }));
+            }
+        };
+
+        fetchCities();
+    }, [profileData.provinceCode]);
+
+    useEffect(() => {
+        if (!profileData.city || profileData.cityCode || cities.length === 0) return;
+
+        const matchedCity = cities.find((city) =>
+            getPsgcName(city).toLowerCase() === profileData.city.toLowerCase()
+        );
+
+        if (matchedCity) {
+            setProfileData((prev) => ({ ...prev, cityCode: getPsgcCode(matchedCity) }));
+        }
+    }, [cities, profileData.city, profileData.cityCode]);
+
+    useEffect(() => {
+        if (!profileData.cityCode) {
+            setBarangays([]);
+            return;
+        }
+
+        const fetchBarangays = async () => {
+            setLocationsLoading((prev) => ({ ...prev, barangays: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/cities-municipalities/${encodeURIComponent(profileData.cityCode)}/barangays?per_page=1000`);
+                const payload = await response.json();
+                setBarangays(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load barangays:", error);
+                setLocationError("Unable to load barangays for the selected city or municipality.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, barangays: false }));
+            }
+        };
+
+        fetchBarangays();
+    }, [profileData.cityCode]);
+
+    useEffect(() => {
+        if (!profileData.barangay || profileData.barangayCode || barangays.length === 0) return;
+
+        const matchedBarangay = barangays.find((barangay) =>
+            getPsgcName(barangay).toLowerCase() === profileData.barangay.toLowerCase()
+        );
+
+        if (matchedBarangay) {
+            setProfileData((prev) => ({ ...prev, barangayCode: getPsgcCode(matchedBarangay) }));
+        }
+    }, [barangays, profileData.barangay, profileData.barangayCode]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -27,10 +160,58 @@ const UpdateProfileModal = ({ data, setModal, onSave }) => {
         }));
     };
 
+    const handleProvinceChange = (e) => {
+        const selectedProvince = provinces.find((province) => getPsgcCode(province) === e.target.value);
+        setProfileData((prev) => ({
+            ...prev,
+            provinceCode: e.target.value,
+            province: selectedProvince ? getPsgcName(selectedProvince) : "",
+            cityCode: "",
+            barangayCode: "",
+            city: "",
+            barangay: "",
+        }));
+        setCities([]);
+        setBarangays([]);
+    };
+
+    const handleCityChange = (e) => {
+        const selectedCity = cities.find((city) => getPsgcCode(city) === e.target.value);
+        setProfileData((prev) => ({
+            ...prev,
+            cityCode: e.target.value,
+            city: selectedCity ? getPsgcName(selectedCity) : "",
+            barangayCode: "",
+            barangay: "",
+        }));
+        setBarangays([]);
+    };
+
+    const handleBarangayChange = (e) => {
+        const selectedBarangay = barangays.find((barangay) => getPsgcCode(barangay) === e.target.value);
+        setProfileData((prev) => ({
+            ...prev,
+            barangayCode: e.target.value,
+            barangay: selectedBarangay ? getPsgcName(selectedBarangay) : "",
+        }));
+    };
+
     const handleSave = async () => {
         setSaving(true);    
         try {
-            await _post(`/users/profile-update/${data.id}`, profileData);
+            const payload = {
+                ...profileData,
+                block: "",
+                lot: "",
+                street: profileData.addressLine,
+                subdivision: "",
+            };
+            delete payload.addressLine;
+            delete payload.provinceCode;
+            delete payload.cityCode;
+            delete payload.barangayCode;
+
+            await _post(`/users/profile-update/${data.id}`, payload);
             onSave();
             setErrors([]);
             setModal(prev => ({...prev, updateProfileInfo: false}));
@@ -126,107 +307,91 @@ const UpdateProfileModal = ({ data, setModal, onSave }) => {
                         <div className='mt-2 flex flex-col gap-3'>
                             <p className='text-xs font-semibold text-gray-700'>Address</p>
                             <div className='grid grid-cols-2 md:grid-cols-4 gap-3'>
-                                <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Block</label>
-                                    <input 
-                                        type="text" 
+                                <div className='flex flex-col gap-1 col-span-2 md:col-span-4'>
+                                    <label className='text-[11px] text-gray-500'>Address line</label>
+                                    <input
+                                        type="text"
                                         className={inputClass}
-                                        placeholder='Block'
-                                        value={profileData.block}
-                                        name='block'
+                                        placeholder='Block, lot, street, subdivision'
+                                        value={profileData.addressLine}
+                                        name='addressLine'
                                         onChange={handleInputChange}
                                     />
-                                    {errors.block && (
-                                        <span className={errorClass}>{errors.block[0]}</span>
-                                    )}
-                                </div>
-                                <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Lot</label>
-                                    <input 
-                                        type="text" 
-                                        className={inputClass}
-                                        placeholder='Lot'
-                                        value={profileData.lot}
-                                        name='lot'
-                                        onChange={handleInputChange}
-                                    />
-                                    {errors.lot && (
-                                        <span className={errorClass}>{errors.lot[0]}</span>
-                                    )}
-                                </div>
-                                <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Street</label>
-                                    <input 
-                                        type="text" 
-                                        className={inputClass}
-                                        placeholder='Street'
-                                        value={profileData.street}
-                                        name='street'
-                                        onChange={handleInputChange}
-                                    />
-                                    {errors.street && (
-                                        <span className={errorClass}>{errors.street[0]}</span>
-                                    )}
-                                </div>
-                                <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Subdivision</label>
-                                    <input 
-                                        type="text" 
-                                        className={inputClass}
-                                        placeholder='Subdivision'
-                                        value={profileData.subdivision}
-                                        name='subdivision'
-                                        onChange={handleInputChange}
-                                    />
-                                    {errors.subdivision && (
-                                        <span className={errorClass}>{errors.subdivision[0]}</span>
+                                    {(errors.block || errors.lot || errors.street || errors.subdivision) && (
+                                        <span className={errorClass}>
+                                            {errors.block?.[0] || errors.lot?.[0] || errors.street?.[0] || errors.subdivision?.[0]}
+                                        </span>
                                     )}
                                 </div>
                             </div>
                             <div className='grid grid-cols-1 md:grid-cols-3 gap-3'>
                                 <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Barangay</label>
-                                    <input 
-                                        type="text" 
+                                    <label className='text-[11px] text-gray-500'>Province</label>
+                                    <select
                                         className={inputClass}
-                                        placeholder='Barangay'
-                                        value={profileData.barangay}
-                                        name='barangay'
-                                        onChange={handleInputChange}
-                                    />
-                                    {errors.barangay && (
-                                        <span className={errorClass}>{errors.barangay[0]}</span>
+                                        value={profileData.provinceCode}
+                                        onChange={handleProvinceChange}
+                                        disabled={locationsLoading.provinces}
+                                    >
+                                        <option value="">
+                                            {locationsLoading.provinces ? "Loading provinces..." : profileData.province || "Select province"}
+                                        </option>
+                                        {provinces.map((province) => (
+                                            <option key={getPsgcCode(province)} value={getPsgcCode(province)}>
+                                                {getPsgcName(province)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.province && (
+                                        <span className={errorClass}>{errors.province[0]}</span>
                                     )}
                                 </div>
                                 <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>City</label>
-                                    <input 
-                                        type="text" 
+                                    <label className='text-[11px] text-gray-500'>City / Municipality</label>
+                                    <select
                                         className={inputClass}
-                                        placeholder='City'
-                                        value={profileData.city}
-                                        name='city'
-                                        onChange={handleInputChange}
-                                    />
+                                        value={profileData.cityCode}
+                                        onChange={handleCityChange}
+                                        disabled={!profileData.provinceCode || locationsLoading.cities}
+                                    >
+                                        <option value="">
+                                            {locationsLoading.cities ? "Loading cities..." : profileData.city || "Select city or municipality"}
+                                        </option>
+                                        {cities.map((city) => (
+                                            <option key={getPsgcCode(city)} value={getPsgcCode(city)}>
+                                                {getPsgcName(city)}
+                                            </option>
+                                        ))}
+                                    </select>
                                     {errors.city && (
                                         <span className={errorClass}>{errors.city[0]}</span>
                                     )}
                                 </div>
                                 <div className='flex flex-col gap-1'>
-                                    <label className='text-[11px] text-gray-500'>Province</label>
-                                    <input 
-                                        type="text" 
+                                    <label className='text-[11px] text-gray-500'>Barangay</label>
+                                    <select
                                         className={inputClass}
-                                        placeholder='Province'
-                                        value={profileData.province}
-                                        name='province'
-                                        onChange={handleInputChange}
-                                    />
-                                    {errors.province && (
-                                        <span className={errorClass}>{errors.province[0]}</span>
+                                        value={profileData.barangayCode}
+                                        onChange={handleBarangayChange}
+                                        disabled={!profileData.cityCode || locationsLoading.barangays}
+                                    >
+                                        <option value="">
+                                            {locationsLoading.barangays ? "Loading barangays..." : profileData.barangay || "Select barangay"}
+                                        </option>
+                                        {barangays.map((barangay) => (
+                                            <option key={getPsgcCode(barangay)} value={getPsgcCode(barangay)}>
+                                                {getPsgcName(barangay)}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    {errors.barangay && (
+                                        <span className={errorClass}>{errors.barangay[0]}</span>
                                     )}
                                 </div>
                             </div>
+                            {locationError && (
+                                <p className="text-[11px] text-amber-600">{locationError}</p>
+                            )}
                         </div>
                     </div>
 

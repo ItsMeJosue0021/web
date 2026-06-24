@@ -90,7 +90,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
 
         const fetchPendingCounts = async () => {
             const [volunteerRes, membershipRes] = await Promise.allSettled([
-                _get('/volunteering-requests/'),
+                _get('/volunteering-requests'),
                 _get('/membership-requests'),
             ]);
 

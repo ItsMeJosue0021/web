@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import arrowDown from '../assets/icons/down-arrow.png';
+import NavBadge from './NavBadge';
 
 const Dropdown = ({ label, icon: Icon, isOpen, toggle, items, onItemClick }) => (
   <div className="w-full">
@@ -29,11 +30,12 @@ const Dropdown = ({ label, icon: Icon, isOpen, toggle, items, onItemClick }) => 
             to={item.to}
             onClick={onItemClick}
             className="w-full px-4 py-2 border-l-4 border-orange-500
-                       hover:bg-orange-50 group"
+                       hover:bg-orange-50 group flex items-center"
           >
             <p className="text-sm text-black group-hover:text-orange-600">
               {item.label}
             </p>
+            <NavBadge count={item.badgeCount} className="ml-auto" />
           </Link>
         ))}
       </div>

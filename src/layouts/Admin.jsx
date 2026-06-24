@@ -23,9 +23,11 @@ import {
     LogOut
 } from 'lucide-react';
 import NavItem from '../components/NavItem';
+import NavBadge from '../components/NavBadge';
 import Dropdown from '../components/Dropdown';
 import UserProfile from '../components/UserProfile';
 import { AuthContext } from '../AuthProvider';
+import { _get } from '../api';
 import { GrMoney } from "react-icons/gr";
 import { MdOutlineInventory } from "react-icons/md";
 import { RiPassPendingLine } from "react-icons/ri";
@@ -44,6 +46,8 @@ const Admin = ({children, header, breadcrumbs = []}) => {
     const [isDonationOpen, setIsDonationOpen] = useState(false);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isMembershipOpen, setIsMembershipOpen] = useState(false);
+    const [pendingVolunteerCount, setPendingVolunteerCount] = useState(0);
+    const [pendingMembershipCount, setPendingMembershipCount] = useState(0);
 
     const normalizedRole = typeof user?.role === "string" ? user.role : user?.role?.name;
     const isSuperAdmin = normalizedRole === "super-admin";
@@ -75,6 +79,39 @@ const Admin = ({children, header, breadcrumbs = []}) => {
         }
     }, [location.pathname]);
 
+
+    useEffect(() => {
+        let active = true;
+
+        const countPending = (list) =>
+            (Array.isArray(list) ? list : []).filter(
+                (item) => String(item?.status ?? "").toLowerCase() === "pending"
+            ).length;
+
+        const fetchPendingCounts = async () => {
+            const [volunteerRes, membershipRes] = await Promise.allSettled([
+                _get('/volunteering-requests/'),
+                _get('/membership-requests'),
+            ]);
+
+            if (!active) return;
+
+            if (volunteerRes.status === 'fulfilled') {
+                setPendingVolunteerCount(countPending(volunteerRes.value?.data?.requests));
+            }
+            if (membershipRes.status === 'fulfilled') {
+                setPendingMembershipCount(countPending(membershipRes.value?.data?.requests));
+            }
+        };
+
+        fetchPendingCounts();
+        const interval = setInterval(fetchPendingCounts, 60000);
+
+        return () => {
+            active = false;
+            clearInterval(interval);
+        };
+    }, []);
 
     const toggleModal = () => {
         setIsNavOpen(!isNavOpen);
@@ -186,6 +223,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                         label="Volunteer Requests"
                                                         icon={RiPassPendingLine}
                                                         onClick={toggleModal}
+                                                        badgeCount={pendingVolunteerCount}
                                                     />
                                                     <NavItem
                                                         to="/inquiries"
@@ -214,7 +252,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                         toggle={() => setIsMembershipOpen(!isMembershipOpen)}
                                                         items={[
                                                             { to: "/members", label: "Members" },
-                                                            { to: "/membership-requests", label: "Membership Requests" },
+                                                            { to: "/membership-requests", label: "Membership Requests", badgeCount: pendingMembershipCount },
                                                         ]}
                                                         onItemClick={toggleModal}
                                                     />
@@ -384,6 +422,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                                 </Link>
                                                 <Link to="/membership-requests" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/membership-requests" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                                     <p className="text-xs text-black font-medium">Requests</p>
+                                                    <NavBadge count={pendingMembershipCount} className="ml-auto" />
                                                 </Link>
                                             </div>
                                         )}
@@ -394,6 +433,7 @@ const Admin = ({children, header, breadcrumbs = []}) => {
                                         <RiPassPendingLine className="w-5 h-5 text-gray-700" />
                                         </div>
                                         <p className="text-xs font-medium text-black">Volunteers</p>
+                                        <NavBadge count={pendingVolunteerCount} className="ml-auto" />
                                     </Link>
                                     <Link to="/projects" className={`w-full rounded-md flex items-center space-x-2 cursor-pointer h-9 px-2 ${location.pathname === "/projects" ? "bg-gray-100" : "hover:bg-gray-100"}`}>
                                         <div className="flex justify-center w-10">

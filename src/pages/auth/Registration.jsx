@@ -12,12 +12,26 @@ import banner from "../../assets/img/banner.png";
 import activity1 from "../../assets/img/activity1.png";
 import activity2 from "../../assets/img/activity2.png";
 
+const PSGC_API_BASE = "https://psgc.cloud/api/v2";
+
+const normalizePsgcCollection = (payload) => {
+    if (Array.isArray(payload)) return payload;
+    if (Array.isArray(payload?.data)) return payload.data;
+    if (Array.isArray(payload?.items)) return payload.items;
+    if (Array.isArray(payload?.results)) return payload.results;
+    return [];
+};
+
+const getPsgcCode = (item) => item?.code || item?.psgc_code || item?.id || "";
+const getPsgcName = (item) => item?.name || item?.official_name || "";
+
 const initialCredentials = {
     firstName: "",
     middleName: "",
     lastName: "",
     email: "",
     contactNumber: "",
+    addressLine: "",
     block: "",
     lot: "",
     street: "",
@@ -100,6 +114,36 @@ const Field = ({
     </div>
 );
 
+const SelectField = ({ label, name, value, error, onChange, disabled, className = "", children }) => (
+    <div className={className}>
+        <label
+            htmlFor={name}
+            className="mb-1 block text-[10px] font-medium uppercase tracking-[0.18em] text-gray-500"
+        >
+            {label}
+        </label>
+        <div
+            className={`w-full rounded-md border transition-colors ${
+                error ? "border-red-300" : "border-gray-100 hover:border-orange-500"
+            } bg-white focus-within:border-orange-500 focus-within:ring-4 focus-within:ring-orange-100/80 ${
+                disabled ? "opacity-60" : ""
+            }`}
+        >
+            <select
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                disabled={disabled}
+                className="w-full border-0 bg-transparent px-3 py-2.5 text-xs outline-none disabled:cursor-not-allowed"
+            >
+                {children}
+            </select>
+        </div>
+        {error && <p className="mt-1 text-[11px] text-red-500">{error}</p>}
+    </div>
+);
+
 const Registration = () => {
     const navigate = useNavigate();
     const [step, setStep] = useState(1);
@@ -108,6 +152,18 @@ const Registration = () => {
     const [submitting, setSubmitting] = useState(false);
     const [successAlert, setSuccessAlert] = useState(false);
     const [currentIndex, setCurrentIndex] = useState(0);
+    const [provinces, setProvinces] = useState([]);
+    const [cities, setCities] = useState([]);
+    const [barangays, setBarangays] = useState([]);
+    const [provinceCode, setProvinceCode] = useState("");
+    const [cityCode, setCityCode] = useState("");
+    const [barangayCode, setBarangayCode] = useState("");
+    const [locationsLoading, setLocationsLoading] = useState({
+        provinces: false,
+        cities: false,
+        barangays: false,
+    });
+    const [locationError, setLocationError] = useState("");
 
     const activeSlide = images[currentIndex];
     const activeStep = steps[step - 1];
@@ -119,6 +175,76 @@ const Registration = () => {
 
         return () => clearInterval(interval);
     }, []);
+
+    useEffect(() => {
+        const fetchProvinces = async () => {
+            setLocationsLoading((prev) => ({ ...prev, provinces: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/provinces?per_page=100`);
+                const payload = await response.json();
+                setProvinces(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load provinces:", error);
+                setLocationError("Unable to load Philippine address options. Please try again later.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, provinces: false }));
+            }
+        };
+
+        fetchProvinces();
+    }, []);
+
+    useEffect(() => {
+        if (!provinceCode) {
+            setCities([]);
+            return;
+        }
+
+        const fetchCities = async () => {
+            setLocationsLoading((prev) => ({ ...prev, cities: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/provinces/${encodeURIComponent(provinceCode)}/cities-municipalities?per_page=500`);
+                const payload = await response.json();
+                setCities(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load cities/municipalities:", error);
+                setLocationError("Unable to load cities or municipalities for the selected province.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, cities: false }));
+            }
+        };
+
+        fetchCities();
+    }, [provinceCode]);
+
+    useEffect(() => {
+        if (!cityCode) {
+            setBarangays([]);
+            return;
+        }
+
+        const fetchBarangays = async () => {
+            setLocationsLoading((prev) => ({ ...prev, barangays: true }));
+            setLocationError("");
+
+            try {
+                const response = await fetch(`${PSGC_API_BASE}/cities-municipalities/${encodeURIComponent(cityCode)}/barangays?per_page=1000`);
+                const payload = await response.json();
+                setBarangays(normalizePsgcCollection(payload));
+            } catch (error) {
+                console.error("Unable to load barangays:", error);
+                setLocationError("Unable to load barangays for the selected city or municipality.");
+            } finally {
+                setLocationsLoading((prev) => ({ ...prev, barangays: false }));
+            }
+        };
+
+        fetchBarangays();
+    }, [cityCode]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -136,6 +262,45 @@ const Registration = () => {
         setErrors((prev) => ({ ...prev, [name]: "" }));
     };
 
+    const handleProvinceChange = (e) => {
+        const selectedProvince = provinces.find((province) => getPsgcCode(province) === e.target.value);
+        setProvinceCode(e.target.value);
+        setCityCode("");
+        setBarangayCode("");
+        setCities([]);
+        setBarangays([]);
+        setCredentials((prev) => ({
+            ...prev,
+            province: selectedProvince ? getPsgcName(selectedProvince) : "",
+            city: "",
+            barangay: "",
+        }));
+        setErrors((prev) => ({ ...prev, province: "", city: "", barangay: "" }));
+    };
+
+    const handleCityChange = (e) => {
+        const selectedCity = cities.find((city) => getPsgcCode(city) === e.target.value);
+        setCityCode(e.target.value);
+        setBarangayCode("");
+        setBarangays([]);
+        setCredentials((prev) => ({
+            ...prev,
+            city: selectedCity ? getPsgcName(selectedCity) : "",
+            barangay: "",
+        }));
+        setErrors((prev) => ({ ...prev, city: "", barangay: "" }));
+    };
+
+    const handleBarangayChange = (e) => {
+        const selectedBarangay = barangays.find((barangay) => getPsgcCode(barangay) === e.target.value);
+        setBarangayCode(e.target.value);
+        setCredentials((prev) => ({
+            ...prev,
+            barangay: selectedBarangay ? getPsgcName(selectedBarangay) : "",
+        }));
+        setErrors((prev) => ({ ...prev, barangay: "" }));
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
 
@@ -150,10 +315,24 @@ const Registration = () => {
         setSubmitting(true);
 
         try {
-            await _post("/register", credentials);
+            const { addressLine, ...rest } = credentials;
+            const payload = {
+                ...rest,
+                block: "",
+                lot: "",
+                street: addressLine,
+                subdivision: "",
+            };
+
+            await _post("/register", payload);
             setSuccessAlert(true);
             setStep(1);
             setCredentials(initialCredentials);
+            setProvinceCode("");
+            setCityCode("");
+            setBarangayCode("");
+            setCities([]);
+            setBarangays([]);
             setErrors({});
         } catch (err) {
             setErrors(err.response?.data?.errors || {});
@@ -384,69 +563,66 @@ const Registration = () => {
                                     {step === 2 && (
                                         <div className="mt-4 grid gap-x-3 gap-y-3 md:grid-cols-2">
                                             <Field
-                                                label="Block"
-                                                name="block"
-                                                value={credentials.block}
+                                                label="Address line"
+                                                name="addressLine"
+                                                value={credentials.addressLine}
                                                 errors={errors}
                                                 onChange={handleChange}
-                                                placeholder="Block"
-                                                autoComplete="address-line1"
-                                            />
-                                            <Field
-                                                label="Lot"
-                                                name="lot"
-                                                value={credentials.lot}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="Lot"
-                                            />
-                                            <Field
-                                                label="Street"
-                                                name="street"
-                                                value={credentials.street}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="Street"
+                                                placeholder="Block, lot, street, subdivision"
                                                 className="md:col-span-2"
                                                 autoComplete="street-address"
                                             />
-                                            <Field
-                                                label="Subdivision"
-                                                name="subdivision"
-                                                value={credentials.subdivision}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="Subdivision"
-                                            />
-                                            <Field
-                                                label="Barangay"
-                                                name="barangay"
-                                                value={credentials.barangay}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="Barangay"
-                                                required
-                                            />
-                                            <Field
-                                                label="City / Municipality"
-                                                name="city"
-                                                value={credentials.city}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="City / Municipality"
-                                                autoComplete="address-level2"
-                                                required
-                                            />
-                                            <Field
+                                            <SelectField
                                                 label="Province"
                                                 name="province"
-                                                value={credentials.province}
-                                                errors={errors}
-                                                onChange={handleChange}
-                                                placeholder="Province"
-                                                autoComplete="address-level1"
-                                                required
-                                            />
+                                                value={provinceCode}
+                                                error={errors.province}
+                                                onChange={handleProvinceChange}
+                                                disabled={locationsLoading.provinces}
+                                            >
+                                                <option value="">
+                                                    {locationsLoading.provinces ? "Loading provinces..." : "Select province"}
+                                                </option>
+                                                {provinces.map((province) => (
+                                                    <option key={getPsgcCode(province)} value={getPsgcCode(province)}>
+                                                        {getPsgcName(province)}
+                                                    </option>
+                                                ))}
+                                            </SelectField>
+                                            <SelectField
+                                                label="City / Municipality"
+                                                name="city"
+                                                value={cityCode}
+                                                error={errors.city}
+                                                onChange={handleCityChange}
+                                                disabled={!provinceCode || locationsLoading.cities}
+                                            >
+                                                <option value="">
+                                                    {locationsLoading.cities ? "Loading cities..." : "Select city or municipality"}
+                                                </option>
+                                                {cities.map((city) => (
+                                                    <option key={getPsgcCode(city)} value={getPsgcCode(city)}>
+                                                        {getPsgcName(city)}
+                                                    </option>
+                                                ))}
+                                            </SelectField>
+                                            <SelectField
+                                                label="Barangay"
+                                                name="barangay"
+                                                value={barangayCode}
+                                                error={errors.barangay}
+                                                onChange={handleBarangayChange}
+                                                disabled={!cityCode || locationsLoading.barangays}
+                                            >
+                                                <option value="">
+                                                    {locationsLoading.barangays ? "Loading barangays..." : "Select barangay"}
+                                                </option>
+                                                {barangays.map((barangay) => (
+                                                    <option key={getPsgcCode(barangay)} value={getPsgcCode(barangay)}>
+                                                        {getPsgcName(barangay)}
+                                                    </option>
+                                                ))}
+                                            </SelectField>
                                             <Field
                                                 label="Postal code"
                                                 name="code"
@@ -460,6 +636,9 @@ const Registration = () => {
                                                 maxLength={4}
                                                 required
                                             />
+                                            {locationError && (
+                                                <p className="md:col-span-2 text-[11px] text-amber-600">{locationError}</p>
+                                            )}
                                         </div>
                                     )}
 

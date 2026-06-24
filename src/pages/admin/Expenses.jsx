@@ -1171,7 +1171,7 @@ const Expenses = () => {
                                 <div>
                                     <p className="text-lg font-semibold text-orange-600">Net Balance History</p>
                                     <p className="text-xs text-gray-500">
-                                        Approved cash donations, paid GCash donations, and recorded project expenses ordered by date.
+                                        Approved cash donations, paid GCash donations, and all recorded expenses (manual and project liquidation) ordered by date.
                                     </p>
                                 </div>
                                 <button

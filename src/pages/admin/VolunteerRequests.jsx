@@ -98,8 +98,8 @@ const VolunteerRequests = () => {
                                 <th className="p-3 text-start">Contact Number</th>
                                 <th className="p-3 text-start">Address</th>
                                 <th className="p-3 text-start">Date Requested</th>
-                                <th className="p-3 text-start">Is_Member?</th>
-                                <th className="p-3 text-start">Is_User?</th>
+                                <th className="p-3 text-start">Member</th>
+                                <th className="p-3 text-start">Has Account</th>
                                 <th className="p-3 text-start">Status</th>
                                 <th className="p-3 text-start">Action</th>
                             </tr>

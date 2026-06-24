@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
+import NavBadge from "./NavBadge";
 
-const NavItem = ({ to, label, icon: Icon, onClick }) => (
+const NavItem = ({ to, label, icon: Icon, onClick, badgeCount = 0 }) => (
   <Link
     to={to}
     onClick={onClick}
@@ -16,6 +17,9 @@ const NavItem = ({ to, label, icon: Icon, onClick }) => (
     <p className="text-sm text-black group-hover:text-orange-600">
       {label}
     </p>
+
+    {/* New-items indicator */}
+    <NavBadge count={badgeCount} className="ml-auto" />
   </Link>
 );
 

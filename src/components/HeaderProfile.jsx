@@ -9,11 +9,18 @@ const HeaderProfile = () => {
     const avatarUrl = resolveStorageImageUrl(user?.image);
     const [isProfileOpen, setIsProfileOpen] = useState(false);
 
+    const normalizedRole = typeof user?.role === 'string' ? user.role : user?.role?.name;
+    const isSuperAdmin = normalizedRole === 'super-admin';
+    // For super admins, display the name without the leading "Super" (e.g. "Super Admin" -> "Admin").
+    const displayName = isSuperAdmin
+        ? ((user?.fullName || '').replace(/^\s*super\s+/i, '').trim() || user?.fullName)
+        : user?.fullName;
+
     return (
         <div >
             <h1 className="text-2xl font-medium"></h1>
             <div className="relative flex items-center space-x-3">
-                <p className='text-xs text-white'>{user.fullName }</p>
+                <p className='text-xs text-white'>{displayName}</p>
                 <div onClick={() => setIsProfileOpen(!isProfileOpen)} className="flex items-center justify-center min-w-9 w-9 min-h-9 h-9 rounded-full bg-orange-100 cursor-pointer">
                     {user?.image ? (
                         <img
@@ -22,7 +29,7 @@ const HeaderProfile = () => {
                             className="w-full h-full rounded-full object-cover"
                         />
                     ) : (
-                        <p className="text-xs font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
+                        <p className="text-xs font-medium text-orange-500">{displayName?.charAt(0) || ''}</p>
                     )}
                 </div>
 
@@ -37,10 +44,10 @@ const HeaderProfile = () => {
                                     className="w-full h-full rounded-full object-cover"
                                 />
                             ) : (
-                                <p className="text-lg font-medium text-orange-500">{user?.fullName?.charAt(0) || ''}</p>
+                                <p className="text-lg font-medium text-orange-500">{displayName?.charAt(0) || ''}</p>
                             )}
                         </div>
-                        <p className='text-sm'>{user.fullName }</p>
+                        <p className='text-sm'>{displayName}</p>
                         <Logout/>
                     </div>
                 </div>
